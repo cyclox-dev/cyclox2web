@@ -68,17 +68,6 @@
  */
 class DATABASE_CONFIG
 {
-	/*
-	public $default = array(
-		'datasource' => 'Database/Mysql',
-		'persistent' => false,
-		'host' => 'localhost',
-		'login' => 'db_user',
-		'password' => 'dbpass',
-		'database' => 'cake_tut',
-		'prefix' => '',
-		'encoding' => 'utf8',
-	);//*/
 	public $default = array(
 		'datasource' => 'Database/Mysql',
 		'persistent' => false,
