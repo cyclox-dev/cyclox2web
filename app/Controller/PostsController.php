@@ -1,4 +1,7 @@
 <?php
+
+App::uses('UCIAge', 'Cyclox/Const');
+
 class PostsController extends AppController
 {
 	public $helpers = array('Html', 'Form', 'Session');
@@ -6,6 +9,11 @@ class PostsController extends AppController
 
 	public function index() {
 		$this->set('posts', $this->Post->find('all'));
+		
+		debug("start debug log,,,");
+		debug(UCIAge::$ELITE->code());
+		
+		//*/
 	}
 
 	public function view($id = null)
