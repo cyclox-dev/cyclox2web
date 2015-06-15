@@ -26,7 +26,7 @@ DROP TABLE IF EXISTS seasons;
 CREATE TABLE categories
 (
 	-- C1, CL3 など
-	code varchar(16) NOT NULL,
+	code varchar(16) BINARY NOT NULL,
 	-- Category-1 など
 	name text NOT NULL,
 	short_name text NOT NULL,
@@ -61,9 +61,9 @@ CREATE TABLE category_racers
 (
 	-- 例）THK-134-0002
 	-- 標準では12文字になるが、最後が4桁を超える可能性ありとして長さ16文字としている。
-	racer_code varchar(16) NOT NULL,
+	racer_code varchar(16) BINARY NOT NULL,
 	-- C1, CL3 など
-	category_code varchar(16) NOT NULL,
+	category_code varchar(16) BINARY NOT NULL,
 	apply_date date NOT NULL,
 	reason_id int unsigned NOT NULL,
 	reason_note text,
@@ -79,8 +79,8 @@ CREATE TABLE category_racers
 CREATE TABLE category_races_categories
 (
 	-- C1, CL3 など
-	category_code varchar(16) NOT NULL,
-	races_category_code varchar(16) NOT NULL
+	category_code varchar(16) BINARY NOT NULL,
+	races_category_code varchar(16) BINARY NOT NULL
 );
 
 
@@ -90,7 +90,7 @@ CREATE TABLE entry_categories
 	id int NOT NULL AUTO_INCREMENT,
 	-- cakephp のための primary key として。
 	entry_group_id int NOT NULL,
-	races_category_code varchar(16) NOT NULL,
+	races_category_code varchar(16) BINARY NOT NULL,
 	-- null ならば entry_category.name をつなげたもの
 	name text,
 	start_delay_sec int NOT NULL,
@@ -106,7 +106,7 @@ CREATE TABLE entry_groups
 	-- cakephp のための primary key として。
 	id int NOT NULL,
 	-- 例）CX 東北による2013-14シーズンの1発目のレースならば THK-134-001
-	meet_code varchar(11) NOT NULL,
+	meet_code varchar(11) BINARY NOT NULL,
 	-- null ならば entry_category.name をつなげたもの
 	name text,
 	start_clock time,
@@ -126,7 +126,7 @@ CREATE TABLE entry_racer
 	entry_category_id int NOT NULL,
 	-- 例）THK-134-0002
 	-- 標準では12文字になるが、最後が4桁を超える可能性ありとして長さ16文字としている。
-	racer_code varchar(16) NOT NULL,
+	racer_code varchar(16) BINARY NOT NULL,
 	body_number varchar(16),
 	name_at_race text,
 	entry_status tinyint NOT NULL,
@@ -140,9 +140,9 @@ CREATE TABLE entry_racer
 CREATE TABLE meets
 (
 	-- 例）CX 東北による2013-14シーズンの1発目のレースならば THK-134-001
-	code varchar(11) NOT NULL,
+	code varchar(11) BINARY NOT NULL,
 	-- KNS, THK など
-	meet_group_code varchar(3) DEFAULT 'XXX' NOT NULL,
+	meet_group_code varchar(3) BINARY DEFAULT 'XXX' NOT NULL,
 	season_id int unsigned NOT NULL,
 	at_date date NOT NULL,
 	name text NOT NULL,
@@ -163,11 +163,10 @@ CREATE TABLE meets
 CREATE TABLE meet_groups
 (
 	-- KNS, THK など
-	code varchar(3) NOT NULL,
-	-- null ならば entry_category.name をつなげたもの
+	code varchar(3) BINARY NOT NULL,
 	name text NOT NULL,
 	short_name text NOT NULL,
-	description text NOT NULL,
+	description text,
 	homepage text,
 	PRIMARY KEY (code),
 	UNIQUE (code)
@@ -178,7 +177,7 @@ CREATE TABLE racers
 (
 	-- 例）THK-134-0002
 	-- 標準では12文字になるが、最後が4桁を超える可能性ありとして長さ16文字としている。
-	code varchar(16) NOT NULL,
+	code varchar(16) BINARY NOT NULL,
 	family_name text NOT NULL,
 	family_name_kana text NOT NULL,
 	family_name_en text NOT NULL,
@@ -227,7 +226,7 @@ CREATE TABLE racer_results
 
 CREATE TABLE races_categories
 (
-	code varchar(16) NOT NULL,
+	code varchar(16) BINARY NOT NULL,
 	-- null ならば entry_category.name をつなげたもの
 	name text NOT NULL,
 	description text NOT NULL,
