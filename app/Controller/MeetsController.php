@@ -35,9 +35,14 @@ class MeetsController extends AppController
 	{
 		if ($this->request->is('post')) {
 			$this->Meet->create();
+			
+			// TODO: 新規取得
 			$this->request->data['Meet']['code'] = 'YAM-123-002';
+			
+			// TODO: 選択肢配置
 			$this->request->data['Meet']['meet_group_code'] = 'YAM';
 			$this->request->data['Meet']['season_id'] = 4;
+			
 			debug($this->request->data);
 			if ($this->Meet->save($this->request->data)) {
 				$this->Session->setFlash(__('新規大会' . $this->request->data['Meet']['code'] . 'を登録しました。'));
@@ -63,6 +68,7 @@ class MeetsController extends AppController
 			$this->Meet->set('code', $code);
 			
 			// primary key でなく、not null であるパラメタを埋める。
+			// TODO: validation required をコメントアウトすれば解決する。変更は不可として create に切り替えても。
 			$this->request->data['Meet']['meet_group_code'] = $meet['Meet']['meet_group_code'];
 			$this->request->data['Meet']['season_id'] = $meet['Meet']['season_id'];
 			debug($this->request->data);
