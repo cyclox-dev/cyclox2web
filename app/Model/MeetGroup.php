@@ -49,7 +49,8 @@ class MeetGroup extends AppModel
 			),
 			'isPKUnique' => array( // isUnique では update になってしまうので自前で。
 				'rule' => array('isPKUnique'),
-				'message' => 'その code はすでに使用されています。'
+				'message' => 'その code はすでに使用されています。',
+				'on' => 'create',
 			)
 		),
 		'name' => array(

@@ -47,8 +47,7 @@ class MeetGroupsController extends AppController {
  * @return void
  */
 	public function add() {
-		if ($this->request->is(array('post', 'put'))) { // primary key が設定されている場合には put となる。
-			// TODO: 存在チェック？
+		if ($this->request->is(array('post', 'put'))) {
 			$this->MeetGroup->create();
 			$ret = $this->MeetGroup->save($this->request->data);
 			if (is_array($ret)) {
