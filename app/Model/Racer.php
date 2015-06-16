@@ -1,13 +1,12 @@
 <?php
 App::uses('AppModel', 'Model');
 /**
- * Category Model
+ * Racer Model
  *
- * @property CategoryGroup $CategoryGroup
  * @property CategoryRacer $CategoryRacer
- * @property CategoryRacesCategory $CategoryRacesCategory
+ * @property EntryRacer $EntryRacer
  */
-class Category extends AppModel {
+class Racer extends AppModel {
 
 /**
  * Primary key field
@@ -15,13 +14,6 @@ class Category extends AppModel {
  * @var string
  */
 	public $primaryKey = 'code';
-
-/**
- * Display field
- *
- * @var string
- */
-	public $displayField = 'name';
 
 /**
  * Validation rules
@@ -44,7 +36,7 @@ class Category extends AppModel {
 				//'on' => 'create',
 			),
 		),
-		'name' => array(
+		'family_name' => array(
 			'notEmpty' => array(
 				'rule' => array('notEmpty'),
 				//'message' => 'Your custom message here',
@@ -54,7 +46,7 @@ class Category extends AppModel {
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
-		'short_name' => array(
+		'family_name_kana' => array(
 			'notEmpty' => array(
 				'rule' => array('notEmpty'),
 				//'message' => 'Your custom message here',
@@ -64,7 +56,7 @@ class Category extends AppModel {
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
-		'category_group_id' => array(
+		'family_name_en' => array(
 			'notEmpty' => array(
 				'rule' => array('notEmpty'),
 				//'message' => 'Your custom message here',
@@ -74,15 +66,7 @@ class Category extends AppModel {
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
-		'lank' => array(
-			'numeric' => array(
-				'rule' => array('numeric'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
+		'first_name' => array(
 			'notEmpty' => array(
 				'rule' => array('notEmpty'),
 				//'message' => 'Your custom message here',
@@ -92,67 +76,29 @@ class Category extends AppModel {
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
-		'race_min' => array(
-			'numeric' => array(
-				'rule' => array('numeric'),
-				'message' => 'レーズ時間を分で入力して下さい。',
-				'allowEmpty' => true,
+		'first_name_kana' => array(
+			'notEmpty' => array(
+				'rule' => array('notEmpty'),
+				//'message' => 'Your custom message here',
+				//'allowEmpty' => false,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			),
+		),
+		'first_name_en' => array(
+			'notEmpty' => array(
+				'rule' => array('notEmpty'),
+				//'message' => 'Your custom message here',
+				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
 		'gender' => array(
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-		),
-		'age_min' => array(
-			'naturalNumber' => array(
-				'rule' => array('naturalNumber'),
-				//'message' => 'Your custom message here',
-				'allowEmpty' => true,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-		),
-		'age_max' => array(
-			'naturalNumber' => array(
-				'rule' => array('naturalNumber'),
-				//'message' => 'Your custom message here',
-				'allowEmpty' => true,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-		),
-		'needs_jcf' => array(
-			'boolean' => array(
-				'rule' => array('boolean'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-		),
-		'needs_uci' => array(
-			'boolean' => array(
-				'rule' => array('boolean'),
+			'numeric' => array(
+				'rule' => array('numeric'),
 				//'message' => 'Your custom message here',
 				//'allowEmpty' => false,
 				//'required' => false,
@@ -171,30 +117,14 @@ class Category extends AppModel {
 	);
 	
 	/**
-	 * コードがまだ登録されていないかをかえす
-	 * @param string $code カテゴリーコード
+	 * 選手コードがまだ登録されていないかをかえす
+	 * @param string $code 選手コード
 	 */
 	public function isPKUnique($code) {
-		$r = $this->findByCode($code);
-		return !$r;
+		return !$this->exists($code);
 	}
 
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
-
-/**
- * belongsTo associations
- *
- * @var array
- */
-	public $belongsTo = array(
-		'CategoryGroup' => array(
-			'className' => 'CategoryGroup',
-			'foreignKey' => 'category_group_id',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
-		)
-	);
 
 /**
  * hasMany associations
@@ -204,7 +134,7 @@ class Category extends AppModel {
 	public $hasMany = array(
 		'CategoryRacer' => array(
 			'className' => 'CategoryRacer',
-			'foreignKey' => 'category_code',
+			'foreignKey' => 'racer_code',
 			'dependent' => false,
 			'conditions' => '',
 			'fields' => '',
@@ -215,19 +145,6 @@ class Category extends AppModel {
 			'finderQuery' => '',
 			'counterQuery' => ''
 		),
-		'CategoryRacesCategory' => array(
-			'className' => 'CategoryRacesCategory',
-			'foreignKey' => 'category_code',
-			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
-		)
 	);
 
 }

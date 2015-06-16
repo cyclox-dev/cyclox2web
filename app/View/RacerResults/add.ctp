@@ -1,0 +1,24 @@
+<div class="racerResults form">
+<?php echo $this->Form->create('RacerResult'); ?>
+	<fieldset>
+		<legend><?php echo __('Add Racer Result'); ?></legend>
+	<?php
+		echo $this->Form->input('entry_racer_id');
+		echo $this->Form->input('lap');
+		echo $this->Form->input('goal_milli_sec');
+		echo $this->Form->input('lap_out_lap');
+		echo $this->Form->input('lank_at_lap_out');
+		echo $this->Form->input('note');
+	?>
+	</fieldset>
+<?php echo $this->Form->end(__('Submit')); ?>
+</div>
+<div class="actions">
+	<h3><?php echo __('Actions'); ?></h3>
+	<ul>
+
+		<li><?php echo $this->Html->link(__('List Racer Results'), array('action' => 'index')); ?></li>
+		<li><?php echo $this->Html->link(__('List Entry Racers'), array('controller' => 'entry_racers', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('New Entry Racer'), array('controller' => 'entry_racers', 'action' => 'add')); ?> </li>
+	</ul>
+</div>
