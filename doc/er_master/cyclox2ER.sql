@@ -2,13 +2,13 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 /* Drop Tables */
 
-DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS category_racers;
+DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
-DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS time_records;
-DROP TABLE IF EXISTS entry_racer;
+DROP TABLE IF EXISTS racer_results;
+DROP TABLE IF EXISTS entry_racers;
 DROP TABLE IF EXISTS entry_categories;
 DROP TABLE IF EXISTS time_record_info;
 DROP TABLE IF EXISTS entry_groups;
@@ -32,14 +32,14 @@ CREATE TABLE categories
 	short_name text NOT NULL,
 	category_group_id int unsigned NOT NULL,
 	lank tinyint unsigned NOT NULL,
-	race_min smallint unsigned NOT NULL,
+	race_min smallint unsigned,
 	gender tinyint NOT NULL,
-	age_min smallint unsigned DEFAULT 0 NOT NULL,
-	age_max smallint unsigned DEFAULT 999 NOT NULL,
+	age_min smallint unsigned DEFAULT 0,
+	age_max smallint unsigned DEFAULT 999,
 	description text NOT NULL,
-	needs_jcf boolean NOT NULL,
-	needs_uci boolean NOT NULL,
-	uci_age_limit varchar(5) DEFAULT '' NOT NULL,
+	needs_jcf tinyint NOT NULL,
+	needs_uci tinyint NOT NULL,
+	uci_age_limit varchar(5) DEFAULT '',
 	PRIMARY KEY (code),
 	UNIQUE (code)
 );
@@ -59,6 +59,7 @@ CREATE TABLE category_groups
 
 CREATE TABLE category_racers
 (
+	id int unsigned NOT NULL AUTO_INCREMENT,
 	-- 例）THK-134-0002
 	-- 標準では12文字になるが、最後が4桁を超える可能性ありとして長さ16文字としている。
 	racer_code varchar(16) BINARY NOT NULL,
@@ -72,24 +73,29 @@ CREATE TABLE category_racers
 	cancel_date date,
 	created datetime,
 	modified datetime,
-	deleted datetime
+	deleted datetime,
+	PRIMARY KEY (id),
+	UNIQUE (id)
 );
 
 
 CREATE TABLE category_races_categories
 (
+	id int unsigned NOT NULL AUTO_INCREMENT,
 	-- C1, CL3 など
 	category_code varchar(16) BINARY NOT NULL,
-	races_category_code varchar(16) BINARY NOT NULL
+	races_category_code varchar(16) BINARY NOT NULL,
+	PRIMARY KEY (id),
+	UNIQUE (id)
 );
 
 
 CREATE TABLE entry_categories
 (
 	-- cakephp のための primary key として。
-	id int NOT NULL AUTO_INCREMENT,
+	id int unsigned NOT NULL AUTO_INCREMENT,
 	-- cakephp のための primary key として。
-	entry_group_id int NOT NULL,
+	entry_group_id int unsigned NOT NULL,
 	races_category_code varchar(16) BINARY NOT NULL,
 	-- null ならば entry_category.name をつなげたもの
 	name text,
@@ -104,7 +110,7 @@ CREATE TABLE entry_categories
 CREATE TABLE entry_groups
 (
 	-- cakephp のための primary key として。
-	id int NOT NULL,
+	id int unsigned NOT NULL,
 	-- 例）CX 東北による2013-14シーズンの1発目のレースならば THK-134-001
 	meet_code varchar(11) BINARY NOT NULL,
 	-- null ならば entry_category.name をつなげたもの
@@ -118,12 +124,12 @@ CREATE TABLE entry_groups
 );
 
 
-CREATE TABLE entry_racer
+CREATE TABLE entry_racers
 (
 	-- cakephp での primary key として。
-	id int NOT NULL AUTO_INCREMENT,
+	id int unsigned NOT NULL AUTO_INCREMENT,
 	-- cakephp のための primary key として。
-	entry_category_id int NOT NULL,
+	entry_category_id int unsigned NOT NULL,
 	-- 例）THK-134-0002
 	-- 標準では12文字になるが、最後が4桁を超える可能性ありとして長さ16文字としている。
 	racer_code varchar(16) BINARY NOT NULL,
@@ -213,14 +219,16 @@ CREATE TABLE racers
 
 CREATE TABLE racer_results
 (
+	id int unsigned NOT NULL AUTO_INCREMENT,
 	-- cakephp での primary key として。
-	entry_racer_id int NOT NULL,
+	entry_racer_id int unsigned NOT NULL,
 	lap int NOT NULL,
 	goal_milli_sec int unsigned,
 	lap_out_lap int,
 	lank_at_lap_out int unsigned,
 	note text,
-	PRIMARY KEY (entry_racer_id)
+	PRIMARY KEY (id),
+	UNIQUE (id)
 );
 
 
@@ -233,8 +241,8 @@ CREATE TABLE races_categories
 	age_min smallint unsigned DEFAULT 0,
 	age_max smallint unsigned DEFAULT 999,
 	gender tinyint,
-	needs_jcf boolean,
-	needs_uci boolean,
+	needs_jcf tinyint,
+	needs_uci tinyint,
 	race_min smallint unsigned,
 	uci_age_limit varchar(5),
 	PRIMARY KEY (code),
@@ -261,7 +269,7 @@ CREATE TABLE time_records
 (
 	id bigint unsigned NOT NULL AUTO_INCREMENT,
 	-- cakephp での primary key として。
-	entry_racer_id int NOT NULL,
+	entry_racer_id int unsigned NOT NULL,
 	time_milli int unsigned NOT NULL,
 	PRIMARY KEY (id),
 	UNIQUE (id)
@@ -270,8 +278,9 @@ CREATE TABLE time_records
 
 CREATE TABLE time_record_info
 (
+	id int unsigned NOT NULL AUTO_INCREMENT,
 	-- cakephp のための primary key として。
-	entry_group_id int NOT NULL,
+	entry_group_id int unsigned NOT NULL,
 	time_start_datetime datetime,
 	skip_lap_count tinyint DEFAULT 0 NOT NULL,
 	-- ゴールラインならば 0.0。全長が 3.0km でゴールすぎて 1.0km のポイントで計測していれば 1.0 となる。中間計測対応のための値。
@@ -282,7 +291,8 @@ CREATE TABLE time_record_info
 	macine text,
 	operator text,
 	note text,
-	PRIMARY KEY (entry_group_id),
+	PRIMARY KEY (id),
+	UNIQUE (id),
 	UNIQUE (entry_group_id)
 );
 
@@ -290,7 +300,7 @@ CREATE TABLE time_record_info
 
 /* Create Foreign Keys */
 
-ALTER TABLE category_races_categories
+ALTER TABLE category_racers
 	ADD FOREIGN KEY (category_code)
 	REFERENCES categories (code)
 	ON UPDATE RESTRICT
@@ -298,7 +308,7 @@ ALTER TABLE category_races_categories
 ;
 
 
-ALTER TABLE category_racers
+ALTER TABLE category_races_categories
 	ADD FOREIGN KEY (category_code)
 	REFERENCES categories (code)
 	ON UPDATE RESTRICT
@@ -314,7 +324,7 @@ ALTER TABLE categories
 ;
 
 
-ALTER TABLE entry_racer
+ALTER TABLE entry_racers
 	ADD FOREIGN KEY (entry_category_id)
 	REFERENCES entry_categories (id)
 	ON UPDATE RESTRICT
@@ -338,17 +348,17 @@ ALTER TABLE entry_categories
 ;
 
 
-ALTER TABLE racer_results
+ALTER TABLE time_records
 	ADD FOREIGN KEY (entry_racer_id)
-	REFERENCES entry_racer (id)
+	REFERENCES entry_racers (id)
 	ON UPDATE RESTRICT
 	ON DELETE RESTRICT
 ;
 
 
-ALTER TABLE time_records
+ALTER TABLE racer_results
 	ADD FOREIGN KEY (entry_racer_id)
-	REFERENCES entry_racer (id)
+	REFERENCES entry_racers (id)
 	ON UPDATE RESTRICT
 	ON DELETE RESTRICT
 ;
@@ -370,7 +380,7 @@ ALTER TABLE meets
 ;
 
 
-ALTER TABLE entry_racer
+ALTER TABLE category_racers
 	ADD FOREIGN KEY (racer_code)
 	REFERENCES racers (code)
 	ON UPDATE RESTRICT
@@ -378,7 +388,7 @@ ALTER TABLE entry_racer
 ;
 
 
-ALTER TABLE category_racers
+ALTER TABLE entry_racers
 	ADD FOREIGN KEY (racer_code)
 	REFERENCES racers (code)
 	ON UPDATE RESTRICT
