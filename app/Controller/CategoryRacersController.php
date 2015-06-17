@@ -95,17 +95,30 @@ class CategoryRacersController extends AppController {
  * @param string $id
  * @return void
  */
-	public function delete($id = null) {
-		$this->CategoryRacer->id = $id;
-		if (!$this->CategoryRacer->exists()) {
-			throw new NotFoundException(__('Invalid category racer'));
+	public function delete($id = null) 
+	{
+		if ($this->request->is('get')) {
+			throw new MethodNotAllowedException();
 		}
-		$this->request->allowMethod('post', 'delete');
-		if ($this->CategoryRacer->delete()) {
-			$this->Session->setFlash(__('The category racer has been deleted.'));
+		
+		if (!$id) {
+			throw new NotFoundException(__('Invalid category_racer'));
+		}
+		
+		$meet = $this->CategoryRacer->findById($id);
+		if (!$meet) {
+			throw new NotFoundException(__('Invalid category_racer'));
+		}
+		
+		$this->CategoryRacer->set('id', $id);
+		
+		$ret = $this->CategoryRacer->saveField('deleted', date('Y-m-d H:i:s'));
+		if (is_array($ret)) {
+			$this->Session->setFlash(__('選手カテゴリー所属情報を削除しました。'));
 		} else {
-			$this->Session->setFlash(__('The category racer could not be deleted. Please, try again.'));
+			$this->Session->setFlash(__('削除に失敗しました。'));
 		}
+		
 		return $this->redirect(array('action' => 'index'));
 	}
 }

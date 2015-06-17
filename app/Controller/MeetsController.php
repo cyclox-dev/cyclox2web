@@ -1,115 +1,146 @@
 <?php
 
-/*
- *  created at 2015/06/13 by shun
- */
+App::uses('AppController', 'Controller');
+App::uses('AjoccUtil', 'Cyclox/Util');
 
 /**
- * Meet コントローラー
+ * Meets Controller
  *
- * @author shun
+ * @property Meet $Meet
+ * @property PaginatorComponent $Paginator
+ * @property SessionComponent $Session
  */
-class MeetsController extends AppController
-{
-	public $helpers = array('Html', 'Form', 'Session');
-	public $components = array('Session');
+class MeetsController extends AppController {
 
+/**
+ * Components
+ *
+ * @var array
+ */
+	public $components = array('Paginator', 'Session');
+
+/**
+ * index method
+ *
+ * @return void
+ */
 	public function index() {
-		$this->set('meets', $this->Meet->find('all', array('conditions' => array('Meet.deleted' => null))));
+		$this->Meet->recursive = 0;
+		$this->set('meets', $this->Paginator->paginate());
 	}
-	
-	public function view($code = null)
-	{
-		if (!$code) {
+
+/**
+ * view method
+ *
+ * @throws NotFoundException
+ * @param string $id
+ * @return void
+ */
+	public function view($id = null) {
+		if (!$this->Meet->exists($id)) {
 			throw new NotFoundException(__('Invalid meet'));
 		}
+		$options = array('conditions' => array('Meet.' . $this->Meet->primaryKey => $id));
+		$this->set('meet', $this->Meet->find('first', $options));
+	}
+
+/**
+ * add method
+ *
+ * @return void
+ */
+	public function add() {
 		
-		$meet = $this->Meet->findByCode($code);
-		if (!$meet) {
-			throw new NotFoundException(__('Invalid meet'));
-		}
-		$this->set('meet', $meet);
-	}
-	
-	public function add()
-	{
 		if ($this->request->is('post')) {
 			$this->Meet->create();
 			
-			// TODO: 新規取得
-			$this->request->data['Meet']['code'] = 'YAM-123-002';
+			$meetGroupCode = $this->request->data['Meet']['meet_group_code'];
+			$this->request->data['Meet']['code'] = AjoccUtil::nextMeetCode($meetGroupCode);
 			
-			// TODO: 選択肢配置
-			$this->request->data['Meet']['meet_group_code'] = 'YAM';
-			$this->request->data['Meet']['season_id'] = 4;
-			
-			debug($this->request->data);
 			if ($this->Meet->save($this->request->data)) {
-				$this->Session->setFlash(__('新規大会' . $this->request->data['Meet']['code'] . 'を登録しました。'));
-                return $this->redirect(array('action' => 'index'));
+				$this->log($this->Meet->getDataSource()->getLog(), LOG_DEBUG);
+			
+				$this->Session->setFlash(__('The meet has been saved.'));
+				return $this->redirect(array('action' => 'index'));
+			} else {
+				$this->Session->setFlash(__('The meet could not be saved. Please, try again.'));
 			}
-			$this->Session->setFash(__('failed'));
 		}
+		$seasons = $this->Meet->Season->find('list');
+		$meetGroups = $this->Meet->MeetGroup->find('list');
+		$this->set(compact('seasons', 'meetGroups'));
 	}
-	
-	public function edit($code = null)
-	{
-		if (!$code) {
-			throw new NotFoundException(__('Invalid meet'));
-		}
-		
-		$meet = $this->Meet->findByCode($code);
-		if (!$meet) {
-			throw new NotFoundException(__('Invalid meet'));
-		}
-		
-		if ($this->request->is(array('post', 'put'))) {
-			//$this->Meet->code = $code;
-			$this->Meet->set('code', $code);
-			
-			// primary key でなく、not null であるパラメタを埋める。
-			// TODO: validation required をコメントアウトすれば解決する。変更は不可として create に切り替えても。
-			$this->request->data['Meet']['meet_group_code'] = $meet['Meet']['meet_group_code'];
-			$this->request->data['Meet']['season_id'] = $meet['Meet']['season_id'];
-			debug($this->request->data);
-			
-			$ret = $this->Meet->save($this->request->data); // ->data が不正確な場合は true がかえる...
-			if (is_array($ret)) {
-				$this->Session->setFlash(__('大会 ' . $code . ' の変更を保存しました。'));
-				return;//return $this->redirect(array('action' => 'index'));
-			}
-			$this->Session->setFlash(__('大会情報の変更保存に失敗しました。'));
-		}
 
-		if (!$this->request->data) {
-			$this->request->data = $meet;
+/**
+ * edit method
+ *
+ * @throws NotFoundException
+ * @param string $id
+ * @return void
+ */
+	public function edit($id = null) {
+		if (!$this->Meet->exists($id)) {
+			throw new NotFoundException(__('Invalid meet'));
 		}
+		if ($this->request->is(array('post', 'put'))) {
+			if ($this->Meet->save($this->request->data)) {
+				$this->Session->setFlash(__('The meet has been saved.'));
+				return $this->redirect(array('action' => 'index'));
+			} else {
+				$this->Session->setFlash(__('The meet could not be saved. Please, try again.'));
+			}
+		} else {
+			$options = array('conditions' => array('Meet.' . $this->Meet->primaryKey => $id));
+			$this->request->data = $this->Meet->find('first', $options);
+		}
+		$seasons = $this->Meet->Season->find('list');
+		$meetGroups = $this->Meet->MeetGroup->find('list');
+		$this->set(compact('seasons', 'meetGroups'));
 	}
-	
+
 	public function delete($code = null)
 	{
 		if ($this->request->is('get')) {
 			throw new MethodNotAllowedException();
 		}
-		
 		if (!$code) {
 			throw new NotFoundException(__('Invalid meet'));
 		}
 		
-		$meet = $this->Meet->findByCode($code);
-		if (!$meet) {
+		if (!$this->Meet->exists($code)) {
 			throw new NotFoundException(__('Invalid meet'));
 		}
 		
 		$this->Meet->set('code', $code);
-		
 		$ret = $this->Meet->saveField('deleted', date('Y-m-d H:i:s'));
 		if (is_array($ret)) {
-			$this->Session->setFlash(__('大会 ' . $code . ' を削除しました。'));
+			$this->Session->setFlash(__('大会 ' . $code . ' を削除しました（削除日時を適用）。'));
 		} else {
 			$this->Session->setFlash(__('大会の削除に失敗しました。'));
 		}
 		
+		return $this->redirect(array('action' => 'index'));
+	}
+	
+	
+/**
+ * delete method
+ *
+ * @throws NotFoundException
+ * @param string $id
+ * @return void
+ */
+	public function delete__($id = null) {
+		$this->Meet->id = $id;
+		if (!$this->Meet->exists()) {
+			throw new NotFoundException(__('Invalid meet'));
+		}
+		$this->request->allowMethod('post', 'delete');
+		if ($this->Meet->delete()) {
+			$this->Session->setFlash(__('The meet has been deleted.'));
+		} else {
+			$this->Session->setFlash(__('The meet could not be deleted. Please, try again.'));
+		}
 		return $this->redirect(array('action' => 'index'));
 	}
 }

@@ -50,7 +50,6 @@ class CategoriesController extends AppController {
 		if ($this->request->is(array('post', 'put'))) {
 			$this->Category->create();
 			if ($this->Category->save($this->request->data)) {
-				$this->log($this->Category->getDataSource()->getLog(), LOG_DEBUG);
 				$this->Session->setFlash(__('The category has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {

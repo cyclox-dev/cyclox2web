@@ -1,95 +1,169 @@
 <?php
-
-/*
- *  created at 2015/06/12 by shun
+App::uses('AppModel', 'Model');
+/**
+ * Meet Model
+ *
+ * @property Season $Season
+ * @property MeetGroup $MeetGroup
+ * @property EntryGroup $EntryGroup
  */
+class Meet extends AppModel {
 
 /**
- * Description of Meet
+ * Primary key field
  *
- * @author shun
+ * @var string
  */
-class Meet extends AppModel
-{
-	var $primaryKey = 'code';
-	
-	// TODO: 半角スペースのみ入力は notEmpty == true にひっかからない。
-	
+	public $primaryKey = 'code';
+
+/**
+ * Display field
+ *
+ * @var string
+ */
+	public $displayField = 'name';
+
+/**
+ * Validation rules
+ *
+ * @var array
+ */
 	public $validate = array(
 		'code' => array(
 			'notEmpty' => array(
-				'rule' => 'notEmpty',
-				'required' => true,
-				'message' => '大会コードが必要です。'
+				'rule' => array('notEmpty'),
+				//'message' => 'Your custom message here',
+				//'allowEmpty' => false,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
-			/*'format'=> array(
-				'// TODO: 大会コードの形式チェック
-			),//*/
-			
 		),
 		'meet_group_code' => array(
 			'notEmpty' => array(
-				'rule' => 'notEmpty',
-				'required' => true,
-				'message' => '大会開催者の指定が必要です。'
-			)
-			// TODO: 大会グループコード validation
+				'rule' => array('notEmpty'),
+				//'message' => 'Your custom message here',
+				//'allowEmpty' => false,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			),
 		),
 		'season_id' => array(
-			'notEmpty' => array(
-				'rule' => 'notEmpty',
-				'required' => true,
-				'message' => 'シーズン指定が必要です。'
-			),
 			'naturalNumber' => array(
-				'rule' => 'naturalNumber',
-				'message' => 'シーズン ID が不正です。'
-			)
+				'rule' => array('naturalNumber'),
+				//'message' => 'Your custom message here',
+				//'allowEmpty' => false,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			),
 		),
 		'at_date' => array(
-			'notEmpty' => array(
-				'rule' => 'notEmpty',
-				'required' => true,
-				'message' => '開催日が必要です。'
-			),
 			'date' => array(
-				'rule' => 'date',
-				'message' => '無効な日付入力です。'
-			)
+				'rule' => array('date'),
+				//'message' => 'Your custom message here',
+				//'allowEmpty' => false,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			),
 		),
 		'name' => array(
 			'notEmpty' => array(
-				'rule' => 'notEmpty',
-				'required' => true,
-				'message' => '大会名を入力して下さい。'
-			)
+				'rule' => array('notEmpty'),
+				//'message' => 'Your custom message here',
+				//'allowEmpty' => false,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			),
 		),
 		'short_name' => array(
 			'notEmpty' => array(
-				'rule' => 'notEmpty',
-				'required' => true,
-				'message' => '大会の短縮名を入力して下さい。'
-			)
+				'rule' => array('notEmpty'),
+				//'message' => 'Your custom message here',
+				//'allowEmpty' => false,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			),
 		),
 		'homepage' => array(
-			'rule' => 'url',
-			'message' => 'URL 入力値が無効です。',
-			'allowEmpty' => true
+			'url' => array(
+				'rule' => array('url'),
+				//'message' => 'Your custom message here',
+				'allowEmpty' => true,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			),
 		),
 		'start_frac_distance' => array(
-			'rule' => 'numeric',
-			'message' => '数値を入力して下さい。',
-			'allowEmpty' => true
+			'numeric' => array(
+				'rule' => array('numeric'),
+				//'message' => 'Your custom message here',
+				'allowEmpty' => true,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			),
 		),
 		'lap_distance' => array(
-			'rule' => 'numeric',
-			'message' => '数値を入力して下さい。',
-			'allowEmpty' => true
+			'numeric' => array(
+				'rule' => array('numeric'),
+				//'message' => 'Your custom message here',
+				'allowEmpty' => true,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			),
 		),
-		'deleted' => array(
-			'rule' => 'date',
-			'allowEmpty' => true,
-			'message' => '無効な日時入力です。'
+	);
+
+	//The Associations below have been created with all possible keys, those that are not needed can be removed
+
+/**
+ * belongsTo associations
+ *
+ * @var array
+ */
+	public $belongsTo = array(
+		'Season' => array(
+			'className' => 'Season',
+			'foreignKey' => 'season_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		),
+		'MeetGroup' => array(
+			'className' => 'MeetGroup',
+			'foreignKey' => 'meet_group_code',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
 		)
 	);
+
+/**
+ * hasMany associations
+ *
+ * @var array
+ */
+	public $hasMany = array(
+		'EntryGroup' => array(
+			'className' => 'EntryGroup',
+			'foreignKey' => 'meet_code',
+			'dependent' => false,
+			'conditions' => '',
+			'fields' => '',
+			'order' => '',
+			'limit' => '',
+			'offset' => '',
+			'exclusive' => '',
+			'finderQuery' => '',
+			'counterQuery' => ''
+		)
+	);
+
 }

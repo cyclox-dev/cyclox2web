@@ -89,7 +89,32 @@ class SeasonsController extends AppController {
  * @param string $id
  * @return void
  */
-	public function delete($id = null) {
+	public function delete($id = null) 
+	{
+		if ($this->request->is('get')) {
+			throw new MethodNotAllowedException();
+		}
+		
+		if (!$id) {
+			throw new NotFoundException(__('Invalid season'));
+		}
+		
+		if (!$this->Season->exists($id)) {
+			throw new NotFoundException(__('Invalid season'));
+		}
+		
+		$this->Season->set('id', $id);
+		
+		$ret = $this->Season->saveField('deleted', date('Y-m-d H:i:s'));
+		if (is_array($ret)) {
+			$this->Session->setFlash(__('シーズン [ID:' . $id . '] を削除しました。'));
+		} else {
+			$this->Session->setFlash(__('シーズンの削除に失敗しました。'));
+		}
+		
+		return $this->redirect(array('action' => 'index'));
+			
+			
 		$this->Season->id = $id;
 		if (!$this->Season->exists()) {
 			throw new NotFoundException(__('Invalid season'));

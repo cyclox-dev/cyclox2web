@@ -22,7 +22,10 @@
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $meetGroup['MeetGroup']['code'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $meetGroup['MeetGroup']['code'])); ?>
-			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $meetGroup['MeetGroup']['code']), array('confirm' => __('Are you sure you want to delete # %s?', $meetGroup['MeetGroup']['code']))); ?>
+			<?php 
+				// 削除しないものとしておく。
+				//echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $meetGroup['MeetGroup']['code']), array('confirm' => __('Are you sure you want to delete # %s?', $meetGroup['MeetGroup']['code'])));
+			?>
 		</td>
 	</tr>
 <?php endforeach; ?>

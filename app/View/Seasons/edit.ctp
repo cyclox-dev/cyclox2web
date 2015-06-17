@@ -4,8 +4,8 @@
 		<legend><?php echo __('Edit Season'); ?></legend>
 	<?php
 		echo $this->Form->input('id');
-		echo $this->Form->input('name');
-		echo $this->Form->input('short_name');
+		echo $this->Form->input('name', array('type' => 'text'));
+		echo $this->Form->input('short_name', array('type' => 'text'));
 		echo $this->Form->input('start_date');
 		echo $this->Form->input('end_date');
 		echo $this->Form->input('is_regular');

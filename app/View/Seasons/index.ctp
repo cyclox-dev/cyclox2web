@@ -1,26 +1,26 @@
 <div class="seasons index">
-	<h2><?php echo __('Seasons'); ?></h2>
+	<h2><?php echo __('シーズン一覧'); ?></h2>
 	<table cellpadding="0" cellspacing="0">
 	<thead>
 	<tr>
-			<th><?php echo $this->Paginator->sort('id'); ?></th>
-			<th><?php echo $this->Paginator->sort('name'); ?></th>
-			<th><?php echo $this->Paginator->sort('short_name'); ?></th>
-			<th><?php echo $this->Paginator->sort('start_date'); ?></th>
-			<th><?php echo $this->Paginator->sort('end_date'); ?></th>
-			<th><?php echo $this->Paginator->sort('is_regular'); ?></th>
+			<!--<th><?php echo $this->Paginator->sort('id', 'ID'); ?></th>-->
+			<th><?php echo $this->Paginator->sort('name', '名前'); ?></th>
+			<th><?php echo $this->Paginator->sort('short_name', '短縮名'); ?></th>
+			<th><?php echo $this->Paginator->sort('start_date', '開始日'); ?></th>
+			<th><?php echo $this->Paginator->sort('end_date', '終了日'); ?></th>
+			<th><?php echo $this->Paginator->sort('is_regular', '分類'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>
 	<tbody>
 	<?php foreach ($seasons as $season): ?>
 	<tr>
-		<td><?php echo h($season['Season']['id']); ?>&nbsp;</td>
+		<!--<td><?php echo h($season['Season']['id']); ?>&nbsp;</td>-->
 		<td><?php echo h($season['Season']['name']); ?>&nbsp;</td>
 		<td><?php echo h($season['Season']['short_name']); ?>&nbsp;</td>
 		<td><?php echo h($season['Season']['start_date']); ?>&nbsp;</td>
 		<td><?php echo h($season['Season']['end_date']); ?>&nbsp;</td>
-		<td><?php echo h($season['Season']['is_regular']); ?>&nbsp;</td>
+		<td><?php echo ($season['Season']['is_regular'] ? 'Regular' : 'Extra'); ?>&nbsp;</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $season['Season']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $season['Season']['id'])); ?>
@@ -47,8 +47,10 @@
 <div class="actions">
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
-		<li><?php echo $this->Html->link(__('New Season'), array('action' => 'add')); ?></li>
-		<li><?php echo $this->Html->link(__('List Meets'), array('controller' => 'meets', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Meet'), array('controller' => 'meets', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('新規シーズンの追加'), array('action' => 'add')); ?></li>
+		<li><?php echo $this->Html->link(__('> 大会一覧'), array('controller' => 'meets', 'action' => 'index')); ?> </li>
+		<!--
+		<li><?php echo $this->Html->link(__('> 新規大会の追加'), array('controller' => 'meets', 'action' => 'add')); ?> </li>
+		-->
 	</ul>
 </div>

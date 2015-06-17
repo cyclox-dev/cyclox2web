@@ -1,22 +1,35 @@
+<div class="meets form">
+<?php echo $this->Form->create('Meet'); ?>
+	<fieldset>
+		<legend><?php echo __('Edit Meet'); ?></legend>
+	<?php
+		echo $this->Form->input('code');
+		echo $this->Form->input('meet_group_code');
+		echo $this->Form->input('season_id');
+		echo $this->Form->input('at_date');
+		echo $this->Form->input('name');
+		echo $this->Form->input('short_name');
+		echo $this->Form->input('location');
+		echo $this->Form->input('organized_by');
+		echo $this->Form->input('homepage');
+		echo $this->Form->input('start_frac_distance');
+		echo $this->Form->input('lap_distance');
+		echo $this->Form->input('deleted');
+	?>
+	</fieldset>
+<?php echo $this->Form->end(__('Submit')); ?>
+</div>
+<div class="actions">
+	<h3><?php echo __('Actions'); ?></h3>
+	<ul>
 
-
-<h1>大会情報編集</h1>
-<?php
-echo $this->Form->create('Meet');
-
-echo $this->Form->input('code', array('type' => 'hidden'));
-echo 'meet_group_code';
-echo 'season_id';
-// TODO: select の整備
-echo $this->Form->input('at_date', array('label' => '開催日', 'dateFormat' => 'YMD'));
-echo $this->Form->input('name', array('label' => '大会名称', 'type' => 'text'));
-echo $this->Form->input('short_name', array('label' => '短縮名称', 'type' => 'text'));
-echo $this->Form->input('location', array('label' => '開催地', 'type' => 'text'));
-echo $this->Form->input('organized_by', array('label' => '主催', 'type' => 'text'));
-echo $this->Form->input('homepage', array('label' => 'ホームページ URL', 'type' => 'text'));
-echo $this->Form->input('start_frac_distance', array('label' => 'スタート端数距離'));
-echo $this->Form->input('lap_distance', array('label' => '周回距離'));
-
-echo $this->Form->end('保存');
-
-?>
+		<li><?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $this->Form->value('Meet.code')), array(), __('Are you sure you want to delete # %s?', $this->Form->value('Meet.code'))); ?></li>
+		<li><?php echo $this->Html->link(__('List Meets'), array('action' => 'index')); ?></li>
+		<li><?php echo $this->Html->link(__('List Seasons'), array('controller' => 'seasons', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('New Season'), array('controller' => 'seasons', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('List Meet Groups'), array('controller' => 'meet_groups', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('New Meet Group'), array('controller' => 'meet_groups', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('List Entry Groups'), array('controller' => 'entry_groups', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('New Entry Group'), array('controller' => 'entry_groups', 'action' => 'add')); ?> </li>
+	</ul>
+</div>

@@ -2,8 +2,8 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 /* Drop Tables */
 
-DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS category_races_categories;
+DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
 DROP TABLE IF EXISTS time_records;
@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS time_record_info;
 DROP TABLE IF EXISTS entry_groups;
 DROP TABLE IF EXISTS meets;
 DROP TABLE IF EXISTS meet_groups;
+DROP TABLE IF EXISTS parm_vars;
 DROP TABLE IF EXISTS racers;
 DROP TABLE IF EXISTS races_categories;
 DROP TABLE IF EXISTS seasons;
@@ -40,6 +41,9 @@ CREATE TABLE categories
 	needs_jcf tinyint NOT NULL,
 	needs_uci tinyint NOT NULL,
 	uci_age_limit varchar(5) DEFAULT '',
+	created datetime,
+	modified datetime,
+	deleted datetime,
 	PRIMARY KEY (code),
 	UNIQUE (code)
 );
@@ -52,6 +56,9 @@ CREATE TABLE category_groups
 	description text NOT NULL,
 	-- 昇格・降格の処理オブジェクトや js コードを指定する。
 	lank_up_hint text,
+	created datetime,
+	modified datetime,
+	deleted datetime,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );
@@ -71,9 +78,6 @@ CREATE TABLE category_racers
 	-- 例）CX 東北による2013-14シーズンの1発目のレースならば THK-134-001
 	meet_code varchar(11),
 	cancel_date date,
-	created datetime,
-	modified datetime,
-	deleted datetime,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );
@@ -102,6 +106,8 @@ CREATE TABLE entry_categories
 	start_delay_sec int NOT NULL,
 	lapout_rule tinyint NOT NULL,
 	note text,
+	created datetime,
+	modified datetime,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );
@@ -119,6 +125,8 @@ CREATE TABLE entry_groups
 	start_frac_distance float(6,3),
 	lap_distance float(6,3),
 	skip_lap_count tinyint DEFAULT 0 NOT NULL,
+	created datetime,
+	modified datetime,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );
@@ -138,6 +146,8 @@ CREATE TABLE entry_racers
 	entry_status tinyint NOT NULL,
 	team_name text,
 	note text,
+	created datetime,
+	modified datetime,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );
@@ -174,8 +184,23 @@ CREATE TABLE meet_groups
 	short_name text NOT NULL,
 	description text,
 	homepage text,
+	created datetime,
+	modified datetime,
+	deleted datetime,
 	PRIMARY KEY (code),
 	UNIQUE (code)
+);
+
+
+CREATE TABLE parm_vars
+(
+	id int unsigned NOT NULL AUTO_INCREMENT,
+	-- 呼び出し時のキーとなる値
+	pkey varchar(64) BINARY NOT NULL,
+	value text BINARY,
+	PRIMARY KEY (id),
+	UNIQUE (id),
+	UNIQUE (pkey)
 );
 
 
@@ -227,6 +252,8 @@ CREATE TABLE racer_results
 	lap_out_lap int,
 	lank_at_lap_out int unsigned,
 	note text,
+	created datetime,
+	modified datetime,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );
@@ -245,6 +272,9 @@ CREATE TABLE races_categories
 	needs_uci tinyint,
 	race_min smallint unsigned,
 	uci_age_limit varchar(5),
+	created datetime,
+	modified datetime,
+	deleted datetime,
 	PRIMARY KEY (code),
 	UNIQUE (code)
 );
@@ -260,6 +290,9 @@ CREATE TABLE seasons
 	end_date date NOT NULL,
 	-- is_regular == true ならば昇格を判定する、などに利用する。
 	is_regular boolean NOT NULL,
+	created datetime,
+	modified datetime,
+	deleted datetime,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );
@@ -291,6 +324,8 @@ CREATE TABLE time_record_info
 	macine text,
 	operator text,
 	note text,
+	created datetime,
+	modified datetime,
 	PRIMARY KEY (id),
 	UNIQUE (id),
 	UNIQUE (entry_group_id)
@@ -300,7 +335,7 @@ CREATE TABLE time_record_info
 
 /* Create Foreign Keys */
 
-ALTER TABLE category_racers
+ALTER TABLE category_races_categories
 	ADD FOREIGN KEY (category_code)
 	REFERENCES categories (code)
 	ON UPDATE RESTRICT
@@ -308,7 +343,7 @@ ALTER TABLE category_racers
 ;
 
 
-ALTER TABLE category_races_categories
+ALTER TABLE category_racers
 	ADD FOREIGN KEY (category_code)
 	REFERENCES categories (code)
 	ON UPDATE RESTRICT
@@ -332,7 +367,7 @@ ALTER TABLE entry_racers
 ;
 
 
-ALTER TABLE time_record_info
+ALTER TABLE entry_categories
 	ADD FOREIGN KEY (entry_group_id)
 	REFERENCES entry_groups (id)
 	ON UPDATE RESTRICT
@@ -340,7 +375,7 @@ ALTER TABLE time_record_info
 ;
 
 
-ALTER TABLE entry_categories
+ALTER TABLE time_record_info
 	ADD FOREIGN KEY (entry_group_id)
 	REFERENCES entry_groups (id)
 	ON UPDATE RESTRICT
