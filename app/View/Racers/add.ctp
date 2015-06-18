@@ -3,24 +3,58 @@
 	<fieldset>
 		<legend><?php echo __('Add Racer'); ?></legend>
 	<?php
-		echo $this->Form->input('code', array('type' => 'text'));
+		App::uses('Gender', 'Cyclox/Const');
+		App::uses('Nation', 'Cyclox/Const');
+		
+		$genderArr = array();
+		foreach (Gender::genders() as $g) {
+			$genderArr[$g->val()] = $g->express();
+		}
+		
+		$nats = array();
+		foreach (Nation::nations() as $n) {
+			$nats[$n->code()] = $n->code() . ':' . $n->nameJp();
+		}
+		
+		echo $this->Form->input('code');
 		echo $this->Form->input('family_name', array('type' => 'text'));
 		echo $this->Form->input('family_name_kana', array('type' => 'text'));
 		echo $this->Form->input('family_name_en', array('type' => 'text'));
 		echo $this->Form->input('first_name', array('type' => 'text'));
 		echo $this->Form->input('first_name_kana', array('type' => 'text'));
 		echo $this->Form->input('first_name_en', array('type' => 'text'));
-		echo $this->Form->input('gender');
-		echo $this->Form->input('birth_date');
-		echo $this->Form->input('nationality_code', array('type' => 'text'));
+		echo $this->Form->input('gender', array('options'=> $genderArr, 'label' => '性別'));
+		echo $this->Form->input('birth_date', array(
+			'label' => '生年月日',
+			'dateFormat' => 'YMD',
+			'monthNames' => false,
+			'minYear' => date('Y') - 100,
+			'maxYear' => date('Y'),
+			// 以下空の値 (->null) の表示設定
+			'empty' => array(0 => '–'),
+			'selected' => array(
+				'year' => 0,
+				'month' => 0,
+				'day' => 0
+			)
+		));
+		echo $this->Form->input('nationality_code', array(
+			'label' => '国籍',
+			'options' => $nats,
+			'selected' => Nation::JPN()->code()
+		));
 		echo $this->Form->input('jcf_number', array('type' => 'text'));
 		echo $this->Form->input('uci_number', array('type' => 'text'));
 		echo $this->Form->input('uci_code', array('type' => 'text'));
 		echo $this->Form->input('phone', array('type' => 'text'));
 		echo $this->Form->input('mail', array('type' => 'text'));
-		echo $this->Form->input('country_code', array('type' => 'text'));
-		echo $this->Form->input('zip_code', array('type' => 'text'));
-		echo $this->Form->input('prefecture', array('type' => 'text'));
+		echo $this->Form->input('country_code', array(
+			'label' => '国籍',
+			'options' => $nats,
+			'selected' => Nation::JPN()->code()
+		));
+		echo $this->Form->input('zip_code', array('type' => 'text', 'label' => '郵便番号 (Zip code)'));
+		echo $this->Form->input('prefecture', array('type' => 'text', 'label' => '都道府県 (Prefecture)'));
 		echo $this->Form->input('address', array('type' => 'text'));
 		echo $this->Form->input('note');
 	?>

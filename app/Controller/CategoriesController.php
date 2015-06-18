@@ -87,24 +87,28 @@ class CategoriesController extends AppController {
 		$this->set(compact('categoryGroups'));
 	}
 
-/**
- * delete method
- *
- * @throws NotFoundException
- * @param string $id
- * @return void
- */
-	public function delete($id = null) {
-		$this->Category->id = $id;
-		if (!$this->Category->exists()) {
-			throw new NotFoundException(__('Invalid category'));
-		}
-		$this->request->allowMethod('post', 'delete');
-		if ($this->Category->delete()) {
-			$this->Session->setFlash(__('The category has been deleted.'));
+	/**
+	 * delete method.
+	 * 削除日時の適用
+	 * @throws NotFoundException
+	 * @param string $code カテゴリーコード
+	 * @return void
+	 */
+	public function delete($code = null) {
+		if ($this->request->is('get')) throw new MethodNotAllowedException();
+		if (!$code) throw new NotFoundException(__('Invalid category'));
+		
+		$cat = $this->Category->findByCode($code);
+		if (!$cat) throw new NotFoundException(__('Invalid category'));
+		
+		$this->Category->set('code', $code);
+		$ret = $this->Category->saveField('deleted', date('Y-m-d H:i:s'));
+		if (is_array($ret)) {
+			$this->Session->setFlash(__('カテゴリー [code:' . $code . ']を削除しました（削除日時を適用）。'));
 		} else {
-			$this->Session->setFlash(__('The category could not be deleted. Please, try again.'));
+			$this->Session->setFlash(__('カテゴリーの削除に失敗しました。'));
 		}
+		
 		return $this->redirect(array('action' => 'index'));
 	}
 }

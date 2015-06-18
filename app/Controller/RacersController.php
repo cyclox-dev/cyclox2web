@@ -1,5 +1,8 @@
 <?php
+
 App::uses('AppController', 'Controller');
+App::uses('AjoccUtil', 'Cyclox/Util');
+
 /**
  * Racers Controller
  *
@@ -49,9 +52,12 @@ class RacersController extends AppController {
 	public function add() {
 		if ($this->request->is(array('post', 'put'))) {
 			$this->Racer->create();
+			$code = AjoccUtil::nextRacerCode();
+			$this->request->data['Racer']['code'] = $code;
+			
 			if ($this->Racer->save($this->request->data)) {
-				$this->Session->setFlash(__('The racer has been saved.'));
-				return $this->redirect(array('action' => 'index'));
+				$this->Session->setFlash(__('新規選手 [code:' . $code . '] を保存しました。'));
+				return;// $this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(__('The racer could not be saved. Please, try again.'));
 			}
@@ -83,24 +89,29 @@ class RacersController extends AppController {
 		}
 	}
 
-/**
- * delete method
- *
- * @throws NotFoundException
- * @param string $id
- * @return void
- */
-	public function delete($id = null) {
-		$this->Racer->id = $id;
-		if (!$this->Racer->exists()) {
-			throw new NotFoundException(__('Invalid racer'));
-		}
-		$this->request->allowMethod('post', 'delete');
-		if ($this->Racer->delete()) {
-			$this->Session->setFlash(__('The racer has been deleted.'));
+	/**
+	 * delete method
+	 * 削除日時の適用
+	 * @throws NotFoundException
+	 * @param string $code 選手コード
+	 * @return void
+	 */
+	public function delete($code = null)
+	{
+		if ($this->request->is('get')) throw new MethodNotAllowedException();
+		if (!$code) throw new NotFoundException(__('Invalid meet'));
+		
+		$rc = $this->Racer->findByCode($code);
+		if (!$rc) throw new NotFoundException(__('Invalid meet'));
+		
+		$this->Meet->set('code', $code);
+		$ret = $this->Racer->saveField('deleted', date('Y-m-d H:i:s'));
+		if (is_array($ret)) {
+			$this->Session->setFlash(__('選手 [code:' . $code . '] を削除しました（削除日時を適用）。'));
 		} else {
-			$this->Session->setFlash(__('The racer could not be deleted. Please, try again.'));
+			$this->Session->setFlash(__('選手の削除に失敗しました。'));
 		}
+		
 		return $this->redirect(array('action' => 'index'));
 	}
 }

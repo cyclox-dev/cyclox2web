@@ -82,24 +82,27 @@ class CategoryGroupsController extends AppController {
 		}
 	}
 
-/**
- * delete method
- *
- * @throws NotFoundException
- * @param string $id
- * @return void
- */
-	public function delete($id = null) {
+	/**
+	 * delete method
+	 * 削除日時の適用
+	 * @throws NotFoundException
+	 * @param string $id カテゴリーグループコード
+	 * @return void
+	 */
+	public function delete($id = null) 
+	{
+		if ($this->request->is('get')) throw new MethodNotAllowedException();
+		
 		$this->CategoryGroup->id = $id;
-		if (!$this->CategoryGroup->exists()) {
-			throw new NotFoundException(__('Invalid category group'));
-		}
-		$this->request->allowMethod('post', 'delete');
-		if ($this->CategoryGroup->delete()) {
-			$this->Session->setFlash(__('The category group has been deleted.'));
+		if (!$this->CategoryGroup->exists()) throw new NotFoundException(__('Invalid category group'));
+		
+		$ret = $this->CategoryGroup->saveField('deleted', date('Y-m-d H:i:s'));
+		if (is_array($ret)) {
+			$this->Session->setFlash(__('カテゴリーグループ [ID:' . $id . '] を削除しました（削除日時を適用）。'));
 		} else {
-			$this->Session->setFlash(__('The category group could not be deleted. Please, try again.'));
+			$this->Session->setFlash(__('カテゴリーグループの削除に失敗しました。'));
 		}
+		
 		return $this->redirect(array('action' => 'index'));
 	}
 }

@@ -114,6 +114,12 @@ class Racer extends AppModel {
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
+		'birth_date' => array(
+			'date' => array(
+				'rule' => array('date'),
+				'allowEmpty' => true,
+			),
+		)
 	);
 	
 	/**
