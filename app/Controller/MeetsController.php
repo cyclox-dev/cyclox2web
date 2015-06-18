@@ -75,11 +75,11 @@ class MeetsController extends AppController {
  * edit method
  *
  * @throws NotFoundException
- * @param string $id
+ * @param string $code
  * @return void
  */
-	public function edit($id = null) {
-		if (!$this->Meet->exists($id)) {
+	public function edit($code = null) {
+		if (!$this->Meet->exists($code)) {
 			throw new NotFoundException(__('Invalid meet'));
 		}
 		if ($this->request->is(array('post', 'put'))) {
@@ -90,7 +90,7 @@ class MeetsController extends AppController {
 				$this->Session->setFlash(__('The meet could not be saved. Please, try again.'));
 			}
 		} else {
-			$options = array('conditions' => array('Meet.' . $this->Meet->primaryKey => $id));
+			$options = array('conditions' => array('Meet.' . $this->Meet->primaryKey => $code));
 			$this->request->data = $this->Meet->find('first', $options);
 		}
 		$seasons = $this->Meet->Season->find('list');
@@ -98,18 +98,21 @@ class MeetsController extends AppController {
 		$this->set(compact('seasons', 'meetGroups'));
 	}
 
+	/**
+	 * delete method.
+	 * 削除日時の適用
+	 * @param string $code 大会コード
+	 * @return void
+	 * @throws MethodNotAllowedException
+	 * @throws NotFoundException
+	 */
 	public function delete($code = null)
 	{
-		if ($this->request->is('get')) {
-			throw new MethodNotAllowedException();
-		}
-		if (!$code) {
-			throw new NotFoundException(__('Invalid meet'));
-		}
+		if ($this->request->is('get')) throw new MethodNotAllowedException();
+		if (!$code) throw new NotFoundException(__('Invalid meet'));
 		
-		if (!$this->Meet->exists($code)) {
-			throw new NotFoundException(__('Invalid meet'));
-		}
+		$mt = $this->Meet->findByCode($code);
+		if (!$mt) throw new NotFoundException(__('Invalid meet'));
 		
 		$this->Meet->set('code', $code);
 		$ret = $this->Meet->saveField('deleted', date('Y-m-d H:i:s'));
@@ -119,28 +122,6 @@ class MeetsController extends AppController {
 			$this->Session->setFlash(__('大会の削除に失敗しました。'));
 		}
 		
-		return $this->redirect(array('action' => 'index'));
-	}
-	
-	
-/**
- * delete method
- *
- * @throws NotFoundException
- * @param string $id
- * @return void
- */
-	public function delete__($id = null) {
-		$this->Meet->id = $id;
-		if (!$this->Meet->exists()) {
-			throw new NotFoundException(__('Invalid meet'));
-		}
-		$this->request->allowMethod('post', 'delete');
-		if ($this->Meet->delete()) {
-			$this->Session->setFlash(__('The meet has been deleted.'));
-		} else {
-			$this->Session->setFlash(__('The meet could not be deleted. Please, try again.'));
-		}
 		return $this->redirect(array('action' => 'index'));
 	}
 }

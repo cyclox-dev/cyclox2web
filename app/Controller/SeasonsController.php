@@ -82,49 +82,31 @@ class SeasonsController extends AppController {
 		}
 	}
 
-/**
- * delete method
- *
- * @throws NotFoundException
- * @param string $id
- * @return void
- */
+	/**
+	 * delete method.
+	 * 削除日時の適用
+	 * @throws NotFoundException
+	 * @param string $id シーズン ID
+	 * @return void
+	 */
 	public function delete($id = null) 
 	{
 		if ($this->request->is('get')) {
 			throw new MethodNotAllowedException();
 		}
 		
-		if (!$id) {
-			throw new NotFoundException(__('Invalid season'));
-		}
-		
-		if (!$this->Season->exists($id)) {
-			throw new NotFoundException(__('Invalid season'));
-		}
-		
-		$this->Season->set('id', $id);
-		
-		$ret = $this->Season->saveField('deleted', date('Y-m-d H:i:s'));
-		if (is_array($ret)) {
-			$this->Session->setFlash(__('シーズン [ID:' . $id . '] を削除しました。'));
-		} else {
-			$this->Session->setFlash(__('シーズンの削除に失敗しました。'));
-		}
-		
-		return $this->redirect(array('action' => 'index'));
-			
-			
 		$this->Season->id = $id;
 		if (!$this->Season->exists()) {
 			throw new NotFoundException(__('Invalid season'));
 		}
-		$this->request->allowMethod('post', 'delete');
-		if ($this->Season->delete()) {
-			$this->Session->setFlash(__('The season has been deleted.'));
+		
+		$ret = $this->Season->saveField('deleted', date('Y-m-d H:i:s'));
+		if (is_array($ret)) {
+			$this->Session->setFlash(__('シーズン [ID:' . $id . '] を削除しました（削除日時を適用）。'));
 		} else {
-			$this->Session->setFlash(__('The season could not be deleted. Please, try again.'));
+			$this->Session->setFlash(__('シーズンの削除に失敗しました。'));
 		}
+		
 		return $this->redirect(array('action' => 'index'));
 	}
 }
