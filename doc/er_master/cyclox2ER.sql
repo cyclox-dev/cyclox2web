@@ -78,6 +78,9 @@ CREATE TABLE category_racers
 	-- 例）CX 東北による2013-14シーズンの1発目のレースならば THK-134-001
 	meet_code varchar(11),
 	cancel_date date,
+	created datetime,
+	modified datetime,
+	deleted datetime,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );
@@ -89,6 +92,9 @@ CREATE TABLE category_races_categories
 	-- C1, CL3 など
 	category_code varchar(16) BINARY NOT NULL,
 	races_category_code varchar(16) BINARY NOT NULL,
+	created datetime,
+	modified datetime,
+	deleted datetime,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );
@@ -415,7 +421,7 @@ ALTER TABLE meets
 ;
 
 
-ALTER TABLE category_racers
+ALTER TABLE entry_racers
 	ADD FOREIGN KEY (racer_code)
 	REFERENCES racers (code)
 	ON UPDATE RESTRICT
@@ -423,7 +429,7 @@ ALTER TABLE category_racers
 ;
 
 
-ALTER TABLE entry_racers
+ALTER TABLE category_racers
 	ADD FOREIGN KEY (racer_code)
 	REFERENCES racers (code)
 	ON UPDATE RESTRICT

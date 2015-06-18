@@ -1,11 +1,11 @@
 <div class="categoryRacesCategories index">
-	<h2><?php echo __('Category Races Categories'); ?></h2>
+	<h2><?php echo __('レースカテゴリーへのカテゴリー配属一覧'); ?></h2>
 	<table cellpadding="0" cellspacing="0">
 	<thead>
 	<tr>
-			<th><?php echo $this->Paginator->sort('id'); ?></th>
-			<th><?php echo $this->Paginator->sort('category_code'); ?></th>
-			<th><?php echo $this->Paginator->sort('races_category_code'); ?></th>
+			<th><?php echo $this->Paginator->sort('id', 'ID'); ?></th>
+			<th><?php echo $this->Paginator->sort('races_category_code', 'レースカテゴリー'); ?></th>
+			<th><?php echo $this->Paginator->sort('category_code', '(選手)カテゴリー'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>
@@ -14,10 +14,10 @@
 	<tr>
 		<td><?php echo h($categoryRacesCategory['CategoryRacesCategory']['id']); ?>&nbsp;</td>
 		<td>
-			<?php echo $this->Html->link($categoryRacesCategory['Category']['name'], array('controller' => 'categories', 'action' => 'view', $categoryRacesCategory['Category']['code'])); ?>
+			<?php echo $this->Html->link($categoryRacesCategory['RacesCategory']['name'], array('controller' => 'races_categories', 'action' => 'view', $categoryRacesCategory['RacesCategory']['code'])); ?>
 		</td>
 		<td>
-			<?php echo $this->Html->link($categoryRacesCategory['RacesCategory']['name'], array('controller' => 'races_categories', 'action' => 'view', $categoryRacesCategory['RacesCategory']['code'])); ?>
+			<?php echo $this->Html->link($categoryRacesCategory['Category']['name'], array('controller' => 'categories', 'action' => 'view', $categoryRacesCategory['Category']['code'])); ?>
 		</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $categoryRacesCategory['CategoryRacesCategory']['id'])); ?>

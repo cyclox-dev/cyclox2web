@@ -3,8 +3,18 @@
 	<fieldset>
 		<legend><?php echo __('Add Category Races Category'); ?></legend>
 	<?php
-		echo $this->Form->input('category_code');
-		echo $this->Form->input('races_category_code');
+		$cats = array();
+		foreach ($categories as $k => $v) {
+			$cats[$k] = $k . ': ' . $v;
+		}
+	
+		$rcats = array();
+		foreach ($racesCategories as $k => $v) {
+			$rcats[$k] = $k . ': ' . $v;
+		}
+		
+		echo $this->Form->input('races_category_code', array('options' => $rcats, 'label' => 'レースカテゴリー'));
+		echo $this->Form->input('category_code', array('options' => $cats, 'label' => '（選手）カテゴリー'));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>
