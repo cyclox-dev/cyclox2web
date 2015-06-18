@@ -55,12 +55,11 @@ class MeetsController extends AppController {
 			$this->Meet->create();
 			
 			$meetGroupCode = $this->request->data['Meet']['meet_group_code'];
-			$this->request->data['Meet']['code'] = AjoccUtil::nextMeetCode($meetGroupCode);
+			$code = AjoccUtil::nextMeetCode($meetGroupCode);
+			$this->request->data['Meet']['code'] = $code;
 			
 			if ($this->Meet->save($this->request->data)) {
-				$this->log($this->Meet->getDataSource()->getLog(), LOG_DEBUG);
-			
-				$this->Session->setFlash(__('The meet has been saved.'));
+				$this->Session->setFlash(__('新規大会 [code:' . $code . '] を保存しました。'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(__('The meet could not be saved. Please, try again.'));
@@ -117,7 +116,7 @@ class MeetsController extends AppController {
 		$this->Meet->set('code', $code);
 		$ret = $this->Meet->saveField('deleted', date('Y-m-d H:i:s'));
 		if (is_array($ret)) {
-			$this->Session->setFlash(__('大会 ' . $code . ' を削除しました（削除日時を適用）。'));
+			$this->Session->setFlash(__('大会 [code:' . $code . '] を削除しました（削除日時を適用）。'));
 		} else {
 			$this->Session->setFlash(__('大会の削除に失敗しました。'));
 		}

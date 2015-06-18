@@ -91,14 +91,10 @@ class SeasonsController extends AppController {
 	 */
 	public function delete($id = null) 
 	{
-		if ($this->request->is('get')) {
-			throw new MethodNotAllowedException();
-		}
+		if ($this->request->is('get')) throw new MethodNotAllowedException();
 		
 		$this->Season->id = $id;
-		if (!$this->Season->exists()) {
-			throw new NotFoundException(__('Invalid season'));
-		}
+		if (!$this->Season->exists()) throw new NotFoundException(__('Invalid season'));
 		
 		$ret = $this->Season->saveField('deleted', date('Y-m-d H:i:s'));
 		if (is_array($ret)) {

@@ -286,7 +286,8 @@ class Nation
 			new Nation('LSO', 'レソト', 'Lesotho', '南アフリカ'),                                               
 			new Nation('LBN', 'レバノン', 'Lebanon', '中東'),                                                   
 			new Nation('REU', 'レユニオン', 'Réunion', 'インド洋地域'),                                         
-			new Nation('RUS', 'ロシア連邦', 'Russian Federation', 'ロシア')
+			new Nation('RUS', 'ロシア連邦', 'Russian Federation', 'ロシア'),
+			self::$unknownNation
 		);
 	}
 	
