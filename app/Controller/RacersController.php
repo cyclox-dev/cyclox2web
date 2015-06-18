@@ -57,7 +57,7 @@ class RacersController extends AppController {
 			
 			if ($this->Racer->save($this->request->data)) {
 				$this->Session->setFlash(__('新規選手 [code:' . $code . '] を保存しました。'));
-				return;// $this->redirect(array('action' => 'index'));
+				return $this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(__('The racer could not be saved. Please, try again.'));
 			}
