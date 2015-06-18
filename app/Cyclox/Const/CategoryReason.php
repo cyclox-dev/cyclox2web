@@ -4,6 +4,8 @@
  *  created at 2015/06/12 by shun
  */
 
+App::uses('CategoryChangeFlag', 'Cyclox/Const');
+
 /**
  * カテゴリー適用理由
  */

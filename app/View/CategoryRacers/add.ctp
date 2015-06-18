@@ -3,14 +3,55 @@
 	<fieldset>
 		<legend><?php echo __('Add Category Racer'); ?></legend>
 	<?php
-		echo $this->Form->input('racer_code');
-		echo $this->Form->input('category_code');
-		echo $this->Form->input('apply_date');
-		echo $this->Form->input('reason_id');
-		echo $this->Form->input('reason_note');
-		echo $this->Form->input('meet_code');
-		echo $this->Form->input('cancel_date');
-		echo $this->Form->input('deleted');
+		App::uses('CategoryReason', 'Cyclox/Const');
+		App::uses('CategoryReason', 'Cyclox/Const');
+		
+		$rs = array();
+		foreach ($racers as $r) {
+			$rs[$r['Racer']['code']] = $r['Racer']['code'] . ': ' . $r['Racer']['family_name'] . ' ' . $r['Racer']['first_name'];
+		}
+		
+		$cats = array();
+		foreach ($categories as $c) {
+			$cats[$c['Category']['code']] = $c['Category']['code'] . ': ' . $c['Category']['name'];
+		}
+		
+		$reasons = array();
+		foreach (CategoryReason::reasons() as $r) {
+			$reasons[$r->ID()] = '[' . $r->flag()->msg() . '] ' . $r->name();
+		}
+		
+		$mts = array();
+		foreach ($meets as $m) {
+			$mts[$m['Meet']['code']] = $m['Meet']['code'] . ': ' . $m['Meet']['name'];
+		}
+		
+		echo $this->Form->input('racer_code', array('options' => $rs));
+		echo $this->Form->input('category_code', array('options' => $cats));
+		echo $this->Form->input('apply_date', array(
+			'label' => 'カテゴリー所属の適用日',
+			'dateFormat' => 'YMD',
+			'monthNames' => false,
+		));
+		echo $this->Form->input('reason_id', array('options' => $reasons, 'label' => '適用理由'));
+		echo $this->Form->input('reason_note', array('label' => '適用理由詳細・メモ'));
+		echo $this->Form->input('meet_code', array(
+			'options' => $mts,
+			'label' => '適用根拠となった大会（あれば）',
+			'empty' => 'なし'
+			));
+		echo $this->Form->input('cancel_date', array(
+			'label' => 'カテゴリー所属解消日',
+			'dateFormat' => 'YMD',
+			'monthNames' => false,
+			// 以下空の値 (->null) の表示設定
+			'empty' => array(0 => '–'),
+			'selected' => array(
+				'year' => 0,
+				'month' => 0,
+				'day' => 0
+			)
+		));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>

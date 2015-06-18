@@ -1,5 +1,8 @@
 <?php
+
 App::uses('AppController', 'Controller');
+App::uses('Meet', 'Model');
+
 /**
  * CategoryRacers Controller
  *
@@ -50,15 +53,20 @@ class CategoryRacersController extends AppController {
 		if ($this->request->is('post')) {
 			$this->CategoryRacer->create();
 			if ($this->CategoryRacer->save($this->request->data)) {
+				$this->log($this->CategoryRacer->getDataSource()->getLog(), LOG_DEBUG);
+				
 				$this->Session->setFlash(__('The category racer has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(__('The category racer could not be saved. Please, try again.'));
 			}
 		}
-		$categories = $this->CategoryRacer->Category->find('list');
-		$racers = $this->CategoryRacer->Racer->find('list');
-		$this->set(compact('categories', 'racers'));
+		$categories = $this->CategoryRacer->Category->find('all');
+		$racers = $this->CategoryRacer->Racer->find('all');
+		
+		$mt = new Meet();
+		$meets = $mt->find('all', array('recursive' => -1));
+		$this->set(compact('categories', 'racers', 'meets'));
 	}
 
 /**
@@ -88,35 +96,25 @@ class CategoryRacersController extends AppController {
 		$this->set(compact('categories', 'racers'));
 	}
 
-/**
- * delete method
- *
- * @throws NotFoundException
- * @param string $id
- * @return void
- */
+	/**
+	 * delete method
+	 *
+	 * @throws NotFoundException
+	 * @param string $id
+	 * @return void
+	 */
 	public function delete($id = null) 
 	{
-		if ($this->request->is('get')) {
-			throw new MethodNotAllowedException();
-		}
+		if ($this->request->is('get')) throw new MethodNotAllowedException();
 		
-		if (!$id) {
-			throw new NotFoundException(__('Invalid category_racer'));
-		}
-		
-		$meet = $this->CategoryRacer->findById($id);
-		if (!$meet) {
-			throw new NotFoundException(__('Invalid category_racer'));
-		}
-		
-		$this->CategoryRacer->set('id', $id);
+		$this->CategoryRacer->id = $id;
+		if (!$this->CategoryRacer->exists()) throw new NotFoundException(__('Invalid season'));
 		
 		$ret = $this->CategoryRacer->saveField('deleted', date('Y-m-d H:i:s'));
 		if (is_array($ret)) {
-			$this->Session->setFlash(__('選手カテゴリー所属情報を削除しました。'));
+			$this->Session->setFlash(__('選手のカテゴリー所属情報 [ID:' . $id . '] を削除しました（削除日時の適用）。'));
 		} else {
-			$this->Session->setFlash(__('削除に失敗しました。'));
+			$this->Session->setFlash(__('選手のカテゴリー所属情報削除に失敗しました。'));
 		}
 		
 		return $this->redirect(array('action' => 'index'));
