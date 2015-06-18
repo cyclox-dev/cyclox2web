@@ -49,7 +49,17 @@ class RacesCategoriesController extends AppController {
 	public function add() {
 		if ($this->request->is(array('post', 'put'))) {
 			$this->RacesCategory->create();
+			
+			$ageStr = '';
+			foreach ($this->request->data['RacesCategory']['uci_age_limit'] as $a) {
+				$ageStr .= $a;
+			}
+			debug($ageStr);
+			$this->request->data['RacesCategory']['uci_age_limit'] = $ageStr;
+			
 			if ($this->RacesCategory->save($this->request->data)) {
+				$this->log($this->RacesCategory->getDataSource()->getLog(), LOG_DEBUG);
+				
 				$this->Session->setFlash(__('The races category has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
@@ -83,24 +93,28 @@ class RacesCategoriesController extends AppController {
 		}
 	}
 
-/**
- * delete method
- *
- * @throws NotFoundException
- * @param string $id
- * @return void
- */
-	public function delete($id = null) {
-		$this->RacesCategory->id = $id;
-		if (!$this->RacesCategory->exists()) {
-			throw new NotFoundException(__('Invalid races category'));
-		}
-		$this->request->allowMethod('post', 'delete');
-		if ($this->RacesCategory->delete()) {
-			$this->Session->setFlash(__('The races category has been deleted.'));
+	/**
+	 * delete method
+	 * 削除日時の適用
+	 * @throws NotFoundException
+	 * @param string $code レースカテゴリーコード
+	 * @return void
+	 */
+	public function delete($code = null) {
+		if ($this->request->is('get')) throw new MethodNotAllowedException();
+		if (!$code) throw new NotFoundException(__('Invalid races-category'));
+		
+		$mt = $this->RacesCategory->findByCode($code);
+		if (!$mt) throw new NotFoundException(__('Invalid races-category'));
+		
+		$this->RacesCategory->set('code', $code);
+		$ret = $this->RacesCategory->saveField('deleted', date('Y-m-d H:i:s'));
+		if (is_array($ret)) {
+			$this->Session->setFlash(__('レースカテゴリー [code:' . $code . '] を削除しました（削除日時を適用）。'));
 		} else {
-			$this->Session->setFlash(__('The races category could not be deleted. Please, try again.'));
+			$this->Session->setFlash(__('レースカテゴリーの削除に失敗しました。'));
 		}
+		
 		return $this->redirect(array('action' => 'index'));
 	}
 }
