@@ -172,7 +172,7 @@ class AjoccUtil
 		
 		$mgCode = Configure::read('SVR_MEET_GROUP_CODE');
 		
-		return $mgCode . '-' . $currSeasonNo . '-' . sprintf('%03d', $number);
+		return $mgCode . '-' . $currSeasonNo . '-' . sprintf('%04d', $number);
 	}
 	
 	
