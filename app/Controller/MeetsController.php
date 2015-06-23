@@ -17,7 +17,7 @@ class MeetsController extends AppController {
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session');
+	public $components = array('Paginator', 'Session', 'RequestHandler');
 
 /**
  * index method
@@ -33,14 +33,24 @@ class MeetsController extends AppController {
  * view method
  *
  * @throws NotFoundException
- * @param string $id
+ * @param string $code
  * @return void
  */
-	public function view($id = null) {
-		if (!$this->Meet->exists($id)) {
+	public function view($code = null) 
+	{
+		if (!$this->Meet->exists($code)) {
 			throw new NotFoundException(__('Invalid meet'));
 		}
-		$options = array('conditions' => array('Meet.' . $this->Meet->primaryKey => $id));
+		
+		$options = array('conditions' => array('Meet.' . $this->Meet->primaryKey => $code));
+		
+		$isApiCall = isset($this->request->params['ext']) && $this->request->params['ext'] === 'json';
+		if ($isApiCall) {
+			$this->log('is recursive', LOG_DEBUG);
+			$options['recursive'] = -1;
+		} else {
+			$this->log('is not recursive', LOG_DEBUG);
+		}
 		$this->set('meet', $this->Meet->find('first', $options));
 	}
 
