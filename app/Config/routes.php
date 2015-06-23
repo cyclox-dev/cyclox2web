@@ -36,7 +36,7 @@
  */
 	CakePlugin::routes();
 
-	Router::mapResources(array('api', 'meets'));
+	Router::mapResources(array('api', 'meets', 'category_racers'));
 	Router::parseExtensions('json');
 
 /**

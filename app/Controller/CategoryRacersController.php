@@ -1,6 +1,6 @@
 <?php
 
-App::uses('AppController', 'Controller');
+App::uses('ApiBaseController', 'Controller');
 App::uses('Meet', 'Model');
 
 /**
@@ -10,14 +10,15 @@ App::uses('Meet', 'Model');
  * @property PaginatorComponent $Paginator
  * @property SessionComponent $Session
  */
-class CategoryRacersController extends AppController {
+class CategoryRacersController extends ApiBaseController
+{
 
 /**
  * Components
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session');
+	public $components = array('Paginator', 'Session', 'RequestHandler');
 
 /**
  * index method
@@ -44,16 +45,33 @@ class CategoryRacersController extends AppController {
 		$this->set('categoryRacer', $this->CategoryRacer->find('first', $options));
 	}
 
-/**
- * add method
- *
- * @return void
- */
-	public function add() {
+	/**
+	 * add method
+	 *
+	 * @return void
+	 */
+	public function add() 
+	{
+		$isApiCall = isset($this->request->params['ext']) && $this->request->params['ext'] === 'json';
+		
+		if ($isApiCall) {
+			return $this->__addOnApi();
+		} else {
+			return $this->__addOnPage();
+		}
+	}
+	
+	/**
+	 * 管理画面上での add 処理
+	 * @return void
+	 */
+	private function __addOnPage() 
+	{
 		if ($this->request->is('post')) {
+			//$this->log($this->request->data);
 			$this->CategoryRacer->create();
 			if ($this->CategoryRacer->save($this->request->data)) {
-				$this->log($this->CategoryRacer->getDataSource()->getLog(), LOG_DEBUG);
+				//$this->log($this->CategoryRacer->getDataSource()->getLog(), LOG_DEBUG);
 				
 				$this->Session->setFlash(__('The category racer has been saved.'));
 				return $this->redirect(array('action' => 'index'));
@@ -61,12 +79,36 @@ class CategoryRacersController extends AppController {
 				$this->Session->setFlash(__('The category racer could not be saved. Please, try again.'));
 			}
 		}
+		
 		$categories = $this->CategoryRacer->Category->find('all');
 		$racers = $this->CategoryRacer->Racer->find('all');
-		
+
 		$mt = new Meet();
 		$meets = $mt->find('all', array('recursive' => -1));
 		$this->set(compact('categories', 'racers', 'meets'));
+	}
+	
+	/**
+	 * API 上での add 処理
+	 */
+	private function __addOnApi()
+	{
+		if ($this->request->is('post')) {
+			
+			//$this->log($this->request->data);
+			// 重複などについては最新情報のダウンロードで補完するものとする。
+			
+			$this->CategoryRacer->create();
+			if ($this->CategoryRacer->save($this->request->data)) {
+				// 設定された ID をかえす
+				$newId = $this->CategoryRacer->id;
+				return $this->success(array('id' => $newId));
+			} else {
+				return $this->error('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
+			}
+		} else {
+			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
+		}
 	}
 
 /**

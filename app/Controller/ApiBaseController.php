@@ -14,6 +14,7 @@ App::uses('AppController', 'Controller');
 class ApiBaseController extends AppController
 {
 	const STATUS_CODE_BAD_REQUEST = 400;
+	const STATUS_CODE_METHOD_NOT_ALLOWED = 405;
 	
 	// JSONやXMLにして返す値を格納するための配列です。
     protected $result = array();
