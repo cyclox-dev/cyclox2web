@@ -1,6 +1,6 @@
 <?php
 
-App::uses('AppController', 'Controller');
+App::uses('ApiBaseController', 'Controller');
 App::uses('AjoccUtil', 'Cyclox/Util');
 
 /**
@@ -10,7 +10,7 @@ App::uses('AjoccUtil', 'Cyclox/Util');
  * @property PaginatorComponent $Paginator
  * @property SessionComponent $Session
  */
-class MeetsController extends AppController {
+class MeetsController extends ApiBaseController {
 
 /**
  * Components
@@ -46,12 +46,15 @@ class MeetsController extends AppController {
 		
 		$isApiCall = isset($this->request->params['ext']) && $this->request->params['ext'] === 'json';
 		if ($isApiCall) {
-			$this->log('is recursive', LOG_DEBUG);
 			$options['recursive'] = -1;
-		} else {
-			$this->log('is not recursive', LOG_DEBUG);
 		}
-		$this->set('meet', $this->Meet->find('first', $options));
+		
+		$meet = $this->Meet->find('first', $options);
+		if ($isApiCall) {
+			$this->success($meet);
+		} else {
+			$this->set('meet', $meet);
+		}
 	}
 
 /**

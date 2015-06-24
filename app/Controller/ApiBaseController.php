@@ -19,6 +19,8 @@ class ApiBaseController extends AppController
 	// JSONやXMLにして返す値を格納するための配列です。
     protected $result = array();
 	
+	// TODO: Exception 対策
+	
 	//++++++++++++++++++++++++++++++++++++++++
 	// 以下、http://be-hase.com/php/478/ より拾いもの。
 	
@@ -48,6 +50,8 @@ class ApiBaseController extends AppController
  
         $this->set('meta', $this->result['meta']);
         $this->set('response', $this->result['response']);
+		
+		$this->render('/Api/json/default');
     }
  
     // エラー系処理。$this->resultに値いれる
@@ -61,6 +65,8 @@ class ApiBaseController extends AppController
 		$this->set('error', $this->result['error']);
 		$this->response->statusCode(400);
         //$this->set('_serialize', array('meta', 'error'));
+		
+		$this->render('/Api/json/default');
     }
  
     // バリデーションエラー系処理。$this->resultに値いれる
@@ -78,5 +84,7 @@ class ApiBaseController extends AppController
         $this->set('meta', $this->result['meta']);
         $this->set('error', $this->result['error']);
         $this->set('_serialize', array('meta', 'error'));
+		
+		$this->render('/Api/json/default');
     }
 }
