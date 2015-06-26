@@ -24,7 +24,7 @@ class ApiController extends ApiBaseController
 	 * 更新情報についての ID, code などのリストを取得する。
 	 * @param date $date 最後の更新ダウンロード日時
 	 */
-	public function update_list($date = null)
+	public function updated_meet_codes($date = null)
 	{
 		// http://ajocc.net/api/update_list/2015-12-31.json
 		
