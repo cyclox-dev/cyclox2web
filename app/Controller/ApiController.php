@@ -16,12 +16,12 @@ App::uses('Util', 'Cyclox/Util');
  */
 class ApiController extends ApiBaseController
 {
-	public $uses = array('Meet');
+	public $uses = array('Meet', 'CategoryRacer');
 	
 	public $components = array('Session', 'RequestHandler');
 	
 	/**
-	 * 更新情報についての ID, code などのリストを取得する。
+	 * 更新すべき大会情報についての code リストを取得する
 	 * @param date $date 最後の更新ダウンロード日時
 	 */
 	public function updated_meet_codes($date = null)
@@ -38,11 +38,32 @@ class ApiController extends ApiBaseController
 				return $this->error('パラメタには日付を指定して下さい。', self::STATUS_CODE_BAD_REQUEST);
 			}
 		} else {
-			$opt = array('fields' => array('name'));
-			$meets = $this->Meet->find('list', $opt);
+			$meets = $this->Meet->find('list');
 		}
 		
 		return $this->success(array('meets' => $meets));
+	}
+	
+	/**
+	 * 更新すべき選手カテゴリー情報を取得する
+	 * @param date $date 最後の更新ダウンロード日時
+	 */
+	public function updated_category_racer_ids($date = null)
+	{
+		if ($date) {
+			$dt = $this->__getFindSqlDate($date);
+			
+			if ($dt) {
+				$opt = array('conditions' => array('modified >' => $dt));
+				$meets = $this->CategoryRacer->find('list', $opt);
+			} else {
+				return $this->error('パラメタには日付を指定して下さい。', self::STATUS_CODE_BAD_REQUEST);
+			}
+		} else {
+			$meets = $this->CategoryRacer->find('list');
+		}
+		
+		return $this->success(array('category_racers' => $meets));
 	}
 	
 	/**
