@@ -1,6 +1,6 @@
 <?php
 
-App::uses('AppController', 'Controller');
+App::uses('ApiBaseController', 'Controller');
 App::uses('AjoccUtil', 'Cyclox/Util');
 
 /**
@@ -10,14 +10,15 @@ App::uses('AjoccUtil', 'Cyclox/Util');
  * @property PaginatorComponent $Paginator
  * @property SessionComponent $Session
  */
-class RacersController extends AppController {
+class RacersController extends ApiBaseController
+{
 
 /**
  * Components
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session');
+	public $components = array('Paginator', 'Session', 'RequestHandler');
 
 /**
  * index method
@@ -49,7 +50,23 @@ class RacersController extends AppController {
  *
  * @return void
  */
-	public function add() {
+	public function add() 
+	{
+		$this->log($this->_isApiCall(), LOG_DEBUG);
+		
+		if ($this->_isApiCall()) {
+			return $this->__addOnApi();
+		} else {
+			return $this->__addOnPage();
+		}
+	}
+	
+	/**
+	 * 管理画面上での add 処理
+	 * @return void
+	 */
+	private function __addOnPage()
+	{
 		if ($this->request->is(array('post', 'put'))) {
 			$this->Racer->create();
 			$code = AjoccUtil::nextRacerCode();
@@ -61,6 +78,33 @@ class RacersController extends AppController {
 			} else {
 				$this->Session->setFlash(__('The racer could not be saved. Please, try again.'));
 			}
+		}
+	}
+	
+	/**
+	 * API 上での add 処理
+	 * @return void
+	 */
+	private function __addOnApi()
+	{
+		if ($this->request->is('post')) {
+			$this->log($this->request->data, LOG_DEBUG);
+			$this->Racer->create();
+			
+			if (!isset($this->request->data['Racer']['code']))
+			{
+				return $this->error('選手コードがありません (Racer.code)', self::STATUS_CODE_BAD_REQUEST);
+			}
+			
+			if ($this->Racer->save($this->request->data)) {
+				return $this->success(array());
+			} else {
+				$this->error('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
+				$this->log($this->Racer->getDataSource()->getLog(), LOG_DEBUG);
+				return;
+			}
+		} else {
+			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
 		}
 	}
 
