@@ -52,8 +52,6 @@ class RacersController extends ApiBaseController
  */
 	public function add() 
 	{
-		$this->log($this->_isApiCall(), LOG_DEBUG);
-		
 		if ($this->_isApiCall()) {
 			return $this->__addOnApi();
 		} else {
@@ -96,28 +94,44 @@ class RacersController extends ApiBaseController
 				return $this->error('選手コードがありません (Racer.code)', self::STATUS_CODE_BAD_REQUEST);
 			}
 			
+			$code = $this->request->data['Racer']['code'];
+			if ($this->Racer->exists($code)) {
+				return $this->error('すでにその選手コードは使われています。', self::STATUS_CODE_BAD_REQUEST);
+			}
+			
 			if ($this->Racer->save($this->request->data)) {
 				return $this->success(array());
 			} else {
-				$this->error('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
-				$this->log($this->Racer->getDataSource()->getLog(), LOG_DEBUG);
-				return;
+				return $this->error('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
 			}
 		} else {
 			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
 		}
 	}
 
-/**
- * edit method
- *
- * @throws NotFoundException
- * @param string $id
- * @return void
- */
-	public function edit($id = null) {
-		$this->Racer->validator()->remove('code', 'isPKUnique');
-		if (!$this->Racer->exists($id)) {
+	/**
+	 * edit method
+	 *
+	 * @throws NotFoundException
+	 * @param string $code
+	 * @return void
+	 */
+	public function edit($code = null)
+	{
+		if ($this->_isApiCall()) {
+			return $this->__editOnApi($code);
+		} else {
+			return $this->__editOnPage($code);
+		}
+	}
+	
+	/**
+	 * 管理画面上での edit 処理
+	 * @return void
+	 */
+	private function __editOnPage($code = null)
+	{
+		if (!$this->Racer->exists($code)) {
 			throw new NotFoundException(__('Invalid racer'));
 		}
 		if ($this->request->is(array('post', 'put'))) {
@@ -128,8 +142,31 @@ class RacersController extends ApiBaseController
 				$this->Session->setFlash(__('The racer could not be saved. Please, try again.'));
 			}
 		} else {
-			$options = array('conditions' => array('Racer.' . $this->Racer->primaryKey => $id));
+			$options = array('conditions' => array('Racer.' . $this->Racer->primaryKey => $code));
 			$this->request->data = $this->Racer->find('first', $options);
+		}
+	}
+	
+	/**
+	 * API 上での edit 処理
+	 * @return void
+	 */
+	private function __editOnApi($code = null)
+	{
+		if (!$this->Racer->exists($code)) {
+			throw new NotFoundException(__('Invalid racer'));
+		}
+		
+		$this->log($this->request->data);
+		
+		if ($this->request->is(array('post', 'put'))) {
+			if ($this->Racer->save($this->request->data)) {
+				return $this->success(array());
+			} else {
+				return $this->error('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
+			}
+		} else {
+			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
 		}
 	}
 
