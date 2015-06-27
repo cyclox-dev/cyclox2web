@@ -42,9 +42,9 @@ class MeetsController extends ApiBaseController {
 			throw new NotFoundException(__('Invalid meet'));
 		}
 		
+		$isApiCall = $this->_isApiCall();
+
 		$options = array('conditions' => array('Meet.' . $this->Meet->primaryKey => $code));
-		
-		$isApiCall = isset($this->request->params['ext']) && $this->request->params['ext'] === 'json';
 		if ($isApiCall) {
 			$options['recursive'] = -1;
 		}

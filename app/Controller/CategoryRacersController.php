@@ -42,9 +42,9 @@ class CategoryRacersController extends ApiBaseController
 			throw new NotFoundException(__('Invalid category racer'));
 		}
 		
-		$options = array('conditions' => array('CategoryRacer.' . $this->CategoryRacer->primaryKey => $id));
+		$isApiCall = $this->_isApiCall();
 		
-		$isApiCall = isset($this->request->params['ext']) && $this->request->params['ext'] === 'json';
+		$options = array('conditions' => array('CategoryRacer.' . $this->CategoryRacer->primaryKey => $id));
 		if ($isApiCall) {
 			$options['recursive'] = -1;
 		}
@@ -64,9 +64,7 @@ class CategoryRacersController extends ApiBaseController
 	 */
 	public function add() 
 	{
-		$isApiCall = isset($this->request->params['ext']) && $this->request->params['ext'] === 'json';
-		
-		if ($isApiCall) {
+		if ($this->_isApiCall()) {
 			return $this->__addOnApi();
 		} else {
 			return $this->__addOnPage();
