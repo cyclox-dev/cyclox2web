@@ -48,13 +48,18 @@ class MeetGroupsController extends AppController {
  */
 	public function add() {
 		if ($this->request->is(array('post', 'put'))) {
-			$this->MeetGroup->create();
-			$ret = $this->MeetGroup->save($this->request->data);
-			if (is_array($ret)) {
-				$this->Session->setFlash(__('The meet group has been saved.'));
-				return $this->redirect(array('action' => 'index'));
+			if (isset($this->request->data['MeetGroup']['code'])
+					&& $this->MeetGroup->exists($this->request->data['MeetGroup']['code'])) {
+				$this->MeetGroup->validator()->invalidate("code", "その大会グループコードはすでに使用されています。");
 			} else {
-				$this->Session->setFlash(__('The meet group could not be saved. Please, try again.'));
+				$this->MeetGroup->create();
+				$ret = $this->MeetGroup->save($this->request->data);
+				if (is_array($ret)) {
+					$this->Session->setFlash(__('The meet group has been saved.'));
+					return $this->redirect(array('action' => 'index'));
+				} else {
+					$this->Session->setFlash(__('The meet group could not be saved. Please, try again.'));
+				}
 			}
 		}
 	}

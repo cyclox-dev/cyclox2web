@@ -62,15 +62,15 @@ class MeetsController extends ApiBaseController {
  *
  * @return void
  */
-	public function add() {
-		
+	public function add()
+	{
 		if ($this->request->is('post')) {
 			$this->Meet->create();
-			
+
 			$meetGroupCode = $this->request->data['Meet']['meet_group_code'];
 			$code = AjoccUtil::nextMeetCode($meetGroupCode);
 			$this->request->data['Meet']['code'] = $code;
-			
+
 			if ($this->Meet->save($this->request->data)) {
 				$this->Session->setFlash(__('新規大会 [code:' . $code . '] を保存しました。'));
 				return $this->redirect(array('action' => 'index'));

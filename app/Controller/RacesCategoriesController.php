@@ -30,14 +30,15 @@ class RacesCategoriesController extends AppController {
  * view method
  *
  * @throws NotFoundException
- * @param string $id
+ * @param string $code
  * @return void
  */
-	public function view($id = null) {
-		if (!$this->RacesCategory->exists($id)) {
+	public function view($code = null)
+	{
+		if (!$this->RacesCategory->exists($code)) {
 			throw new NotFoundException(__('Invalid races category'));
 		}
-		$options = array('conditions' => array('RacesCategory.' . $this->RacesCategory->primaryKey => $id));
+		$options = array('conditions' => array('RacesCategory.' . $this->RacesCategory->primaryKey => $code));
 		$this->set('racesCategory', $this->RacesCategory->find('first', $options));
 	}
 
@@ -46,24 +47,30 @@ class RacesCategoriesController extends AppController {
  *
  * @return void
  */
-	public function add() {
+	public function add()
+	{
 		if ($this->request->is(array('post', 'put'))) {
-			$this->RacesCategory->create();
-			
-			$ageStr = '';
-			foreach ($this->request->data['RacesCategory']['uci_age_limit'] as $a) {
-				$ageStr .= $a;
-			}
-			debug($ageStr);
-			$this->request->data['RacesCategory']['uci_age_limit'] = $ageStr;
-			
-			if ($this->RacesCategory->save($this->request->data)) {
-				$this->log($this->RacesCategory->getDataSource()->getLog(), LOG_DEBUG);
-				
-				$this->Session->setFlash(__('The races category has been saved.'));
-				return $this->redirect(array('action' => 'index'));
+			if (isset($this->request->data['RacesCategory']['code'])
+					&& $this->RacesCategory->exists($this->request->data['RacesCategory']['code'])) {
+				$this->RacesCategory->validator()->invalidate("code", "そのカテゴリーコードはすでに使用されています。");
 			} else {
-				$this->Session->setFlash(__('The races category could not be saved. Please, try again.'));
+				$this->RacesCategory->create();
+
+				$ageStr = '';
+				foreach ($this->request->data['RacesCategory']['uci_age_limit'] as $a) {
+					$ageStr .= $a;
+				}
+				debug($ageStr);
+				$this->request->data['RacesCategory']['uci_age_limit'] = $ageStr;
+
+				if ($this->RacesCategory->save($this->request->data)) {
+					$this->log($this->RacesCategory->getDataSource()->getLog(), LOG_DEBUG);
+
+					$this->Session->setFlash(__('The races category has been saved.'));
+					return $this->redirect(array('action' => 'index'));
+				} else {
+					$this->Session->setFlash(__('The races category could not be saved. Please, try again.'));
+				}
 			}
 		}
 	}
@@ -72,12 +79,11 @@ class RacesCategoriesController extends AppController {
  * edit method
  *
  * @throws NotFoundException
- * @param string $id
+ * @param string $code
  * @return void
  */
-	public function edit($id = null) {
-		$this->RacesCategory->validator()->remove('code', 'isPKUnique');
-		if (!$this->RacesCategory->exists($id)) {
+	public function edit($code = null) {
+		if (!$this->RacesCategory->exists($code)) {
 			throw new NotFoundException(__('Invalid races category'));
 		}
 		if ($this->request->is(array('post', 'put'))) {
@@ -88,7 +94,7 @@ class RacesCategoriesController extends AppController {
 				$this->Session->setFlash(__('The races category could not be saved. Please, try again.'));
 			}
 		} else {
-			$options = array('conditions' => array('RacesCategory.' . $this->RacesCategory->primaryKey => $id));
+			$options = array('conditions' => array('RacesCategory.' . $this->RacesCategory->primaryKey => $code));
 			$this->request->data = $this->RacesCategory->find('first', $options);
 		}
 	}

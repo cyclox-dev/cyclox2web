@@ -29,50 +29,18 @@ class RacesCategory extends AppModel {
  */
 	public $validate = array(
 		'code' => array(
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-			'isPKUnique' => array( // isUnique では update になってしまうので自前で。
-				'rule' => array('isPKUnique'),
-				'message' => 'その code はすでに使用されています。',
-				//'on' => 'create',
-			),
+			'rule' => array('notEmpty'),
+			'message' => '必須項目です。',
 		),
 		'name' => array(
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
+			'rule' => array('notEmpty'),
+			'message' => '必須項目です。',
 		),
 		'description' => array(
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
+			'rule' => array('notEmpty'),
+			'message' => '必須項目です。',
 		),
 	);
-	
-	/**
-	 * コードがまだ登録されていないかをかえす
-	 * @param string $code コード
-	 */
-	public function isPKUnique($code) {
-		$r = $this->findByCode($code);
-		return !$r;
-	}
 
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
 

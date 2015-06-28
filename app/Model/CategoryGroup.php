@@ -23,22 +23,16 @@ class CategoryGroup extends AppModel {
 		'name' => array(
 			'notEmpty' => array(
 				'rule' => array('notEmpty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+				'message' => '必須項目です。',
 			),
+			'isUnique' => array(
+				'rule' => array('isUnique'),
+				'message' => 'すでにその名前は使用されています。'
+			)
 		),
 		'description' => array(
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
+			'rule' => array('notEmpty'),
+			'message' => '必須項目です。',
 		),
 	);
 

@@ -167,7 +167,7 @@ class RacersController extends ApiBaseController
 	private function __editOnApi($code = null)
 	{
 		if (!$this->Racer->exists($code)) {
-			throw new NotFoundException(__('Invalid racer'));
+			return $this->error('不正なリクエストです。（指定の選手コードが存在しません）。');
 		}
 		
 		$this->log($this->request->data);

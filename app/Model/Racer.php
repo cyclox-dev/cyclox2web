@@ -22,28 +22,20 @@ class Racer extends AppModel {
  */
 	public $validate = array(
 		'code' => array(
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create'
-			),
+			'rule' => array('notEmpty'),
+			'message' => '必須項目です。',
 		),
 		'gender' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
-				//'message' => 'Your custom message here',
-				'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+				'message' => '性別を表す正の整数値を入力して下さい。',
+				'allowEmpty' => true,
 			),
 		),
 		'birth_date' => array(
 			'date' => array(
 				'rule' => array('date'),
+				'message' => '有効な日付形式を入力して下さい。',
 				'allowEmpty' => true,
 			),
 		)

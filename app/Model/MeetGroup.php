@@ -31,47 +31,22 @@ class MeetGroup extends AppModel
 	 */
 	public $validate = array(
 		'code' => array(
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
-				'message' => '必須入力です。',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-			'minLength' => array(
+			'threeChar' => array(
 				'rule' => '/^[a-z0-9]{3}$/i',
-				'message' => 'code は半角英数3文字を指定して下さい。',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+				'message' => '半角英数3文字を指定して下さい。',
 			),
-			'isPKUnique' => array( // isUnique では update になってしまうので自前で。
-				'rule' => array('isPKUnique'),
-				'message' => 'その code はすでに使用されています。',
-				'on' => 'create',
-			)
 		),
 		'name' => array(
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
-				'message' => '必須入力です。',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
+			'rule' => array('notEmpty'),
+			'message' => '必須項目です。',
 		),
 		'short_name' => array(
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
-				'message' => '必須入力です。',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
+			'rule' => array('notEmpty'),
+			'message' => '必須項目です。',
+		),
+		'notEmpty' => array(
+			'rule' => array('notEmpty'),
+			'message' => '必須項目です。',
 		),
 		'homepage' => array(
 			'rule' => 'url',
@@ -79,17 +54,6 @@ class MeetGroup extends AppModel
 			'allowEmpty' => true
 		)
 	);
-	
-	/**
-	 * 大会グループコードがまだ登録されていないかをかえす
-	 * @param string $code
-	 */
-	public function isPKUnique($code) {
-		//return !$this->exists($code);
-		
-		$mg = $this->findByCode($code);
-		return !$mg;
-	}
 
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
 
