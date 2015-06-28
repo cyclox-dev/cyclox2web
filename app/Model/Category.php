@@ -32,153 +32,65 @@ class Category extends AppModel {
 		'code' => array(
 			'notEmpty' => array(
 				'rule' => array('notEmpty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+				'message' => '必須項目です。',
 			),
-			'isPKUnique' => array( // isUnique では update になってしまうので自前で。
-				'rule' => array('isPKUnique'),
-				'message' => 'その code はすでに使用されています。',
-				//'on' => 'create',
-			),
+			/*
+			 * isUnique は update になってしまうので on => create は動かない。 Controller 側で処理する。
+			 */
 		),
 		'name' => array(
 			'notEmpty' => array(
 				'rule' => array('notEmpty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+				'message' => '必須項目です。',
 			),
 		),
 		'short_name' => array(
 			'notEmpty' => array(
 				'rule' => array('notEmpty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+				'message' => '必須項目です。',
 			),
 		),
 		'category_group_id' => array(
 			'notEmpty' => array(
 				'rule' => array('notEmpty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+				'message' => '必須項目です。',
 			),
 		),
 		'lank' => array(
-			'numeric' => array(
-				'rule' => array('numeric'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			'naturalNumber' => array(
+				'rule' => array('naturalNumber'),
+				'message' => '正の整数を入力して下さい。',
 			),
 		),
 		'race_min' => array(
-			'numeric' => array(
-				'rule' => array('numeric'),
-				'message' => 'レーズ時間を分で入力して下さい。',
+			'naturalNumber' => array(
+				'rule' => array('naturalNumber'),
+				'message' => '正の整数を入力して下さい。',
 				'allowEmpty' => true,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
+			)
 		),
 		'gender' => array(
 			'notEmpty' => array(
 				'rule' => array('notEmpty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+				'message' => '必須項目です。',
 			),
 		),
 		'age_min' => array(
 			'naturalNumber' => array(
 				'rule' => array('naturalNumber'),
-				//'message' => 'Your custom message here',
+				'message' => '正の整数を入力して下さい。',
 				'allowEmpty' => true,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
 		'age_max' => array(
 			'naturalNumber' => array(
 				'rule' => array('naturalNumber'),
-				//'message' => 'Your custom message here',
+				'message' => '正の整数を入力して下さい。',
 				'allowEmpty' => true,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-		),
-		'needs_jcf' => array(
-			'boolean' => array(
-				'rule' => array('boolean'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-		),
-		'needs_uci' => array(
-			'boolean' => array(
-				'rule' => array('boolean'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
 	);
 	
-	/**
-	 * コードがまだ登録されていないかをかえす
-	 * @param string $code カテゴリーコード
-	 */
-	public function isPKUnique($code) {
-		$r = $this->findByCode($code);
-		return !$r;
-	}
-
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
 
 /**

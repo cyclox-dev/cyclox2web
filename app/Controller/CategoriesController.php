@@ -30,14 +30,14 @@ class CategoriesController extends AppController {
  * view method
  *
  * @throws NotFoundException
- * @param string $id
+ * @param string $code
  * @return void
  */
-	public function view($id = null) {
-		if (!$this->Category->exists($id)) {
+	public function view($code = null) {
+		if (!$this->Category->exists($code)) {
 			throw new NotFoundException(__('Invalid category'));
 		}
-		$options = array('conditions' => array('Category.' . $this->Category->primaryKey => $id));
+		$options = array('conditions' => array('Category.' . $this->Category->primaryKey => $code));
 		$this->set('category', $this->Category->find('first', $options));
 	}
 
@@ -47,13 +47,19 @@ class CategoriesController extends AppController {
  * @return void
  */
 	public function add() {
+		//$this->Category->validator()->add('code', 'codeUnique', array('rule' => 'isUnique', 'message' => 'bad code'));
 		if ($this->request->is(array('post', 'put'))) {
-			$this->Category->create();
-			if ($this->Category->save($this->request->data)) {
-				$this->Session->setFlash(__('The category has been saved.'));
-				return $this->redirect(array('action' => 'index'));
+			if (isset($this->request->data['Category']['code'])
+					&& $this->Category->exists($this->request->data['Category']['code'])) {
+				$this->Category->validator()->invalidate("code", "そのカテゴリーコードはすでに使用されています。");
 			} else {
-				$this->Session->setFlash(__('The category could not be saved. Please, try again.'));
+				$this->Category->create();
+				if ($this->Category->save($this->request->data)) {
+					$this->Session->setFlash(__('The category has been saved.'));
+					return $this->redirect(array('action' => 'index'));
+				} else {
+					$this->Session->setFlash(__('The category could not be saved. Please, try again.'));
+				}
 			}
 		}
 		$categoryGroups = $this->Category->CategoryGroup->find('list');
@@ -64,12 +70,11 @@ class CategoriesController extends AppController {
  * edit method
  *
  * @throws NotFoundException
- * @param string $id
+ * @param string $code
  * @return void
  */
-	public function edit($id = null) {
-		$this->Category->validator()->remove('code', 'isPKUnique');
-		if (!$this->Category->exists($id)) {
+	public function edit($code = null) {
+		if (!$this->Category->exists($code)) {
 			throw new NotFoundException(__('Invalid category'));
 		}
 		if ($this->request->is(array('post', 'put'))) {
@@ -80,7 +85,7 @@ class CategoriesController extends AppController {
 				$this->Session->setFlash(__('The category could not be saved. Please, try again.'));
 			}
 		} else {
-			$options = array('conditions' => array('Category.' . $this->Category->primaryKey => $id));
+			$options = array('conditions' => array('Category.' . $this->Category->primaryKey => $code));
 			$this->request->data = $this->Category->find('first', $options);
 		}
 		$categoryGroups = $this->Category->CategoryGroup->find('list');
