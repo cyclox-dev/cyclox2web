@@ -34,15 +34,28 @@ class RacersController extends ApiBaseController
  * view method
  *
  * @throws NotFoundException
- * @param string $id
+ * @param string $code
  * @return void
  */
-	public function view($id = null) {
-		if (!$this->Racer->exists($id)) {
+	public function view($code = null)
+	{
+		if (!$this->Racer->exists($code)) {
 			throw new NotFoundException(__('Invalid racer'));
 		}
-		$options = array('conditions' => array('Racer.' . $this->Racer->primaryKey => $id));
-		$this->set('racer', $this->Racer->find('first', $options));
+		
+		$isApiCall = $this->_isApiCall();
+		
+		$options = array('conditions' => array('Racer.' . $this->Racer->primaryKey => $code));
+		if ($isApiCall) {
+			$options['recursive'] = -1;
+		}
+		
+		$racer = $this->Racer->find('first', $options);
+		if ($isApiCall) {
+			$this->success($racer);
+		} else {
+			$this->set('racer', $racer);
+		}
 	}
 
 /**

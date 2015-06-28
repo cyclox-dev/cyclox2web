@@ -16,7 +16,7 @@ App::uses('Util', 'Cyclox/Util');
  */
 class ApiController extends ApiBaseController
 {
-	public $uses = array('Meet', 'CategoryRacer');
+	public $uses = array('Meet', 'CategoryRacer', 'Racer');
 	
 	public $components = array('Session', 'RequestHandler');
 	
@@ -64,6 +64,28 @@ class ApiController extends ApiBaseController
 		}
 		
 		return $this->success(array('category_racers' => $meets));
+	}
+	
+	/**
+	 * 更新すべき選手情報（選手コードの配列）を取得する
+	 * @param date $date 最後の更新ダウンロード日時
+	 */
+	public function updated_racer_codes($date = null)
+	{
+		if ($date) {
+			$dt = $this->__getFindSqlDate($date);
+			
+			if ($dt) {
+				$opt = array('conditions' => array('modified >' => $dt),'fields' => array('code', 'family_name'));
+				$meets = $this->Racer->find('list', $opt);
+			} else {
+				return $this->error('パラメタには日付を指定して下さい。', self::STATUS_CODE_BAD_REQUEST);
+			}
+		} else {
+			$meets = $this->Racer->find('list');
+		}
+		
+		return $this->success(array('racers' => $meets));
 	}
 	
 	/**
