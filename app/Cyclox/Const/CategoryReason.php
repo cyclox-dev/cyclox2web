@@ -21,6 +21,7 @@ class CategoryReason
     static $OTHER_UP;
     static $OTHER_DOWN;
     static $OTHER_CHANGE;
+	static $UNKNOWN;
 	
 	private static $reasons;
 	
@@ -43,17 +44,27 @@ class CategoryReason
 		self::$OTHER_CHANGE = new CategoryReason(10, CategoryChangeFlag::$OTHER, 'その他カテゴリー付与', 'その他の理由によるカテゴリー付与');
 		
 		self::$reasons = array(
-			self::$FIRST_REGIST,
-			self::$RESULT_UP,
-			self::$SEASON_UP,
-			self::$SEASON_DOWN,
-			self::$TO_SUPER_RACER,
-			self::$BY_AGE,
-			self::$BY_RULE,
-			self::$OTHER_UP,
-			self::$OTHER_DOWN,
-			self::$OTHER_CHANGE
+			self::$FIRST_REGIST->ID() => self::$FIRST_REGIST,
+			self::$RESULT_UP ->ID() => self::$RESULT_UP,
+			self::$SEASON_UP ->ID() => self::$SEASON_UP,
+			self::$SEASON_DOWN ->ID() => self::$SEASON_DOWN,
+			self::$TO_SUPER_RACER ->ID() => self::$TO_SUPER_RACER,
+			self::$BY_AGE ->ID() => self::$BY_AGE,
+			self::$BY_RULE ->ID() => self::$BY_RULE,
+			self::$OTHER_UP ->ID() => self::$OTHER_UP,
+			self::$OTHER_DOWN ->ID() => self::$OTHER_DOWN,
+			self::$OTHER_CHANGE ->ID() => self::$OTHER_CHANGE
 		);
+		
+		self::$UNKNOWN = new CategoryReason(11, CategoryChangeFlag::$OTHER, '理由不明', '不明な理由による適用');
+	}
+	
+	public static function reasonAt($id)
+	{
+		if (!isset(self::$reasons[$id])) return self::$UNKNOWN;
+		
+		$ret = self::$reasons[$id];
+		return !$ret ? self::$UNKNOWN : $ret;
 	}
 	
 	private $ID;
