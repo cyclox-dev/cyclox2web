@@ -1,7 +1,6 @@
 <?php
 
 App::uses('ApiBaseController', 'Controller');
-App::uses('Meet', 'Model');
 
 /**
  * CategoryRacers Controller
@@ -20,6 +19,7 @@ class CategoryRacersController extends ApiBaseController
  */
 	public $components = array('Paginator', 'Session', 'RequestHandler');
 
+	public $uses = array('CategoryRacer', 'Meet');
 /**
  * index method
  *
@@ -93,8 +93,7 @@ class CategoryRacersController extends ApiBaseController
 		$categories = $this->CategoryRacer->Category->find('all');
 		$racers = $this->CategoryRacer->Racer->find('all');
 
-		$mt = new Meet();
-		$meets = $mt->find('all', array('recursive' => -1));
+		$meets = $this->Meet->find('all', array('recursive' => -1));
 		$this->set(compact('categories', 'racers', 'meets'));
 	}
 	
