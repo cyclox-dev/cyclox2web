@@ -130,8 +130,8 @@ class RacersController extends ApiBaseController
 			$this->request->data['Racer']['code'] = $code;
 			
 			if ($this->Racer->save($this->request->data)) {
-				$this->Session->setFlash(__('新規選手 [code:' . $code . '] を保存しました。'));
-				return $this->redirect(array('action' => 'index'));
+				$this->Session->setFlash(__('新規選手データ [code:' . $code . '] を保存しました。'));
+				return $this->redirect('/racers/view/' . $code);
 			} else {
 				$this->Session->setFlash(__('The racer could not be saved. Please, try again.'));
 			}
@@ -196,7 +196,7 @@ class RacersController extends ApiBaseController
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->Racer->save($this->request->data)) {
 				$this->Session->setFlash(__('The racer has been saved.'));
-				return $this->redirect(array('action' => 'index'));
+				return $this->redirect('/racers/view/' . $code);
 			} else {
 				$this->Session->setFlash(__('The racer could not be saved. Please, try again.'));
 			}

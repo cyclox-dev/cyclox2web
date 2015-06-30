@@ -62,12 +62,12 @@ class CategoryRacersController extends ApiBaseController
 	 *
 	 * @return void
 	 */
-	public function add() 
+	public function add($racerCode = null)
 	{
 		if ($this->_isApiCall()) {
 			return $this->__addOnApi();
 		} else {
-			return $this->__addOnPage();
+			return $this->__addOnPage($racerCode);
 		}
 	}
 	
@@ -75,7 +75,7 @@ class CategoryRacersController extends ApiBaseController
 	 * 管理画面上での add 処理
 	 * @return void
 	 */
-	private function __addOnPage() 
+	private function __addOnPage($racerCode = null)
 	{
 		if ($this->request->is('post')) {
 			//$this->log($this->request->data);
@@ -84,7 +84,7 @@ class CategoryRacersController extends ApiBaseController
 				//$this->log($this->CategoryRacer->getDataSource()->getLog(), LOG_DEBUG);
 				
 				$this->Session->setFlash(__('The category racer has been saved.'));
-				return $this->redirect(array('action' => 'index'));
+				return $this->redirect('/category_racers/view/' . $this->CategoryRacer->id);
 			} else {
 				$this->Session->setFlash(__('The category racer could not be saved. Please, try again.'));
 			}
@@ -95,6 +95,11 @@ class CategoryRacersController extends ApiBaseController
 
 		$meets = $this->Meet->find('all', array('recursive' => -1));
 		$this->set(compact('categories', 'racers', 'meets'));
+		
+		if ($racerCode != null)  {
+			$this->set('racerCode', $racerCode);
+			$this->request->data['CategoryRacer']['racer_code'] = $racerCode;
+		}
 	}
 	
 	/**
@@ -134,7 +139,7 @@ class CategoryRacersController extends ApiBaseController
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->CategoryRacer->save($this->request->data)) {
 				$this->Session->setFlash(__('The category racer has been saved.'));
-				return $this->redirect(array('action' => 'index'));
+				return $this->redirect('/category_racers/view/' . $this->CategoryRacer->id);
 			} else {
 				$this->Session->setFlash(__('The category racer could not be saved. Please, try again.'));
 			}
@@ -142,9 +147,12 @@ class CategoryRacersController extends ApiBaseController
 			$options = array('conditions' => array('CategoryRacer.' . $this->CategoryRacer->primaryKey => $id));
 			$this->request->data = $this->CategoryRacer->find('first', $options);
 		}
-		$categories = $this->CategoryRacer->Category->find('list');
-		$racers = $this->CategoryRacer->Racer->find('list');
-		$this->set(compact('categories', 'racers'));
+		
+		$categories = $this->CategoryRacer->Category->find('all');
+		$racers = $this->CategoryRacer->Racer->find('all');
+
+		$meets = $this->Meet->find('all', array('recursive' => -1));
+		$this->set(compact('categories', 'racers', 'meets'));
 	}
 
 	/**

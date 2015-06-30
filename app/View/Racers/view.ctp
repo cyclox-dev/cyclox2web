@@ -112,7 +112,6 @@
 <p style="height: 1em"></p>
 <h3>Status</h3>
 	<dl>
-
 		<dt><?php echo __('Created'); ?></dt>
 		<dd>
 			<?php echo h($racer['Racer']['created']); ?>
@@ -137,14 +136,15 @@
 		<li><?php echo $this->Form->postLink(__('この選手データを削除'), array('action' => 'delete', $racer['Racer']['code']), array(),
 			__('この選手 [code:%s] を削除してよろしいですか？', $racer['Racer']['code'])); ?> </li>
 		<li><?php echo $this->Html->link(__('> 選手リスト'), array('action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('> 新規選手の追加'), array('action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('> 選手データを追加'), array('action' => 'add')); ?> </li>
 	</ul>
 </div>
 <div class="related">
-	<h3><?php echo __('所属カテゴリー'); ?></h3>
+	<h3><?php echo __('カテゴリー所属'); ?></h3>
 	<div class="actions">
 		<ul>
-			<li><?php echo $this->Html->link(__('所属カテゴリーを追加'), array('controller' => 'category_racers', 'action' => 'add')); ?> </li>
+			<li><?php echo $this->Html->link(__('カテゴリー所属を追加')
+				, '/category_racers/add/' . $racer['Racer']['code']); ?> </li>
 		</ul>
 	</div>
 	<?php if (!empty($racer['CategoryRacer'])):	?>
@@ -193,7 +193,7 @@
 					<?php echo $this->Html->link(__('View'), array('controller' => 'category_racers', 'action' => 'view', $categoryRacer['id'])); ?>
 					<?php echo $this->Html->link(__('Edit'), array('controller' => 'category_racers', 'action' => 'edit', $categoryRacer['id'])); ?>
 					<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'category_racers', 'action' => 'delete', $categoryRacer['id']), array()
-						, 'ID:' . $categoryRacer['id'] . "のデータを削除してよろしいですか？\n解消の場合には編集から解消日を設定して下さい。"); ?>
+						, 'カテゴリー所属 [ID:' . $categoryRacer['id'] . "] のデータを削除してよろしいですか？\n解消の場合には編集画面で解消日を設定して下さい。"); ?>
 				</td>
 			</tr>
 		<?php endforeach; ?>

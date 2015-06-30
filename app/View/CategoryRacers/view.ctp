@@ -1,12 +1,12 @@
 <div class="categoryRacers view">
-<h2><?php echo __('Category Racer'); ?></h2>
+<h2><?php echo __('カテゴリー所属'); ?></h2>
 	<dl>
-		<dt><?php echo __('Id'); ?></dt>
+		<dt><?php echo __('ID'); ?></dt>
 		<dd>
 			<?php echo h($categoryRacer['CategoryRacer']['id']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Racer'); ?></dt>
+		<dt><?php echo __('選手'); ?></dt>
 		<dd>
 			<?php echo $this->Html->link($categoryRacer['Racer']['code'], array('controller' => 'racers', 'action' => 'view', $categoryRacer['Racer']['code'])); ?>
 			&nbsp;
@@ -16,31 +16,38 @@
 			<?php echo $this->Html->link($categoryRacer['Category']['name'], array('controller' => 'categories', 'action' => 'view', $categoryRacer['Category']['code'])); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Apply Date'); ?></dt>
+		<dt><?php echo __('適用日'); ?></dt>
 		<dd>
 			<?php echo h($categoryRacer['CategoryRacer']['apply_date']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Reason Id'); ?></dt>
-		<dd>
-			<?php echo h($categoryRacer['CategoryRacer']['reason_id']); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('Reason Note'); ?></dt>
-		<dd>
-			<?php echo h($categoryRacer['CategoryRacer']['reason_note']); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('Meet Code'); ?></dt>
-		<dd>
-			<?php echo h($categoryRacer['CategoryRacer']['meet_code']); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('Cancel Date'); ?></dt>
+		<dt><?php echo __('解消日'); ?></dt>
 		<dd>
 			<?php echo h($categoryRacer['CategoryRacer']['cancel_date']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('適用タイプ'); ?></dt>
+		<dd>
+			<?php 
+				App::uses('CategoryReason', 'Cyclox/Const');
+				echo h(CategoryReason::reasonAt($categoryRacer['CategoryRacer']['reason_id'])->name());
+			?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('適用に関する Note'); ?></dt>
+		<dd>
+			<?php echo h($categoryRacer['CategoryRacer']['reason_note']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('適用根拠大会 Code'); ?></dt>
+		<dd>
+			<?php echo $this->Html->link($categoryRacer['CategoryRacer']['meet_code'], array('controller' => 'meets', 'action' => 'view', $categoryRacer['CategoryRacer']['meet_code'])); ?>
+			&nbsp;
+		</dd>
+	</dl>
+<p style="height: 1em"></p>
+<h3>Status</h3>
+	<dl>
 		<dt><?php echo __('Created'); ?></dt>
 		<dd>
 			<?php echo h($categoryRacer['CategoryRacer']['created']); ?>
@@ -61,13 +68,13 @@
 <div class="actions">
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
-		<li><?php echo $this->Html->link(__('Edit Category Racer'), array('action' => 'edit', $categoryRacer['CategoryRacer']['id'])); ?> </li>
-		<li><?php echo $this->Form->postLink(__('Delete Category Racer'), array('action' => 'delete', $categoryRacer['CategoryRacer']['id']), array(), __('Are you sure you want to delete # %s?', $categoryRacer['CategoryRacer']['id'])); ?> </li>
-		<li><?php echo $this->Html->link(__('List Category Racers'), array('action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Category Racer'), array('action' => 'add')); ?> </li>
-		<li><?php echo $this->Html->link(__('List Categories'), array('controller' => 'categories', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Category'), array('controller' => 'categories', 'action' => 'add')); ?> </li>
-		<li><?php echo $this->Html->link(__('List Racers'), array('controller' => 'racers', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Racer'), array('controller' => 'racers', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('このカテゴリー所属を編集'), array('action' => 'edit', $categoryRacer['CategoryRacer']['id'])); ?> </li>
+		<li><?php echo $this->Form->postLink(__('このカテゴリー所属を削除'), array('action' => 'delete', $categoryRacer['CategoryRacer']['id']), array()
+			, 'カテゴリー所属 [ID:' . $categoryRacer['CategoryRacer']['id'] . "] のデータを削除してよろしいですか？\n解消の場合には編集画面で解消日を設定して下さい。"); ?> </li>
+		<li><?php echo $this->Html->link(__('> カテゴリー所属リスト'), array('action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('> カテゴリー所属を追加'), array('action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('> カテゴリーリスト'), array('controller' => 'categories', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('> 選手リスト'), array('controller' => 'racers', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('> 選手データを追加'), array('controller' => 'racers', 'action' => 'add')); ?> </li>
 	</ul>
 </div>

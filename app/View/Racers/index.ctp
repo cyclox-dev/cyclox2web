@@ -99,8 +99,8 @@ function nameOrKana($name, $kana)
 <div class="actions">
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
-		<li><?php echo $this->Html->link(__('新規選手の追加'), array('action' => 'add')); ?></li>
-		<li><?php echo $this->Html->link(__('> 選手カテゴリーリスト'), array('controller' => 'category_racers', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('> 新規選手カテゴリー追加'), array('controller' => 'category_racers', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('選手データを追加'), array('action' => 'add')); ?></li>
+		<li><?php echo $this->Html->link(__('> カテゴリー所属リスト'), array('controller' => 'category_racers', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('> カテゴリー所属を追加'), array('controller' => 'category_racers', 'action' => 'add')); ?> </li>
 	</ul>
 </div>
