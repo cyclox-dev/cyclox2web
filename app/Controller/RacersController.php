@@ -58,17 +58,63 @@ class RacersController extends ApiBaseController
 		}
 	}
 
-/**
- * add method
- *
- * @return void
- */
+	/**
+	 * add method
+	 *
+	 * @return void
+	 */
 	public function add() 
 	{
+		if ($this->request->is(array('post', 'put'))) {
+			if (!$this->_validateFamilyName()) {
+				$this->Racer->validator()->invalidate('family_name', '姓のいずれかに入力が必要です。');
+				$this->Racer->validator()->invalidate('family_name_kana', '姓のいずれかに入力が必要です。');
+				$this->Racer->validator()->invalidate('family_name_en', '姓のいずれかに入力が必要です。');
+				return;
+			}
+			if (!$this->_validateFirstName()) {
+				$this->Racer->validator()->invalidate('first_name', '姓のいずれかに入力が必要です。');
+				$this->Racer->validator()->invalidate('first_name_kana', '姓のいずれかに入力が必要です。');
+				$this->Racer->validator()->invalidate('first_name_en', '姓のいずれかに入力が必要です。');
+				return;
+			}
+		}
+		
 		if ($this->_isApiCall()) {
 			return $this->__addOnApi();
 		} else {
 			return $this->__addOnPage();
+		}
+	}
+	
+	/**
+	 * 姓のいずれかが入力されているかをかえす
+	 * @return boolean
+	 */
+	private function _validateFamilyName()
+	{
+		$this->log($this->data, LOG_DEBUG);
+		if (empty($this->data['Racer']['family_name'])
+				&& empty($this->data['Racer']['family_name_kana'])
+				&& empty($this->data['Racer']['family_name_en'])) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	/**
+	 * 名のいずれかが入力されているかをかえす
+	 * @return boolean
+	 */
+	private function _validateFirstName()
+	{
+		if (empty($this->data['Racer']['first_name'])
+				&& empty($this->data['Racer']['first_name_kana'])
+				&& empty($this->data['Racer']['first_name_en'])) {
+			return false;
+		} else {
+			return true;
 		}
 	}
 	
@@ -157,6 +203,7 @@ class RacersController extends ApiBaseController
 		} else {
 			$options = array('conditions' => array('Racer.' . $this->Racer->primaryKey => $code));
 			$this->request->data = $this->Racer->find('first', $options);
+			$this->set('rcode', $this->request->data['Racer']['code']);
 		}
 	}
 	
