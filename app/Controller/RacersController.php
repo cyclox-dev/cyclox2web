@@ -19,7 +19,7 @@ class RacersController extends ApiBaseController
  * @var array
  */
 	public $components = array('Paginator', 'Session', 'RequestHandler');
-
+	
 /**
  * index method
  *
@@ -27,7 +27,7 @@ class RacersController extends ApiBaseController
  */
 	public function index() {
 		$this->Racer->recursive = 0;
-		$this->set('racers', $this->Paginator->paginate());
+		$this->set('racers', $this->Paginator->paginate('Racer', array('deleted' => null)));
 	}
 
 /**
@@ -245,7 +245,7 @@ class RacersController extends ApiBaseController
 		$rc = $this->Racer->findByCode($code);
 		if (!$rc) throw new NotFoundException(__('Invalid meet'));
 		
-		$this->Meet->set('code', $code);
+		$this->Racer->set('code', $code);
 		$ret = $this->Racer->saveField('deleted', date('Y-m-d H:i:s'));
 		if (is_array($ret)) {
 			$this->Session->setFlash(__('選手 [code:' . $code . '] を削除しました（削除日時を適用）。'));
