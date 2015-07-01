@@ -91,13 +91,12 @@ class SeasonsController extends AppController {
 	 */
 	public function delete($id = null) 
 	{
-		if ($this->request->is('get')) throw new MethodNotAllowedException();
-		
-		$this->Season->id = $id;
-		if (!$this->Season->exists()) throw new NotFoundException(__('Invalid season'));
-		
-		$ret = $this->Season->saveField('deleted', date('Y-m-d H:i:s'));
-		if (is_array($ret)) {
+		$this->MeetGroup->id = $id;
+		if (!$this->MeetGroup->exists()) {
+			throw new NotFoundException(__('Invalid meet group'));
+		}
+		$this->request->allowMethod('post', 'delete');
+		if ($this->MeetGroup->logicalDelete()) {
 			$this->Session->setFlash(__('シーズン [ID:' . $id . '] を削除しました（削除日時を適用）。'));
 		} else {
 			$this->Session->setFlash(__('シーズンの削除に失敗しました。'));

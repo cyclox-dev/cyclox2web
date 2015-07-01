@@ -1,11 +1,13 @@
 <?php
-App::uses('AppModel', 'Model');
+
+App::uses('LogicalDelModel', 'Model');
+
 /**
  * Season Model
  *
  * @property Meet $Meet
  */
-class Season extends AppModel {
+class Season extends LogicalDelModel {
 
 	/**
 	 * Display field

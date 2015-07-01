@@ -1,5 +1,7 @@
 <?php
-App::uses('AppModel', 'Model');
+
+App::uses('LogicalDelModel', 'Model');
+
 /**
  * Meet Model
  *
@@ -7,7 +9,7 @@ App::uses('AppModel', 'Model');
  * @property MeetGroup $MeetGroup
  * @property EntryGroup $EntryGroup
  */
-class Meet extends AppModel {
+class Meet extends LogicalDelModel {
 
 /**
  * Primary key field

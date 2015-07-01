@@ -120,15 +120,12 @@ class MeetsController extends ApiBaseController {
 	 */
 	public function delete($code = null)
 	{
-		if ($this->request->is('get')) throw new MethodNotAllowedException();
-		if (!$code) throw new NotFoundException(__('Invalid meet'));
-		
-		$mt = $this->Meet->findByCode($code);
-		if (!$mt) throw new NotFoundException(__('Invalid meet'));
-		
-		$this->Meet->set('code', $code);
-		$ret = $this->Meet->saveField('deleted', date('Y-m-d H:i:s'));
-		if (is_array($ret)) {
+		$this->Meet->id = $code;
+		if (!$this->Meet->exists()) {
+			throw new NotFoundException(__('Invalid meet'));
+		}
+		$this->request->allowMethod('post', 'delete');
+		if ($this->Meet->logicalDelete()) {
 			$this->Session->setFlash(__('大会 [code:' . $code . '] を削除しました（削除日時を適用）。'));
 		} else {
 			$this->Session->setFlash(__('大会の削除に失敗しました。'));

@@ -97,15 +97,12 @@ class MeetGroupsController extends AppController {
 	 * @throws NotFoundException
 	 */
 	public function delete($code = null) {
-		if ($this->request->is('get')) throw new MethodNotAllowedException();
-		if (!$code) throw new NotFoundException(__('Invalid meet'));
-		
-		$mg = $this->MeetGroup->findByCode($code);
-		if (!$mg) throw new NotFoundException(__('Invalid meet'));
-		
-		$this->MeetGroup->set('code', $code);
-		$ret = $this->MeetGroup->saveField('deleted', date('Y-m-d H:i:s'));
-		if (is_array($ret)) {
+		$this->MeetGroup->id = $code;
+		if (!$this->MeetGroup->exists()) {
+			throw new NotFoundException(__('Invalid meet group'));
+		}
+		$this->request->allowMethod('post', 'delete');
+		if ($this->MeetGroup->logicalDelete()) {
 			$this->Session->setFlash(__('大会グループ [code:' . $code . '] を削除しました（削除日時を適用）。'));
 		} else {
 			$this->Session->setFlash(__('大会グループの削除に失敗しました。'));

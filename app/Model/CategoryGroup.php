@@ -1,11 +1,13 @@
 <?php
-App::uses('AppModel', 'Model');
+
+App::uses('LogicalDelModel', 'Model');
+
 /**
  * CategoryGroup Model
  *
  * @property Category $Category
  */
-class CategoryGroup extends AppModel {
+class CategoryGroup extends LogicalDelModel {
 
 /**
  * Display field

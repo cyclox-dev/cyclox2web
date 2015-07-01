@@ -1,5 +1,7 @@
 <?php
+
 App::uses('AppModel', 'Model');
+
 /**
  * Category Model
  *
@@ -7,7 +9,7 @@ App::uses('AppModel', 'Model');
  * @property CategoryRacer $CategoryRacer
  * @property CategoryRacesCategory $CategoryRacesCategory
  */
-class Category extends AppModel {
+class Category extends LogicalDelModel {
 
 /**
  * Primary key field

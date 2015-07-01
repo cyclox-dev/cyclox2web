@@ -1,12 +1,12 @@
 <?php
-App::uses('AppModel', 'Model');
+App::uses('LogicalDelModel', 'Model');
 /**
  * RacesCategory Model
  *
  * @property CategoryRacesCategory $CategoryRacesCategory
  * @property EntryCategory $EntryCategory
  */
-class RacesCategory extends AppModel {
+class RacesCategory extends LogicalDelModel {
 
 /**
  * Primary key field

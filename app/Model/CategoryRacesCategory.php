@@ -1,12 +1,14 @@
 <?php
-App::uses('AppModel', 'Model');
+
+App::uses('LogicalDelModel', 'Model');
+
 /**
  * CategoryRacesCategory Model
  *
  * @property RacesCategory $RacesCategory
  * @property Category $Category
  */
-class CategoryRacesCategory extends AppModel
+class CategoryRacesCategory extends LogicalDelModel
 {
 	public $displayField = 'races_category_code';
 

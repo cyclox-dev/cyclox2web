@@ -101,13 +101,12 @@ class CategoryRacesCategoriesController extends AppController {
 	 */
 	public function delete($id = null) 
 	{
-		if ($this->request->is('get')) throw new MethodNotAllowedException();
-		
 		$this->CategoryRacesCategory->id = $id;
-		if (!$this->CategoryRacesCategory->exists()) throw new NotFoundException(__('Invalid category-races_category bind'));
-		
-		$ret = $this->CategoryRacesCategory->saveField('deleted', date('Y-m-d H:i:s'));
-		if (is_array($ret)) {
+		if (!$this->CategoryRacesCategory->exists()) {
+			throw new NotFoundException(__('Invalid category races category'));
+		}
+		$this->request->allowMethod('post', 'delete');
+		if ($this->CategoryRacesCategory->logicalDelete()) {
 			$this->Session->setFlash(__('レースカテゴリーへのカテゴリー配属 [ID:' . $id . '] を削除しました（削除日時を適用）。'));
 		} else {
 			$this->Session->setFlash(__('レースカテゴリーへのカテゴリー配属の削除に失敗しました。'));

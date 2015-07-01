@@ -1,11 +1,13 @@
 <?php
-App::uses('AppModel', 'Model');
+
+App::uses('LogicalDelModel', 'Model');
+
 /**
  * MeetGroup Model
  *
  * @property Meet $meets
  */
-class MeetGroup extends AppModel
+class MeetGroup extends LogicalDelModel
 {
 	const MSG_INPUT_CODE = 'code は半角英数3文字を指定して下さい。';
 	const MSG_NOT_EMPTY = '必須入力項目です。';
