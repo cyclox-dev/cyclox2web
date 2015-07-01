@@ -164,13 +164,12 @@ class CategoryRacersController extends ApiBaseController
 	 */
 	public function delete($id = null) 
 	{
-		if ($this->request->is('get')) throw new MethodNotAllowedException();
-		
 		$this->CategoryRacer->id = $id;
-		if (!$this->CategoryRacer->exists()) throw new NotFoundException(__('Invalid season'));
-		
-		$ret = $this->CategoryRacer->saveField('deleted', date('Y-m-d H:i:s'));
-		if (is_array($ret)) {
+		if (!$this->CategoryRacer->exists()) {
+			throw new NotFoundException(__('Invalid category racer'));
+		}
+		$this->request->allowMethod('post', 'delete');
+		if ($this->CategoryRacer->logicalDelete()) {
 			$this->Session->setFlash(__('選手のカテゴリー所属情報 [ID:' . $id . '] を削除しました（削除日時の適用）。'));
 		} else {
 			$this->Session->setFlash(__('選手のカテゴリー所属情報削除に失敗しました。'));

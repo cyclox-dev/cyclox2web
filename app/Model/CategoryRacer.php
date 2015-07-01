@@ -1,12 +1,12 @@
 <?php
-App::uses('AppModel', 'Model');
+App::uses('LogicalDelModel', 'Model');
 /**
  * CategoryRacer Model
  *
  * @property Category $Category
  * @property Racer $Racer
  */
-class CategoryRacer extends AppModel {
+class CategoryRacer extends LogicalDelModel {
 
 /**
  * Display field

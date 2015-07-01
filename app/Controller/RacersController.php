@@ -27,7 +27,7 @@ class RacersController extends ApiBaseController
  */
 	public function index() {
 		$this->Racer->recursive = 1;
-		//$this->set('racers', $this->Paginator->paginate('Racer', array('deleted' => null)));
+		$this->set('racers', $this->Paginator->paginate('Racer', array('deleted' => null)));
 		$this->set('racers', $this->Paginator->paginate());
 	}
 

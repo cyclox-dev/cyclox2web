@@ -13,6 +13,7 @@ App::uses('AppModel', 'Model');
  */
 class LogicalDelModel extends AppModel
 {
+	// 使ってません。find() 全部通せると思ったけどアソシエーション取得にはかかわらずで微妙。
 	/**
 	 * Model.find() の override。deleted を除外する機能を持つ。
 	 * @param type string $type Type of find operation (all / first / count / neighbors / list / threaded)
@@ -20,7 +21,7 @@ class LogicalDelModel extends AppModel
 	 * @param boolean deleted を除外するか
 	 * @return array|null Array of records, or Null on failure.
 	 */
-	public function find($type = 'first', $query = array(), $excludeDeleted = true)
+	public function xxx_find($type = 'first', $query = array(), $excludeDeleted = true)
 	{
 		if ($excludeDeleted) {
 			if (!$query) {
@@ -30,13 +31,13 @@ class LogicalDelModel extends AppModel
 			$hasConditions = false;
 			if (!empty($query)) {
 				if (array_key_exists('conditios', $query) && !empty($query['conditions'])) {
-					$query['conditions']['deleted'] = null;
+					$query['conditions'][$this->name . 'deleted'] = null;
 					$hasConditions = true;
 				}
 			}
 
 			if (!$hasConditions) {
-				$query['conditions'] = array('deleted' => null);
+				$query['conditions'] = array($this->name . '.deleted' => null);
 			}
 		}
 		
