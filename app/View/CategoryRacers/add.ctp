@@ -17,8 +17,8 @@
 		}
 		
 		$cats = array();
-		foreach ($categories as $c) {
-			$cats[$c['Category']['code']] = $c['Category']['code'] . ': ' . $c['Category']['name'];
+		foreach ($categories as $key => $val) {
+			$cats[$key] = $key . ': ' . $val;
 		}
 		
 		$reasons = array();
@@ -27,8 +27,8 @@
 		}
 		
 		$mts = array();
-		foreach ($meets as $m) {
-			$mts[$m['Meet']['code']] = $m['Meet']['code'] . ': ' . $m['Meet']['name'];
+		foreach ($meets as $key => $val) {
+			$mts[$key] = $key . ': ' . $val;
 		}
 		
 		if (isset($racerCode)) {
