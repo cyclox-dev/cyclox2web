@@ -116,6 +116,9 @@ CakeLog::config('error', array(
 /* add @ 20150610 */
 CakePlugin::load( 'DebugKit');
 
+/* add @ 20150701 */
+CakePlugin::load('Search');
+
 /* add @ 20150618 */
 // AJOCC 関連で使用する定数を読込
 Configure::load('ajocc_const');

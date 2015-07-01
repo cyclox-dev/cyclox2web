@@ -11,6 +11,24 @@ function nameOrKana($name, $kana)
 
 <div class="racers index">
 	<h2><?php echo __('選手一覧'); ?></h2>
+	<div>
+		<?php echo $this->Form->create('Racer', array('action'=>'index')); ?>
+		<fieldset>
+			<legend>検索</legend>
+			<?php echo $this->Form->input('keyword', array('label' => 'キーワード', 'placeholder' => '選手 Code, 名前について検索')); ?>
+			<?php
+				$options = array('and' => 'AND', 'or' => 'OR');
+				$attributes = array('type' => 'radio', 'default' => 'and', 'class' => 'radio inline');
+				echo $this->Form->input('andor', array(
+					'legend' => false,
+					'type' => 'radio',
+					'options' => $options,
+					'default' => 'or',
+				));
+			?>
+		</fieldset>
+		<?php echo $this->Form->end('検索'); ?>
+	</div>
 	<table cellpadding="0" cellspacing="0">
 	<thead>
 	<tr>

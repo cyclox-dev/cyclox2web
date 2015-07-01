@@ -1,5 +1,7 @@
 <?php
+
 App::uses('LogicalDelModel', 'Model');
+
 /**
  * Racer Model
  *
@@ -14,7 +16,31 @@ class Racer extends LogicalDelModel {
  * @var string
  */
 	public $primaryKey = 'code';
-
+	
+	// Search プラグイン設定
+	public $actsAs = array('Search.Searchable');
+    public $filterArgs = array(
+		'word' => array(
+			'type' => 'like',
+			'field' => array(
+				'Racer.code',
+				'Racer.family_name',
+				'Racer.family_name_kana',
+				'Racer.family_name_en',
+				'Racer.first_name',
+				'Racer.first_name_kana',
+				'Racer.first_name_en',
+			),
+			'connectorAnd' => '+',
+			'connectorOr' => ','
+		),
+	);
+	
+	public function multipleKeywords($keyword, $andor = null) {
+		$connector = ($andor === 'or') ? ',' : '+';
+		$keyword = preg_replace('/\s+/', $connector, trim(mb_convert_kana($keyword, 's', 'UTF-8')));
+		return $keyword;
+	}
 /**
  * Validation rules
  *

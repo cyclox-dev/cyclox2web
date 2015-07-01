@@ -18,7 +18,13 @@ class RacersController extends ApiBaseController
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session', 'RequestHandler');
+	public $components = array('Paginator', 'Session', 'RequestHandler', 'Search.Prg');
+	
+	// Search プラグイン設定
+    public $presetVars = array(
+		'keyword' => array('type' => 'value'),
+		'andor' => array('type' => 'value'),
+	);
 	
 /**
  * index method
@@ -27,8 +33,21 @@ class RacersController extends ApiBaseController
  */
 	public function index() {
 		$this->Racer->recursive = 1;
-		$this->set('racers', $this->Paginator->paginate('Racer', array('deleted' => null)));
-		$this->set('racers', $this->Paginator->paginate());
+		
+		$this->Prg->commonProcess();
+		$req = $this->passedArgs;
+        if (!empty($this->request->data['Racer']['keyword'])) {
+            $andor = !empty($this->request->data['Racer']['andor']) ? $this->request->data['Racer']['andor'] : null;
+            $word = $this->Racer->multipleKeywords($this->request->data['Racer']['keyword'], $andor);
+            $req = array_merge($req, array("word" => $word));
+        }
+		
+		
+		$opt = $this->Racer->parseCriteria($req);
+		$opt['deleted'] = null;
+		$this->paginate = array('conditions' => $opt);
+		
+		$this->set('racers', $this->paginate());
 	}
 
 /**
