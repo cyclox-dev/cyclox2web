@@ -21,6 +21,7 @@ function nameOrKana($name, $kana)
 			<th><?php echo $this->Paginator->sort('first_name_en', "First Name"); ?></th>
 			<th><?php echo $this->Paginator->sort('gender', '性別'); ?></th>
 			<th><?php echo $this->Paginator->sort('birth_date', "生年月日"); ?></th>
+			<th><?php echo 'Category'; ?></th>
 			<th><?php echo $this->Paginator->sort('nationality_code', '国籍'); ?></th>
 		<!--
 			<th><?php echo $this->Paginator->sort('jcf_number'); ?></th>
@@ -55,6 +56,17 @@ function nameOrKana($name, $kana)
 		<td><?php echo h($racer['Racer']['first_name_en']); ?>&nbsp;</td>
 		<td><?php echo h(Gender::genderAt($racer['Racer']['gender'])->charExpJp()); ?>&nbsp;</td>
 		<td><?php echo h($racer['Racer']['birth_date']); ?>&nbsp;</td>
+		<td><?php
+			$cats = '';
+			foreach ($racer['CategoryRacer'] as $cat) {
+				if ($cat['deleted'] != null) continue;
+				if (strlen($cats) > 0) {
+					$cats .= ',';
+				}
+				$cats .= $cat['category_code'];
+			}
+			echo h($cats);
+		?>&nbsp;</td>
 		<td><?php echo h($racer['Racer']['nationality_code']); ?>&nbsp;</td>
 	<!--
 		<td><?php echo h($racer['Racer']['jcf_number']); ?>&nbsp;</td>
