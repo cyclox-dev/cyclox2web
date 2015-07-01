@@ -26,8 +26,9 @@ class RacersController extends ApiBaseController
  * @return void
  */
 	public function index() {
-		$this->Racer->recursive = 0;
-		$this->set('racers', $this->Paginator->paginate('Racer', array('deleted' => null)));
+		$this->Racer->recursive = 1;
+		//$this->set('racers', $this->Paginator->paginate('Racer', array('deleted' => null)));
+		$this->set('racers', $this->Paginator->paginate());
 	}
 
 /**
@@ -239,18 +240,15 @@ class RacersController extends ApiBaseController
 	 */
 	public function delete($code = null)
 	{
-		if ($this->request->is('get')) throw new MethodNotAllowedException();
-		if (!$code) throw new NotFoundException(__('Invalid meet'));
-		
-		$rc = $this->Racer->findByCode($code);
-		if (!$rc) throw new NotFoundException(__('Invalid meet'));
-		
-		$this->Racer->set('code', $code);
-		$ret = $this->Racer->saveField('deleted', date('Y-m-d H:i:s'));
-		if (is_array($ret)) {
+		$this->Racer->id = $code;
+		if (!$this->Racer->exists()) {
+			throw new NotFoundException(__('Invalid racer'));
+		}
+		$this->request->allowMethod('post', 'delete');
+		if ($this->Racer->logicalDelete()) {
 			$this->Session->setFlash(__('選手 [code:' . $code . '] を削除しました（削除日時を適用）。'));
 		} else {
-			$this->Session->setFlash(__('選手の削除に失敗しました。'));
+            $this->Session->setFlash(__('選手の削除に失敗しました。'));
 		}
 		
 		return $this->redirect(array('action' => 'index'));

@@ -1,12 +1,12 @@
 <?php
-App::uses('AppModel', 'Model');
+App::uses('LogicalDelModel', 'Model');
 /**
  * Racer Model
  *
  * @property CategoryRacer $CategoryRacer
  * @property EntryRacer $EntryRacer
  */
-class Racer extends AppModel {
+class Racer extends LogicalDelModel {
 
 /**
  * Primary key field
@@ -63,5 +63,5 @@ class Racer extends AppModel {
 			'counterQuery' => ''
 		),
 	);
-
+	
 }
