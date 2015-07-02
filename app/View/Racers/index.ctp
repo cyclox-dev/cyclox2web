@@ -11,24 +11,6 @@ function nameOrKana($name, $kana)
 
 <div class="racers index">
 	<h2><?php echo __('選手一覧'); ?></h2>
-	<div>
-		<?php echo $this->Form->create('Racer', array('action'=>'index')); ?>
-		<fieldset>
-			<legend>検索</legend>
-			<?php echo $this->Form->input('keyword', array('label' => 'キーワード', 'placeholder' => '選手 Code, 名前について検索')); ?>
-			<?php
-				$options = array('and' => 'AND', 'or' => 'OR');
-				$attributes = array('type' => 'radio', 'default' => 'and', 'class' => 'radio inline');
-				echo $this->Form->input('andor', array(
-					'legend' => false,
-					'type' => 'radio',
-					'options' => $options,
-					'default' => 'or',
-				));
-			?>
-		</fieldset>
-		<?php echo $this->Form->end('検索'); ?>
-	</div>
 	<table cellpadding="0" cellspacing="0">
 	<thead>
 	<tr>
@@ -127,6 +109,30 @@ function nameOrKana($name, $kana)
 </div>
 <div class="actions">
 	<h3><?php echo __('Actions'); ?></h3>
+	<div>
+		<?php echo $this->Form->create('Racer', array('action'=>'index')); ?>
+		<fieldset style="margin-bottom: 0em; padding: 0em 0em">
+			<legend>検索</legend>
+			<?php echo $this->Form->input('keyword', array(
+					'label' => 'キーワード', 
+					'placeholder' => '選手 Code, 名前について検索',
+				));
+			?>
+			<?php
+				$options = array('and' => 'AND', 'or' => 'OR');
+				echo $this->Form->input('andor', array(
+					'legend' => false,
+					'type' => 'radio',
+					'options' => $options,
+					'default' => 'or',
+					'div' => false,
+				));
+			?>
+		</fieldset>
+		<?php echo $this->Form->end('検索'); ?>
+		<p style="height: 3em"></p>
+	</div>
+
 	<ul>
 		<li><?php echo $this->Html->link(__('選手データを追加'), array('action' => 'add')); ?></li>
 		<li><?php echo $this->Html->link(__('> カテゴリー所属リスト'), array('controller' => 'category_racers', 'action' => 'index')); ?> </li>

@@ -57,4 +57,13 @@ class AppModel extends Model {
 		}
 		return $result;
 	}
+	
+	/**
+	 * deleted flag を考慮しない DB 上に存在しているかをかえす。
+	 * @param type $id
+	 * @return type
+	 */
+	public function existsOnDB($id = null) {
+		return parent::exists($id);
+	}
 }

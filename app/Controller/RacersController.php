@@ -57,9 +57,13 @@ class RacersController extends ApiBaseController
  */
 	public function view($code = null)
 	{
-		if (!$this->Racer->exists($code)) {
+		//if (!$this->Racer->exists($code)) {
+		if (!$this->Racer->existsOnDB($code)) {
 			throw new NotFoundException(__('Invalid racer'));
 		}
+		
+		// deleted も表示する
+		$this->Racer->softDelete(false);
 		
 		$isApiCall = $this->_isApiCall();
 		

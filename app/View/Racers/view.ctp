@@ -124,7 +124,12 @@
 		</dd>
 		<dt><?php echo __('Deleted'); ?></dt>
 		<dd>
-			<?php echo h($racer['Racer']['deleted']); ?>
+			<?php echo h(($racer['Racer']['deleted'] ? "Yes" : "No")); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Deleted Date'); ?></dt>
+		<dd>
+			<?php echo h($racer['Racer']['deleted_date']); ?>
 			&nbsp;
 		</dd>
 	</dl>
