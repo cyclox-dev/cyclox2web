@@ -1,6 +1,6 @@
 <?php
 
-App::uses('LogicalDelModel', 'Model');
+App::uses('AppModel', 'Model');
 
 /**
  * Racer Model
@@ -8,7 +8,7 @@ App::uses('LogicalDelModel', 'Model');
  * @property CategoryRacer $CategoryRacer
  * @property EntryRacer $EntryRacer
  */
-class Racer extends LogicalDelModel {
+class Racer extends AppModel {
 
 /**
  * Primary key field
@@ -17,9 +17,10 @@ class Racer extends LogicalDelModel {
  */
 	public $primaryKey = 'code';
 	
+	public $actsAs = array('Search.Searchable', 'Utils.SoftDelete');
+    
 	// Search プラグイン設定
-	public $actsAs = array('Search.Searchable');
-    public $filterArgs = array(
+	public $filterArgs = array(
 		'word' => array(
 			'type' => 'like',
 			'field' => array(

@@ -6,8 +6,8 @@ DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
-DROP TABLE IF EXISTS time_records;
 DROP TABLE IF EXISTS racer_results;
+DROP TABLE IF EXISTS time_records;
 DROP TABLE IF EXISTS entry_racers;
 DROP TABLE IF EXISTS entry_categories;
 DROP TABLE IF EXISTS time_record_info;
@@ -242,7 +242,8 @@ CREATE TABLE racers
 	note text,
 	created datetime,
 	modified datetime,
-	deleted datetime,
+	deleted_date datetime,
+	deleted tinyint(1) DEFAULT 0 NOT NULL,
 	PRIMARY KEY (code),
 	UNIQUE (code)
 );
@@ -336,129 +337,3 @@ CREATE TABLE time_record_info
 	UNIQUE (id),
 	UNIQUE (entry_group_id)
 );
-
-
-
-/* Create Foreign Keys */
-
-ALTER TABLE category_races_categories
-	ADD FOREIGN KEY (category_code)
-	REFERENCES categories (code)
-	ON UPDATE RESTRICT
-	ON DELETE RESTRICT
-;
-
-
-ALTER TABLE category_racers
-	ADD FOREIGN KEY (category_code)
-	REFERENCES categories (code)
-	ON UPDATE RESTRICT
-	ON DELETE RESTRICT
-;
-
-
-ALTER TABLE categories
-	ADD FOREIGN KEY (category_group_id)
-	REFERENCES category_groups (id)
-	ON UPDATE RESTRICT
-	ON DELETE RESTRICT
-;
-
-
-ALTER TABLE entry_racers
-	ADD FOREIGN KEY (entry_category_id)
-	REFERENCES entry_categories (id)
-	ON UPDATE RESTRICT
-	ON DELETE RESTRICT
-;
-
-
-ALTER TABLE entry_categories
-	ADD FOREIGN KEY (entry_group_id)
-	REFERENCES entry_groups (id)
-	ON UPDATE RESTRICT
-	ON DELETE RESTRICT
-;
-
-
-ALTER TABLE time_record_info
-	ADD FOREIGN KEY (entry_group_id)
-	REFERENCES entry_groups (id)
-	ON UPDATE RESTRICT
-	ON DELETE RESTRICT
-;
-
-
-ALTER TABLE time_records
-	ADD FOREIGN KEY (entry_racer_id)
-	REFERENCES entry_racers (id)
-	ON UPDATE RESTRICT
-	ON DELETE RESTRICT
-;
-
-
-ALTER TABLE racer_results
-	ADD FOREIGN KEY (entry_racer_id)
-	REFERENCES entry_racers (id)
-	ON UPDATE RESTRICT
-	ON DELETE RESTRICT
-;
-
-
-ALTER TABLE entry_groups
-	ADD FOREIGN KEY (meet_code)
-	REFERENCES meets (code)
-	ON UPDATE RESTRICT
-	ON DELETE RESTRICT
-;
-
-
-ALTER TABLE meets
-	ADD FOREIGN KEY (meet_group_code)
-	REFERENCES meet_groups (code)
-	ON UPDATE RESTRICT
-	ON DELETE RESTRICT
-;
-
-
-ALTER TABLE entry_racers
-	ADD FOREIGN KEY (racer_code)
-	REFERENCES racers (code)
-	ON UPDATE RESTRICT
-	ON DELETE RESTRICT
-;
-
-
-ALTER TABLE category_racers
-	ADD FOREIGN KEY (racer_code)
-	REFERENCES racers (code)
-	ON UPDATE RESTRICT
-	ON DELETE RESTRICT
-;
-
-
-ALTER TABLE category_races_categories
-	ADD FOREIGN KEY (races_category_code)
-	REFERENCES races_categories (code)
-	ON UPDATE RESTRICT
-	ON DELETE RESTRICT
-;
-
-
-ALTER TABLE entry_categories
-	ADD FOREIGN KEY (races_category_code)
-	REFERENCES races_categories (code)
-	ON UPDATE RESTRICT
-	ON DELETE RESTRICT
-;
-
-
-ALTER TABLE meets
-	ADD FOREIGN KEY (season_id)
-	REFERENCES seasons (id)
-	ON UPDATE RESTRICT
-	ON DELETE RESTRICT
-;
-
-
-

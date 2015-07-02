@@ -43,9 +43,7 @@ class RacersController extends ApiBaseController
         }
 		
 		
-		$opt = $this->Racer->parseCriteria($req);
-		$opt['deleted'] = null;
-		$this->paginate = array('conditions' => $opt);
+		$this->paginate = array('conditions' => $this->Racer->parseCriteria($req));
 		
 		$this->set('racers', $this->paginate());
 	}
@@ -264,7 +262,7 @@ class RacersController extends ApiBaseController
 			throw new NotFoundException(__('Invalid racer'));
 		}
 		$this->request->allowMethod('post', 'delete');
-		if ($this->Racer->logicalDelete()) {
+		if ($this->Racer->delete()) {
 			$this->Session->setFlash(__('選手 [code:' . $code . '] を削除しました（削除日時を適用）。'));
 		} else {
             $this->Session->setFlash(__('選手の削除に失敗しました。'));
