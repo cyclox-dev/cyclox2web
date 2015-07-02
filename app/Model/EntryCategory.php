@@ -7,7 +7,9 @@ App::uses('AppModel', 'Model');
  * @property RacesCategory $RacesCategory
  * @property EntryRacer $EntryRacer
  */
-class EntryCategory extends AppModel {
+class EntryCategory extends AppModel
+{
+	public $actsAs = array('Utils.SoftDelete');
 
 /**
  * Display field

@@ -8,7 +8,9 @@ App::uses('AppModel', 'Model');
  * @property Racer $Racer
  * @property TimeRecord $TimeRecord
  */
-class EntryRacer extends AppModel {
+class EntryRacer extends AppModel
+{
+	public $actsAs = array('Utils.SoftDelete');
 
 /**
  * Validation rules

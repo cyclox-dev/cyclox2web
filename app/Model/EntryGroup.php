@@ -7,7 +7,9 @@ App::uses('AppModel', 'Model');
  * @property Meet $Meet
  * @property EntryCategory $EntryCategory
  */
-class EntryGroup extends AppModel {
+class EntryGroup extends AppModel
+{
+	public $actsAs = array('Utils.SoftDelete');
 
 /**
  * Display field

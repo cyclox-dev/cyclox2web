@@ -9,7 +9,7 @@ App::uses('AppModel', 'Model');
  * @property CategoryRacer $CategoryRacer
  * @property CategoryRacesCategory $CategoryRacesCategory
  */
-class Category extends LogicalDelModel {
+class Category extends AppModel {
 
 /**
  * Primary key field

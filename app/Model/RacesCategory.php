@@ -1,12 +1,14 @@
 <?php
-App::uses('LogicalDelModel', 'Model');
+App::uses('AppModel', 'Model');
 /**
  * RacesCategory Model
  *
  * @property CategoryRacesCategory $CategoryRacesCategory
  * @property EntryCategory $EntryCategory
  */
-class RacesCategory extends LogicalDelModel {
+class RacesCategory extends AppModel
+{
+	public $actsAs = array('Utils.SoftDelete');
 
 /**
  * Primary key field

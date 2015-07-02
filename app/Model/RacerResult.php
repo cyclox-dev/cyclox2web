@@ -5,7 +5,9 @@ App::uses('AppModel', 'Model');
  *
  * @property EntryRacer $EntryRacer
  */
-class RacerResult extends AppModel {
+class RacerResult extends AppModel
+{
+	public $actsAs = array('Utils.SoftDelete');
 
 /**
  * Validation rules

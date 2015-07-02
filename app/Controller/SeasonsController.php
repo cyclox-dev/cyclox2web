@@ -96,7 +96,7 @@ class SeasonsController extends AppController {
 			throw new NotFoundException(__('Invalid meet group'));
 		}
 		$this->request->allowMethod('post', 'delete');
-		if ($this->MeetGroup->logicalDelete()) {
+		if ($this->MeetGroup->delete()) {
 			$this->Session->setFlash(__('シーズン [ID:' . $id . '] を削除しました（削除日時を適用）。'));
 		} else {
 			$this->Session->setFlash(__('シーズンの削除に失敗しました。'));

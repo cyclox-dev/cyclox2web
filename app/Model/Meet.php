@@ -1,6 +1,6 @@
 <?php
 
-App::uses('LogicalDelModel', 'Model');
+App::uses('AppModel', 'Model');
 
 /**
  * Meet Model
@@ -9,7 +9,9 @@ App::uses('LogicalDelModel', 'Model');
  * @property MeetGroup $MeetGroup
  * @property EntryGroup $EntryGroup
  */
-class Meet extends LogicalDelModel {
+class Meet extends AppModel
+{
+	public $actsAs = array('Utils.SoftDelete');
 
 /**
  * Primary key field

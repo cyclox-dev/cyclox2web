@@ -16,6 +16,8 @@ class CategoryRacesCategoriesController extends AppController {
  */
 	public $components = array('Paginator', 'Session');
 
+	public $actsAs = array('Utils.SoftDelete');
+	
 /**
  * index method
  *
@@ -106,7 +108,7 @@ class CategoryRacesCategoriesController extends AppController {
 			throw new NotFoundException(__('Invalid category races category'));
 		}
 		$this->request->allowMethod('post', 'delete');
-		if ($this->CategoryRacesCategory->logicalDelete()) {
+		if ($this->CategoryRacesCategory->delete()) {
 			$this->Session->setFlash(__('レースカテゴリーへのカテゴリー配属 [ID:' . $id . '] を削除しました（削除日時を適用）。'));
 		} else {
 			$this->Session->setFlash(__('レースカテゴリーへのカテゴリー配属の削除に失敗しました。'));

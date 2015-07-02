@@ -16,6 +16,8 @@ class CategoryGroupsController extends AppController {
  */
 	public $components = array('Paginator', 'Session');
 
+	public $actsAs = array('Utils.SoftDelete');
+	
 /**
  * index method
  *
@@ -96,7 +98,7 @@ class CategoryGroupsController extends AppController {
 			throw new NotFoundException(__('Invalid category group'));
 		}
 		$this->request->allowMethod('post', 'delete');
-		if ($this->CategoryGroup->logicalDelete()) {
+		if ($this->CategoryGroup->delete()) {
 			$this->Session->setFlash(__('カテゴリーグループ [ID:' . $code . '] を削除しました（削除日時を適用）。'));
 		} else {
 			$this->Session->setFlash(__('カテゴリーグループの削除に失敗しました。'));

@@ -1,13 +1,15 @@
 <?php
 
-App::uses('LogicalDelModel', 'Model');
+App::uses('AppModel', 'Model');
 
 /**
  * Season Model
  *
  * @property Meet $Meet
  */
-class Season extends LogicalDelModel {
+class Season extends AppModel 
+{
+	public $actsAs = array('Utils.SoftDelete');
 
 	/**
 	 * Display field

@@ -1,16 +1,18 @@
 <?php
 
-App::uses('LogicalDelModel', 'Model');
+App::uses('AppModel', 'Model');
 
 /**
  * MeetGroup Model
  *
  * @property Meet $meets
  */
-class MeetGroup extends LogicalDelModel
+class MeetGroup extends AppModel
 {
 	const MSG_INPUT_CODE = 'code は半角英数3文字を指定して下さい。';
 	const MSG_NOT_EMPTY = '必須入力項目です。';
+	
+	public $actsAs = array('Utils.SoftDelete');
 	
 	/**
 	 * Primary key field

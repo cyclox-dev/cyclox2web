@@ -5,7 +5,9 @@ App::uses('AppModel', 'Model');
  *
  * @property EntryGroup $EntryGroup
  */
-class TimeRecordInfo extends AppModel {
+class TimeRecordInfo extends AppModel 
+{
+	public $actsAs = array('Utils.SoftDelete');
 
 /**
  * Use table

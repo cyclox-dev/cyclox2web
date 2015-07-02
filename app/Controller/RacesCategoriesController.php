@@ -112,7 +112,7 @@ class RacesCategoriesController extends AppController {
 			throw new NotFoundException(__('Invalid races category'));
 		}
 		$this->request->allowMethod('post', 'delete');
-		if ($this->RacesCategory->logicalDelete()) {
+		if ($this->RacesCategory->delete()) {
 			$this->Session->setFlash(__('レースカテゴリー [code:' . $code . '] を削除しました（削除日時を適用）。'));
 		} else {
 			$this->Session->setFlash(__('レースカテゴリーの削除に失敗しました。'));
