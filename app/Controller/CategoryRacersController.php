@@ -20,6 +20,7 @@ class CategoryRacersController extends ApiBaseController
 	public $components = array('Paginator', 'Session', 'RequestHandler');
 
 	public $uses = array('CategoryRacer', 'Meet');
+	
 /**
  * index method
  *
@@ -169,7 +170,7 @@ class CategoryRacersController extends ApiBaseController
 			throw new NotFoundException(__('Invalid category racer'));
 		}
 		$this->request->allowMethod('post', 'delete');
-		if ($this->CategoryRacer->logicalDelete()) {
+		if ($this->CategoryRacer->delete()) {
 			$this->Session->setFlash(__('選手のカテゴリー所属情報 [ID:' . $id . '] を削除しました（削除日時の適用）。'));
 		} else {
 			$this->Session->setFlash(__('選手のカテゴリー所属情報削除に失敗しました。'));

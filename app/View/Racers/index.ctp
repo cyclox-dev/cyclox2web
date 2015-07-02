@@ -77,7 +77,6 @@ function nameOrKana($name, $kana)
 		<td><?php
 			$cats = '';
 			foreach ($racer['CategoryRacer'] as $cat) {
-				if ($cat['deleted'] != null) continue;
 				if (strlen($cats) > 0) {
 					$cats .= ',';
 				}

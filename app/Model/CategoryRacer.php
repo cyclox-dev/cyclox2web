@@ -1,12 +1,12 @@
 <?php
-App::uses('LogicalDelModel', 'Model');
+App::uses('AppModel', 'Model');
 /**
  * CategoryRacer Model
  *
  * @property Category $Category
  * @property Racer $Racer
  */
-class CategoryRacer extends LogicalDelModel {
+class CategoryRacer extends AppModel {
 
 /**
  * Display field
@@ -15,6 +15,8 @@ class CategoryRacer extends LogicalDelModel {
  */
 	public $displayField = 'category_code';
 
+	public $actsAs = array('Utils.SoftDelete');
+	
 /**
  * Validation rules
  *

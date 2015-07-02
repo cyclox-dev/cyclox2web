@@ -176,7 +176,6 @@
 			}
 			$sorted = usort($racer['CategoryRacer'], 'compareAppDate');
 			foreach ($racer['CategoryRacer'] as $categoryRacer):
-				if ($categoryRacer['deleted']) continue; // deleted があるものは表示しない
 		?>
 			<tr>
 				<td><?php echo $categoryRacer['id']; ?></td>

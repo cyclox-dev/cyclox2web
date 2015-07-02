@@ -2,8 +2,8 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 /* Drop Tables */
 
-DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS category_racers;
+DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
 DROP TABLE IF EXISTS racer_results;
@@ -43,7 +43,8 @@ CREATE TABLE categories
 	uci_age_limit varchar(5) DEFAULT '',
 	created datetime,
 	modified datetime,
-	deleted datetime,
+	deleted_date datetime,
+	deleted tinyint(1) DEFAULT 0 NOT NULL,
 	PRIMARY KEY (code),
 	UNIQUE (code)
 );
@@ -58,7 +59,8 @@ CREATE TABLE category_groups
 	lank_up_hint text,
 	created datetime,
 	modified datetime,
-	deleted datetime,
+	deleted_date datetime,
+	deleted tinyint(1) DEFAULT 0 NOT NULL,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );
@@ -80,7 +82,8 @@ CREATE TABLE category_racers
 	cancel_date date,
 	created datetime,
 	modified datetime,
-	deleted datetime,
+	deleted_date datetime,
+	deleted tinyint(1) DEFAULT 0 NOT NULL,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );
@@ -94,7 +97,8 @@ CREATE TABLE category_races_categories
 	races_category_code varchar(16) BINARY NOT NULL,
 	created datetime,
 	modified datetime,
-	deleted datetime,
+	deleted_date datetime,
+	deleted tinyint(1) DEFAULT 0 NOT NULL,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );
@@ -114,6 +118,8 @@ CREATE TABLE entry_categories
 	note text,
 	created datetime,
 	modified datetime,
+	deleted_date datetime,
+	deleted tinyint(1) DEFAULT 0 NOT NULL,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );
@@ -133,6 +139,8 @@ CREATE TABLE entry_groups
 	skip_lap_count tinyint DEFAULT 0 NOT NULL,
 	created datetime,
 	modified datetime,
+	deleted_date datetime,
+	deleted tinyint(1) DEFAULT 0 NOT NULL,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );
@@ -154,6 +162,8 @@ CREATE TABLE entry_racers
 	note text,
 	created datetime,
 	modified datetime,
+	deleted_date datetime,
+	deleted tinyint(1) DEFAULT 0 NOT NULL,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );
@@ -176,7 +186,8 @@ CREATE TABLE meets
 	lap_distance float(6,3) DEFAULT 2.0,
 	created datetime,
 	modified datetime,
-	deleted datetime,
+	deleted_date datetime,
+	deleted tinyint(1) DEFAULT 0 NOT NULL,
 	PRIMARY KEY (code),
 	UNIQUE (code)
 );
@@ -192,7 +203,8 @@ CREATE TABLE meet_groups
 	homepage text,
 	created datetime,
 	modified datetime,
-	deleted datetime,
+	deleted_date datetime,
+	deleted tinyint(1) DEFAULT 0 NOT NULL,
 	PRIMARY KEY (code),
 	UNIQUE (code)
 );
@@ -261,6 +273,8 @@ CREATE TABLE racer_results
 	note text,
 	created datetime,
 	modified datetime,
+	deleted_date datetime,
+	deleted tinyint(1) DEFAULT 0 NOT NULL,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );
@@ -281,7 +295,8 @@ CREATE TABLE races_categories
 	uci_age_limit varchar(5),
 	created datetime,
 	modified datetime,
-	deleted datetime,
+	deleted_date datetime,
+	deleted tinyint(1) DEFAULT 0 NOT NULL,
 	PRIMARY KEY (code),
 	UNIQUE (code)
 );
@@ -299,7 +314,8 @@ CREATE TABLE seasons
 	is_regular boolean NOT NULL,
 	created datetime,
 	modified datetime,
-	deleted datetime,
+	deleted_date datetime,
+	deleted tinyint(1) DEFAULT 0 NOT NULL,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );
@@ -333,7 +349,12 @@ CREATE TABLE time_record_info
 	note text,
 	created datetime,
 	modified datetime,
+	deleted_date datetime,
+	deleted tinyint(1) DEFAULT 0 NOT NULL,
 	PRIMARY KEY (id),
 	UNIQUE (id),
 	UNIQUE (entry_group_id)
 );
+
+
+
