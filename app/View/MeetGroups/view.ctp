@@ -27,6 +27,30 @@
 			&nbsp;
 		</dd>
 	</dl>
+<p style="height: 1em"></p>
+<h3>Status</h3>
+	<dl>
+		<dt><?php echo __('Created'); ?></dt>
+		<dd>
+			<?php echo h($meetGroup['MeetGroup']['created']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Modified'); ?></dt>
+		<dd>
+			<?php echo h($meetGroup['MeetGroup']['modified']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Deleted'); ?></dt>
+		<dd>
+			<?php echo h(($meetGroup['MeetGroup']['deleted'] ? "Yes" : "No")); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Deleted Date'); ?></dt>
+		<dd>
+			<?php echo h($meetGroup['MeetGroup']['deleted_date']); ?>
+			&nbsp;
+		</dd>
+	</dl>
 </div>
 <div class="actions">
 	<h3><?php echo __('Actions'); ?></h3>

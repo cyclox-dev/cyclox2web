@@ -3,11 +3,11 @@
 	<fieldset>
 		<legend><?php echo __('Edit Meet Group'); ?></legend>
 	<?php
-		echo $this->Form->input('code');
-		echo $this->Form->input('name');
-		echo $this->Form->input('short_name');
-		echo $this->Form->input('description');
-		echo $this->Form->input('homepage');
+		echo $this->Form->input('code', array('type' => 'text'));
+		echo $this->Form->input('name', array('type' => 'text'));
+		echo $this->Form->input('short_name', array('type' => 'text'));
+		echo $this->Form->input('description', array('type' => 'text'));
+		echo $this->Form->input('homepage', array('type' => 'text'));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>
