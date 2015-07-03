@@ -57,7 +57,7 @@
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(__('Edit Races Category'), array('action' => 'edit', $racesCategory['RacesCategory']['code'])); ?> </li>
-		<li><?php echo $this->Form->postLink(__('Delete Races Category'), array('action' => 'delete', $racesCategory['RacesCategory']['code']), array(), __('Are you sure you want to delete # %s?', $racesCategory['RacesCategory']['code'])); ?> </li>
+		<li><?php echo $this->Form->postLink(__('Delete Races Category'), array('action' => 'delete', $racesCategory['RacesCategory']['code']), array(), __('[%s] のデータを削除してよろしいですか？', $racesCategory['RacesCategory']['code'])); ?> </li>
 		<li><?php echo $this->Html->link(__('List Races Categories'), array('action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('New Races Category'), array('action' => 'add')); ?> </li>
 		<li><?php echo $this->Html->link(__('List Category Races Categories'), array('controller' => 'category_races_categories', 'action' => 'index')); ?> </li>
@@ -84,7 +84,7 @@
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'category_races_categories', 'action' => 'view', $categoryRacesCategory['id'])); ?>
 				<?php echo $this->Html->link(__('Edit'), array('controller' => 'category_races_categories', 'action' => 'edit', $categoryRacesCategory['id'])); ?>
-				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'category_races_categories', 'action' => 'delete', $categoryRacesCategory['id']), array(), __('Are you sure you want to delete # %s?', $categoryRacesCategory['id'])); ?>
+				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'category_races_categories', 'action' => 'delete', $categoryRacesCategory['id']), array(), __('[%s] のデータを削除してよろしいですか？', $categoryRacesCategory['id'])); ?>
 			</td>
 		</tr>
 	<?php endforeach; ?>
@@ -123,7 +123,7 @@
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'entry_categories', 'action' => 'view', $entryCategory['id'])); ?>
 				<?php echo $this->Html->link(__('Edit'), array('controller' => 'entry_categories', 'action' => 'edit', $entryCategory['id'])); ?>
-				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'entry_categories', 'action' => 'delete', $entryCategory['id']), array(), __('Are you sure you want to delete # %s?', $entryCategory['id'])); ?>
+				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'entry_categories', 'action' => 'delete', $entryCategory['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryCategory['id'])); ?>
 			</td>
 		</tr>
 	<?php endforeach; ?>

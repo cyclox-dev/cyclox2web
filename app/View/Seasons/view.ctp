@@ -37,7 +37,7 @@
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(__('Edit Season'), array('action' => 'edit', $season['Season']['id'])); ?> </li>
-		<li><?php echo $this->Form->postLink(__('Delete Season'), array('action' => 'delete', $season['Season']['id']), array(), __('Are you sure you want to delete # %s?', $season['Season']['id'])); ?> </li>
+		<li><?php echo $this->Form->postLink(__('Delete Season'), array('action' => 'delete', $season['Season']['id']), array(), __('[%s] のデータを削除してよろしいですか？', $season['Season']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(__('List Seasons'), array('action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('New Season'), array('action' => 'add')); ?> </li>
 		<li><?php echo $this->Html->link(__('List Meets'), array('controller' => 'meets', 'action' => 'index')); ?> </li>
@@ -84,7 +84,7 @@
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'meets', 'action' => 'view', $meet['code'])); ?>
 				<?php echo $this->Html->link(__('Edit'), array('controller' => 'meets', 'action' => 'edit', $meet['code'])); ?>
-				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'meets', 'action' => 'delete', $meet['code']), array(), __('Are you sure you want to delete # %s?', $meet['code'])); ?>
+				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'meets', 'action' => 'delete', $meet['code']), array(), __('[%s] のデータを削除してよろしいですか？', $meet['code'])); ?>
 			</td>
 		</tr>
 	<?php endforeach; ?>

@@ -17,7 +17,7 @@
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
 
-		<li><?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $this->Form->value('Season.id')), array(), __('Are you sure you want to delete # %s?', $this->Form->value('Season.id'))); ?></li>
+		<li><?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $this->Form->value('Season.id')), array(), __('[%s] のデータを削除してよろしいですか？', $this->Form->value('Season.id'))); ?></li>
 		<li><?php echo $this->Html->link(__('List Seasons'), array('action' => 'index')); ?></li>
 		<li><?php echo $this->Html->link(__('List Meets'), array('controller' => 'meets', 'action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('New Meet'), array('controller' => 'meets', 'action' => 'add')); ?> </li>

@@ -22,7 +22,7 @@
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $categoryRacesCategory['CategoryRacesCategory']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $categoryRacesCategory['CategoryRacesCategory']['id'])); ?>
-			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $categoryRacesCategory['CategoryRacesCategory']['id']), array('confirm' => __('Are you sure you want to delete # %s?', $categoryRacesCategory['CategoryRacesCategory']['id']))); ?>
+			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $categoryRacesCategory['CategoryRacesCategory']['id']), array('confirm' => __('[%s] のデータを削除してよろしいですか？', $categoryRacesCategory['CategoryRacesCategory']['id']))); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>

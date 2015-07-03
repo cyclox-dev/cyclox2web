@@ -42,7 +42,7 @@
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(__('Edit Entry Category'), array('action' => 'edit', $entryCategory['EntryCategory']['id'])); ?> </li>
-		<li><?php echo $this->Form->postLink(__('Delete Entry Category'), array('action' => 'delete', $entryCategory['EntryCategory']['id']), array(), __('Are you sure you want to delete # %s?', $entryCategory['EntryCategory']['id'])); ?> </li>
+		<li><?php echo $this->Form->postLink(__('Delete Entry Category'), array('action' => 'delete', $entryCategory['EntryCategory']['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryCategory['EntryCategory']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(__('List Entry Categories'), array('action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('New Entry Category'), array('action' => 'add')); ?> </li>
 		<li><?php echo $this->Html->link(__('List Entry Groups'), array('controller' => 'entry_groups', 'action' => 'index')); ?> </li>
@@ -81,7 +81,7 @@
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'entry_racers', 'action' => 'view', $entryRacer['id'])); ?>
 				<?php echo $this->Html->link(__('Edit'), array('controller' => 'entry_racers', 'action' => 'edit', $entryRacer['id'])); ?>
-				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'entry_racers', 'action' => 'delete', $entryRacer['id']), array(), __('Are you sure you want to delete # %s?', $entryRacer['id'])); ?>
+				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'entry_racers', 'action' => 'delete', $entryRacer['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryRacer['id'])); ?>
 			</td>
 		</tr>
 	<?php endforeach; ?>

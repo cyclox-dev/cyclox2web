@@ -32,7 +32,7 @@
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $timeRecordInfo['TimeRecordInfo']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $timeRecordInfo['TimeRecordInfo']['id'])); ?>
-			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $timeRecordInfo['TimeRecordInfo']['id']), array('confirm' => __('Are you sure you want to delete # %s?', $timeRecordInfo['TimeRecordInfo']['id']))); ?>
+			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $timeRecordInfo['TimeRecordInfo']['id']), array('confirm' => __('[%s] のデータを削除してよろしいですか？', $timeRecordInfo['TimeRecordInfo']['id']))); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>

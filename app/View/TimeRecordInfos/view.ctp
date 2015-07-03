@@ -52,7 +52,7 @@
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(__('Edit Time Record Info'), array('action' => 'edit', $timeRecordInfo['TimeRecordInfo']['id'])); ?> </li>
-		<li><?php echo $this->Form->postLink(__('Delete Time Record Info'), array('action' => 'delete', $timeRecordInfo['TimeRecordInfo']['id']), array(), __('Are you sure you want to delete # %s?', $timeRecordInfo['TimeRecordInfo']['id'])); ?> </li>
+		<li><?php echo $this->Form->postLink(__('Delete Time Record Info'), array('action' => 'delete', $timeRecordInfo['TimeRecordInfo']['id']), array(), __('[%s] のデータを削除してよろしいですか？', $timeRecordInfo['TimeRecordInfo']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(__('List Time Record Infos'), array('action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('New Time Record Info'), array('action' => 'add')); ?> </li>
 		<li><?php echo $this->Html->link(__('List Entry Groups'), array('controller' => 'entry_groups', 'action' => 'index')); ?> </li>

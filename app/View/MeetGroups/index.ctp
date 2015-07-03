@@ -24,7 +24,7 @@
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $meetGroup['MeetGroup']['code'])); ?>
 			<?php 
 				// 削除しないものとしておく。
-				//echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $meetGroup['MeetGroup']['code']), array('confirm' => __('Are you sure you want to delete # %s?', $meetGroup['MeetGroup']['code'])));
+				//echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $meetGroup['MeetGroup']['code']), array('confirm' => __('[%s] のデータを削除してよろしいですか？', $meetGroup['MeetGroup']['code'])));
 			?>
 		</td>
 	</tr>

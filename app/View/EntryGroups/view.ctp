@@ -42,7 +42,7 @@
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(__('Edit Entry Group'), array('action' => 'edit', $entryGroup['EntryGroup']['id'])); ?> </li>
-		<li><?php echo $this->Form->postLink(__('Delete Entry Group'), array('action' => 'delete', $entryGroup['EntryGroup']['id']), array(), __('Are you sure you want to delete # %s?', $entryGroup['EntryGroup']['id'])); ?> </li>
+		<li><?php echo $this->Form->postLink(__('Delete Entry Group'), array('action' => 'delete', $entryGroup['EntryGroup']['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryGroup['EntryGroup']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(__('List Entry Groups'), array('action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('New Entry Group'), array('action' => 'add')); ?> </li>
 		<li><?php echo $this->Html->link(__('List Meets'), array('controller' => 'meets', 'action' => 'index')); ?> </li>
@@ -127,7 +127,7 @@
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'entry_categories', 'action' => 'view', $entryCategory['id'])); ?>
 				<?php echo $this->Html->link(__('Edit'), array('controller' => 'entry_categories', 'action' => 'edit', $entryCategory['id'])); ?>
-				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'entry_categories', 'action' => 'delete', $entryCategory['id']), array(), __('Are you sure you want to delete # %s?', $entryCategory['id'])); ?>
+				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'entry_categories', 'action' => 'delete', $entryCategory['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryCategory['id'])); ?>
 			</td>
 		</tr>
 	<?php endforeach; ?>

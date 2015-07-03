@@ -24,7 +24,7 @@
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $season['Season']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $season['Season']['id'])); ?>
-			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $season['Season']['id']), array('confirm' => __('Are you sure you want to delete # %s?', $season['Season']['id']))); ?>
+			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $season['Season']['id']), array('confirm' => __('[%s] のデータを削除してよろしいですか？', $season['Season']['id']))); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>

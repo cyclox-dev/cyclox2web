@@ -40,7 +40,7 @@
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $category['Category']['code'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $category['Category']['code'])); ?>
-			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $category['Category']['code']), array('confirm' => __('Are you sure you want to delete # %s?', $category['Category']['code']))); ?>
+			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $category['Category']['code']), array('confirm' => __('[%s] のデータを削除してよろしいですか？', $category['Category']['code']))); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>

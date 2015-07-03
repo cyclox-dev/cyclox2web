@@ -22,7 +22,7 @@
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(__('Edit Time Record'), array('action' => 'edit', $timeRecord['TimeRecord']['id'])); ?> </li>
-		<li><?php echo $this->Form->postLink(__('Delete Time Record'), array('action' => 'delete', $timeRecord['TimeRecord']['id']), array(), __('Are you sure you want to delete # %s?', $timeRecord['TimeRecord']['id'])); ?> </li>
+		<li><?php echo $this->Form->postLink(__('Delete Time Record'), array('action' => 'delete', $timeRecord['TimeRecord']['id']), array(), __('[%s] のデータを削除してよろしいですか？', $timeRecord['TimeRecord']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(__('List Time Records'), array('action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('New Time Record'), array('action' => 'add')); ?> </li>
 		<li><?php echo $this->Html->link(__('List Entry Racers'), array('controller' => 'entry_racers', 'action' => 'index')); ?> </li>

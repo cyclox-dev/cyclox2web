@@ -18,7 +18,7 @@
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $parmVar['ParmVar']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $parmVar['ParmVar']['id'])); ?>
-			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $parmVar['ParmVar']['id']), array('confirm' => __('Are you sure you want to delete # %s?', $parmVar['ParmVar']['id']))); ?>
+			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $parmVar['ParmVar']['id']), array('confirm' => __('[%s] のデータを削除してよろしいですか？', $parmVar['ParmVar']['id']))); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>

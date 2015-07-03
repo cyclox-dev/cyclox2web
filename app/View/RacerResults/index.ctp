@@ -28,7 +28,7 @@
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $racerResult['RacerResult']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $racerResult['RacerResult']['id'])); ?>
-			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $racerResult['RacerResult']['id']), array('confirm' => __('Are you sure you want to delete # %s?', $racerResult['RacerResult']['id']))); ?>
+			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $racerResult['RacerResult']['id']), array('confirm' => __('[%s] のデータを削除してよろしいですか？', $racerResult['RacerResult']['id']))); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>

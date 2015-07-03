@@ -22,7 +22,7 @@
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(__('Edit Parm Var'), array('action' => 'edit', $parmVar['ParmVar']['id'])); ?> </li>
-		<li><?php echo $this->Form->postLink(__('Delete Parm Var'), array('action' => 'delete', $parmVar['ParmVar']['id']), array(), __('Are you sure you want to delete # %s?', $parmVar['ParmVar']['id'])); ?> </li>
+		<li><?php echo $this->Form->postLink(__('Delete Parm Var'), array('action' => 'delete', $parmVar['ParmVar']['id']), array(), __('[%s] のデータを削除してよろしいですか？', $parmVar['ParmVar']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(__('List Parm Vars'), array('action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('New Parm Var'), array('action' => 'add')); ?> </li>
 	</ul>

@@ -1,12 +1,12 @@
 <div class="meets view">
-<h2><?php echo __('Meet'); ?></h2>
+<h2><?php echo __('大会データ'); ?></h2>
 	<dl>
 		<dt><?php echo __('Code'); ?></dt>
 		<dd>
 			<?php echo h($meet['Meet']['code']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Meet Group'); ?></dt>
+		<dt><?php echo __('大会 Group'); ?></dt>
 		<dd>
 			<?php echo $this->Html->link($meet['MeetGroup']['name'], array('controller' => 'meet_groups', 'action' => 'view', $meet['MeetGroup']['code'])); ?>
 			&nbsp;
@@ -16,27 +16,27 @@
 			<?php echo $this->Html->link($meet['Season']['name'], array('controller' => 'seasons', 'action' => 'view', $meet['Season']['id'])); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('At Date'); ?></dt>
+		<dt><?php echo __('開催日'); ?></dt>
 		<dd>
 			<?php echo h($meet['Meet']['at_date']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Name'); ?></dt>
+		<dt><?php echo __('大会名'); ?></dt>
 		<dd>
 			<?php echo h($meet['Meet']['name']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Short Name'); ?></dt>
+		<dt><?php echo __('短縮名'); ?></dt>
 		<dd>
 			<?php echo h($meet['Meet']['short_name']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Location'); ?></dt>
+		<dt><?php echo __('開催地'); ?></dt>
 		<dd>
 			<?php echo h($meet['Meet']['location']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Organized By'); ?></dt>
+		<dt><?php echo __('主催'); ?></dt>
 		<dd>
 			<?php echo h($meet['Meet']['organized_by']); ?>
 			&nbsp;
@@ -46,16 +46,20 @@
 			<?php echo h($meet['Meet']['homepage']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Start Frac Distance'); ?></dt>
+		<dt><?php echo __('スタート端数距離 (km)'); ?></dt>
 		<dd>
 			<?php echo h($meet['Meet']['start_frac_distance']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Lap Distance'); ?></dt>
+		<dt><?php echo __('周回距離 (km)'); ?></dt>
 		<dd>
 			<?php echo h($meet['Meet']['lap_distance']); ?>
 			&nbsp;
 		</dd>
+	</dl>
+<p style="height: 1em"></p>
+<h3>Status</h3>
+	<dl>
 		<dt><?php echo __('Created'); ?></dt>
 		<dd>
 			<?php echo h($meet['Meet']['created']); ?>
@@ -68,7 +72,12 @@
 		</dd>
 		<dt><?php echo __('Deleted'); ?></dt>
 		<dd>
-			<?php echo h($meet['Meet']['deleted']); ?>
+			<?php echo h(($meet['Meet']['deleted'] ? "Yes" : "No")); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Deleted Date'); ?></dt>
+		<dd>
+			<?php echo h($meet['Meet']['deleted_date']); ?>
 			&nbsp;
 		</dd>
 	</dl>
@@ -76,20 +85,20 @@
 <div class="actions">
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
-		<li><?php echo $this->Html->link(__('Edit Meet'), array('action' => 'edit', $meet['Meet']['code'])); ?> </li>
-		<li><?php echo $this->Form->postLink(__('Delete Meet'), array('action' => 'delete', $meet['Meet']['code']), array(), __('Are you sure you want to delete # %s?', $meet['Meet']['code'])); ?> </li>
-		<li><?php echo $this->Html->link(__('List Meets'), array('action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Meet'), array('action' => 'add')); ?> </li>
-		<li><?php echo $this->Html->link(__('List Seasons'), array('controller' => 'seasons', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Season'), array('controller' => 'seasons', 'action' => 'add')); ?> </li>
-		<li><?php echo $this->Html->link(__('List Meet Groups'), array('controller' => 'meet_groups', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Meet Group'), array('controller' => 'meet_groups', 'action' => 'add')); ?> </li>
-		<li><?php echo $this->Html->link(__('List Entry Groups'), array('controller' => 'entry_groups', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Entry Group'), array('controller' => 'entry_groups', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('この大会を編集'), array('action' => 'edit', $meet['Meet']['code'])); ?> </li>
+		<li><?php echo $this->Form->postLink(__('この大会を削除'), array('action' => 'delete', $meet['Meet']['code']), array(), __('[%s] のデータを削除してよろしいですか？', $meet['Meet']['code'])); ?> </li>
+		<li><?php echo $this->Html->link(__('> 大会リスト'), array('action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('> 大会を追加'), array('action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('> シーズンリスト'), array('controller' => 'seasons', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('> シーズンを追加'), array('controller' => 'seasons', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('> 大会グループリスト'), array('controller' => 'meet_groups', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('> 大会グループを追加'), array('controller' => 'meet_groups', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('> 出走グループリスト'), array('controller' => 'entry_groups', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('> 出走グループを追加'), array('controller' => 'entry_groups', 'action' => 'add')); ?> </li>
 	</ul>
 </div>
 <div class="related">
-	<h3><?php echo __('Related Entry Groups'); ?></h3>
+	<h3><?php echo __('関連する出走グループ'); ?></h3>
 	<?php if (!empty($meet['EntryGroup'])): ?>
 	<table cellpadding = "0" cellspacing = "0">
 	<tr>
@@ -118,7 +127,7 @@
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'entry_groups', 'action' => 'view', $entryGroup['id'])); ?>
 				<?php echo $this->Html->link(__('Edit'), array('controller' => 'entry_groups', 'action' => 'edit', $entryGroup['id'])); ?>
-				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'entry_groups', 'action' => 'delete', $entryGroup['id']), array(), __('Are you sure you want to delete # %s?', $entryGroup['id'])); ?>
+				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'entry_groups', 'action' => 'delete', $entryGroup['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryGroup['id'])); ?>
 			</td>
 		</tr>
 	<?php endforeach; ?>
@@ -127,7 +136,7 @@
 
 	<div class="actions">
 		<ul>
-			<li><?php echo $this->Html->link(__('New Entry Group'), array('controller' => 'entry_groups', 'action' => 'add')); ?> </li>
+			<li><?php echo $this->Html->link(__('出走グループを追加'), array('controller' => 'entry_groups', 'action' => 'add')); ?> </li>
 		</ul>
 	</div>
 </div>

@@ -32,7 +32,7 @@
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(__('Edit Meet Group'), array('action' => 'edit', $meetGroup['MeetGroup']['code'])); ?> </li>
-		<li><?php echo $this->Form->postLink(__('Delete Meet Group'), array('action' => 'delete', $meetGroup['MeetGroup']['code']), array(), __('Are you sure you want to delete # %s?', $meetGroup['MeetGroup']['code'])); ?> </li>
+		<li><?php echo $this->Form->postLink(__('Delete Meet Group'), array('action' => 'delete', $meetGroup['MeetGroup']['code']), array(), __('[%s] のデータを削除してよろしいですか？', $meetGroup['MeetGroup']['code'])); ?> </li>
 		<li><?php echo $this->Html->link(__('List Meet Groups'), array('action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('New Meet Group'), array('action' => 'add')); ?> </li>
 		<li><?php echo $this->Html->link(__('List Meets'), array('controller' => 'meets', 'action' => 'index')); ?> </li>
@@ -79,7 +79,7 @@
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'meets', 'action' => 'view', $meets['code'])); ?>
 				<?php echo $this->Html->link(__('Edit'), array('controller' => 'meets', 'action' => 'edit', $meets['code'])); ?>
-				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'meets', 'action' => 'delete', $meets['code']), array(), __('Are you sure you want to delete # %s?', $meets['code'])); ?>
+				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'meets', 'action' => 'delete', $meets['code']), array(), __('[%s] のデータを削除してよろしいですか？', $meets['code'])); ?>
 			</td>
 		</tr>
 	<?php endforeach; ?>

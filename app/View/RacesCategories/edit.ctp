@@ -21,7 +21,7 @@
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
 
-		<li><?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $this->Form->value('RacesCategory.code')), array(), __('Are you sure you want to delete # %s?', $this->Form->value('RacesCategory.code'))); ?></li>
+		<li><?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $this->Form->value('RacesCategory.code')), array(), __('[%s] のデータを削除してよろしいですか？', $this->Form->value('RacesCategory.code'))); ?></li>
 		<li><?php echo $this->Html->link(__('List Races Categories'), array('action' => 'index')); ?></li>
 		<li><?php echo $this->Html->link(__('List Category Races Categories'), array('controller' => 'category_races_categories', 'action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('New Category Races Category'), array('controller' => 'category_races_categories', 'action' => 'add')); ?> </li>

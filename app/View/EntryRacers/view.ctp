@@ -47,7 +47,7 @@
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(__('Edit Entry Racer'), array('action' => 'edit', $entryRacer['EntryRacer']['id'])); ?> </li>
-		<li><?php echo $this->Form->postLink(__('Delete Entry Racer'), array('action' => 'delete', $entryRacer['EntryRacer']['id']), array(), __('Are you sure you want to delete # %s?', $entryRacer['EntryRacer']['id'])); ?> </li>
+		<li><?php echo $this->Form->postLink(__('Delete Entry Racer'), array('action' => 'delete', $entryRacer['EntryRacer']['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryRacer['EntryRacer']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(__('List Entry Racers'), array('action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('New Entry Racer'), array('action' => 'add')); ?> </li>
 		<li><?php echo $this->Html->link(__('List Entry Categories'), array('controller' => 'entry_categories', 'action' => 'index')); ?> </li>
@@ -118,7 +118,7 @@
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'time_records', 'action' => 'view', $timeRecord['id'])); ?>
 				<?php echo $this->Html->link(__('Edit'), array('controller' => 'time_records', 'action' => 'edit', $timeRecord['id'])); ?>
-				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'time_records', 'action' => 'delete', $timeRecord['id']), array(), __('Are you sure you want to delete # %s?', $timeRecord['id'])); ?>
+				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'time_records', 'action' => 'delete', $timeRecord['id']), array(), __('[%s] のデータを削除してよろしいですか？', $timeRecord['id'])); ?>
 			</td>
 		</tr>
 	<?php endforeach; ?>
