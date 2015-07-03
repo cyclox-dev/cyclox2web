@@ -60,7 +60,12 @@
 		</dd>
 		<dt><?php echo __('Deleted'); ?></dt>
 		<dd>
-			<?php echo h($categoryRacer['CategoryRacer']['deleted']); ?>
+			<?php echo h(($categoryRacer['CategoryRacer']['deleted'] ? "Yes" : "No")); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Deleted Date'); ?></dt>
+		<dd>
+			<?php echo h($categoryRacer['CategoryRacer']['deleted_date']); ?>
 			&nbsp;
 		</dd>
 	</dl>
