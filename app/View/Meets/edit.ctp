@@ -8,7 +8,7 @@
 			$mg[$k] = $k . ': ' . $v;
 		}
 		echo $this->Form->input('code');
-		echo $this->Form->input('meet_group_code', array('options' => $mg, 'label' => '大会 Group'));
+		echo $this->Form->input('meet_group_code', array('options' => $mg, 'label' => '大会 Group', 'disabled' => 'disabled'));
 		echo $this->Form->input('season_id');
 		echo $this->Form->input('at_date', array(
 			'label' => '開催日',
