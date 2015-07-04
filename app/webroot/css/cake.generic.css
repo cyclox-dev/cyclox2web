@@ -26,7 +26,7 @@ body {
 	background: #003d4c;
 	color: #fff;
 	font-family:'lucida grande',verdana,helvetica,arial,sans-serif;
-	font-size:90%;
+	font-size:85%;
 	margin: 0;
 }
 a {
@@ -82,14 +82,15 @@ p {
 }
 #header h1 {
 	line-height:20px;
-	background: #003d4c url('../img/cake.icon.png') no-repeat left;
+	background: #003d4c;
 	color: #fff;
-	padding: 0px 30px;
+	padding: 0px 0px;
 }
 #header h1 a {
 	color: #fff;
 	background: #003d4c;
-	font-weight: normal;
+	font-weight: bold;
+    font-size: large;
 	text-decoration: none;
 }
 #header h1 a:hover {

@@ -32,7 +32,7 @@ App::uses('Controller', 'Controller');
  */
 class AppController extends Controller {
     
-    var $components = array('DebugKit.Toolbar');
+    var $components = array('DebugKit.Toolbar', 'PageTitle');
     /*
     public $helpers = array(
         'Session',
@@ -40,4 +40,17 @@ class AppController extends Controller {
         'Form' => array('className' => 'BoostCake.BoostCakeForm'),
         'Paginator' => array('className' => 'BoostCake.BoostCakePaginator'),
     );//*/
+	
+	public function beforeRender() 
+	{
+		parent::beforeRender();
+		
+		// ページタイトルの設定
+		
+		$param = null;
+		if (!empty($this->request->params['pass'][0])) {
+			$param = $this->request->params['pass'][0];
+		}
+		$this->set('title_for_layout', $this->PageTitle->getPageTitle($this->name, $this->action, $param));
+	}
 }
