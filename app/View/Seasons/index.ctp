@@ -3,7 +3,7 @@
 	<table cellpadding="0" cellspacing="0">
 	<thead>
 	<tr>
-			<!--<th><?php echo $this->Paginator->sort('id', 'ID'); ?></th>-->
+			<th><?php echo $this->Paginator->sort('id', 'ID'); ?></th>
 			<th><?php echo $this->Paginator->sort('name', '名前'); ?></th>
 			<th><?php echo $this->Paginator->sort('short_name', '短縮名'); ?></th>
 			<th><?php echo $this->Paginator->sort('start_date', '開始日'); ?></th>
@@ -15,7 +15,7 @@
 	<tbody>
 	<?php foreach ($seasons as $season): ?>
 	<tr>
-		<!--<td><?php echo h($season['Season']['id']); ?>&nbsp;</td>-->
+		<td><?php echo h($season['Season']['id']); ?>&nbsp;</td>
 		<td><?php echo h($season['Season']['name']); ?>&nbsp;</td>
 		<td><?php echo h($season['Season']['short_name']); ?>&nbsp;</td>
 		<td><?php echo h($season['Season']['start_date']); ?>&nbsp;</td>

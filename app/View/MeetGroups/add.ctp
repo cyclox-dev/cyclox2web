@@ -3,7 +3,7 @@
 	<fieldset>
 		<legend><?php echo __('Add Meet Group'); ?></legend>
 	<?php
-		echo $this->Form->input('code', array('type' => 'text'));
+		echo $this->Form->input('code', array('type' => 'text', 'label' => '大会 Code （半角英数3文字）'));
 		echo $this->Form->input('name', array('type' => 'text'));
 		echo $this->Form->input('short_name', array('type' => 'text'));
 		echo $this->Form->input('description', array('type' => 'text'));

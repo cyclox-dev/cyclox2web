@@ -5,8 +5,16 @@
 	<?php
 		echo $this->Form->input('name', array('type' => 'text'));
 		echo $this->Form->input('short_name', array('type' => 'text'));
-		echo $this->Form->input('start_date');
-		echo $this->Form->input('end_date');
+		echo $this->Form->input('start_date', array(
+			'label' => 'シーズン開始日',
+			'dateFormat' => 'YMD',
+			'monthNames' => false,
+		));
+		echo $this->Form->input('end_date', array(
+			'label' => 'シーズン終了日（終了日は含む）',
+			'dateFormat' => 'YMD',
+			'monthNames' => false,
+		));
 		echo $this->Form->input('is_regular');
 	?>
 	</fieldset>

@@ -1,7 +1,7 @@
 <div class="seasons view">
 <h2><?php echo __('Season'); ?></h2>
 	<dl>
-		<dt><?php echo __('Id'); ?></dt>
+		<dt><?php echo __('ID'); ?></dt>
 		<dd>
 			<?php echo h($season['Season']['id']); ?>
 			&nbsp;
@@ -26,9 +26,33 @@
 			<?php echo h($season['Season']['end_date']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Is Regular'); ?></dt>
+		<dt><?php echo __('シーズン分類'); ?></dt>
 		<dd>
-			<?php echo h($season['Season']['is_regular']); ?>
+			<?php echo h($season['Season']['is_regular'] ? 'Regular' : 'Extra'); ?>
+			&nbsp;
+		</dd>
+	</dl>
+<p style="height: 1em"></p>
+<h3>Status</h3>
+	<dl>
+		<dt><?php echo __('Created'); ?></dt>
+		<dd>
+			<?php echo h($season['Season']['created']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Modified'); ?></dt>
+		<dd>
+			<?php echo h($season['Season']['modified']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Deleted'); ?></dt>
+		<dd>
+			<?php echo h(($season['Season']['deleted'] ? "Yes" : "No")); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Deleted Date'); ?></dt>
+		<dd>
+			<?php echo h($season['Season']['deleted_date']); ?>
 			&nbsp;
 		</dd>
 	</dl>
