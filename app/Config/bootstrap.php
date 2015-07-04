@@ -101,6 +101,7 @@ Configure::write('Dispatcher.filters', array(
 /**
  * Configures default file logging options
  */
+Configure::write('Users.emailConfig', 'default');
 App::uses('CakeLog', 'Log');
 CakeLog::config('debug', array(
 	'engine' => 'File',
@@ -113,14 +114,23 @@ CakeLog::config('error', array(
 	'file' => 'error',
 ));
 
-/* add @ 20150610 */
 CakePlugin::load( 'DebugKit');
-
-/* add @ 20150701 */
 CakePlugin::load('Search');
-
-/* add @ 20150701 */
 CakePlugin::load('Utils');
+CakePlugin::load('Users');
+
+// >>> Plugin/Users
+//Configure::write('Users.emailConfig', 'default');
+
+Configure::write('Users.roles', array(
+    'adminnn' => 'Admin',
+    'registered' => 'Registered'
+));
+
+CakePlugin::load('Users', array(
+    'routes' => true
+));
+// <<< Plugin/Users
 
 /* add @ 20150618 */
 // AJOCC 関連で使用する定数を読込

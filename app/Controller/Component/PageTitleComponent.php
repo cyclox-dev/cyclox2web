@@ -25,6 +25,8 @@ class PageTitleComponent extends Component
 		'Seasons' => 'シーズン',
 		'TimeRecordInfos' => '計測時情報',
 		'TimeRecords' => '計測データ',
+		'Users' => 'ユーザー',
+		
 	);
 	
 	private $__actions = array(
