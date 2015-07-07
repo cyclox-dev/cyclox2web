@@ -32,14 +32,55 @@ App::uses('Controller', 'Controller');
  */
 class AppController extends Controller {
     
-    var $components = array('DebugKit.Toolbar', 'PageTitle');
-    /*
+    var $components = array(
+		'DebugKit.Toolbar',
+		'PageTitle',
+		'Session',
+		'Auth' => array(
+			'loginRedirect' => array(
+				'controller' => 'racers',
+				'action' => 'index'
+			),
+			'logoutRedirect' => array(
+				'controller' => 'users',
+				'action' => 'login',
+			),
+			'authenticate' => array(
+				'Form' => array(
+					'passwordHasher' => 'Blowfish'
+				)
+			),
+			'unauthorizedRedirect' => array(
+				'controller' => 'users',
+				'action' => 'login',
+			),
+		)
+	);
+
+	/*
     public $helpers = array(
         'Session',
         'Html' => array('className' => 'BoostCake.BoostCakeHtml'),
         'Form' => array('className' => 'BoostCake.BoostCakeForm'),
         'Paginator' => array('className' => 'BoostCake.BoostCakePaginator'),
     );//*/
+	
+	function beforeFilter()
+	{
+		$this->set('auth',$this->Auth->user());
+		
+		// urlに「admin」が含まれるかどうか判定
+		if (isset($this->params['prefix']) && $this->params['prefix'] === 'admin') {
+			// 「admin」が含まれている場合の処理
+			// レイアウトを変更する等　$this->layout = "admin";
+ 
+			if($this->Auth->user('role') !== 'admin'){
+				$this->Session->setFlash(__('アクセスが許可されていないページへのアクセスをブロックしました。（管理者権限が必要です。）'));
+				$this->redirect($this->referer());
+				return;
+			}
+		}
+	}
 	
 	public function beforeRender() 
 	{

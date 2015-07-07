@@ -117,19 +117,25 @@ CakeLog::config('error', array(
 CakePlugin::load( 'DebugKit');
 CakePlugin::load('Search');
 CakePlugin::load('Utils');
-CakePlugin::load('Users');
 
 // >>> Plugin/Users
-//Configure::write('Users.emailConfig', 'default');
-
-Configure::write('Users.roles', array(
-    'adminnn' => 'Admin',
-    'registered' => 'Registered'
-));
-
 CakePlugin::load('Users', array(
     'routes' => true
 ));
+
+//Configure::write('Users.emailConfig', 'default');
+//Configure::write('App.defaultEmail', 'noreply@' . env('HTTP_HOST'));
+
+// roles への書き出し
+Configure::write('Users.roles', array(
+    'admin' => 'Admin',
+    'organizer' => 'Organizer',
+	'racer' => 'Racer',
+	'guest' => 'Guest',
+));
+// roles のデフォルト設定
+Configure::write('Users.defaultRole', 'racer');
+
 // <<< Plugin/Users
 
 /* add @ 20150618 */
