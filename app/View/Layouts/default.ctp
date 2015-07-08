@@ -40,7 +40,7 @@
 			if(empty($auth)) {
 				echo $this->Html->link('ログイン', array('admin' => false, 'controller'=>'users', 'action'=>'login'), array('style'=>'color:#ffffff'));
 			} else {
-				echo $this->Html->link('User: ' . $auth['username'], array('admin' => false, 'controller'=>'users'), array('style'=>'color:#ffffff'));
+				echo $this->Html->link('ユーザー:' . $auth['username'], array('admin' => false, 'controller'=>'users'), array('style'=>'color:#ffffff'));
 				echo $this->Html->link('ログアウト', array('admin' => false, 'controller'=>'users', 'action'=>'logout'), array('style'=>'color:#ffffff; margin-left:1em;'));
 			}
 			?></p>

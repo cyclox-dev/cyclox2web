@@ -36,24 +36,21 @@ class AppController extends Controller {
 		'DebugKit.Toolbar',
 		'PageTitle',
 		'Session',
-		'Auth' => array(
+		'Auth' => array(/*
 			'loginRedirect' => array(
-				'controller' => 'racers',
-				'action' => 'index'
-			),
+				'controller' => 'pages',
+				'action' => 'display'
+			),//*/
 			'logoutRedirect' => array(
 				'controller' => 'users',
 				'action' => 'login',
 			),
 			'authenticate' => array(
-				'Form' => array(
-					'passwordHasher' => 'Blowfish'
-				)
-			),
-			'unauthorizedRedirect' => array(
-				'controller' => 'users',
-				'action' => 'login',
-			),
+                'Basic' => array(
+					'passwordHasher' => 'Blowfish',
+					//'fields' => array('username' => 'email'),
+				)//*/
+            ),
 		)
 	);
 
@@ -67,19 +64,19 @@ class AppController extends Controller {
 	
 	function beforeFilter()
 	{
-		$this->set('auth',$this->Auth->user());
+		$this->set('auth', $this->Auth->user());
+		$this->log('here is ' . $this->request->here());
 		
-		// urlに「admin」が含まれるかどうか判定
-		if (isset($this->params['prefix']) && $this->params['prefix'] === 'admin') {
-			// 「admin」が含まれている場合の処理
-			// レイアウトを変更する等　$this->layout = "admin";
- 
-			if($this->Auth->user('role') !== 'admin'){
-				$this->Session->setFlash(__('アクセスが許可されていないページへのアクセスをブロックしました。（管理者権限が必要です。）'));
-				$this->redirect($this->referer());
-				return;
-			}
+		if ($this->_isApiCall()) {
+			$this->log('is api call');
+			$this->log($this->request->data);
+			AuthComponent::$sessionKey = false;
 		}
+	}
+	
+	protected function _isApiCall()
+	{
+		return isset($this->request->params['ext']) && $this->request->params['ext'] === 'json';
 	}
 	
 	public function beforeRender() 

@@ -34,6 +34,8 @@ class PageTitleComponent extends Component
 		'edit' => '編集',
 		'index' => 'リスト',
 		'view' => '詳細',
+		'login' => 'ログイン',
+		'logout' => 'ログアウト'
 	);
 
     /**

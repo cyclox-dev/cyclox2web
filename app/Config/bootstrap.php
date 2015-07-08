@@ -101,7 +101,6 @@ Configure::write('Dispatcher.filters', array(
 /**
  * Configures default file logging options
  */
-Configure::write('Users.emailConfig', 'default');
 App::uses('CakeLog', 'Log');
 CakeLog::config('debug', array(
 	'engine' => 'File',
@@ -114,11 +113,14 @@ CakeLog::config('error', array(
 	'file' => 'error',
 ));
 
-CakePlugin::load( 'DebugKit');
+CakePlugin::load('DebugKit');
 CakePlugin::load('Search');
 CakePlugin::load('Utils');
 
 // >>> Plugin/Users
+/*
+Configure::write('Users.emailConfig', 'default');
+
 CakePlugin::load('Users', array(
     'routes' => true
 ));
@@ -135,7 +137,7 @@ Configure::write('Users.roles', array(
 ));
 // roles のデフォルト設定
 Configure::write('Users.defaultRole', 'racer');
-
+//*/
 // <<< Plugin/Users
 
 /* add @ 20150618 */

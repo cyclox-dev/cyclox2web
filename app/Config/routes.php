@@ -39,9 +39,11 @@
 	Router::mapResources(array('api', 'meets', 'category_racers'));
 	Router::parseExtensions('json');
 
+	/*
 	Router::connect('/admin/users', array('prefix' => 'admin', 'admin' => true, 'plugin' => 'users', 'controller' => 'users'));
 	Router::connect('/admin/users/index/*', array('prefix' => 'admin', 'admin' => true, 'plugin' => 'users', 'controller' => 'users'));
 	Router::connect('/admin/users/:action/*', array('prefix' => 'admin', 'admin' => true, 'plugin' => 'users', 'controller' => 'users'));
+	//*/
 	
 /**
  * Load the CakePHP default routes. Only remove this if you do not want to use
