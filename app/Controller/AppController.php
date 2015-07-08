@@ -36,22 +36,9 @@ class AppController extends Controller {
 		'DebugKit.Toolbar',
 		'PageTitle',
 		'Session',
-		'Auth' => array(/*
-			'loginRedirect' => array(
-				'controller' => 'pages',
-				'action' => 'display'
-			),//*/
-			'logoutRedirect' => array(
-				'controller' => 'users',
-				'action' => 'login',
-			),
-			'authenticate' => array(
-                'Basic' => array(
-					'passwordHasher' => 'Blowfish',
-					//'fields' => array('username' => 'email'),
-				)//*/
-            ),
-		)
+		'Auth' => array(
+			'authorize' => array('Controller'),
+		),
 	);
 
 	/*
@@ -67,11 +54,32 @@ class AppController extends Controller {
 		$this->set('auth', $this->Auth->user());
 		$this->log('here is ' . $this->request->here());
 		
+		// $components['Auth'] に設定すると API 通信時に html が飛んでしまうことがあるため、
+		// URL から判定して認証設定を決める。
+		
 		if ($this->_isApiCall()) {
 			$this->log('is api call');
 			$this->log($this->request->data);
 			AuthComponent::$sessionKey = false;
+			
+			$this->Auth->authenticate = array(
+				'Basic' => array(
+					'passwordHasher' => 'Blowfish',
+					'fields' => array('username' => 'email'),
+				)
+			);
+		} else {
+			$this->Auth->authenticate = array(
+				'Form' => array(
+					'passwordHasher' => 'Blowfish',
+					'fields' => array('username' => 'email'),
+				)
+			);
 		}
+	}
+	
+	public function isAuthorized($user) {
+		return true;
 	}
 	
 	protected function _isApiCall()
