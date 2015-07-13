@@ -76,6 +76,7 @@ class MeetGroupsController extends AppController {
 			throw new NotFoundException(__('Invalid meet group'));
 		}
 		if ($this->request->is(array('post', 'put'))) {
+			$this->MeetGroup->id = $id; // id 指定で update にする
 			if ($this->MeetGroup->save($this->request->data)) {
 				$this->Session->setFlash(__('The meet group has been saved.'));
 				return $this->redirect(array('action' => 'index'));
