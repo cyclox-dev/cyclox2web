@@ -1,5 +1,5 @@
 INSERT INTO `cyclox2`.`category_groups` (`id`, `name`, `description`, `lank_up_hint`) VALUES (1, 'Elite', 'C1, C2,,,', '');
-INSERT INTO `cyclox2`.`category_groups` (`id`, `name`, `description`, `lank_up_hint`) VALUES (2, 'Weman', 'CL1, CL2,,,', '');
+INSERT INTO `cyclox2`.`category_groups` (`id`, `name`, `description`, `lank_up_hint`) VALUES (2, 'Woman', 'CL1, CL2,,,', '');
 INSERT INTO `cyclox2`.`category_groups` (`id`, `name`, `description`, `lank_up_hint`) VALUES (3, 'Masters', 'CM1, CM2,,,', '');
 
 INSERT INTO `cyclox2`.`categories` 
