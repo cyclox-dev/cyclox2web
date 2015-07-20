@@ -1,5 +1,7 @@
 <?php
-App::uses('AppController', 'Controller');
+
+App::uses('ApiBaseController', 'Controller');
+
 /**
  * Seasons Controller
  *
@@ -7,14 +9,14 @@ App::uses('AppController', 'Controller');
  * @property PaginatorComponent $Paginator
  * @property SessionComponent $Session
  */
-class SeasonsController extends AppController {
+class SeasonsController extends ApiBaseController {
 
 /**
  * Components
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session');
+	public $components = array('Paginator', 'Session', 'RequestHandler');
 
 /**
  * index method
@@ -37,8 +39,20 @@ class SeasonsController extends AppController {
 		if (!$this->Season->exists($id)) {
 			throw new NotFoundException(__('Invalid season'));
 		}
+		
+		$isApiCall = $this->_isApiCall();
+		
 		$options = array('conditions' => array('Season.' . $this->Season->primaryKey => $id));
-		$this->set('season', $this->Season->find('first', $options));
+		if ($isApiCall) {
+			$options['recursive'] = -1;
+		}
+		
+		$season = $this->Season->find('first', $options);
+		if ($isApiCall) {
+			$this->success($season);
+		} else {
+			$this->set('season', $season);
+		}
 	}
 
 /**

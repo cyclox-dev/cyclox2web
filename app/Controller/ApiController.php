@@ -16,7 +16,7 @@ App::uses('Util', 'Cyclox/Util');
  */
 class ApiController extends ApiBaseController
 {
-	public $uses = array('Meet', 'CategoryRacer', 'Racer');
+	public $uses = array('Meet', 'CategoryRacer', 'Racer', 'MeetGroup', 'Season');
 	
 	public $components = array('Session', 'RequestHandler');
 	
@@ -86,6 +86,46 @@ class ApiController extends ApiBaseController
 		}
 		
 		return $this->success(array('racers' => $meets));
+	}
+	
+	/**
+	 * 更新すべき大会グループ（大会グループコードの配列）を取得する
+	 * @param type $date 最後の更新ダウンロード日時
+	 */
+	public function updated_meet_group_codes($date = null)
+	{
+		if ($date) {
+			$dt = $this->__getFindSqlDate($date);
+			
+			if ($dt) {
+				$opt = array('conditions' => array('modified >' => $dt),'fields' => array('code', 'name'));
+				$mg = $this->MeetGroup->find('list', $opt);
+			} else {
+				return $this->error('パラメタには日付を指定して下さい。', self::STATUS_CODE_BAD_REQUEST);
+			}
+		} else {
+			$mg = $this->MeetGroup->find('list');
+		}
+		
+		return $this->success(array('meet_groups' => $mg));
+	}
+	
+	public function updated_season_ids($date = null)
+	{
+		if ($date) {
+			$dt = $this->__getFindSqlDate($date);
+			
+			if ($dt) {
+				$opt = array('conditions' => array('modified >' => $dt),'fields' => array('id', 'name'));
+				$season = $this->Season->find('list', $opt);
+			} else {
+				return $this->error('パラメタには日付を指定して下さい。', self::STATUS_CODE_BAD_REQUEST);
+			}
+		} else {
+			$season = $this->Season->find('list');
+		}
+		
+		return $this->success(array('season' => $season));
 	}
 	
 	/**

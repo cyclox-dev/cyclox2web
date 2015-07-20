@@ -1,5 +1,7 @@
 <?php
-App::uses('AppController', 'Controller');
+
+App::uses('ApiBaseController', 'Controller');
+
 /**
  * MeetGroups Controller
  *
@@ -7,14 +9,14 @@ App::uses('AppController', 'Controller');
  * @property PaginatorComponent $Paginator
  * @property SessionComponent $Session
  */
-class MeetGroupsController extends AppController {
+class MeetGroupsController extends ApiBaseController {
 
 /**
  * Components
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session');
+	public $components = array('Paginator', 'Session', 'RequestHandler');
 
 /**
  * index method
@@ -37,8 +39,19 @@ class MeetGroupsController extends AppController {
 		if (!$this->MeetGroup->exists($id)) {
 			throw new NotFoundException(__('Invalid meet group'));
 		}
+		
+		$isApiCall = $this->_isApiCall();
+		
 		$options = array('conditions' => array('MeetGroup.' . $this->MeetGroup->primaryKey => $id));
-		$this->set('meetGroup', $this->MeetGroup->find('first', $options));
+		if ($isApiCall) {
+			$options['recursive'] = -1;
+		}
+		$meetGroup = $this->MeetGroup->find('first', $options);
+		if ($isApiCall) {
+			$this->success($meetGroup);
+		} else {
+			$this->set('meetGroup', $meetGroup);
+		}
 	}
 
 /**

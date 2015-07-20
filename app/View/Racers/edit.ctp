@@ -41,6 +41,7 @@
 		echo $this->Form->input('nationality_code', array(
 			'label' => '国籍',
 			'options' => $nats,
+			'empty' => '未設定',
 		));
 		echo $this->Form->input('jcf_number', array('type' => 'text', 'label' => 'JCF Number'));
 		echo $this->Form->input('uci_number', array('type' => 'text', 'label' => 'UCI Number'));
@@ -50,6 +51,7 @@
 		echo $this->Form->input('country_code', array(
 			'label' => '国籍',
 			'options' => $nats,
+			'empty' => '未設定',
 		));
 		echo $this->Form->input('zip_code', array('type' => 'text', 'label' => '郵便番号 (Zip code)'));
 		echo $this->Form->input('prefecture', array('type' => 'text', 'label' => '都道府県 (Prefecture)'));

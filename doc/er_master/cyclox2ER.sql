@@ -6,8 +6,8 @@ DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
-DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS time_records;
+DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
 DROP TABLE IF EXISTS entry_categories;
 DROP TABLE IF EXISTS time_record_info;
@@ -18,6 +18,7 @@ DROP TABLE IF EXISTS parm_vars;
 DROP TABLE IF EXISTS racers;
 DROP TABLE IF EXISTS races_categories;
 DROP TABLE IF EXISTS seasons;
+DROP TABLE IF EXISTS users;
 
 
 
@@ -354,6 +355,23 @@ CREATE TABLE time_record_info
 	PRIMARY KEY (id),
 	UNIQUE (id),
 	UNIQUE (entry_group_id)
+);
+
+
+CREATE TABLE users
+(
+	id int NOT NULL AUTO_INCREMENT,
+	username varchar(50) BINARY NOT NULL,
+	password varchar(255) BINARY NOT NULL,
+	role varchar(64) BINARY NOT NULL,
+	email varchar(255) BINARY,
+	active tinyint(1) DEFAULT 0 NOT NULL,
+	created datetime DEFAULT null,
+	modified datetime DEFAULT null,
+	deleted_date datetime DEFAULT null,
+	deleted tinyint(1) DEFAULT 0,
+	PRIMARY KEY (id),
+	UNIQUE (username)
 );
 
 
