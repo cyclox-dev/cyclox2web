@@ -138,7 +138,7 @@
 			</connections>
 			<display>false</display>
 			<creation_date>2015-06-10 14:14:10</creation_date>
-			<updated_date>2015-07-23 10:02:36</updated_date>
+			<updated_date>2015-07-23 11:08:29</updated_date>
 			<model_property>
 				<name>プロジェクト名</name>
 				<value></value>
@@ -1885,7 +1885,7 @@
 					</sequence>
 				</normal_column>
 				<normal_column>
-					<word_id>18</word_id>
+					<word_id>19</word_id>
 					<id>6</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -2143,7 +2143,7 @@
 			<option></option>
 			<columns>
 				<normal_column>
-					<word_id>38</word_id>
+					<word_id>40</word_id>
 					<id>11</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -2407,7 +2407,7 @@
 					</sequence>
 				</normal_column>
 				<normal_column>
-					<word_id>18</word_id>
+					<word_id>19</word_id>
 					<id>19</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -2501,7 +2501,7 @@
 			<connections>
 				<relation>
 					<id>1</id>
-					<source>9</source>
+					<source>16</source>
 					<target>3</target>
 						<source_xp>-1</source_xp>
 						<source_yp>-1</source_yp>
@@ -2523,7 +2523,7 @@
 				</relation>
 				<relation>
 					<id>2</id>
-					<source>16</source>
+					<source>9</source>
 					<target>3</target>
 						<source_xp>-1</source_xp>
 						<source_yp>-1</source_yp>
@@ -2552,7 +2552,7 @@
 			<option></option>
 			<columns>
 				<normal_column>
-					<word_id>40</word_id>
+					<word_id>38</word_id>
 					<id>21</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -2587,7 +2587,7 @@
 				<normal_column>
 					<id>22</id>
 					<referenced_column>168</referenced_column>
-					<relation>2</relation>
+					<relation>1</relation>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name>選手 code</logical_name>
@@ -2621,7 +2621,7 @@
 				<normal_column>
 					<id>23</id>
 					<referenced_column>89</referenced_column>
-					<relation>1</relation>
+					<relation>2</relation>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name>カテゴリー code</logical_name>
@@ -2884,7 +2884,7 @@
 					</sequence>
 				</normal_column>
 				<normal_column>
-					<word_id>18</word_id>
+					<word_id>19</word_id>
 					<id>31</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -2978,7 +2978,7 @@
 			<connections>
 				<relation>
 					<id>3</id>
-					<source>9</source>
+					<source>12</source>
 					<target>4</target>
 						<source_xp>-1</source_xp>
 						<source_yp>-1</source_yp>
@@ -3000,7 +3000,7 @@
 				</relation>
 				<relation>
 					<id>4</id>
-					<source>12</source>
+					<source>9</source>
 					<target>4</target>
 						<source_xp>-1</source_xp>
 						<source_yp>-1</source_yp>
@@ -3064,7 +3064,7 @@
 				<normal_column>
 					<id>34</id>
 					<referenced_column>89</referenced_column>
-					<relation>3</relation>
+					<relation>4</relation>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name>カテゴリー code</logical_name>
@@ -3098,7 +3098,7 @@
 				<normal_column>
 					<id>35</id>
 					<referenced_column>118</referenced_column>
-					<relation>4</relation>
+					<relation>3</relation>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name></logical_name>
@@ -3196,7 +3196,7 @@
 					</sequence>
 				</normal_column>
 				<normal_column>
-					<word_id>18</word_id>
+					<word_id>19</word_id>
 					<id>38</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -3319,7 +3319,7 @@
 			<option></option>
 			<columns>
 				<normal_column>
-					<word_id>46</word_id>
+					<word_id>45</word_id>
 					<id>40</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -3328,7 +3328,7 @@
 					<type>integer</type>
 					<constraint></constraint>
 					<default_value></default_value>
-					<auto_increment>false</auto_increment>
+					<auto_increment>true</auto_increment>
 					<foreign_key>false</foreign_key>
 					<not_null>true</not_null>
 					<primary_key>true</primary_key>
@@ -3617,7 +3617,7 @@
 					</sequence>
 				</normal_column>
 				<normal_column>
-					<word_id>19</word_id>
+					<word_id>18</word_id>
 					<id>49</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -3711,7 +3711,7 @@
 			<connections>
 				<relation>
 					<id>6</id>
-					<source>12</source>
+					<source>5</source>
 					<target>6</target>
 						<source_xp>-1</source_xp>
 						<source_yp>-1</source_yp>
@@ -3733,7 +3733,7 @@
 				</relation>
 				<relation>
 					<id>7</id>
-					<source>5</source>
+					<source>12</source>
 					<target>6</target>
 						<source_xp>-1</source_xp>
 						<source_yp>-1</source_yp>
@@ -3762,7 +3762,7 @@
 			<option></option>
 			<columns>
 				<normal_column>
-					<word_id>45</word_id>
+					<word_id>46</word_id>
 					<id>51</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -3797,7 +3797,7 @@
 				<normal_column>
 					<id>52</id>
 					<referenced_column>40</referenced_column>
-					<relation>7</relation>
+					<relation>6</relation>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name>出走グループ id</logical_name>
@@ -3831,7 +3831,7 @@
 				<normal_column>
 					<id>53</id>
 					<referenced_column>118</referenced_column>
-					<relation>6</relation>
+					<relation>7</relation>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name></logical_name>
@@ -4061,7 +4061,7 @@
 					</sequence>
 				</normal_column>
 				<normal_column>
-					<word_id>19</word_id>
+					<word_id>18</word_id>
 					<id>60</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -4184,7 +4184,7 @@
 			<option></option>
 			<columns>
 				<normal_column>
-					<word_id>37</word_id>
+					<word_id>41</word_id>
 					<id>62</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -4548,7 +4548,7 @@
 					</sequence>
 				</normal_column>
 				<normal_column>
-					<word_id>19</word_id>
+					<word_id>18</word_id>
 					<id>73</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -4642,7 +4642,7 @@
 			<connections>
 				<relation>
 					<id>9</id>
-					<source>6</source>
+					<source>16</source>
 					<target>8</target>
 						<source_xp>-1</source_xp>
 						<source_yp>-1</source_yp>
@@ -4664,7 +4664,7 @@
 				</relation>
 				<relation>
 					<id>10</id>
-					<source>16</source>
+					<source>6</source>
 					<target>8</target>
 						<source_xp>-1</source_xp>
 						<source_yp>-1</source_yp>
@@ -4728,7 +4728,7 @@
 				<normal_column>
 					<id>76</id>
 					<referenced_column>51</referenced_column>
-					<relation>9</relation>
+					<relation>10</relation>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name>出走カテゴリー id</logical_name>
@@ -4762,7 +4762,7 @@
 				<normal_column>
 					<id>77</id>
 					<referenced_column>168</referenced_column>
-					<relation>10</relation>
+					<relation>9</relation>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name>選手 code</logical_name>
@@ -5091,7 +5091,7 @@
 					</sequence>
 				</normal_column>
 				<normal_column>
-					<word_id>19</word_id>
+					<word_id>18</word_id>
 					<id>87</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -5710,7 +5710,7 @@
 					</sequence>
 				</normal_column>
 				<normal_column>
-					<word_id>18</word_id>
+					<word_id>19</word_id>
 					<id>104</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -5811,7 +5811,7 @@
 			<option></option>
 			<columns>
 				<normal_column>
-					<word_id>41</word_id>
+					<word_id>43</word_id>
 					<id>106</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -6176,7 +6176,7 @@
 					</sequence>
 				</normal_column>
 				<normal_column>
-					<word_id>18</word_id>
+					<word_id>19</word_id>
 					<id>116</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -6673,7 +6673,7 @@
 					</sequence>
 				</normal_column>
 				<normal_column>
-					<word_id>18</word_id>
+					<word_id>19</word_id>
 					<id>130</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -6796,7 +6796,7 @@
 			<option></option>
 			<columns>
 				<normal_column>
-					<word_id>43</word_id>
+					<word_id>37</word_id>
 					<id>132</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -7094,7 +7094,7 @@
 					</sequence>
 				</normal_column>
 				<normal_column>
-					<word_id>19</word_id>
+					<word_id>18</word_id>
 					<id>141</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -7459,7 +7459,7 @@
 					</sequence>
 				</normal_column>
 				<normal_column>
-					<word_id>19</word_id>
+					<word_id>18</word_id>
 					<id>151</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -8035,7 +8035,7 @@
 					</sequence>
 				</normal_column>
 				<normal_column>
-					<word_id>18</word_id>
+					<word_id>19</word_id>
 					<id>166</id>
 					<description></description>
 					<unique_key_name></unique_key_name>
@@ -8862,7 +8862,7 @@
 					</sequence>
 				</normal_column>
 				<normal_column>
-					<word_id>19</word_id>
+					<word_id>18</word_id>
 					<id>190</id>
 					<description></description>
 					<unique_key_name></unique_key_name>

@@ -129,7 +129,7 @@ CREATE TABLE entry_categories
 CREATE TABLE entry_groups
 (
 	-- cakephp のための primary key として。
-	id int unsigned NOT NULL,
+	id int unsigned NOT NULL AUTO_INCREMENT,
 	-- 例）CX 東北による2013-14シーズンの1発目のレースならば THK-134-001
 	meet_code varchar(11) BINARY NOT NULL,
 	-- null ならば entry_category.name をつなげたもの
