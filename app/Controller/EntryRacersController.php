@@ -1,5 +1,7 @@
 <?php
-App::uses('AppController', 'Controller');
+
+App::uses('ApiBaseController', 'Controller');
+
 /**
  * EntryRacers Controller
  *
@@ -7,14 +9,14 @@ App::uses('AppController', 'Controller');
  * @property PaginatorComponent $Paginator
  * @property SessionComponent $Session
  */
-class EntryRacersController extends AppController {
+class EntryRacersController extends ApiBaseController {
 
 /**
  * Components
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session');
+	public $components = array('Paginator', 'Session', 'RequestHandler');
 
 /**
  * index method
@@ -46,7 +48,21 @@ class EntryRacersController extends AppController {
  *
  * @return void
  */
-	public function add() {
+	public function add()
+	{
+		if ($this->_isApiCall()) {
+			return $this->__addOnApi();
+		} else {
+			return $this->__addOnPage();
+		}
+	}
+	
+	/**
+	 * 管理画面上での add 処理
+	 * @return void
+	 */
+	private function __addOnPage()
+	{
 		if ($this->request->is('post')) {
 			$this->EntryRacer->create();
 			if ($this->EntryRacer->save($this->request->data)) {
@@ -59,6 +75,26 @@ class EntryRacersController extends AppController {
 		$entryCategories = $this->EntryRacer->EntryCategory->find('list');
 		$racers = $this->EntryRacer->Racer->find('list');
 		$this->set(compact('entryCategories', 'racers'));
+	}
+	
+	/**
+	 * API 上での add 処理
+	 * @return void
+	 */
+	private function __addOnApi()
+	{
+		if ($this->request->is('post')) {
+			//$this->log($this->request->data, LOG_DEBUG);
+			$this->EntryRacer->create();
+			
+			if ($this->EntryRacer->save($this->request->data)) {
+				return $this->success(array('entry_racer_id' => $this->EntryRacer->id));
+			} else {
+				return $this->error('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
+			}
+		} else {
+			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
+		}
 	}
 
 /**
