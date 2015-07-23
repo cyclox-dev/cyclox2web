@@ -30,8 +30,8 @@ CREATE TABLE categories
 	-- C1, CL3 など
 	code varchar(16) BINARY NOT NULL,
 	-- Category-1 など
-	name text NOT NULL,
-	short_name text NOT NULL,
+	name text BINARY NOT NULL,
+	short_name text BINARY NOT NULL,
 	category_group_id int unsigned NOT NULL,
 	lank tinyint unsigned NOT NULL,
 	race_min smallint unsigned,
@@ -54,7 +54,7 @@ CREATE TABLE categories
 CREATE TABLE category_groups
 (
 	id int unsigned NOT NULL AUTO_INCREMENT,
-	name text,
+	name text BINARY,
 	description text NOT NULL,
 	-- 昇格・降格の処理オブジェクトや js コードを指定する。
 	lank_up_hint text,
@@ -79,7 +79,7 @@ CREATE TABLE category_racers
 	reason_id int unsigned NOT NULL,
 	reason_note text,
 	-- 例）CX 東北による2013-14シーズンの1発目のレースならば THK-134-001
-	meet_code varchar(11),
+	meet_code varchar(11) BINARY,
 	cancel_date date,
 	created datetime,
 	modified datetime,
@@ -113,7 +113,7 @@ CREATE TABLE entry_categories
 	entry_group_id int unsigned NOT NULL,
 	races_category_code varchar(16) BINARY NOT NULL,
 	-- null ならば entry_category.name をつなげたもの
-	name text,
+	name text BINARY,
 	start_delay_sec int NOT NULL,
 	lapout_rule tinyint NOT NULL,
 	note text,
@@ -133,7 +133,7 @@ CREATE TABLE entry_groups
 	-- 例）CX 東北による2013-14シーズンの1発目のレースならば THK-134-001
 	meet_code varchar(11) BINARY NOT NULL,
 	-- null ならば entry_category.name をつなげたもの
-	name text,
+	name text BINARY,
 	start_clock time,
 	start_frac_distance float(6,3),
 	lap_distance float(6,3),
@@ -156,10 +156,12 @@ CREATE TABLE entry_racers
 	-- 例）THK-134-0002
 	-- 標準では12文字になるが、最後が4桁を超える可能性ありとして長さ16文字としている。
 	racer_code varchar(16) BINARY NOT NULL,
-	body_number varchar(16),
-	name_at_race text,
+	body_number varchar(16) BINARY,
+	name_at_race text BINARY,
+	name_kana_at_race text BINARY,
+	name_en_at_race text BINARY,
 	entry_status tinyint NOT NULL,
-	team_name text,
+	team_name text BINARY,
 	note text,
 	created datetime,
 	modified datetime,
@@ -179,7 +181,7 @@ CREATE TABLE meets
 	season_id int unsigned NOT NULL,
 	at_date date NOT NULL,
 	name text NOT NULL,
-	short_name text NOT NULL,
+	short_name text BINARY NOT NULL,
 	location text,
 	organized_by text,
 	homepage text,
@@ -198,8 +200,8 @@ CREATE TABLE meet_groups
 (
 	-- KNS, THK など
 	code varchar(3) BINARY NOT NULL,
-	name text NOT NULL,
-	short_name text NOT NULL,
+	name text BINARY NOT NULL,
+	short_name text BINARY NOT NULL,
 	description text,
 	homepage text,
 	created datetime,
@@ -228,31 +230,31 @@ CREATE TABLE racers
 	-- 例）THK-134-0002
 	-- 標準では12文字になるが、最後が4桁を超える可能性ありとして長さ16文字としている。
 	code varchar(16) BINARY NOT NULL,
-	family_name text NOT NULL,
-	family_name_kana text NOT NULL,
-	family_name_en text NOT NULL,
-	first_name text NOT NULL,
-	first_name_kana text NOT NULL,
-	first_name_en text NOT NULL,
+	family_name text BINARY NOT NULL,
+	family_name_kana text BINARY NOT NULL,
+	family_name_en text BINARY NOT NULL,
+	first_name text BINARY NOT NULL,
+	first_name_kana text BINARY NOT NULL,
+	first_name_en text BINARY NOT NULL,
 	gender tinyint NOT NULL,
 	birth_date date,
 	-- JPN など
 	nationality_code char(3) DEFAULT 'JPN',
 	-- 形式: 99ME0123456 で11文字であるが、変更される可能性を考えて text としている。
-	jcf_number text,
+	jcf_number text BINARY,
 	-- 形式: JPN19870123 の国 code + 生年月日の形式。
-	uci_number text,
+	uci_number text BINARY,
 	-- UCI 登録の固有番号
-	uci_code text,
+	uci_code text BINARY,
 	-- 国外、ハイフン付与を考慮して text で処理する。
 	phone text,
-	mail text,
+	mail text BINARY,
 	country_code char(3) DEFAULT 'JPN',
 	-- 国外郵便番号を考慮し、text 形式で扱う。
-	zip_code text,
-	prefecture text,
-	address text,
-	note text,
+	zip_code text BINARY,
+	prefecture text BINARY,
+	address text BINARY,
+	note text BINARY,
 	created datetime,
 	modified datetime,
 	deleted_date datetime,
@@ -285,7 +287,7 @@ CREATE TABLE races_categories
 (
 	code varchar(16) BINARY NOT NULL,
 	-- null ならば entry_category.name をつなげたもの
-	name text NOT NULL,
+	name text BINARY NOT NULL,
 	description text NOT NULL,
 	age_min smallint unsigned DEFAULT 0,
 	age_max smallint unsigned DEFAULT 999,
@@ -307,8 +309,8 @@ CREATE TABLE seasons
 (
 	id int unsigned NOT NULL AUTO_INCREMENT,
 	-- null ならば entry_category.name をつなげたもの
-	name text NOT NULL,
-	short_name text NOT NULL,
+	name text BINARY NOT NULL,
+	short_name text BINARY NOT NULL,
 	start_date date NOT NULL,
 	end_date date NOT NULL,
 	-- is_regular == true ならば昇格を判定する、などに利用する。
@@ -345,8 +347,8 @@ CREATE TABLE time_record_info
 	-- 計測精度を表す min=0, max=100 とする値。複数の計測方法への対応。目取と cyclox2 による入力であれば 50。確定データは 100 とする。
 	accuracy tinyint unsigned DEFAULT 50 NOT NULL,
 	-- 計測の記録としての値
-	macine text,
-	operator text,
+	macine text BINARY,
+	operator text BINARY,
 	note text,
 	created datetime,
 	modified datetime,
