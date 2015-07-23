@@ -8,6 +8,8 @@
 			<th><?php echo $this->Paginator->sort('racer_code'); ?></th>
 			<th><?php echo $this->Paginator->sort('body_number'); ?></th>
 			<th><?php echo $this->Paginator->sort('name_at_race'); ?></th>
+			<th><?php echo $this->Paginator->sort('name_kana_at_race'); ?></th>
+			<th><?php echo $this->Paginator->sort('name_en_at_race'); ?></th>
 			<th><?php echo $this->Paginator->sort('entry_status'); ?></th>
 			<th><?php echo $this->Paginator->sort('team_name'); ?></th>
 			<th><?php echo $this->Paginator->sort('note'); ?></th>
@@ -26,6 +28,8 @@
 		</td>
 		<td><?php echo h($entryRacer['EntryRacer']['body_number']); ?>&nbsp;</td>
 		<td><?php echo h($entryRacer['EntryRacer']['name_at_race']); ?>&nbsp;</td>
+		<td><?php echo h($entryRacer['EntryRacer']['name_kana_at_race']); ?>&nbsp;</td>
+		<td><?php echo h($entryRacer['EntryRacer']['name_en_at_race']); ?>&nbsp;</td>
 		<td><?php echo h($entryRacer['EntryRacer']['entry_status']); ?>&nbsp;</td>
 		<td><?php echo h($entryRacer['EntryRacer']['team_name']); ?>&nbsp;</td>
 		<td><?php echo h($entryRacer['EntryRacer']['note']); ?>&nbsp;</td>

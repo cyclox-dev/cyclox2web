@@ -26,6 +26,16 @@
 			<?php echo h($entryRacer['EntryRacer']['name_at_race']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('Name Kana At Race'); ?></dt>
+		<dd>
+			<?php echo h($entryRacer['EntryRacer']['name_kana_at_race']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Name En At Race'); ?></dt>
+		<dd>
+			<?php echo h($entryRacer['EntryRacer']['name_en_at_race']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Entry Status'); ?></dt>
 		<dd>
 			<?php echo h($entryRacer['EntryRacer']['entry_status']); ?>

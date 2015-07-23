@@ -7,6 +7,8 @@
 		echo $this->Form->input('racer_code');
 		echo $this->Form->input('body_number');
 		echo $this->Form->input('name_at_race');
+		echo $this->Form->input('name_kana_at_race');
+		echo $this->Form->input('name_en_at_race');
 		echo $this->Form->input('entry_status');
 		echo $this->Form->input('team_name');
 		echo $this->Form->input('note');
