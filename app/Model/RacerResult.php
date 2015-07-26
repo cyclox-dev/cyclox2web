@@ -33,6 +33,16 @@ class RacerResult extends AppModel
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
+		'order_index' => array(
+			'naturalNumber' => array(
+				'rule' => array('naturalNumber', false),
+				'message' => '1位上の整数を入力してください。',
+				//'allowEmpty' => false,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			),
+		),
 		'lap' => array(
 			'notEmpty' => array(
 				'rule' => array('notEmpty'),

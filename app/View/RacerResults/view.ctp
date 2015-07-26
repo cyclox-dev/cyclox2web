@@ -11,6 +11,16 @@
 			<?php echo $this->Html->link($racerResult['EntryRacer']['id'], array('controller' => 'entry_racers', 'action' => 'view', $racerResult['EntryRacer']['id'])); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('Order Index'); ?></dt>
+		<dd>
+			<?php echo h($racerResult['RacerResult']['order_index']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Rank'); ?></dt>
+		<dd>
+			<?php echo h($racerResult['RacerResult']['rank']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Lap'); ?></dt>
 		<dd>
 			<?php echo h($racerResult['RacerResult']['lap']); ?>
@@ -28,7 +38,7 @@
 		</dd>
 		<dt><?php echo __('Lank At Lap Out'); ?></dt>
 		<dd>
-			<?php echo h($racerResult['RacerResult']['lank_at_lap_out']); ?>
+			<?php echo h($racerResult['RacerResult']['rank_at_lap_out']); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('Note'); ?></dt>

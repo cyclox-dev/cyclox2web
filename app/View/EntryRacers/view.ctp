@@ -96,7 +96,7 @@
 &nbsp;</dd>
 		<dt><?php echo __('Lank At Lap Out'); ?></dt>
 		<dd>
-	<?php echo $entryRacer['RacerResult']['lank_at_lap_out']; ?>
+	<?php echo $entryRacer['RacerResult']['rank_at_lap_out']; ?>
 &nbsp;</dd>
 		<dt><?php echo __('Note'); ?></dt>
 		<dd>
