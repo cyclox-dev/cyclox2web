@@ -331,6 +331,7 @@ CREATE TABLE time_records
 	id bigint unsigned NOT NULL AUTO_INCREMENT,
 	-- cakephp での primary key として。
 	entry_racer_id int unsigned NOT NULL,
+	lap int NOT NULL,
 	time_milli int unsigned NOT NULL,
 	PRIMARY KEY (id),
 	UNIQUE (id)

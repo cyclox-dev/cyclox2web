@@ -4,6 +4,7 @@
 		<legend><?php echo __('Add Time Record'); ?></legend>
 	<?php
 		echo $this->Form->input('entry_racer_id');
+		echo $this->Form->input('lap');
 		echo $this->Form->input('time_milli');
 	?>
 	</fieldset>

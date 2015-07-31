@@ -5,6 +5,7 @@
 	<tr>
 			<th><?php echo $this->Paginator->sort('id'); ?></th>
 			<th><?php echo $this->Paginator->sort('entry_racer_id'); ?></th>
+			<th><?php echo $this->Paginator->sort('lap'); ?></th>
 			<th><?php echo $this->Paginator->sort('time_milli'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
@@ -16,6 +17,7 @@
 		<td>
 			<?php echo $this->Html->link($timeRecord['EntryRacer']['id'], array('controller' => 'entry_racers', 'action' => 'view', $timeRecord['EntryRacer']['id'])); ?>
 		</td>
+		<td><?php echo h($timeRecord['TimeRecord']['lap']); ?>&nbsp;</td>
 		<td><?php echo h($timeRecord['TimeRecord']['time_milli']); ?>&nbsp;</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $timeRecord['TimeRecord']['id'])); ?>

@@ -11,6 +11,11 @@
 			<?php echo $this->Html->link($timeRecord['EntryRacer']['id'], array('controller' => 'entry_racers', 'action' => 'view', $timeRecord['EntryRacer']['id'])); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('Lap'); ?></dt>
+		<dd>
+			<?php echo h($timeRecord['TimeRecord']['lap']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Time Milli'); ?></dt>
 		<dd>
 			<?php echo h($timeRecord['TimeRecord']['time_milli']); ?>
