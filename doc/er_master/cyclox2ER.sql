@@ -2,8 +2,8 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 /* Drop Tables */
 
-DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS category_racers;
+DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
 DROP TABLE IF EXISTS time_records;
@@ -329,8 +329,7 @@ CREATE TABLE seasons
 CREATE TABLE time_records
 (
 	id bigint unsigned NOT NULL AUTO_INCREMENT,
-	-- cakephp での primary key として。
-	entry_racer_id int unsigned NOT NULL,
+	racer_result_id int unsigned NOT NULL,
 	lap int NOT NULL,
 	time_milli int unsigned NOT NULL,
 	PRIMARY KEY (id),

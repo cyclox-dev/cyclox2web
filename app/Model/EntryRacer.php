@@ -83,25 +83,4 @@ class EntryRacer extends AppModel
 		)
 	);
 
-/**
- * hasMany associations
- *
- * @var array
- */
-	public $hasMany = array(
-		'TimeRecord' => array(
-			'className' => 'TimeRecord',
-			'foreignKey' => 'entry_racer_id',
-			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
-		)
-	);
-
 }

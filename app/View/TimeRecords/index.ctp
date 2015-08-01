@@ -4,7 +4,7 @@
 	<thead>
 	<tr>
 			<th><?php echo $this->Paginator->sort('id'); ?></th>
-			<th><?php echo $this->Paginator->sort('entry_racer_id'); ?></th>
+			<th><?php echo $this->Paginator->sort('racer_result_id'); ?></th>
 			<th><?php echo $this->Paginator->sort('lap'); ?></th>
 			<th><?php echo $this->Paginator->sort('time_milli'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
@@ -15,7 +15,7 @@
 	<tr>
 		<td><?php echo h($timeRecord['TimeRecord']['id']); ?>&nbsp;</td>
 		<td>
-			<?php echo $this->Html->link($timeRecord['EntryRacer']['id'], array('controller' => 'entry_racers', 'action' => 'view', $timeRecord['EntryRacer']['id'])); ?>
+			<?php echo $this->Html->link($timeRecord['RacerResult']['id'], array('controller' => 'racer_result', 'action' => 'view', $timeRecord['RacerResult']['id'])); ?>
 		</td>
 		<td><?php echo h($timeRecord['TimeRecord']['lap']); ?>&nbsp;</td>
 		<td><?php echo h($timeRecord['TimeRecord']['time_milli']); ?>&nbsp;</td>
@@ -46,7 +46,7 @@
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(__('New Time Record'), array('action' => 'add')); ?></li>
-		<li><?php echo $this->Html->link(__('List Entry Racers'), array('controller' => 'entry_racers', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Entry Racer'), array('controller' => 'entry_racers', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('List Racer Results'), array('controller' => 'racer_results', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('New Racer Result'), array('controller' => 'racer_results', 'action' => 'add')); ?> </li>
 	</ul>
 </div>

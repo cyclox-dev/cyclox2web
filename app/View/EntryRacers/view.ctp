@@ -66,8 +66,6 @@
 		<li><?php echo $this->Html->link(__('New Racer'), array('controller' => 'racers', 'action' => 'add')); ?> </li>
 		<li><?php echo $this->Html->link(__('List Racer Results'), array('controller' => 'racer_results', 'action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('New Racer Result'), array('controller' => 'racer_results', 'action' => 'add')); ?> </li>
-		<li><?php echo $this->Html->link(__('List Time Records'), array('controller' => 'time_records', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Time Record'), array('controller' => 'time_records', 'action' => 'add')); ?> </li>
 	</ul>
 </div>
 	<div class="related">
@@ -110,34 +108,10 @@
 			</ul>
 		</div>
 	</div>
-	<div class="related">
-	<h3><?php echo __('Related Time Records'); ?></h3>
-	<?php if (!empty($entryRacer['TimeRecord'])): ?>
-	<table cellpadding = "0" cellspacing = "0">
-	<tr>
-		<th><?php echo __('Id'); ?></th>
-		<th><?php echo __('Entry Racer Id'); ?></th>
-		<th><?php echo __('Time Milli'); ?></th>
-		<th class="actions"><?php echo __('Actions'); ?></th>
-	</tr>
-	<?php foreach ($entryRacer['TimeRecord'] as $timeRecord): ?>
-		<tr>
-			<td><?php echo $timeRecord['id']; ?></td>
-			<td><?php echo $timeRecord['entry_racer_id']; ?></td>
-			<td><?php echo $timeRecord['time_milli']; ?></td>
-			<td class="actions">
-				<?php echo $this->Html->link(__('View'), array('controller' => 'time_records', 'action' => 'view', $timeRecord['id'])); ?>
-				<?php echo $this->Html->link(__('Edit'), array('controller' => 'time_records', 'action' => 'edit', $timeRecord['id'])); ?>
-				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'time_records', 'action' => 'delete', $timeRecord['id']), array(), __('[%s] のデータを削除してよろしいですか？', $timeRecord['id'])); ?>
-			</td>
-		</tr>
-	<?php endforeach; ?>
-	</table>
-<?php endif; ?>
+	
 
 	<div class="actions">
 		<ul>
 			<li><?php echo $this->Html->link(__('New Time Record'), array('controller' => 'time_records', 'action' => 'add')); ?> </li>
 		</ul>
 	</div>
-</div>

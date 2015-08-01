@@ -48,9 +48,9 @@ class TimeRecord extends AppModel {
  * @var array
  */
 	public $belongsTo = array(
-		'EntryRacer' => array(
-			'className' => 'EntryRacer',
-			'foreignKey' => 'entry_racer_id',
+		'RacerResult' => array(
+			'className' => 'RacerResult',
+			'foreignKey' => 'racer_result_id',
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''
