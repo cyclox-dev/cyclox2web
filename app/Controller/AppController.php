@@ -67,7 +67,7 @@ class AppController extends Controller {
 					'passwordHasher' => 'Blowfish',
 					'fields' => array('username' => 'email'),
 				)
-			);
+			);//*/
 		} else {
 			$this->Auth->authenticate = array(
 				'Form' => array(

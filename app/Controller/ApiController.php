@@ -16,7 +16,8 @@ App::uses('Util', 'Cyclox/Util');
  */
 class ApiController extends ApiBaseController
 {
-	public $uses = array('Meet', 'CategoryRacer', 'Racer', 'MeetGroup', 'Season');
+	public $uses = array('Meet', 'CategoryRacer', 'Racer', 'MeetGroup', 'Season',
+			'EntryGroup', 'EntryCategory', 'EntryRacer', 'RacerResult', 'TimeRecord');
 	
 	public $components = array('Session', 'RequestHandler');
 	
@@ -126,6 +127,67 @@ class ApiController extends ApiBaseController
 		}
 		
 		return $this->success(array('seasons' => $season));
+	}
+	
+	/**
+	 * 結果に関する現在の ID をまとめて取得する
+	 * @param string $meetCode 大会コード
+	 * @param string $ecatName 出走カテゴリー名
+	 * @return void
+	 */
+	 public function ecat_body_id($meetCode, $ecatName)
+	{
+		 if (!$this->_isApiCall()) {
+			throw new BadRequestException('無効なアクセスです。');
+		}
+
+		$egroups = $this->EntryGroup->find('all', array('conditions' => array('meet_code' => $meetCode)));
+		if (empty($egroups)) {
+			return $this->error('大会が見つかりません。', self::STATUS_CODE_BAD_REQUEST);
+		}
+		//$this->log($egroups, LOG_DEBUG);
+
+		$ecat = null;
+		$breaks = false;
+		foreach ($egroups as $egroup) {
+			foreach ($egroup['EntryCategory'] as $ec) {
+				if ($ec['name'] === $ecatName) {
+					$ecat = $ec; // TODO: 複数ヒットをエラーとする？
+					$breaks = true;
+					break;
+				}
+			}
+
+			if ($breaks) break;
+		}
+
+		if (empty($ecat)) {
+			return $this->error("出走カテゴリーが見つかりません。", self::STATUS_CODE_BAD_REQUEST);
+		}
+
+		$conditions = array(
+			'conditions' => array('entry_category_id' => $ecat['id']),
+			'recursive' => -1,
+			'fields' => array('id', 'body_number')
+		);
+		$eracers = $this->EntryRacer->find('all', $conditions);
+		$this->log($eracers, LOG_DEBUG);
+
+		if (empty($eracers)) {
+			return $this->error("出走カテゴリーに選手が設定されていません。", self::STATUS_CODE_BAD_REQUEST);
+		}
+
+		$erMap = array();
+		
+		$this->log($eracers, LOG_DAEMON);
+
+		foreach ($eracers as $eracer) {
+			$erMap[$eracer['EntryRacer']['body_number']] = $eracer['EntryRacer']['id'];
+		}
+
+		return $this->success(array(
+			'body-eracer_svr_id' => $erMap,
+		));
 	}
 	
 	/**

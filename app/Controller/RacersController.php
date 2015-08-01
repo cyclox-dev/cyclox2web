@@ -167,7 +167,7 @@ class RacersController extends ApiBaseController
 	private function __addOnApi()
 	{
 		if ($this->request->is('post')) {
-			$this->log($this->request->data, LOG_DEBUG);
+			//$this->log($this->request->data, LOG_DEBUG);
 			$this->Racer->create();
 			
 			if (!isset($this->request->data['Racer']['code']))
