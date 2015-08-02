@@ -15,7 +15,7 @@
 	<tr>
 		<td><?php echo h($timeRecord['TimeRecord']['id']); ?>&nbsp;</td>
 		<td>
-			<?php echo $this->Html->link($timeRecord['RacerResult']['id'], array('controller' => 'racer_result', 'action' => 'view', $timeRecord['RacerResult']['id'])); ?>
+			<?php echo $this->Html->link($timeRecord['RacerResult']['id'], array('controller' => 'racer_results', 'action' => 'view', $timeRecord['RacerResult']['id'])); ?>
 		</td>
 		<td><?php echo h($timeRecord['TimeRecord']['lap']); ?>&nbsp;</td>
 		<td><?php echo h($timeRecord['TimeRecord']['time_milli']); ?>&nbsp;</td>
