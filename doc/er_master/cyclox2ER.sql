@@ -274,7 +274,7 @@ CREATE TABLE racer_results
 	lap int NOT NULL,
 	goal_milli_sec int unsigned,
 	lap_out_lap int,
-	rank_at_lap_out int unsigned,
+	rank_at_lap_out int,
 	note text,
 	created datetime,
 	modified datetime,
