@@ -16,8 +16,9 @@ App::uses('Util', 'Cyclox/Util');
  */
 class ApiController extends ApiBaseController
 {
-	public $uses = array('Meet', 'CategoryRacer', 'Racer', 'MeetGroup', 'Season',
-			'EntryGroup', 'EntryCategory', 'EntryRacer', 'RacerResult', 'TimeRecord');
+	public $uses = array('TransactionManager',
+		'Meet', 'CategoryRacer', 'Racer', 'MeetGroup', 'Season',
+		'EntryGroup', 'EntryCategory', 'EntryRacer', 'RacerResult', 'TimeRecord');
 	
 	public $components = array('Session', 'RequestHandler');
 	
@@ -135,7 +136,7 @@ class ApiController extends ApiBaseController
 	 * @param string $ecatName 出走カテゴリー名
 	 * @return void
 	 */
-	 public function ecat_body_id($meetCode, $ecatName)
+	public function ecat_body_id($meetCode, $ecatName)
 	{
 		 if (!$this->_isApiCall()) {
 			throw new BadRequestException('無効なアクセスです。');
@@ -188,6 +189,108 @@ class ApiController extends ApiBaseController
 		return $this->success(array(
 			'body-eracer_svr_id' => $erMap,
 		));
+	}
+	
+	/**
+	 * 結果を upload する
+	 */
+	public function add_result($meetCode, $ecatName)
+	{
+		if (!$this->_isApiCall()) {
+			throw new BadRequestException('無効なアクセスです。');
+		}
+		
+		if (!$this->request->is('post')) {
+			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
+		}
+		
+		// 出走カテゴリーの特定
+		
+		$egroups = $this->EntryGroup->find('all', array('conditions' => array('meet_code' => $meetCode)));
+		if (empty($egroups)) {
+			return $this->error('大会が見つかりません。', self::STATUS_CODE_BAD_REQUEST);
+		}
+		//$this->log($egroups, LOG_DEBUG);
+
+		$ecat = null;
+		$breaks = false;
+		foreach ($egroups as $egroup) {
+			foreach ($egroup['EntryCategory'] as $ec) {
+				if ($ec['name'] === $ecatName) {
+					$ecat = $ec; // TODO: 複数ヒットをエラーとする？
+					$breaks = true;
+					break;
+				}
+			}
+
+			if ($breaks) break;
+		}
+
+		if (empty($ecat)) {
+			return $this->error("出走カテゴリーが見つかりません。", self::STATUS_CODE_BAD_REQUEST);
+		}
+		
+		// 出走選手取得
+
+		$conditions = array(
+			'conditions' => array('entry_category_id' => $ecat['id']),
+		);
+		$eracers = $this->EntryRacer->find('all', $conditions);
+		$this->log($eracers, LOG_DEBUG);
+
+		if (empty($eracers)) {
+			return $this->error("出走カテゴリーに選手が設定されていません。", self::STATUS_CODE_BAD_REQUEST);
+		}
+		
+		$erMap = array(); // key:body value entry_racer
+		foreach ($eracers as $eracer) {
+			$erMap[$eracer['EntryRacer']['body_number']] = $eracer;
+		}
+		
+		// メイン処理
+		
+		if (!isset($this->request->data['body-result'])) {
+			return $this->error('"body-result" の値が設定されていません。');
+		}
+		
+		$transaction = $this->TransactionManager->begin();
+		
+		try
+		{
+			// 現在ある全てのリザルトデータを削除
+			foreach ($eracers as $er) {
+				if (!empty($er['RacerResult']['id'])) {
+					$result_id = $er['RacerResult']['id'];
+
+					if (!$this->RacerResult->delete($result_id)) {
+						$this->TransactionManager->rollback($transaction);
+						return $this->error('リザルトの削除に失敗しました（想定しないエラー）。');
+					}
+					// ラップタイムは model dependent=true で削除する
+					// TODO: 確認
+				}
+			}
+
+			foreach ($this->request->data['body-result'] as $body => $result) {
+				$er = $erMap[$body];
+				if (empty($er)) {
+					$this->TransactionManager->rollback($transaction);
+					return $this->error('無効な BodyNo. の設定が存在します。出走データをチェックして下さい。');
+				}
+
+				// リザルトの保存
+				if (!$this->RacerResult->saveAssociated($result)) {
+					$this->TransactionManager->rollback($transaction);
+					return $this->error('保存処理に失敗しました。');
+				}
+			}
+
+			$this->TransactionManager->commit($transaction);
+			return $this->success(array('ok')); // 件数とか？
+		} catch(Exception $ex) {
+			$this->TransactionManager->rollback($transaction);
+			return $this->error('予期しないエラー:' + $ex);
+		}
 	}
 	
 	/**
