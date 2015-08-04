@@ -86,7 +86,7 @@ class RacerResult extends AppModel
 		'TimeRecord' => array(
 			'className' => 'TimeRecord',
 			'foreignKey' => 'racer_result_id',
-			'dependent' => true,
+			'dependent' => false,
 			'conditions' => '',
 			'fields' => '',
 			'order' => '',
