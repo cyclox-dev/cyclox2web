@@ -193,6 +193,9 @@ class ApiController extends ApiBaseController
 	
 	/**
 	 * 結果を upload する
+	 * @param string $meetCode 大会コード
+	 * @param string $ecatName 出走カテゴリー名
+	 * @return void
 	 */
 	public function add_result($meetCode, $ecatName)
 	{
@@ -260,13 +263,20 @@ class ApiController extends ApiBaseController
 			foreach ($eracers as $er) {
 				if (!empty($er['RacerResult']['id'])) {
 					$result_id = $er['RacerResult']['id'];
+					
+					if (!$this->RacerResult->exists($result_id)) {
+						continue;
+					}
 
 					if (!$this->RacerResult->delete($result_id)) {
 						$this->TransactionManager->rollback($transaction);
 						return $this->error('リザルトの削除に失敗しました（想定しないエラー）。');
 					}
-					// ラップタイムは model dependent=true で削除する
-					// TODO: 確認
+					
+					if (!$this->TimeRecord->deleteAll(array('racer_result_id' => $result_id))) {
+						$this->TransactionManager->rollback($transaction);
+						return $this->error('リザルトのラップタイムデータ削除に失敗しました（想定しないエラー）。');
+					}
 				}
 			}
 
