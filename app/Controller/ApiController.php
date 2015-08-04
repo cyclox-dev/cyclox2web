@@ -192,6 +192,75 @@ class ApiController extends ApiBaseController
 	}
 	
 	/**
+	 * 出走設定を追加する
+	 * @param string $meetCode 大会コード
+	 */
+	public function add_entry()
+	{
+		if (!$this->_isApiCall()) {
+			throw new BadRequestException('無効なアクセスです。');
+		}
+		
+		if (!$this->request->is('post')) {
+			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
+		}
+		
+		if (empty($this->request->data['entry_group'])) {
+			return $this->error('出走グループキー "entry_group" がありません。', self::STATUS_CODE_BAD_REQUEST);
+		}
+		if (empty($this->request->data['entry_cats'])) {
+			return $this->error('出走グループキー "entry_cats" がありません。', self::STATUS_CODE_BAD_REQUEST);
+		}
+		
+		// 出走グループ名が同じものがあった場合、出走データ + リザルトを除去する。
+		if (!empty($this->request->data['entry_group']['EntryGroup']['name'])) {
+			$egroupName = $this->request->data['entry_group']['EntryGroup']['name'];
+			
+			$opt = array('conditions' => array('name' => $egroupName));
+			$oldGroups = $this->EntryGroup->find('list', $opt);
+			if (!empty($oldGroups)) {
+				foreach ($oldGroups as $key => $val)
+				{
+					$this->EntryGroup->delete($key);
+				}
+			}			
+		}
+		
+		$transaction = $this->TransactionManager->begin();
+		
+		try {
+			$this->EntryGroup->create();
+			if (!$this->EntryGroup->save($this->request->data['entry_group'])) {
+				$this->TransactionManager->rollback($transaction);
+				return $this->error('出走グループの保存に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
+			}
+			
+			$cats = $this->request->data['entry_cats'];
+			if (is_array($cats) && !emptY($cats)) {
+				foreach ($cats as $cat) {
+					$this->EntryCategory->create();
+					
+					$cat['EntryCategory']['entry_group_id'] = $this->EntryGroup->id;
+					$this->log('cat:', LOG_DEBUG);
+					$this->log($cat, LOG_DEBUG);
+					if (!$this->EntryCategory->saveAssociated($cat)) {
+						$this->TransactionManager->rollback($transaction);
+						return $this->error('出走カテゴリーの保存に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
+					}
+				}
+			}
+			
+			$this->TransactionManager->commit($transaction);
+			return $this->success(array('ok')); // 件数とか？
+		} catch (Exception $ex) {
+			$this->log('exception:' . $ex.message, LOG_DEBUG);
+			$this->TransactionManager->rollback($transaction);
+			return $this->error('予期しないエラー:' + $ex, self::STATUS_CODE_BAD_REQUEST);
+		}
+		
+	}
+	
+	/**
 	 * 結果を upload する
 	 * @param string $meetCode 大会コード
 	 * @param string $ecatName 出走カテゴリー名
