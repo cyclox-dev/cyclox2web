@@ -1,5 +1,8 @@
 <?php
+
 App::uses('AppModel', 'Model');
+App::uses('EntryCategory', 'Model');
+
 /**
  * EntryGroup Model
  *
@@ -122,5 +125,33 @@ class EntryGroup extends AppModel
 			'counterQuery' => ''
 		)
 	);
-
+	
+	/**
+	 * 関連するオブジェクト削除のためのオーバーライド（dependent は使用できない）
+	 * @param type $id
+	 * @param type $cascade
+	 * @return type
+	 */
+	public function delete($id = null, $cascade = true) {
+		
+		$ecModel = new EntryCategory();
+		
+		$delID = $this->id;
+		if (!empty($id)) $delID = $id;
+		
+		if ($cascade) {
+			// X: $ecModel->deleteAll(array('entry_group_id' => $delID));
+			// SoftDelete のおかげで deleteAll が使えない（hard delete されてしまう）
+			// ので手動で delete() をコール
+			
+			$ecats = $ecModel->find('list', array('conditions' => array('entry_group_id' => $delID)));
+			foreach ($ecats as $key => $val) {
+				if ($ecModel->exists($key)) {
+					$ecModel->delete($key, true);
+				}
+			}//*/
+		}
+		
+		return parent::delete($id, $cascade);
+	}
 }

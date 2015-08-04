@@ -5,8 +5,12 @@ App::uses('AppModel', 'Model');
  *
  * @property EntryRacer $EntryRacer
  */
-class TimeRecord extends AppModel {
+class TimeRecord extends AppModel
+{
 
+	// NOT softDelete
+	// データ量がかなり大きいので。
+	
 /**
  * Validation rules
  *

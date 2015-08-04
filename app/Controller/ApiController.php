@@ -272,11 +272,6 @@ class ApiController extends ApiBaseController
 						$this->TransactionManager->rollback($transaction);
 						return $this->error('リザルトの削除に失敗しました（想定しないエラー）。');
 					}
-					
-					if (!$this->TimeRecord->deleteAll(array('racer_result_id' => $result_id))) {
-						$this->TransactionManager->rollback($transaction);
-						return $this->error('リザルトのラップタイムデータ削除に失敗しました（想定しないエラー）。');
-					}
 				}
 			}
 

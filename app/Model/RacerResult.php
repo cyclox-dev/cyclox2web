@@ -1,5 +1,8 @@
 <?php
+
 App::uses('AppModel', 'Model');
+App::uses('TimeRecord', 'Model');
+
 /**
  * RacerResult Model
  *
@@ -94,4 +97,25 @@ class RacerResult extends AppModel
 			'counterQuery' => ''
 		)
 	);
+	
+	/**
+	 * 関連するオブジェクト削除のためのオーバーライド（dependent は使用できない）
+	 * @param type $id
+	 * @param type $cascade
+	 * @return type
+	 */
+	public function delete($id = null, $cascade = true)
+	{
+		$resultModel = new TimeRecord();
+		
+		$delID = $this->id;
+		if (!empty($id)) $delID = $id;
+		
+		if ($cascade) {
+			// TimeRecord は SoftDelete しないので、deleteAll() を直接コール
+			$resultModel->deleteAll(array('racer_result_id' => $delID), $cascade);
+		}
+		
+		return parent::delete($id, $cascade);
+	}
 }

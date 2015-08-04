@@ -1,5 +1,8 @@
 <?php
+
 App::uses('AppModel', 'Model');
+App::uses('RacerResult', 'Model');
+
 /**
  * EntryRacer Model
  *
@@ -82,5 +85,34 @@ class EntryRacer extends AppModel
 			'order' => ''
 		)
 	);
+	
+	/**
+	 * 関連するオブジェクト削除のためのオーバーライド（dependent は使用できない）
+	 * @param type $id
+	 * @param type $cascade
+	 * @return type
+	 */
+	public function delete($id = null, $cascade = true)
+	{
+		$resultModel = new RacerResult();
+		
+		$delID = $this->id;
+		if (!empty($id)) $delID = $id;
+		
+		if ($cascade) {
+			// X: $ecModel->deleteAll(array('entry_group_id' => $delID));
+			// SoftDelete のおかげで deleteAll が使えない（hard delete されてしまう）
+			// ので手動で delete() をコール
+			
+			$results = $resultModel->find('list', array('conditions' => array('entry_racer_id' => $delID)));
+			foreach ($results as $key => $val) {
+				if ($resultModel->exists($key)) {
+					$resultModel->delete($key, true);
+				}
+			}
+		}
+		
+		return parent::delete($id, $cascade);
+	}
 
 }
