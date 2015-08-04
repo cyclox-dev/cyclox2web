@@ -27,8 +27,8 @@ class RacerResult extends AppModel
 		),
 		'order_index' => array(
 			'naturalNumber' => array(
-				'rule' => array('naturalNumber', false),
-				'message' => '1位上の整数を入力してください。',
+				'rule' => array('naturalNumber', true),
+				'message' => 'ゼロ以上の整数を入力してください。',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -39,7 +39,7 @@ class RacerResult extends AppModel
 			'numeric' => array(
 				'rule' => array('numeric'),
 				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
+				'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
@@ -47,9 +47,9 @@ class RacerResult extends AppModel
 		),
 		'goal_milli_sec' => array(
 			'naturalNumber' => array(
-				'rule' => array('naturalNumber'),
+				'rule' => array('numeric'),
 				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
+				'allowEmpty' => true,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
