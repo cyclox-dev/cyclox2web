@@ -210,8 +210,7 @@ class ApiController extends ApiBaseController
 		if (empty($egroups)) {
 			return $this->error('大会が見つかりません。', self::STATUS_CODE_BAD_REQUEST);
 		}
-		//$this->log($egroups, LOG_DEBUG);
-
+		
 		$ecat = null;
 		$breaks = false;
 		foreach ($egroups as $egroup) {
@@ -236,8 +235,7 @@ class ApiController extends ApiBaseController
 			'conditions' => array('entry_category_id' => $ecat['id']),
 		);
 		$eracers = $this->EntryRacer->find('all', $conditions);
-		$this->log($eracers, LOG_DEBUG);
-
+		
 		if (empty($eracers)) {
 			return $this->error("出走カテゴリーに選手が設定されていません。", self::STATUS_CODE_BAD_REQUEST);
 		}
@@ -246,6 +244,7 @@ class ApiController extends ApiBaseController
 		foreach ($eracers as $eracer) {
 			$erMap[$eracer['EntryRacer']['body_number']] = $eracer;
 		}
+		//$this->log($erMap);
 		
 		// メイン処理
 		
@@ -277,19 +276,22 @@ class ApiController extends ApiBaseController
 					$this->TransactionManager->rollback($transaction);
 					return $this->error('無効な BodyNo. の設定が存在します。出走データをチェックして下さい。');
 				}
-
+				//$this->log($result);
+				
 				// リザルトの保存
+				$this->RacerResult->create();
+				$result['RacerResult']['entry_racer_id'] = $er['EntryRacer']['id'];
 				if (!$this->RacerResult->saveAssociated($result)) {
 					$this->TransactionManager->rollback($transaction);
 					return $this->error('保存処理に失敗しました。');
 				}
 			}
-
 			$this->TransactionManager->commit($transaction);
 			return $this->success(array('ok')); // 件数とか？
-		} catch(Exception $ex) {
+		} catch (Exception $ex) {
+			$this->log('exception:' . $ex.message, LOG_DEBUG);
 			$this->TransactionManager->rollback($transaction);
-			return $this->error('予期しないエラー:' + $ex);
+			return $this->error('予期しないエラー:' + $ex, self::STATUS_CODE_BAD_REQUEST);
 		}
 	}
 	

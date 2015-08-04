@@ -59,7 +59,7 @@ class AppController extends Controller {
 		
 		if ($this->_isApiCall()) {
 			$this->log('is api call');
-			$this->log($this->request->data);
+			//$this->log($this->request->data);
 			AuthComponent::$sessionKey = false;
 			
 			$this->Auth->authenticate = array(
