@@ -80,6 +80,18 @@
 		<dd>
 	<?php echo $entryRacer['RacerResult']['entry_racer_id']; ?>
 &nbsp;</dd>
+		<dt><?php echo __('Order Index'); ?></dt>
+		<dd>
+	<?php echo $entryRacer['RacerResult']['order_index']; ?>
+&nbsp;</dd>
+		<dt><?php echo __('Rank'); ?></dt>
+		<dd>
+	<?php echo $entryRacer['RacerResult']['rank']; ?>
+&nbsp;</dd>
+		<dt><?php echo __('Status'); ?></dt>
+		<dd>
+	<?php echo $entryRacer['RacerResult']['status']; ?>
+&nbsp;</dd>
 		<dt><?php echo __('Lap'); ?></dt>
 		<dd>
 	<?php echo $entryRacer['RacerResult']['lap']; ?>
@@ -95,6 +107,14 @@
 		<dt><?php echo __('Lank At Lap Out'); ?></dt>
 		<dd>
 	<?php echo $entryRacer['RacerResult']['rank_at_lap_out']; ?>
+&nbsp;</dd>
+		<dt><?php echo __('順位パーセント'); ?></dt>
+		<dd>
+	<?php echo $entryRacer['RacerResult']['rank_per']; ?>
+&nbsp;</dd>
+		<dt><?php echo __('走行パーセント'); ?></dt>
+		<dd>
+	<?php echo $entryRacer['RacerResult']['run_per']; ?>
 &nbsp;</dd>
 		<dt><?php echo __('Note'); ?></dt>
 		<dd>

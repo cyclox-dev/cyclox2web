@@ -7,10 +7,13 @@
 			<th><?php echo $this->Paginator->sort('entry_racer_id'); ?></th>
 			<th><?php echo $this->Paginator->sort('order_index'); ?></th>
 			<th><?php echo $this->Paginator->sort('rank'); ?></th>
+			<th><?php echo $this->Paginator->sort('status'); ?></th>
 			<th><?php echo $this->Paginator->sort('lap'); ?></th>
 			<th><?php echo $this->Paginator->sort('goal_milli_sec'); ?></th>
 			<th><?php echo $this->Paginator->sort('lap_out_lap'); ?></th>
 			<th><?php echo $this->Paginator->sort('rank_at_lap_out'); ?></th>
+			<th><?php echo $this->Paginator->sort('rank_per'); ?></th>
+			<th><?php echo $this->Paginator->sort('run_per'); ?></th>
 			<th><?php echo $this->Paginator->sort('note'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
@@ -24,10 +27,13 @@
 		</td>
 		<td><?php echo h($racerResult['RacerResult']['order_index']); ?>&nbsp;</td>
 		<td><?php echo h($racerResult['RacerResult']['rank']); ?>&nbsp;</td>
+		<td><?php echo h($racerResult['RacerResult']['status']); ?>&nbsp;</td>
 		<td><?php echo h($racerResult['RacerResult']['lap']); ?>&nbsp;</td>
 		<td><?php echo h($racerResult['RacerResult']['goal_milli_sec']); ?>&nbsp;</td>
 		<td><?php echo h($racerResult['RacerResult']['lap_out_lap']); ?>&nbsp;</td>
 		<td><?php echo h($racerResult['RacerResult']['rank_at_lap_out']); ?>&nbsp;</td>
+		<td><?php echo h($racerResult['RacerResult']['rank_per']); ?>&nbsp;</td>
+		<td><?php echo h($racerResult['RacerResult']['run_per']); ?>&nbsp;</td>
 		<td><?php echo h($racerResult['RacerResult']['note']); ?>&nbsp;</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $racerResult['RacerResult']['id'])); ?>

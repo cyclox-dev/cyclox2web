@@ -21,6 +21,11 @@
 			<?php echo h($racerResult['RacerResult']['rank']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('Rank'); ?></dt>
+		<dd>
+			<?php echo h($racerResult['RacerResult']['status']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Lap'); ?></dt>
 		<dd>
 			<?php echo h($racerResult['RacerResult']['lap']); ?>
@@ -41,6 +46,16 @@
 			<?php echo h($racerResult['RacerResult']['rank_at_lap_out']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('順位パーセント'); ?></dt>
+		<dd>
+			<?php echo h($racerResult['RacerResult']['rank_per']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('走行パーセント'); ?></dt>
+		<dd>
+			<?php echo h($racerResult['RacerResult']['run_per']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Note'); ?></dt>
 		<dd>
 			<?php echo h($racerResult['RacerResult']['note']); ?>
@@ -48,6 +63,19 @@
 		</dd>
 	</dl>
 </div>
+<div class="actions">
+		<h3><?php echo __('Actions'); ?></h3>
+		<ul>
+			<li><?php echo $this->Html->link(__('Edit Racer Result'), array('action' => 'edit', $racerResult['RacerResult']['id'])); ?> </li>
+			<li><?php echo $this->Form->postLink(__('Delete Racer Result'), array('action' => 'delete', $racerResult['RacerResult']['id']), array(), __('[%s] のデータを削除してよろしいですか？', $racerResult['RacerResult']['id'])); ?> </li>
+			<li><?php echo $this->Html->link(__('List Racer Results'), array('action' => 'index')); ?> </li>
+			<li><?php echo $this->Html->link(__('New Racer Result'), array('action' => 'add')); ?> </li>
+			<li><?php echo $this->Html->link(__('List Entry Racers'), array('controller' => 'entry_racers', 'action' => 'index')); ?> </li>
+			<li><?php echo $this->Html->link(__('New Entry Racer'), array('controller' => 'entry_racers', 'action' => 'add')); ?> </li>
+			<li><?php echo $this->Html->link(__('List Time Records'), array('controller' => 'time_records', 'action' => 'index')); ?> </li>
+			<li><?php echo $this->Html->link(__('New Time Record'), array('controller' => 'time_records', 'action' => 'add')); ?> </li>
+		</ul>
+	</div>
 <div class="related">
 	<h3><?php echo __('Related Time Records'); ?></h3>
 	<?php if (!empty($racerResult['TimeRecord'])): ?>
@@ -72,17 +100,4 @@
 	<?php endforeach; ?>
 	</table>
 <?php endif; ?>
-	<div class="actions">
-		<h3><?php echo __('Actions'); ?></h3>
-		<ul>
-			<li><?php echo $this->Html->link(__('Edit Racer Result'), array('action' => 'edit', $racerResult['RacerResult']['id'])); ?> </li>
-			<li><?php echo $this->Form->postLink(__('Delete Racer Result'), array('action' => 'delete', $racerResult['RacerResult']['id']), array(), __('[%s] のデータを削除してよろしいですか？', $racerResult['RacerResult']['id'])); ?> </li>
-			<li><?php echo $this->Html->link(__('List Racer Results'), array('action' => 'index')); ?> </li>
-			<li><?php echo $this->Html->link(__('New Racer Result'), array('action' => 'add')); ?> </li>
-			<li><?php echo $this->Html->link(__('List Entry Racers'), array('controller' => 'entry_racers', 'action' => 'index')); ?> </li>
-			<li><?php echo $this->Html->link(__('New Entry Racer'), array('controller' => 'entry_racers', 'action' => 'add')); ?> </li>
-			<li><?php echo $this->Html->link(__('List Time Records'), array('controller' => 'time_records', 'action' => 'index')); ?> </li>
-			<li><?php echo $this->Html->link(__('New Time Record'), array('controller' => 'time_records', 'action' => 'add')); ?> </li>
-		</ul>
-	</div>
 </div>

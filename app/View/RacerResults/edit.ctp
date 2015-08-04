@@ -7,10 +7,13 @@
 		echo $this->Form->input('entry_racer_id');
 		echo $this->Form->input('order_index');
 		echo $this->Form->input('rank');
+		echo $this->Form->input('status');
 		echo $this->Form->input('lap');
 		echo $this->Form->input('goal_milli_sec');
 		echo $this->Form->input('lap_out_lap');
 		echo $this->Form->input('rank_at_lap_out');
+		echo $this->Form->input('rank_per');
+		echo $this->Form->input('run_per');
 		echo $this->Form->input('note');
 	?>
 	</fieldset>
