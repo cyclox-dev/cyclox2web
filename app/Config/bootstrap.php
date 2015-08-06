@@ -143,3 +143,7 @@ Configure::write('Users.defaultRole', 'racer');
 /* add @ 20150618 */
 // AJOCC 関連で使用する定数を読込
 Configure::load('ajocc_const');
+
+CakePlugin::load('Maintenance');
+Configure::write('Maintenance.enable', false);
+

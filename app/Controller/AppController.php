@@ -39,6 +39,13 @@ class AppController extends Controller {
 		'Auth' => array(
 			'authorize' => array('Controller'),
 		),
+		'Maintenance.Maintenance' => array(
+			'maintenanceUrl' => array(
+                'controller' => 'maintenance',
+                'action' => 'index'
+            ),
+			'allowedIp' => array('127.0.0.1'),
+		)
 	);
 
 	/*
