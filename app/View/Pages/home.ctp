@@ -18,7 +18,7 @@
 <p><?php echo $this->Html->link("カテゴリー", "/categories/index");?></p>
 <p><?php echo $this->Html->link("カテゴリーグループ", "/category_groups/index");?></p>
 <p><?php echo $this->Html->link("レースカテゴリー", "/races_categories/index");?></p>
-<p><?php echo $this->Html->link("カテゴリー = 選手カテゴリー Bind", "/category_races_categories/index");?></p>
+<p><?php echo $this->Html->link("カテゴリー = レースカテゴリー Bind", "/category_races_categories/index");?></p>
 
 <h2>エントリー</h2>
 <p><?php echo $this->Html->link("出走グループ", "/entry_groups/index");?></p>
