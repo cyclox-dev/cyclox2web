@@ -170,8 +170,20 @@ class RacersController extends ApiBaseController
 			//$this->log($this->request->data, LOG_DEBUG);
 			$this->Racer->create();
 			
-			if (!isset($this->request->data['Racer']['code']))
-			{
+			if (empty($this->request->data['Racer']['family_name_kana'])) {
+				$this->request->data['Racer']['family_name_kana'] = '';
+			}
+			if (empty($this->request->data['Racer']['family_name_en'])) {
+				$this->request->data['Racer']['family_name_en'] = '';
+			}
+			if (empty($this->request->data['Racer']['first_name_kana'])) {
+				$this->request->data['Racer']['first_name_kana'] = '';
+			}
+			if (empty($this->request->data['Racer']['first_name_en'])) {
+				$this->request->data['Racer']['first_name_en'] = '';
+			}//*/
+			
+			if (!isset($this->request->data['Racer']['code'])) {
 				return $this->error('選手コードがありません (Racer.code)', self::STATUS_CODE_BAD_REQUEST);
 			}
 			
