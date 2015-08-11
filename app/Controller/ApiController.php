@@ -193,7 +193,6 @@ class ApiController extends ApiBaseController
 	
 	/**
 	 * 出走設定を追加する
-	 * @param string $meetCode 大会コード
 	 */
 	public function add_entry()
 	{
@@ -213,10 +212,12 @@ class ApiController extends ApiBaseController
 		}
 		
 		// 出走グループ名が同じものがあった場合、出走データ + リザルトを除去する。
-		if (!empty($this->request->data['entry_group']['EntryGroup']['name'])) {
+		if (!empty($this->request->data['entry_group']['EntryGroup']['name']) &&
+				!empty($this->request->data['entry_group']['EntryGroup']['meet_code'])) {
 			$egroupName = $this->request->data['entry_group']['EntryGroup']['name'];
+			$meetCode = $this->request->data['entry_group']['EntryGroup']['meet_code'];
 			
-			$opt = array('conditions' => array('name' => $egroupName));
+			$opt = array('conditions' => array('name' => $egroupName, 'meet_code' => $meetCode));
 			$oldGroups = $this->EntryGroup->find('list', $opt);
 			if (!empty($oldGroups)) {
 				foreach ($oldGroups as $key => $val)
