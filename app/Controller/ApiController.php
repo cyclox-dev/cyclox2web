@@ -219,10 +219,20 @@ class ApiController extends ApiBaseController
 			
 			$opt = array('conditions' => array('name' => $egroupName, 'meet_code' => $meetCode));
 			$oldGroups = $this->EntryGroup->find('list', $opt);
+			
+			// oldGroups に関連づいている昇格データについて除去
+			
+			// 出走グループから昇格データを抽出
+			// 昇格データを破棄
+			// 旧カテゴリーデータを復旧
+			// リストに格納、あとで表示。
+			
+			
 			if (!empty($oldGroups)) {
 				foreach ($oldGroups as $key => $val)
 				{
 					$this->EntryGroup->delete($key);
+					// 失敗しない？
 				}
 			}			
 		}
