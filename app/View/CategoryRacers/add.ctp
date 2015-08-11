@@ -57,6 +57,7 @@
 		));
 		echo $this->Form->input('reason_id', array('options' => $reasons, 'label' => '適用理由'));
 		echo $this->Form->input('reason_note', array('label' => '適用理由詳細・メモ'));
+		echo $this->Form->input('racer_result_id', array('label' => '根拠となったリザルトの ID（あれば）', 'type' => 'number'));
 		echo $this->Form->input('meet_code', array(
 			'options' => $mts,
 			'label' => '適用根拠となった大会（あれば）',

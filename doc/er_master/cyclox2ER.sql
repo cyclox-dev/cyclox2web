@@ -78,8 +78,9 @@ CREATE TABLE category_racers
 	apply_date date NOT NULL,
 	reason_id int unsigned NOT NULL,
 	reason_note text,
+	racer_result_id int unsigned,
 	-- 例）CX 東北による2013-14シーズンの1発目のレースならば THK-134-001
-	meet_code varchar(11) BINARY,
+	code varchar(11) BINARY,
 	cancel_date date,
 	created datetime,
 	modified datetime,
