@@ -161,7 +161,7 @@
 			<th><?php echo __('適用日'); ?></th>
 			<th><?php echo __('解消日'); ?></th>
 			<th><?php echo __('適用タイプ'); ?></th>
-			<th><?php echo __('関連大会 Code'); ?></th>
+			<th><?php echo __('関連リザルト ID'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 		</tr>
 		<?php
@@ -192,7 +192,7 @@
 					App::uses('CategoryReason', 'Cyclox/Const');
 					echo CategoryReason::reasonAt($categoryRacer['reason_id'])->name();
 				?></td>
-				<td><?php echo $categoryRacer['meet_code']; ?></td>
+				<td><?php echo $categoryRacer['racer_result_id']; ?></td>
 				<td class="actions">
 					<?php echo $this->Html->link(__('View'), array('controller' => 'category_racers', 'action' => 'view', $categoryRacer['id'])); ?>
 					<?php echo $this->Html->link(__('Edit'), array('controller' => 'category_racers', 'action' => 'edit', $categoryRacer['id'])); ?>

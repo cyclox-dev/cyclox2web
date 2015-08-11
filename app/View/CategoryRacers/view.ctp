@@ -39,9 +39,9 @@
 			<?php echo h($categoryRacer['CategoryRacer']['reason_note']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('適用根拠大会 Code'); ?></dt>
+		<dt><?php echo __('適用リザルト ID'); ?></dt>
 		<dd>
-			<?php echo $this->Html->link($categoryRacer['CategoryRacer']['meet_code'], array('controller' => 'meets', 'action' => 'view', $categoryRacer['CategoryRacer']['meet_code'])); ?>
+			<?php echo $this->Html->link($categoryRacer['CategoryRacer']['racer_result_id'], array('controller' => 'racer_results', 'action' => 'view', $categoryRacer['CategoryRacer']['racer_result_id'])); ?>
 			&nbsp;
 		</dd>
 	</dl>

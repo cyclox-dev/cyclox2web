@@ -66,9 +66,9 @@ class CategoryRacer extends AppModel {
 			'fields' => '',
 			'order' => ''
 		),
-		'Meet' => array(
-			'className' => 'Meet',
-			'foreignKey' => 'meet_code',
+		'RacerResult' => array(
+			'className' => 'RacerResult',
+			'foreignKey' => 'racer_result_id',
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''

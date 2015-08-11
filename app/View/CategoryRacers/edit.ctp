@@ -20,11 +20,6 @@
 			$reasons[$r->ID()] = '[' . $r->flag()->msg() . '] ' . $r->name();
 		}
 		
-		$mts = array();
-		foreach ($meets as $key => $val) {
-			$mts[$key] = $key . ': ' . $val;
-		}
-		
 		echo $this->Form->input('id');
 		echo $this->Form->input('racer_code', array('options' => $rs, 'label' => '選手 Code'));
 		echo $this->Form->input('category_code', array('options' => $cats));
@@ -42,11 +37,7 @@
 		));
 		echo $this->Form->input('reason_id', array('options' => $reasons, 'label' => '適用理由'));
 		echo $this->Form->input('reason_note', array('label' => '適用理由詳細・メモ'));
-		echo $this->Form->input('meet_code', array(
-			'options' => $mts,
-			'label' => '適用根拠となった大会（あれば）',
-			'empty' => 'なし'
-		));
+		echo $this->Form->input('racer_result_id', array('label' => '根拠となったリザルトの ID（あれば）', 'type' => 'number'));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>

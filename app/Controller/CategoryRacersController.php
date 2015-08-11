@@ -93,9 +93,8 @@ class CategoryRacersController extends ApiBaseController
 		
 		$categories = $this->CategoryRacer->Category->find('list', array('fields' => array('Category.code', 'Category.name')));
 		$racers = $this->CategoryRacer->Racer->find('all');
-		$meets = $this->Meet->find('list', array('fields' => array('Meet.code', 'Meet.name')));
 		
-		$this->set(compact('categories', 'racers', 'meets'));
+		$this->set(compact('categories', 'racers'));
 		
 		if ($racerCode != null)  {
 			$this->set('racerCode', $racerCode);
@@ -151,9 +150,8 @@ class CategoryRacersController extends ApiBaseController
 		
 		$categories = $this->CategoryRacer->Category->find('list', array('fields' => array('Category.code', 'Category.name')));
 		$racers = $this->CategoryRacer->Racer->find('all');
-		$meets = $this->Meet->find('list', array('fields' => array('Meet.code', 'Meet.name')));
 		
-		$this->set(compact('categories', 'racers', 'meets'));
+		$this->set(compact('categories', 'racers'));
 	}
 
 	/**
