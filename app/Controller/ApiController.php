@@ -3,7 +3,9 @@
 App::uses('ApiBaseController', 'Controller');
 
 App::uses('Util', 'Cyclox/Util');
-
+App::uses('RacerResultStatus', 'Cyclox/Const');
+App::uses('RacerEntryStatus', 'Cyclox/Const');
+App::uses('CategoryReason', 'Cyclox/Const');
 
 /*
  *  created at 2015/06/19 by shun
@@ -220,13 +222,16 @@ class ApiController extends ApiBaseController
 			$opt = array('conditions' => array('name' => $egroupName, 'meet_code' => $meetCode));
 			$oldGroups = $this->EntryGroup->find('list', $opt);
 			
-			// oldGroups に関連づいている昇格データについて除去
-			
-			// 出走グループから昇格データを抽出
-			// 昇格データを破棄
-			// 旧カテゴリーデータを復旧
+			// 除去する前に表示のための格納
+			// および旧カテゴリーデータの復旧
 			// リストに格納、あとで表示。
+			if (!empty($oldGroups)) {
+				foreach ($oldGroups as $key => $val) {
+					
+				}
+			}
 			
+			// oldGroups に関連づいている昇格データについて除去 <-- EntryGroup->delete() から削除。
 			
 			if (!empty($oldGroups)) {
 				foreach ($oldGroups as $key => $val)
@@ -252,8 +257,8 @@ class ApiController extends ApiBaseController
 					$this->EntryCategory->create();
 					
 					$cat['EntryCategory']['entry_group_id'] = $this->EntryGroup->id;
-					$this->log('cat:', LOG_DEBUG);
-					$this->log($cat, LOG_DEBUG);
+					//$this->log('cat:', LOG_DEBUG);
+					//$this->log($cat, LOG_DEBUG);
 					if (!$this->EntryCategory->saveAssociated($cat)) {
 						$this->TransactionManager->rollback($transaction);
 						return $this->error('出走カテゴリーの保存に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
@@ -287,12 +292,12 @@ class ApiController extends ApiBaseController
 			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
 		}
 		
-		if (emptY($meetCode) || emptry($ecatName)) {
-			return $this->error('大会 Code または出走カテゴリー名が指定されていません。');
+		if (emptY($meetCode) || empty($ecatName)) {
+			return $this->error('大会 Code または出走カテゴリー名が指定されていません。', self::STATUS_CODE_BAD_REQUEST);
 		}
 		
 		if (!isset($this->request->data['body-result'])) {
-			return $this->error('"body-result" の値が設定されていません。');
+			return $this->error('"body-result" の値が設定されていません。', self::STATUS_CODE_BAD_REQUEST);
 		}
 		
 		// 出走カテゴリーの特定
@@ -320,10 +325,11 @@ class ApiController extends ApiBaseController
 			return $this->error("出走カテゴリーが見つかりません。", self::STATUS_CODE_BAD_REQUEST);
 		}
 		
+		
 		// 出走選手取得
 
 		$conditions = array(
-			'conditions' => array('entry_category_id' => $ecat['id']),
+			'conditions' => array('entry_category_id' => $ecat['id'])
 		);
 		$eracers = $this->EntryRacer->find('all', $conditions);
 		
@@ -336,6 +342,12 @@ class ApiController extends ApiBaseController
 			$erMap[$eracer['EntryRacer']['body_number']] = $eracer;
 		}
 		//$this->log($erMap);
+		
+		// 昇格用パラメタの取得
+		$opt = array('conditions' => array('code' => $meetCode), 'recursive' => -1);
+		$meet = $this->Meet->find('first', $opt);
+		
+		$rcatCode = $ecat['races_category_code'];
 		
 		// メイン処理
 		
@@ -354,16 +366,31 @@ class ApiController extends ApiBaseController
 
 					if (!$this->RacerResult->delete($result_id)) {
 						$this->TransactionManager->rollback($transaction);
-						return $this->error('リザルトの削除に失敗しました（想定しないエラー）。');
+						return $this->error('リザルトの削除に失敗しました（想定しないエラー）。', self::STATUS_CODE_BAD_REQUEST);
 					}
 				}
 			}
-
+			
+			//$this->log($this->request->data['body-result'], LOG_DEBUG);
+			//$this->log($meet, LOG_DEBUG);
+			
+			// 出走人数のカウント
+			$startedCount = 0;
+			foreach ($this->request->data['body-result'] as $body => $result) {
+				$er = $erMap[$body];
+				if (!empty($er) && $er['EntryRacer']['entry_status'] != RacerEntryStatus::$OPEN->val()) {
+					$rstatus = $result['RacerResult']['status'];
+					if ($rstatus != RacerResultStatus::$DNS->val()) {
+						++$startedCount;
+					}
+				}
+			}
+			
 			foreach ($this->request->data['body-result'] as $body => $result) {
 				$er = $erMap[$body];
 				if (empty($er)) {
 					$this->TransactionManager->rollback($transaction);
-					return $this->error('無効な BodyNo. の設定が存在します。出走データをチェックして下さい。');
+					return $this->error('無効な BodyNo. の設定が存在します。出走データをチェックして下さい。', self::STATUS_CODE_BAD_REQUEST);
 				}
 				//$this->log($result);
 				
@@ -372,9 +399,37 @@ class ApiController extends ApiBaseController
 				$result['RacerResult']['entry_racer_id'] = $er['EntryRacer']['id'];
 				if (!$this->RacerResult->saveAssociated($result)) {
 					$this->TransactionManager->rollback($transaction);
-					return $this->error('保存処理に失敗しました。');
+					return $this->error('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
 				}
+				
+				//$this->log($er, LOG_DEBUG);
+				
+				// TODO: regular season race であるか
+				
+				// Open 参加は除く
+				if ($er['EntryRacer']['entry_status'] != RacerEntryStatus::$OPEN->val()) {
+					
+					$rank = empty($result['RacerResult']['rank']) ? null : $result['RacerResult']['rank'];
+					
+					// result_id, rcat, 出走人数より昇格判定（ポイントもできそう）
+					$ret = $this->CategoryRacer->saveRankUp($er['EntryRacer']['racer_code'], $this->RacerResult->id,
+							$rank, $startedCount, $rcatCode, $meet['Meet']);
+					
+					$this->log($ret, LOG_DEBUG);
+					
+					
+					//*/
+				}
+				
+				
+				
 			}
+			
+			// リザルトの計算から昇格を適用
+			// 必要な項目:
+			//		出走人数
+			
+			
 			
 			$this->TransactionManager->commit($transaction);
 			return $this->success(array('ok')); // 件数とか？

@@ -9,6 +9,12 @@ class Constant
 	const AGE_NO_MAX_LIMIT = 999;
 	const AGE_NO_MIN_LIMIT = 0;
 	
+	// 戻り値
+	const RET_SUCCEED = 1;
+	const RET_NO_ACTION = 2;
+	const RET_FAILED = 0;
+	const RET_ERROR = -1;
+	
 	//const DISTANCE_NOTSET = -999.0; // null に設定する
 	
 	// TODO: meet 関連の2つの定数について CNFKEY を変更。

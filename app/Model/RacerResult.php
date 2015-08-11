@@ -2,6 +2,7 @@
 
 App::uses('AppModel', 'Model');
 App::uses('TimeRecord', 'Model');
+App::uses('CategoryRacer', 'Model');
 
 /**
  * RacerResult Model
@@ -116,14 +117,31 @@ class RacerResult extends AppModel
 	 */
 	public function delete($id = null, $cascade = true)
 	{
-		$resultModel = new TimeRecord();
-		
 		$delID = $this->id;
 		if (!empty($id)) $delID = $id;
 		
 		if ($cascade) {
+			$trModel = new TimeRecord();
+			
 			// TimeRecord は SoftDelete しないので、deleteAll() を直接コール
-			$resultModel->deleteAll(array('racer_result_id' => $delID), $cascade);
+			$trModel->deleteAll(array('racer_result_id' => $delID), $cascade);
+			
+			// 昇格データについては削除しないものとする。
+			/*
+			// X: $ecModel->deleteAll(array('entry_group_id' => $delID));
+			// SoftDelete のおかげで deleteAll が使えない（hard delete されてしまう）
+			// ので手動で delete() をコール
+			
+			// 昇格データの削除
+			$crModel = new CategoryRacer();
+			
+			$results = $crModel->find('list', array('conditions' => array('racer_result_id' => $delID)));
+			foreach ($results as $key => $val) {
+				if ($crModel->exists($key)) {
+					$crModel->delete($key, true);
+				}
+			}
+			//*/
 		}
 		
 		return parent::delete($id, $cascade);
