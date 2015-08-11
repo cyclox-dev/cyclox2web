@@ -266,7 +266,7 @@ class ApiController extends ApiBaseController
 	 * @param string $ecatName 出走カテゴリー名
 	 * @return void
 	 */
-	public function add_result($meetCode, $ecatName)
+	public function add_result($meetCode = null, $ecatName = null)
 	{
 		if (!$this->_isApiCall()) {
 			throw new BadRequestException('無効なアクセスです。');
@@ -274,6 +274,14 @@ class ApiController extends ApiBaseController
 		
 		if (!$this->request->is('post')) {
 			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
+		}
+		
+		if (emptY($meetCode) || emptry($ecatName)) {
+			return $this->error('大会 Code または出走カテゴリー名が指定されていません。');
+		}
+		
+		if (!isset($this->request->data['body-result'])) {
+			return $this->error('"body-result" の値が設定されていません。');
 		}
 		
 		// 出走カテゴリーの特定
@@ -320,10 +328,6 @@ class ApiController extends ApiBaseController
 		
 		// メイン処理
 		
-		if (!isset($this->request->data['body-result'])) {
-			return $this->error('"body-result" の値が設定されていません。');
-		}
-		
 		$transaction = $this->TransactionManager->begin();
 		
 		try
@@ -360,6 +364,7 @@ class ApiController extends ApiBaseController
 					return $this->error('保存処理に失敗しました。');
 				}
 			}
+			
 			$this->TransactionManager->commit($transaction);
 			return $this->success(array('ok')); // 件数とか？
 		} catch (Exception $ex) {
