@@ -2,8 +2,8 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 /* Drop Tables */
 
-DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS category_races_categories;
+DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
 DROP TABLE IF EXISTS time_records;
@@ -78,7 +78,8 @@ CREATE TABLE category_racers
 	apply_date date NOT NULL,
 	reason_id int unsigned NOT NULL,
 	reason_note text,
-	racer_result_id int unsigned,
+	-- 例）CX 東北による2013-14シーズンの1発目のレースならば THK-134-001
+	meet_code varchar(11) BINARY,
 	cancel_date date,
 	created datetime,
 	modified datetime,
