@@ -62,8 +62,8 @@ class RacersController extends ApiBaseController
 			throw new NotFoundException(__('Invalid racer'));
 		}
 		
-		// deleted も表示する
-		$this->Racer->softDelete(false);
+		// MORE:deleted も表示する
+		//$this->Racer->softDelete(false);
 		
 		$isApiCall = $this->_isApiCall();
 		
@@ -71,6 +71,8 @@ class RacersController extends ApiBaseController
 		if ($isApiCall) {
 			$options['recursive'] = -1;
 		}
+		
+		$this->Racer->CategoryRacer->actsAs =  array('Utils.SoftDelete');
 		
 		$racer = $this->Racer->find('first', $options);
 		if ($isApiCall) {
