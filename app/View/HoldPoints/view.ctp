@@ -16,6 +16,11 @@
 			<?php echo h($holdPoint['HoldPoint']['point']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('カテゴリー'); ?></dt>
+		<dd>
+			<?php echo h($holdPoint['HoldPoint']['category_code']); ?>
+			&nbsp;
+		</dd>
 	</dl>
 </div>
 <div class="actions">

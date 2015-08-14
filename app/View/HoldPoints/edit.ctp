@@ -6,6 +6,7 @@
 		echo $this->Form->input('id');
 		echo $this->Form->input('racer_result_id');
 		echo $this->Form->input('point');
+		echo $this->Form->input('category_code');
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>

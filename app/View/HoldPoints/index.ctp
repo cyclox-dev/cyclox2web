@@ -6,6 +6,7 @@
 			<th><?php echo $this->Paginator->sort('id'); ?></th>
 			<th><?php echo $this->Paginator->sort('racer_result_id'); ?></th>
 			<th><?php echo $this->Paginator->sort('point'); ?></th>
+			<th><?php echo $this->Paginator->sort('category_code'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>
@@ -17,6 +18,7 @@
 			<?php echo $this->Html->link($holdPoint['RacerResult']['id'], array('controller' => 'racer_results', 'action' => 'view', $holdPoint['RacerResult']['id'])); ?>
 		</td>
 		<td><?php echo h($holdPoint['HoldPoint']['point']); ?>&nbsp;</td>
+		<td><?php echo h($holdPoint['HoldPoint']['category_code']); ?>&nbsp;</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $holdPoint['HoldPoint']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $holdPoint['HoldPoint']['id'])); ?>

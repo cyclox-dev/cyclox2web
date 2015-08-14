@@ -116,6 +116,10 @@
 		<dd>
 	<?php echo $entryRacer['RacerResult']['run_per']; ?>
 &nbsp;</dd>
+		<dt><?php echo __('獲得 AJOCC ポイント'); ?></dt>
+		<dd>
+	<?php echo $entryRacer['RacerResult']['ajocc_pt']; ?>
+&nbsp;</dd>
 		<dt><?php echo __('Note'); ?></dt>
 		<dd>
 	<?php echo $entryRacer['RacerResult']['note']; ?>
