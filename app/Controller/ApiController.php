@@ -489,9 +489,14 @@ class ApiController extends ApiBaseController
 		
 		if ($ecat['applies_rank_up'] === 1) {
 			// 出走人数と昇格のルール
-			$rule0123 = array(10, 20, 30);
+			$rule0123 = array(
+				array('racer_count' => 50, 'up' => 3),
+				array('racer_count' => 20, 'up' => 2),
+				array('racer_count' => 10, 'up' => 1),
+			);
 			$rule0112 = array(
-				array(10 => 0), array(20 => 1), array(30 => 1), array(99999 => 2)
+				array('racer_count' => 50, 'up' => 2),
+				array('racer_count' => 10, 'up' => 1),
 			);
 
 			// 文字列で判断する
@@ -514,16 +519,17 @@ class ApiController extends ApiBaseController
 			}
 
 			// 人数と順位についてチェック
-			$i = 0;
-			for (; $i < count($map[$rcatCode]['rule']); $i++) {
-				$maxRacerCount = $map[$rcatCode]['rule'][$i];
-				if ($raceStartedCount <= $maxRacerCount) {
+			$rankUpCount = 0;
+			for ($i = 0; $i < count($map[$rcatCode]['rule']); $i++) {
+				$racerCount = $map[$rcatCode]['rule'][$i]['racer_count'];
+				if ($raceStartedCount >= $racerCount) {
+					$rankUpCount = $map[$rcatCode]['rule'][$i]['up'];
 					break;
 				}
 			}
 			//$this->log($i . '人まで昇格 vs rank:' . $rank, LOG_DEBUG);
 
-			if ($i == 0 || $i < $rank) {
+			if ($rankUpCount == 0 || $rank > $rankUpCount) {
 				return Constant::RET_NO_ACTION;
 			}
 
