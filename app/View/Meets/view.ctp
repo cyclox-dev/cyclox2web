@@ -140,3 +140,36 @@
 		</ul>
 	</div>
 </div>
+<div class="related">
+	<h3><?php echo __('昇格者データ'); ?></h3>
+	<?php if (!empty($results)): ?>
+	<table cellpadding = "0" cellspacing = "0">
+	<tr>
+		<th><?php echo __('ID'); ?></th>
+		<th><?php echo __('選手 Code'); ?></th>
+		<th><?php echo __('名前'); ?></th>
+		<th><?php echo __('昇格先カテゴリー'); ?></th>
+		<th class="actions"><?php echo __('Actions'); ?></th>
+	</tr>
+	<?php foreach ($results as $result): ?>
+		<tr>
+			<td><?php echo $result['CategoryRacer']['id']; ?></td>
+			<td><?php echo $this->Html->link($result['CategoryRacer']['racer_code'], array('controller' => 'racers', 'action' => 'view', $result['CategoryRacer']['racer_code'])); ?></td>
+			<td><?php echo $result['Racer']['family_name'] . ' ' . $result['Racer']['first_name']; ?></td>
+			<td><?php echo $result['Category']['name']; ?></td>
+			<td class="actions">
+				<?php echo $this->Html->link(__('View'), array('controller' => 'category_racers', 'action' => 'view', $result['CategoryRacer']['id'])); ?>
+				<?php echo $this->Html->link(__('Edit'), array('controller' => 'category_racers', 'action' => 'edit', $result['CategoryRacer']['id'])); ?>
+				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'category_racers', 'action' => 'delete', $result['CategoryRacer']['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryGroup['id'])); ?>
+			</td>
+		</tr>
+	<?php endforeach; ?>
+	</table>
+<?php endif; ?>
+
+	<div class="actions">
+		<ul>
+			<li><?php echo $this->Html->link(__('出走グループを追加'), array('controller' => 'entry_groups', 'action' => 'add')); ?> </li>
+		</ul>
+	</div>
+</div>

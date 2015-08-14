@@ -2,6 +2,7 @@
 
 App::uses('ApiBaseController', 'Controller');
 App::uses('AjoccUtil', 'Cyclox/Util');
+App::uses('CategoryReason', 'Cyclox/Const');
 
 /**
  * Meets Controller
@@ -10,7 +11,9 @@ App::uses('AjoccUtil', 'Cyclox/Util');
  * @property PaginatorComponent $Paginator
  * @property SessionComponent $Session
  */
-class MeetsController extends ApiBaseController {
+class MeetsController extends ApiBaseController
+{
+	public $uses = array('Meet', 'CategoryRacer');
 
 /**
  * Components
@@ -54,6 +57,10 @@ class MeetsController extends ApiBaseController {
 			$this->success($meet);
 		} else {
 			$this->set('meet', $meet);
+			
+			// 昇格者データを取得
+			$rankUps = $this->__rankUps($code);
+			$this->set('results', $rankUps);
 		}
 	}
 
@@ -132,5 +139,39 @@ class MeetsController extends ApiBaseController {
 		}
 		
 		return $this->redirect(array('action' => 'index'));
+	}
+	
+	/**
+	 * 昇格者データをかえす
+	 * @param string $meetCode 大会コード
+	 * @return 昇格者データ
+	 */
+	private function __rankUps($meetCode)
+	{
+		if (empty($meetCode)) {
+			return null;
+		}
+		
+		/*
+		$opt = array(
+			'conditions' => array('EntryGroup.meet_code' => $meetCode),
+			'fields' => 'EntryCategory.id',
+			'joins' => array(
+				array(
+					'type' => 'INNER',
+					'table' => 'entry_groups',
+					'alias' => 'EntryGroup',
+					'conditions' => array('EntryCategory.entry_group_id = EntryGroup.id'),
+				)
+			),
+			'recursive' => -1
+		);
+		$cats = $this->EntryCategory->find('all', $opt);
+		 //*/
+		
+		$conditions = array('meet_code' => $meetCode, 'reason_id' => CategoryReason::$RESULT_UP->ID());
+		$rankUps = $this->CategoryRacer->find('all', array('conditions' => $conditions));
+		//$this->log($rankUps, LOG_DEBUG);
+		return $rankUps;
 	}
 }
