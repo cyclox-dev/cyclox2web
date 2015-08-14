@@ -5,6 +5,8 @@ App::uses('ApiBaseController', 'Controller');
 App::uses('Util', 'Cyclox/Util');
 App::uses('RacerResultStatus', 'Cyclox/Const');
 App::uses('RacerEntryStatus', 'Cyclox/Const');
+App::uses('Constant', 'Cyclox/Const');
+App::uses('CategoryReason', 'Cyclox/Const');
 
 /*
  *  created at 2015/06/19 by shun
@@ -346,8 +348,6 @@ class ApiController extends ApiBaseController
 		$opt = array('conditions' => array('code' => $meetCode), 'recursive' => -1);
 		$meet = $this->Meet->find('first', $opt);
 		
-		$rcatCode = $ecat['races_category_code'];
-		
 		// メイン処理
 		
 		$transaction = $this->TransactionManager->begin();
@@ -373,16 +373,14 @@ class ApiController extends ApiBaseController
 			//$this->log($this->request->data['body-result'], LOG_DEBUG);
 			//$this->log($meet, LOG_DEBUG);
 			
-			if ($ecat['applies_rank_up']) {
-				// 昇格処理のために出走人数のカウント
-				$startedCount = 0;
-				foreach ($this->request->data['body-result'] as $body => $result) {
-					$er = $erMap[$body];
-					if (!empty($er) && $er['EntryRacer']['entry_status'] != RacerEntryStatus::$OPEN->val()) {
-						$rstatus = $result['RacerResult']['status'];
-						if ($rstatus != RacerResultStatus::$DNS->val()) {
-							++$startedCount;
-						}
+			// 昇格処理のために出走人数のカウント
+			$startedCount = 0;
+			foreach ($this->request->data['body-result'] as $body => $result) {
+				$er = $erMap[$body];
+				if (!empty($er) && $er['EntryRacer']['entry_status'] != RacerEntryStatus::$OPEN->val()) {
+					$rstatus = $result['RacerResult']['status'];
+					if ($rstatus != RacerResultStatus::$DNS->val()) {
+						++$startedCount;
 					}
 				}
 			}
@@ -405,18 +403,16 @@ class ApiController extends ApiBaseController
 				
 				//$this->log($er, LOG_DEBUG);
 				
-				if ($ecat['applies_rank_up']) {
-					// Open 参加は除く
-					if ($er['EntryRacer']['entry_status'] != RacerEntryStatus::$OPEN->val()) {
+				// Open 参加は除く
+				if ($er['EntryRacer']['entry_status'] != RacerEntryStatus::$OPEN->val()) {
 
-						$rank = empty($result['RacerResult']['rank']) ? null : $result['RacerResult']['rank'];
+					$rank = empty($result['RacerResult']['rank']) ? null : $result['RacerResult']['rank'];
 
-						// result_id, rcat, 出走人数より昇格判定（ポイントもできそう）
-						$ret = $this->CategoryRacer->saveRankUp($er['EntryRacer']['racer_code'], $this->RacerResult->id,
-								$rank, $startedCount, $rcatCode, $meet['Meet']);
-						if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
-							$this->log($er['EntryRacer']['racer_code'] + ' の昇格処理に失敗しました。', LOG_ERR);
-						}
+					// result_id, rcat, 出走人数より昇格判定（ポイントもできそう）
+					$ret = $this->__savePointEtc($er['EntryRacer']['racer_code'], $this->RacerResult->id,
+							$rank, $startedCount, $ecat, $meet['Meet']);
+					if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
+						$this->log($er['EntryRacer']['racer_code'] + ' の昇格処理に失敗しました。', LOG_ERR);
 					}
 				}
 			}
@@ -447,5 +443,156 @@ class ApiController extends ApiBaseController
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * 昇格・残留ポイント・AJOCC ポイントなどを計算し、適用する。
+	 * @param string $racerCode 選手コード
+	 * @param int $racerResultId リザルト
+	 * @param int $rank レースでの順位 null ok
+	 * @param int $raceStartedCount レースの出走人数（Open 参加を除く）
+	 * @param string $ecat 出走カテゴリー
+	 * @param date $meet 大会データ
+	 * @return int Constant.RET_ のいずれか
+	 */
+	private function __savePointEtc($racerCode, $racerResultId, $rank, $raceStartedCount, $ecat, $meet)
+	{
+		if (empty($racerCode) || empty($racerResultId) || empty($raceStartedCount) ||
+			empty($ecat) || empty($meet['at_date'])) {
+			return Constant::RET_ERROR;
+		}
+		
+		if (empty($rank)) {
+			return Constant::RET_NO_ACTION;
+		}
+		
+		// 選手の現在のカテゴリー所属を取得
+		$conditions = array(
+			'racer_code' => $racerCode,
+			'OR' => array(
+				array('cancel_date' => null),
+				array('cancel_date >=' => $meet['at_date'])
+			),
+			'apply_date <=' => $meet['at_date'],
+			//'reason_id' => CategoryReason::$RESULT_UP->ID(),
+		);
+		$catBinds = $this->CategoryRacer->find('all', array($conditions, 'recursive' => -1));
+		//$this->log('cats:', LOG_DEBUG);
+		//$this->log($catBinds, LOG_DEBUG);
+		
+		// TODO: 警告を出す？
+		if (empty($catBinds)) {
+			return Constant::RET_NO_ACTION;
+		}
+		
+		$rcatCode = $ecat['races_category_code'];
+		
+		if ($ecat['applies_rank_up'] === 1) {
+			// 出走人数と昇格のルール
+			$rule0123 = array(10, 20, 30);
+			$rule0112 = array(
+				array(10 => 0), array(20 => 1), array(30 => 1), array(99999 => 2)
+			);
+
+			// 文字列で判断する
+			// TODO: 処理改善。レースカテゴリーが含有するリザルト
+			// racesCatCode => array('needs' => 必要な所属, 'to' =>昇格先)
+			$map = array(
+				'C2' => array('needs' => array('C2'), 'to' => 'C1', 'rule' => $rule0123),
+				'C3' => array('needs' => array('C3'), 'to' => 'C2', 'rule' => $rule0123),
+				'C4' => array('needs' => array('C4'), 'to' => 'C3', 'rule' => $rule0123),
+				'C3+4' => array('needs' => array('C3', 'C4'), 'to' => 'C2', 'rule' => $rule0123),
+				'CM2' => array('needs' => array('CM2'), 'to' => 'CM1', 'rule' => $rule0112),
+				'CM3' => array('needs' => array('CM3'), 'to' => 'CM2', 'rule' => $rule0123),
+				'CM2+3' => array('needs' => array('CM2', 'CM3'), 'to' => 'CM1', 'rule' => $rule0112),
+				// TODO: 勝利したら CM1 表彰台で CM2 だっけ？
+				//'CM1+2+3' => array('needs' => array('CM1', 'CM2', 'CM3'), 'to' => 'CM1'),
+			);
+
+			if (empty($map[$rcatCode])) {
+				return Constant::RET_NO_ACTION;
+			}
+
+			// 人数と順位についてチェック
+			$i = 0;
+			for (; $i < count($map[$rcatCode]['rule']); $i++) {
+				$maxRacerCount = $map[$rcatCode]['rule'][$i];
+				if ($raceStartedCount <= $maxRacerCount) {
+					break;
+				}
+			}
+			//$this->log($i . '人まで昇格 vs rank:' . $rank, LOG_DEBUG);
+
+			if ($i == 0 || $i < $rank) {
+				return Constant::RET_NO_ACTION;
+			}
+
+			// カテゴリーの所属を確認
+			$hasCat = false;
+			foreach ($catBinds as $catBind) {
+				foreach ($map[$rcatCode]['needs'] as $catName) {
+					if ($catBind['CategoryRacer']['category_code'] === $catName) {
+						$hasCat = true;
+						break;
+					}
+				}
+
+				if ($hasCat) break;
+			}
+
+			if (!$hasCat) {
+				// TODO: 警告を検討すること
+				return Constant::RET_NO_ACTION;
+			}
+
+			$applyDate = date('Y/m/d', strtotime($meet['at_date'] . ' +1 day'));
+
+			// 同じ大会で同じ昇格をしているデータがあるなら、リザルトは除去されていると推測されるので、削除する。
+			$conditions = array(
+				'meet_code' => $meet['code'],
+				'category_code' => $map[$rcatCode]['to'],
+				'apply_date' => $applyDate,
+			);
+			$this->CategoryRacer->deleteAll($conditions);
+
+			// 昇格前カテゴリーは cancel_date を設定
+			foreach ($catBinds as $catBind) {
+				foreach ($map[$rcatCode]['needs'] as $catName) {
+					//$this->log($catBind['CategoryRacer']['category_code'] . ' vs ' . $catName, LOG_DEBUG);
+					if ($catBind['CategoryRacer']['category_code'] === $catName) {
+						//$this->log('delete!!', LOG_DEBUG);
+						$catBind['CategoryRacer']['cancel_date'] = $meet['at_date'];
+						if (!$this->CategoryRacer->save($catBind)) {
+							$this->log('CategoryRacer の cancel_date 設定->保存に失敗', LOG_ERR);
+						}
+						break; // $catBinds ループは break しないで全部削除する。
+					}
+				}
+			}
+
+			$cr = array();
+			$cr['CategoryRacer'] = array();
+			$cr['CategoryRacer']['racer_code'] = $racerCode;
+			$cr['CategoryRacer']['category_code'] = $map[$rcatCode]['to'];
+			$cr['CategoryRacer']['apply_date'] = $applyDate;
+			$cr['CategoryRacer']['reason_id'] = CategoryReason::$RESULT_UP->ID();
+			$cr['CategoryRacer']['reason_note'] = "";
+			$cr['CategoryRacer']['racer_result_id'] = $racerResultId;
+			$cr['CategoryRacer']['meet_code'] = $meet['code'];
+			$cr['CategoryRacer']['cancel_date'] = null;
+			//$cr['CategoryRacer']
+
+			$this->log('cr is,,,', LOG_DEBUG);
+			$this->log($cr, LOG_DEBUG);
+
+			$this->CategoryRacer->create();
+			if (!$this->CategoryRacer->save($cr)) {
+				return Constant::RET_FAILED;
+			}
+		}
+		
+		
+		
+		return Constant::RET_SUCCEED;
 	}
 }
