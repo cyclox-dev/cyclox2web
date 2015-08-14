@@ -56,6 +56,11 @@
 			<?php echo h($racerResult['RacerResult']['run_per']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('獲得 AJOCC ポイント'); ?></dt>
+		<dd>
+			<?php echo h($racerResult['RacerResult']['ajocc_pt']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Note'); ?></dt>
 		<dd>
 			<?php echo h($racerResult['RacerResult']['note']); ?>

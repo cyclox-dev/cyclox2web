@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
 DROP TABLE IF EXISTS time_records;
+DROP TABLE IF EXISTS hold_points;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
 DROP TABLE IF EXISTS entry_categories;
@@ -176,6 +177,16 @@ CREATE TABLE entry_racers
 );
 
 
+CREATE TABLE hold_points
+(
+	id int unsigned NOT NULL AUTO_INCREMENT,
+	racer_result_id int unsigned NOT NULL,
+	point int DEFAULT 0 NOT NULL,
+	PRIMARY KEY (id),
+	UNIQUE (id)
+);
+
+
 CREATE TABLE meets
 (
 	-- 例）CX 東北による2013-14シーズンの1発目のレースならば THK-134-001
@@ -282,6 +293,7 @@ CREATE TABLE racer_results
 	rank_at_lap_out int,
 	rank_per smallint,
 	run_per smallint,
+	ajocc_pt int unsigned DEFAULT 0 NOT NULL,
 	note text,
 	created datetime,
 	modified datetime,

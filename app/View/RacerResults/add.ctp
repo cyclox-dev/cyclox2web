@@ -13,6 +13,7 @@
 		echo $this->Form->input('rank_at_lap_out');
 		echo $this->Form->input('rank_per');
 		echo $this->Form->input('run_per');
+		echo $this->Form->input('ajocc_pt');
 		echo $this->Form->input('note');
 	?>
 	</fieldset>
