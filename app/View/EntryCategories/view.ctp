@@ -31,6 +31,21 @@
 			<?php echo h($entryCategory['EntryCategory']['lapout_rule']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('残留ポイント適用有無'); ?></dt>
+		<dd>
+			<?php echo h($entryCategory['EntryCategory']['applies_hold_pt']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('昇格適用有無'); ?></dt>
+		<dd>
+			<?php echo h($entryCategory['EntryCategory']['applies_rank_up']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('AJOCC ポイント適用有無'); ?></dt>
+		<dd>
+			<?php echo h($entryCategory['EntryCategory']['applies_ajocc_pt']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Note'); ?></dt>
 		<dd>
 			<?php echo h($entryCategory['EntryCategory']['note']); ?>

@@ -9,6 +9,9 @@
 		echo $this->Form->input('name');
 		echo $this->Form->input('start_delay_sec');
 		echo $this->Form->input('lapout_rule');
+		echo $this->Form->input('applies_hold_pt', array('label' => '残留ポイント適用有無'));
+		echo $this->Form->input('applies_rank_up', array('label' => '昇格有無'));
+		echo $this->Form->input('applies_ajocc_pt', array('label' => 'AJOCC ポイント配点有無'));
 		echo $this->Form->input('note');
 	?>
 	</fieldset>
