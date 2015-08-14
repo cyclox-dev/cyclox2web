@@ -3,6 +3,7 @@
 App::uses('AppModel', 'Model');
 App::uses('TimeRecord', 'Model');
 App::uses('CategoryRacer', 'Model');
+App::uses('HoldPoint', 'Model');
 
 /**
  * RacerResult Model
@@ -142,6 +143,9 @@ class RacerResult extends AppModel
 				}
 			}
 			//*/
+			
+			$hpModel = new HoldPoint();
+			$hpModel->deleteAll(array('racer_result_id' => $delID), $cascade);
 		}
 		
 		return parent::delete($id, $cascade);
