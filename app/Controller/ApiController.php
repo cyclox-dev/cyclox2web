@@ -5,7 +5,6 @@ App::uses('ApiBaseController', 'Controller');
 App::uses('Util', 'Cyclox/Util');
 App::uses('RacerResultStatus', 'Cyclox/Const');
 App::uses('RacerEntryStatus', 'Cyclox/Const');
-App::uses('CategoryReason', 'Cyclox/Const');
 
 /*
  *  created at 2015/06/19 by shun
@@ -222,7 +221,7 @@ class ApiController extends ApiBaseController
 			$opt = array('conditions' => array('name' => $egroupName, 'meet_code' => $meetCode));
 			$oldGroups = $this->EntryGroup->find('list', $opt);
 			
-			// 除去する前に表示のための格納
+			// MORE: 除去する前に表示のための格納
 			// および旧カテゴリーデータの復旧
 			// リストに格納、あとで表示。
 			if (!empty($oldGroups)) {
@@ -374,14 +373,16 @@ class ApiController extends ApiBaseController
 			//$this->log($this->request->data['body-result'], LOG_DEBUG);
 			//$this->log($meet, LOG_DEBUG);
 			
-			// 出走人数のカウント
-			$startedCount = 0;
-			foreach ($this->request->data['body-result'] as $body => $result) {
-				$er = $erMap[$body];
-				if (!empty($er) && $er['EntryRacer']['entry_status'] != RacerEntryStatus::$OPEN->val()) {
-					$rstatus = $result['RacerResult']['status'];
-					if ($rstatus != RacerResultStatus::$DNS->val()) {
-						++$startedCount;
+			if ($ecat['applies_rank_up']) {
+				// 昇格処理のために出走人数のカウント
+				$startedCount = 0;
+				foreach ($this->request->data['body-result'] as $body => $result) {
+					$er = $erMap[$body];
+					if (!empty($er) && $er['EntryRacer']['entry_status'] != RacerEntryStatus::$OPEN->val()) {
+						$rstatus = $result['RacerResult']['status'];
+						if ($rstatus != RacerResultStatus::$DNS->val()) {
+							++$startedCount;
+						}
 					}
 				}
 			}
@@ -404,16 +405,19 @@ class ApiController extends ApiBaseController
 				
 				//$this->log($er, LOG_DEBUG);
 				
-				// TODO: regular season race であるか
-				
-				// Open 参加は除く
-				if ($er['EntryRacer']['entry_status'] != RacerEntryStatus::$OPEN->val()) {
-					
-					$rank = empty($result['RacerResult']['rank']) ? null : $result['RacerResult']['rank'];
-					
-					// result_id, rcat, 出走人数より昇格判定（ポイントもできそう）
-					$ret = $this->CategoryRacer->saveRankUp($er['EntryRacer']['racer_code'], $this->RacerResult->id,
-							$rank, $startedCount, $rcatCode, $meet['Meet']);
+				if ($ecat['applies_rank_up']) {
+					// Open 参加は除く
+					if ($er['EntryRacer']['entry_status'] != RacerEntryStatus::$OPEN->val()) {
+
+						$rank = empty($result['RacerResult']['rank']) ? null : $result['RacerResult']['rank'];
+
+						// result_id, rcat, 出走人数より昇格判定（ポイントもできそう）
+						$ret = $this->CategoryRacer->saveRankUp($er['EntryRacer']['racer_code'], $this->RacerResult->id,
+								$rank, $startedCount, $rcatCode, $meet['Meet']);
+						if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
+							$this->log($er['EntryRacer']['racer_code'] + ' の昇格処理に失敗しました。', LOG_ERR);
+						}
+					}
 				}
 			}
 			
