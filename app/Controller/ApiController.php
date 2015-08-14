@@ -414,22 +414,8 @@ class ApiController extends ApiBaseController
 					// result_id, rcat, 出走人数より昇格判定（ポイントもできそう）
 					$ret = $this->CategoryRacer->saveRankUp($er['EntryRacer']['racer_code'], $this->RacerResult->id,
 							$rank, $startedCount, $rcatCode, $meet['Meet']);
-					
-					$this->log($ret, LOG_DEBUG);
-					
-					
-					//*/
 				}
-				
-				
-				
 			}
-			
-			// リザルトの計算から昇格を適用
-			// 必要な項目:
-			//		出走人数
-			
-			
 			
 			$this->TransactionManager->commit($transaction);
 			return $this->success(array('ok')); // 件数とか？

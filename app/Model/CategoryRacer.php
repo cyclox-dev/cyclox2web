@@ -99,7 +99,7 @@ class CategoryRacer extends AppModel {
 	public function saveRankUp($racerCode, $racerResultId, $rank, $raceStartedCount, $rcatCode, $meet)
 	{
 		if (empty($racerCode) || empty($racerResultId) || empty($raceStartedCount) ||
-			empty($rcatCode) || empty($meet)) {
+			empty($rcatCode) || empty($meet['at_date'])) {
 			return Constant::RET_ERROR;
 		}
 		
@@ -107,9 +107,17 @@ class CategoryRacer extends AppModel {
 			return Constant::RET_NO_ACTION;
 		}
 		
-		// 選手のカテゴリー所属を取得
-		$opt = array('conditions' => array('racer_code' => $racerCode), 'recursive' => -1);
-		$catBinds = $this->find('all', $opt);
+		// 選手の現在のカテゴリー所属を取得
+		$conditions = array(
+			'racer_code' => $racerCode,
+			'OR' => array(
+				array('cancel_date' => null),
+				array('cancel_date >=' => $meet['at_date'])
+			),
+			'apply_date <=' => $meet['at_date'],
+			//'reason_id' => CategoryReason::$RESULT_UP->ID(),
+		);
+		$catBinds = $this->find('all', array($conditions, 'recursive' => -1));
 		//$this->log('cats:', LOG_DEBUG);
 		//$this->log($catBinds, LOG_DEBUG);
 		
@@ -151,51 +159,94 @@ class CategoryRacer extends AppModel {
 				break;
 			}
 		}
-		$this->log($i . '人まで昇格 vs rank:' . $rank, LOG_DEBUG);
+		//$this->log($i . '人まで昇格 vs rank:' . $rank, LOG_DEBUG);
 		
 		if ($i == 0 || $i < $rank) {
 			return Constant::RET_NO_ACTION;
 		}
 		
 		// カテゴリーの所属を確認
-		$hasCat = false;
+		$oldCat = null;
 		$breaks = false;
 		foreach ($catBinds as $catBind) {
 			foreach ($map[$rcatCode]['needs'] as $catName) {
 				if ($catBind['CategoryRacer']['category_code'] === $catName) {
-					$hasCat = true;
+					$oldCat = $catName;
 					$breaks = true;
 					break;
 				}
 			}
+			
+			if ($breaks) break;
 		}
 		
-		if (!$hasCat) {
+		if (empty($oldCat)) {
 			// TODO: 警告を検討すること
 			return Constant::RET_NO_ACTION;
 		}
 		
+		$meetCode = empty($meet['code']) ? null : $meet['code'];
+		$applyDate = date('Y/m/d', strtotime($meet['at_date'] . ' +1 day'));
+		
+		// 同じ大会で同じ昇格をしているデータがあるなら、リザルトは除去されていると推測されるので、削除する。
+		$this->__deleteRankUp($meetCode, $map[$rcatCode]['to'], $applyDate);
+		
+		// 昇格前カテゴリーは
+		foreach ($catBinds as $catBind) {
+			foreach ($map[$rcatCode]['needs'] as $catName) {
+				$this->log($catBind['CategoryRacer']['category_code'] . ' vs ' . $catName, LOG_DEBUG);
+				if ($catBind['CategoryRacer']['category_code'] === $catName) {
+					$this->log('delete!!', LOG_DEBUG);
+					$catBind['CategoryRacer']['cancel_date'] = $meet['at_date'];
+					if (!$this->save($catBind)) {
+						$this->log('CategoryRacer の cancel_date 設定->保存に失敗', LOG_ERR);
+					}
+					break; // $catBinds ループは break しないで全部削除する。
+				}
+			}
+		}
 		
 		$cr = array();
 		$cr['CategoryRacer'] = array();
 		$cr['CategoryRacer']['racer_code'] = $racerCode;
 		$cr['CategoryRacer']['category_code'] = $map[$rcatCode]['to'];
-		$cr['CategoryRacer']['apply_date'] = $meet['at_date'];
+		$cr['CategoryRacer']['apply_date'] = $applyDate;
 		$cr['CategoryRacer']['reason_id'] = CategoryReason::$RESULT_UP->ID();
 		$cr['CategoryRacer']['reason_note'] = "";
 		$cr['CategoryRacer']['racer_result_id'] = $racerResultId;
+		$cr['CategoryRacer']['meet_code'] = $meetCode;
 		$cr['CategoryRacer']['cancel_date'] = null;
 		//$cr['CategoryRacer']
 		
 		$this->log('cr is,,,', LOG_DEBUG);
 		$this->log($cr, LOG_DEBUG);
 		
+		$this->create();
 		if ($this->save($cr)) {
 			return Constant::RET_SUCCEED;
 		} else {
 			return Constant::RET_FAILED;
 		}
+	}
+	
+	/**
+	 * 条件に該当する昇格データを削除する
+	 * @param string $meetCode 大会コード
+	 * @param string $newCatCode 昇格先カテゴリーコード
+	 * @param date $applyDate 適用日
+	 */
+	private function __deleteRankUp($meetCode, $newCatCode, $applyDate)
+	{
+		if (empty($meetCode) || empty($newCatCode) || empty($applyDate)) {
+			return;
+		}
 		
-		//*/
+		$conditions = array(
+			'meet_code' => $meetCode,
+			'category_code' => $newCatCode,
+			'apply_date' => $applyDate,
+		);
+		
+		return $this->deleteAll($conditions);
 	}
 }
