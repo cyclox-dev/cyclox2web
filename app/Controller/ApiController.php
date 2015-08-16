@@ -7,6 +7,7 @@ App::uses('RacerResultStatus', 'Cyclox/Const');
 App::uses('RacerEntryStatus', 'Cyclox/Const');
 App::uses('Constant', 'Cyclox/Const');
 App::uses('CategoryReason', 'Cyclox/Const');
+App::uses('PointCalculator', 'Cyclox/Util');
 
 /*
  *  created at 2015/06/19 by shun
@@ -21,7 +22,8 @@ class ApiController extends ApiBaseController
 {
 	public $uses = array('TransactionManager',
 		'Meet', 'CategoryRacer', 'Racer', 'MeetGroup', 'Season',
-		'EntryGroup', 'EntryCategory', 'EntryRacer', 'RacerResult', 'TimeRecord', 'HoldPoint');
+		'EntryGroup', 'EntryCategory', 'EntryRacer', 'RacerResult', 'TimeRecord', 'HoldPoint',
+		'PointSeries', 'MeetPointSeries', 'PointSeriesRacer');
 	
 	public $components = array('Session', 'RequestHandler');
 	
@@ -431,6 +433,12 @@ class ApiController extends ApiBaseController
 					if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
 						$this->log($er['EntryRacer']['racer_code'] . ' の残留ポイントの設定処理に失敗しました。', LOG_ERR);
 					}
+					
+					$ret = $this->__setupPoints($er['EntryRacer']['racer_code'], $this->RacerResult->id,
+							$result['RacerResult'], $startedCount, $ecat, $meet['Meet']);
+					if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
+						$this->log($er['EntryRacer']['racer_code'] . ' のポイント計算に失敗しました。', LOG_ERR);
+					}
 				}
 			}
 			
@@ -535,7 +543,7 @@ class ApiController extends ApiBaseController
 	private function __setupRankUp($racerCode, $racerResultId, $result, $raceStartedCount, $ecat, $meet)
 	{
 		if (empty($racerCode) || empty($racerResultId) || empty($result) || empty($raceStartedCount) ||
-			empty($ecat) || empty($meet['at_date'])) {
+			empty($ecat) || empty($meet)) {
 			return Constant::RET_ERROR;
 		}
 		
@@ -646,6 +654,7 @@ class ApiController extends ApiBaseController
 				if ($catBind['CategoryRacer']['category_code'] === $catName) {
 					//$this->log('delete!!', LOG_DEBUG);
 					$catBind['CategoryRacer']['cancel_date'] = $meet['at_date'];
+					$this->CategoryRacer->create();
 					if (!$this->CategoryRacer->save($catBind)) {
 						$this->log('CategoryRacer の cancel_date 設定->保存に失敗', LOG_ERR);
 					}
@@ -781,4 +790,54 @@ class ApiController extends ApiBaseController
 		
 		return Constant::RET_SUCCEED;
 	}
+	
+	/**
+	 * 大会に設定されたポイントを計算し、適用する。
+	 * @param string $racerCode 選手コード
+	 * @param int $racerResultId リザルト ID
+	 * @param int $result リザルト
+	 * @param int $raceStartedCount レースの出走人数（Open 参加を除く）
+	 * @param string $ecat 出走カテゴリー
+	 * @param date $meet 大会データ
+	 * @return int Constant.RET_ のいずれか
+	 */
+	private function __setupPoints($racerCode, $racerResultId, $result, $raceStartedCount, $ecat, $meet)
+	{
+		if (empty($racerCode) || empty($racerResultId) || empty($result) || empty($raceStartedCount) ||
+			empty($ecat) || empty($meet)) {
+			return Constant::RET_ERROR;
+		}
+		
+		$conditions = array('meet_code' => $meet['code'], 'entry_category_name' => $ecat['name']);
+		$pts = $this->MeetPointSeries->find('all', array('conditions' => $conditions));
+		
+		foreach ($pts as $ptSetting) {
+			//$this->log('pt setting:', LOG_DEBUG);
+			$this->log($ptSetting, LOG_DEBUG);
+			
+			$calc = PointCalculator::getCalculator($ptSetting['PointSeries']['calc_rule']);
+			if (empty($calc)) return;
+			
+			$pt = $calc->calc();
+			if (!empty($pt)) {
+				$this->log('pt:' . $pt . 'psid:' . $ptSetting['PointSeries']['id'] . ' date:' . $meet['at_date'], LOG_DEBUG);
+				$psr = array();
+				$psr['PointSeriesRacer'] = array(
+					'racer_code' => $racerCode,
+					'point_series_id' => $ptSetting['PointSeries']['id'],
+					'point' => $pt,
+					'gained_date' => $meet['at_date'],
+					'racer_result_id' => $racerResultId,
+				);
+				
+				$this->PointSeriesRacer->create();
+				if (!$this->PointSeriesRacer->save($psr)) {
+					$this->log('ポイントシリーズ' . $ptSetting['PointSeries']['name'] . 'のポイント計算に失敗しました。', LOG_ERR);
+				}
+			}
+		}
+		
+		return Constant::RET_SUCCEED;
+	}
+	
 }
