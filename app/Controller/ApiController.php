@@ -425,7 +425,7 @@ class ApiController extends ApiBaseController
 					// __setupRankUp() 内で昇格時の残留ポイント付与も行われている。
 					
 					$ret = $this->__setupHoldPoint($er['EntryRacer']['racer_code'], $this->RacerResult->id,
-							$result['RacerResult'], $ecat['races_category_code'], $meet['Meet']);
+							$result['RacerResult'], $ecat, $meet['Meet']);
 					// 昇格していても旧カテゴリーで残留ポイントは付与しておく。
 					
 					if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
@@ -692,14 +692,18 @@ class ApiController extends ApiBaseController
 	 * @param string $racerCode 選手コード
 	 * @param int $racerResultId リザルト ID
 	 * @param int $result リザルト
-	 * @param string $rcatCode レースカテゴリー
+	 * @param string $ecat 出走カテゴリー
 	 * @param string $meet 大会データ
 	 */
-	private function __setupHoldPoint($racerCode, $racerResultId, $result, $rcatCode, $meet)
+	private function __setupHoldPoint($racerCode, $racerResultId, $result, $ecat, $meet)
 	{
 		if (empty($racerCode) || empty($racerResultId) || empty($result) ||
-			empty($rcatCode) || empty($meet)) {
+			empty($ecat) || empty($meet)) {
 			return Constant::RET_ERROR;
+		}
+		
+		if ($ecat['applies_hold_pt'] != 1) {
+			return Constant::RET_NO_ACTION;
 		}
 		
 		if (empty($result['rank_per']) || $result['rank_per'] > 66) {
@@ -736,6 +740,8 @@ class ApiController extends ApiBaseController
 			'CM1+2+3' => array('CM1', 'CM2'),
 			'CM2+3' => array('CM2'),
 		);
+		
+		$rcatCode = $ecat['races_category_code'];
 		
 		if (empty($map[$rcatCode])) {
 			return Constant::RET_NO_ACTION;
