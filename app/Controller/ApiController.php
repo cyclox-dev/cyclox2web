@@ -813,14 +813,13 @@ class ApiController extends ApiBaseController
 		
 		foreach ($pts as $ptSetting) {
 			//$this->log('pt setting:', LOG_DEBUG);
-			$this->log($ptSetting, LOG_DEBUG);
+			//$this->log($ptSetting, LOG_DEBUG);
 			
 			$calc = PointCalculator::getCalculator($ptSetting['PointSeries']['calc_rule']);
 			if (empty($calc)) return;
 			
-			$pt = $calc->calc();
+			$pt = $calc->calc($result, $ecat, $ptSetting['MeetPointSeries']['grade']);
 			if (!empty($pt)) {
-				$this->log('pt:' . $pt . 'psid:' . $ptSetting['PointSeries']['id'] . ' date:' . $meet['at_date'], LOG_DEBUG);
 				$psr = array();
 				$psr['PointSeriesRacer'] = array(
 					'racer_code' => $racerCode,
