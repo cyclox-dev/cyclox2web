@@ -828,6 +828,7 @@ class ApiController extends ApiBaseController
 					'point' => $pt,
 					'gained_date' => $meet['at_date'],
 					'racer_result_id' => $racerResultId,
+					'meet_point_series_id' => $ptSetting['MeetPointSeries']['id'],
 				);
 				
 				$this->PointSeriesRacer->create();

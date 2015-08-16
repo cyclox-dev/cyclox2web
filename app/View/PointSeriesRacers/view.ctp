@@ -36,6 +36,10 @@
 			<?php echo $this->Html->link($pointSeriesRacer['RacerResult']['id'], array('controller' => 'racer_results', 'action' => 'view', $pointSeriesRacer['RacerResult']['id'])); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('ポイントシリーズ大会'); ?></dt>
+		<dd>
+			<?php echo $this->Html->link($pointSeriesRacer['MeetPointSeries']['id'], array('controller' => 'meet_point_series', 'action' => 'view', $pointSeriesRacer['MeetPointSeries']['id'])); ?>
+		</dd>
 		<dt><?php echo __('Note'); ?></dt>
 		<dd>
 			<?php echo h($pointSeriesRacer['PointSeriesRacer']['note']); ?>

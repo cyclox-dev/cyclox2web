@@ -105,6 +105,13 @@ class PointSeriesRacer extends AppModel {
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''
-		)
+		),
+		'MeetPointSeries' => array(
+			'className' => 'MeetPointSeries',
+			'foreignKey' => 'meet_point_series_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		),
 	);
 }

@@ -10,6 +10,7 @@
 			<th><?php echo $this->Paginator->sort('gained_date'); ?></th>
 			<th><?php echo $this->Paginator->sort('expiry_date'); ?></th>
 			<th><?php echo $this->Paginator->sort('racer_result_id'); ?></th>
+			<th><?php echo $this->Paginator->sort('meet_point_series_id'); ?></th>
 			<th><?php echo $this->Paginator->sort('note'); ?></th>
 			<th><?php echo $this->Paginator->sort('created'); ?></th>
 			<th><?php echo $this->Paginator->sort('modified'); ?></th>
@@ -31,6 +32,9 @@
 		<td><?php echo h($pointSeriesRacer['PointSeriesRacer']['expiry_date']); ?>&nbsp;</td>
 		<td>
 			<?php echo $this->Html->link($pointSeriesRacer['RacerResult']['id'], array('controller' => 'racer_results', 'action' => 'view', $pointSeriesRacer['RacerResult']['id'])); ?>
+		</td>
+		<td>
+			<?php echo $this->Html->link($pointSeriesRacer['MeetPointSeries']['id'], array('controller' => 'meet_point_series', 'action' => 'view', $pointSeriesRacer['MeetPointSeries']['id'])); ?>
 		</td>
 		<td><?php echo h($pointSeriesRacer['PointSeriesRacer']['note']); ?>&nbsp;</td>
 		<td><?php echo h($pointSeriesRacer['PointSeriesRacer']['created']); ?>&nbsp;</td>

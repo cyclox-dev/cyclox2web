@@ -10,6 +10,7 @@
 		echo $this->Form->input('gained_date');
 		echo $this->Form->input('expiry_date');
 		echo $this->Form->input('racer_result_id');
+		echo $this->Form->input('meet_point_series_id');
 		echo $this->Form->input('note');
 	?>
 	</fieldset>
