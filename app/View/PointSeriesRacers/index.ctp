@@ -7,13 +7,12 @@
 			<th><?php echo $this->Paginator->sort('racer_code'); ?></th>
 			<th><?php echo $this->Paginator->sort('point_series_id'); ?></th>
 			<th><?php echo $this->Paginator->sort('point'); ?></th>
+			<th><?php echo $this->Paginator->sort('bonus'); ?></th>
 			<th><?php echo $this->Paginator->sort('gained_date'); ?></th>
 			<th><?php echo $this->Paginator->sort('expiry_date'); ?></th>
 			<th><?php echo $this->Paginator->sort('racer_result_id'); ?></th>
 			<th><?php echo $this->Paginator->sort('meet_point_series_id'); ?></th>
 			<th><?php echo $this->Paginator->sort('note'); ?></th>
-			<th><?php echo $this->Paginator->sort('created'); ?></th>
-			<th><?php echo $this->Paginator->sort('modified'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>
@@ -28,6 +27,7 @@
 			<?php echo $this->Html->link($pointSeriesRacer['PointSeries']['name'], array('controller' => 'point_series', 'action' => 'view', $pointSeriesRacer['PointSeries']['id'])); ?>
 		</td>
 		<td><?php echo h($pointSeriesRacer['PointSeriesRacer']['point']); ?>&nbsp;</td>
+		<td><?php echo h($pointSeriesRacer['PointSeriesRacer']['bonus']); ?>&nbsp;</td>
 		<td><?php echo h($pointSeriesRacer['PointSeriesRacer']['gained_date']); ?>&nbsp;</td>
 		<td><?php echo h($pointSeriesRacer['PointSeriesRacer']['expiry_date']); ?>&nbsp;</td>
 		<td>
@@ -37,8 +37,6 @@
 			<?php echo $this->Html->link($pointSeriesRacer['MeetPointSeries']['id'], array('controller' => 'meet_point_series', 'action' => 'view', $pointSeriesRacer['MeetPointSeries']['id'])); ?>
 		</td>
 		<td><?php echo h($pointSeriesRacer['PointSeriesRacer']['note']); ?>&nbsp;</td>
-		<td><?php echo h($pointSeriesRacer['PointSeriesRacer']['created']); ?>&nbsp;</td>
-		<td><?php echo h($pointSeriesRacer['PointSeriesRacer']['modified']); ?>&nbsp;</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $pointSeriesRacer['PointSeriesRacer']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $pointSeriesRacer['PointSeriesRacer']['id'])); ?>

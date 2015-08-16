@@ -1,5 +1,7 @@
 <?php
 
+App::uses('EntryRacer', 'Model');
+
 /*
  *  created at 2015/08/16 by shun
  */
@@ -67,7 +69,7 @@ class PointCalculator extends Object
 	 * @param type $result
 	 * @param type $ecat
 	 * @param type $grade
-	 * @return int 点数。エラーの場合は null をかえす。
+	 * @return int 点数配列 array('point' => point, 'bonus' => bonus)。エラーの場合は null をかえす。
 	 */
 	public function calc($result, $ecat, $grade) {
 		$pt = null;
@@ -85,7 +87,7 @@ class PointCalculator extends Object
 		//$this->log('ecat', LOG_DEBUG);
 		//$this->log($ecat, LOG_DEBUG);
 		
-		if (empty($result['rank'])) return 0;
+		if (empty($result['rank'])) return null;
 		
 		// grade -> points
 		$set = array();
@@ -115,16 +117,47 @@ class PointCalculator extends Object
 			return null;
 		}
 		
+		$pointMap = array();
+		
 		$rankIndex = $result['rank'] - 1;
 		if (!empty($set[$grade]['rank_pt'][$rankIndex])) {
-			return $set[$grade]['rank_pt'][$rankIndex];
+			$pointMap['point'] = $set[$grade]['rank_pt'][$rankIndex];
+		}
+		else if (!empty($set[$grade]['run_pt'])) {
+			$pointMap['point'] = $set[$grade]['run_pt'];
 		}
 		
-		if (!empty($set[$grade]['run_pt'])) {
-			return $set[$grade]['run_pt'];
+		// 同一周回ならば +20pt
+		$topLap = $this->__pullTopLap($ecat);
+		if (!empty($topLap)) {
+			if ($result['lap'] >= $topLap) {
+				$pointMap['bonus'] = 20;
+			}
 		}
 		
-		return 0;
+		return $pointMap;
+	}
+	
+	/**
+	 * 出走カテゴリーのトップの周回数をかえす
+	 * @param EntryCategory-data $ecat 出走カテゴリー
+	 * @return int 周回数。エラーがある場合 null をかえす。
+	 */
+	private function __pullTopLap($ecat) {
+		if (empty($ecat)) return null;
+		$this->log('ecat:', LOG_DEBUG);
+		$this->log($ecat, LOG_DEBUG);
+		
+		$erModel = new EntryRacer();
+		$erModel->actsAs = array('Utils.SoftDelete');
+		$cdt = array('EntryRacer.entry_category_id' => $ecat['id'], 'RacerResult.rank' => 1);
+		$resultLap = $erModel->find('first', array('conditions' => $cdt, 'fields' => 'RacerResult.lap'));
+		
+		//$this->log($eracers, LOG_DEBUG);
+		
+		if (empty($resultLap['RacerResult']['lap'])) return null;
+		
+		return $resultLap['RacerResult']['lap'];
 	}
 }
 PointCalculator::init();

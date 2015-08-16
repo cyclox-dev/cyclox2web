@@ -21,6 +21,11 @@
 			<?php echo h($pointSeriesRacer['PointSeriesRacer']['point']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('ボーナス Point'); ?></dt>
+		<dd>
+			<?php echo h($pointSeriesRacer['PointSeriesRacer']['bonus']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Gained Date'); ?></dt>
 		<dd>
 			<?php echo h($pointSeriesRacer['PointSeriesRacer']['gained_date']); ?>

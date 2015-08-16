@@ -824,11 +824,12 @@ class ApiController extends ApiBaseController
 				$psr['PointSeriesRacer'] = array(
 					'racer_code' => $racerCode,
 					'point_series_id' => $ptSetting['PointSeries']['id'],
-					'point' => $pt,
 					'gained_date' => $meet['at_date'],
 					'racer_result_id' => $racerResultId,
 					'meet_point_series_id' => $ptSetting['MeetPointSeries']['id'],
 				);
+				if (!empty($pt['point'])) $psr['PointSeriesRacer']['point'] = $pt['point'];
+				if (!empty($pt['bonus'])) $psr['PointSeriesRacer']['bonus'] = $pt['bonus'];
 				
 				$this->PointSeriesRacer->create();
 				if (!$this->PointSeriesRacer->save($psr)) {
