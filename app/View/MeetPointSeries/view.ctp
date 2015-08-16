@@ -1,0 +1,68 @@
+<div class="meetPointSeries view">
+<h2><?php echo __('Meet Point Series'); ?></h2>
+	<dl>
+		<dt><?php echo __('Id'); ?></dt>
+		<dd>
+			<?php echo h($meetPointSeries['MeetPointSeries']['id']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Point Series'); ?></dt>
+		<dd>
+			<?php echo $this->Html->link($meetPointSeries['PointSeries']['name'], array('controller' => 'point_series', 'action' => 'view', $meetPointSeries['PointSeries']['id'])); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Express In Series'); ?></dt>
+		<dd>
+			<?php echo h($meetPointSeries['MeetPointSeries']['express_in_series']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Meet'); ?></dt>
+		<dd>
+			<?php echo $this->Html->link($meetPointSeries['Meet']['name'], array('controller' => 'meets', 'action' => 'view', $meetPointSeries['Meet']['code'])); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Entry Category Name'); ?></dt>
+		<dd>
+			<?php echo h($meetPointSeries['MeetPointSeries']['entry_category_name']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Grade'); ?></dt>
+		<dd>
+			<?php echo h($meetPointSeries['MeetPointSeries']['grade']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Created'); ?></dt>
+		<dd>
+			<?php echo h($meetPointSeries['MeetPointSeries']['created']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Modified'); ?></dt>
+		<dd>
+			<?php echo h($meetPointSeries['MeetPointSeries']['modified']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Deleted Date'); ?></dt>
+		<dd>
+			<?php echo h($meetPointSeries['MeetPointSeries']['deleted_date']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Deleted'); ?></dt>
+		<dd>
+			<?php echo h($meetPointSeries['MeetPointSeries']['deleted']); ?>
+			&nbsp;
+		</dd>
+	</dl>
+</div>
+<div class="actions">
+	<h3><?php echo __('Actions'); ?></h3>
+	<ul>
+		<li><?php echo $this->Html->link(__('Edit Meet Point Series'), array('action' => 'edit', $meetPointSeries['MeetPointSeries']['id'])); ?> </li>
+		<li><?php echo $this->Form->postLink(__('Delete Meet Point Series'), array('action' => 'delete', $meetPointSeries['MeetPointSeries']['id']), array(), __('Are you sure you want to delete # %s?', $meetPointSeries['MeetPointSeries']['id'])); ?> </li>
+		<li><?php echo $this->Html->link(__('List Meet Point Series'), array('action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('New Meet Point Series'), array('action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('List Point Series'), array('controller' => 'point_series', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('New Point Series'), array('controller' => 'point_series', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('List Meets'), array('controller' => 'meets', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('New Meet'), array('controller' => 'meets', 'action' => 'add')); ?> </li>
+	</ul>
+</div>

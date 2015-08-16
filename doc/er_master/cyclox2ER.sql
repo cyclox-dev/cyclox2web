@@ -7,15 +7,18 @@ DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
 DROP TABLE IF EXISTS hold_points;
+DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS time_records;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
 DROP TABLE IF EXISTS entry_categories;
 DROP TABLE IF EXISTS time_record_info;
 DROP TABLE IF EXISTS entry_groups;
+DROP TABLE IF EXISTS meet_point_series;
 DROP TABLE IF EXISTS meets;
 DROP TABLE IF EXISTS meet_groups;
 DROP TABLE IF EXISTS parm_vars;
+DROP TABLE IF EXISTS point_series;
 DROP TABLE IF EXISTS racers;
 DROP TABLE IF EXISTS races_categories;
 DROP TABLE IF EXISTS seasons;
@@ -183,6 +186,8 @@ CREATE TABLE hold_points
 	racer_result_id int unsigned NOT NULL,
 	point int DEFAULT 0 NOT NULL,
 	category_code varchar(16) BINARY NOT NULL,
+	created datetime,
+	modified datetime,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );
@@ -229,6 +234,24 @@ CREATE TABLE meet_groups
 );
 
 
+CREATE TABLE meet_point_series
+(
+	id int unsigned NOT NULL AUTO_INCREMENT,
+	point_series_id int unsigned NOT NULL,
+	-- 第3戦、など
+	express_in_series varchar(255) BINARY NOT NULL,
+	-- 例）CX 東北による2013-14シーズンの1発目のレースならば THK-134-001
+	meet_code varchar(11) BINARY NOT NULL,
+	entry_category_name text BINARY NOT NULL,
+	grade tinyint unsigned NOT NULL,
+	created datetime,
+	modified datetime,
+	deleted_date datetime,
+	deleted tinyint(1) DEFAULT 0 NOT NULL,
+	PRIMARY KEY (id)
+);
+
+
 CREATE TABLE parm_vars
 (
 	id int unsigned NOT NULL AUTO_INCREMENT,
@@ -238,6 +261,47 @@ CREATE TABLE parm_vars
 	PRIMARY KEY (id),
 	UNIQUE (id),
 	UNIQUE (pkey)
+);
+
+
+CREATE TABLE point_series
+(
+	id int unsigned NOT NULL AUTO_INCREMENT,
+	name varchar(255) BINARY NOT NULL,
+	short_name varchar(255) BINARY NOT NULL,
+	description text BINARY,
+	calc_rule smallint unsigned NOT NULL,
+	-- シーズンごと、1年ごと、積算など
+	sum_up_rule tinyint unsigned NOT NULL,
+	-- 個人、チームなど
+	-- 
+	point_to tinyint unsigned NOT NULL,
+	season_id int unsigned,
+	created datetime,
+	modified datetime,
+	deleted_date datetime,
+	deleted tinyint(1) DEFAULT 0 NOT NULL,
+	PRIMARY KEY (id),
+	UNIQUE (id)
+);
+
+
+CREATE TABLE point_series_racers
+(
+	id int unsigned NOT NULL AUTO_INCREMENT,
+	-- 例）THK-134-0002
+	-- 標準では12文字になるが、最後が4桁を超える可能性ありとして長さ16文字としている。
+	racer_code varchar(16) BINARY NOT NULL,
+	point_series_id int unsigned NOT NULL,
+	point int unsigned NOT NULL,
+	gained_date date NOT NULL,
+	expiry_date date,
+	racer_result_id int unsigned,
+	note text BINARY,
+	created datetime,
+	modified datetime,
+	PRIMARY KEY (id),
+	UNIQUE (id)
 );
 
 
@@ -352,6 +416,8 @@ CREATE TABLE time_records
 	racer_result_id int unsigned NOT NULL,
 	lap int NOT NULL,
 	time_milli int unsigned NOT NULL,
+	created datetime,
+	modified datetime,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );
