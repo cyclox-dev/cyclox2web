@@ -38,7 +38,9 @@ App::uses('CategoryReason', 'Cyclox/Const');
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $categoryRacer['CategoryRacer']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $categoryRacer['CategoryRacer']['id'])); ?>
 			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $categoryRacer['CategoryRacer']['id'])
-				, array('confirm' => 'カテゴリー所属 [ID:' . $categoryRacer['CategoryRacer']['id'] . "] のデータを削除してよろしいですか？\n解消の場合には編集画面で解消日を設定して下さい。")); ?>
+				, array('confirm' => "【注意！！！】\n選手所属カテゴリー [ID:" . $categoryRacer['CategoryRacer']['id'] . "] のデータを削除してよろしいですか？\n\n"
+						. "リザルトの再アップロードなどでなれば、選手カテゴリー所属を削除することはまれです。\n"
+								. '昇格や降格などで元のカテゴリー所属でなくなった場合には [Edit] から解消日を設定して下さい。')); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>

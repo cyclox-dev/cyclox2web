@@ -56,8 +56,6 @@
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
 
-		<li><?php echo $this->Form->postLink(__('このカテゴリー所属を削除'), array('action' => 'delete', $this->Form->value('CategoryRacer.id')), array()
-			, 'カテゴリー所属 [ID:' . $this->Form->value('CategoryRacer.id') . "] のデータを削除してよろしいですか？\n解消の場合には編集画面で解消日を設定して下さい。"); ?></li>
 		<li><?php echo $this->Html->link(__('カテゴリー所属リスト'), array('action' => 'index')); ?></li>
 		<li><?php echo $this->Html->link(__('> カテゴリーリスト'), array('controller' => 'categories', 'action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('> 選手リスト'), array('controller' => 'racers', 'action' => 'index')); ?> </li>
