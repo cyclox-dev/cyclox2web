@@ -563,7 +563,8 @@ class ApiController extends ApiBaseController
 			'apply_date <=' => $meet['at_date'],
 			//'reason_id' => CategoryReason::$RESULT_UP->ID(),
 		);
-		$catBinds = $this->CategoryRacer->find('all', array($conditions, 'recursive' => -1));
+		$this->CategoryRacer->actsAs = array('Utils.SoftDelete'); // deleted を拾わないように
+		$catBinds = $this->CategoryRacer->find('all', array('conditions' => $conditions, 'recursive' => -1));
 		//$this->log('cats:', LOG_DEBUG);
 		//$this->log($catBinds, LOG_DEBUG);
 		
@@ -731,7 +732,7 @@ class ApiController extends ApiBaseController
 			'apply_date <=' => $meet['at_date'],
 			//'reason_id' => CategoryReason::$RESULT_UP->ID(),
 		);
-		$catBinds = $this->CategoryRacer->find('all', array($conditions, 'recursive' => -1));
+		$catBinds = $this->CategoryRacer->find('all', array('conditions' => $conditions, 'recursive' => -1));
 		
 		// レースカテゴリーからカテゴリーに所属していることを確認。Rank の高いカテゴリーに対してポイントを与える。
 		
