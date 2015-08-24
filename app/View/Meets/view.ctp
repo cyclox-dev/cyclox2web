@@ -133,12 +133,6 @@
 	<?php endforeach; ?>
 	</table>
 <?php endif; ?>
-
-	<div class="actions">
-		<ul>
-			<li><?php echo $this->Html->link(__('出走グループを追加'), array('controller' => 'entry_groups', 'action' => 'add')); ?> </li>
-		</ul>
-	</div>
 </div>
 <div class="related">
 	<h3><?php echo __('昇格者データ'); ?></h3>
@@ -160,16 +154,10 @@
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'category_racers', 'action' => 'view', $result['CategoryRacer']['id'])); ?>
 				<?php echo $this->Html->link(__('Edit'), array('controller' => 'category_racers', 'action' => 'edit', $result['CategoryRacer']['id'])); ?>
-				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'category_racers', 'action' => 'delete', $result['CategoryRacer']['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryGroup['id'])); ?>
+				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'category_racers', 'action' => 'delete', $result['CategoryRacer']['id']), array(), __('[%s] のデータを削除してよろしいですか？', $result['CategoryRacer']['id'])); ?>
 			</td>
 		</tr>
 	<?php endforeach; ?>
 	</table>
 <?php endif; ?>
-
-	<div class="actions">
-		<ul>
-			<li><?php echo $this->Html->link(__('出走グループを追加'), array('controller' => 'entry_groups', 'action' => 'add')); ?> </li>
-		</ul>
-	</div>
 </div>

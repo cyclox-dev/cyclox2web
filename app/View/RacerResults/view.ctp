@@ -21,7 +21,7 @@
 			<?php echo h($racerResult['RacerResult']['rank']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Rank'); ?></dt>
+		<dt><?php echo __('Status'); ?></dt>
 		<dd>
 			<?php echo h($racerResult['RacerResult']['status']); ?>
 			&nbsp;
