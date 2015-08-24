@@ -642,9 +642,11 @@ class ApiController extends ApiBaseController
 
 		// 同じ大会で同じ昇格をしているデータがあるなら、リザルトは除去されていると推測されるので、削除する。
 		$conditions = array(
+			'racer_code' => $racerCode,
 			'meet_code' => $meet['code'],
 			'category_code' => $map[$rcatCode]['to'],
 			'apply_date' => $applyDate,
+			'reason_id' => CategoryReason::$RESULT_UP->ID(),
 		);
 		$this->CategoryRacer->deleteAll($conditions);
 
