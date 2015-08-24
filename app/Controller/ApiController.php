@@ -558,10 +558,9 @@ class ApiController extends ApiBaseController
 			'racer_code' => $racerCode,
 			'OR' => array(
 				array('cancel_date' => null),
-				array('cancel_date >=' => $meet['at_date'])
+				array('cancel_date >=' => $meet['at_date']) // 所属チェックにも使っているので注意
 			),
 			'apply_date <=' => $meet['at_date'],
-			//'reason_id' => CategoryReason::$RESULT_UP->ID(),
 		);
 		$this->CategoryRacer->actsAs = array('Utils.SoftDelete'); // deleted を拾わないように
 		$catBinds = $this->CategoryRacer->find('all', array('conditions' => $conditions, 'recursive' => -1));
@@ -574,6 +573,123 @@ class ApiController extends ApiBaseController
 		}
 		
 		$rcatCode = $ecat['races_category_code'];
+		
+		// 特別処理
+		// M1+2+3 は勝利したら CM1 表彰台で CM2（降格なし）
+		if ($rcatCode === 'CM1+2+3')
+		{
+			$this->log('CM1+2+3 rank up', LOG_DEBUG);
+			
+			// CM1 持ってるなら処理なし
+			foreach ($catBinds as $catBind) {
+				$this->log('curr:' . $catBind['CategoryRacer']['category_code'], LOG_DEBUG);
+				if ($catBind['CategoryRacer']['category_code'] === 'CM1') {
+					$this->log('find cm1', LOG_DEBUG);
+					return Constant::RET_NO_ACTION;
+				}
+			}
+			
+			$newCategory = null;
+			$oldCat = null;
+			
+			$this->log('rank is,,,:' . $rank, LOG_DEBUG);
+			
+			if ($rank === 1) {
+				// カテゴリー所持の確認
+				foreach ($catBinds as $catBind) {
+					if ($catBind['CategoryRacer']['category_code'] === 'CM2') {
+						$newCategory = 'CM1';
+						$oldCat = 'CM2';
+						$this->log('has CM2', LOG_DEBUG);
+						break;
+					}
+				}
+				if (empty($newCategory)) {
+					foreach ($catBinds as $catBind) {
+						if ($catBind['CategoryRacer']['category_code'] === 'CM3') {
+							$newCategory = 'CM1';
+							$oldCat = 'CM3';
+							break;
+						}
+					}
+				}
+			} else if ($rank === 2 || $rank === 3) {
+				// CM2 なら処理なし
+				foreach ($catBinds as $catBind) {
+					if ($catBind['CategoryRacer']['category_code'] === 'CM2') {
+						return Constant::RET_NO_ACTION;
+					}
+				}
+				// カテゴリー所持の確認
+				foreach ($catBinds as $catBind) {
+					if ($catBind['CategoryRacer']['category_code'] === 'CM3') {
+						$newCategory = 'CM2';
+						$oldCat = 'CM3';
+						break;
+					}
+				}
+			}
+			
+			if (empty($newCategory)) return Constant::RET_NO_ACTION;
+			// TODO: 警告必要？
+			
+			$applyDate = date('Y/m/d', strtotime($meet['at_date'] . ' +1 day'));
+			
+			// 同じ大会で同じ昇格をしているデータがあるなら、リザルトは除去されていると推測されるので、削除する。
+			$conditions = array(
+				'racer_code' => $racerCode,
+				'meet_code' => $meet['code'],
+				'category_code' => $newCategory,
+				'apply_date' => $applyDate,
+				'reason_id' => CategoryReason::$RESULT_UP->ID(),
+			);
+			$this->CategoryRacer->deleteAll($conditions);
+			
+			foreach ($catBinds as $catBind) {
+				if ($catBind['CategoryRacer']['category_code'] === $oldCat) {
+					$catBind['CategoryRacer']['cancel_date'] = $meet['at_date'];
+					$this->CategoryRacer->create();
+					if (!$this->CategoryRacer->save($catBind)) {
+						$this->log('CategoryRacer の cancel_date 設定->保存に失敗', LOG_ERR);
+					}
+					// not break: 全部キャンセルする
+				}
+			}
+			
+			$this->log('will create', LOG_DEBUG);
+			
+			$cr = array();
+			$cr['CategoryRacer'] = array();
+			$cr['CategoryRacer']['racer_code'] = $racerCode;
+			$cr['CategoryRacer']['category_code'] = $newCategory;
+			$cr['CategoryRacer']['apply_date'] = $applyDate;
+			$cr['CategoryRacer']['reason_id'] = CategoryReason::$RESULT_UP->ID();
+			$cr['CategoryRacer']['reason_note'] = "";
+			$cr['CategoryRacer']['racer_result_id'] = $racerResultId;
+			$cr['CategoryRacer']['meet_code'] = $meet['code'];
+			$cr['CategoryRacer']['cancel_date'] = null;
+
+			$this->CategoryRacer->create();
+			if (!$this->CategoryRacer->save($cr)) {
+				$this->log('昇格の選手カテゴリー Bind の保存に失敗しました。', LOG_ERR);
+				return Constant::RET_FAILED;
+			}
+
+			$this->log('(with rank-up) will give give hold point to:' . $newCategory, LOG_DEBUG);
+			$hp = array();
+			$hp['HoldPoint'] = array();
+			$hp['HoldPoint']['racer_result_id'] = $racerResultId;
+			$hp['HoldPoint']['point'] = 3;
+			$hp['HoldPoint']['category_code'] = $newCategory;
+
+			$this->HoldPoint->create();
+			if (!$this->HoldPoint->save($hp)) {
+				$this->log('新カテゴリーに対する残留ポイントの保存に失敗しました。', LOG_ERR);
+				return Constant::RET_FAILED;
+			}
+
+			return Constant::RET_SUCCEED;
+		}
 		
 		// 出走人数と昇格のルール
 		$rule0123 = array(
@@ -597,14 +713,12 @@ class ApiController extends ApiBaseController
 			'CM2' => array('needs' => array('CM2'), 'to' => 'CM1', 'rule' => $rule0112),
 			'CM3' => array('needs' => array('CM3'), 'to' => 'CM2', 'rule' => $rule0123),
 			'CM2+3' => array('needs' => array('CM2', 'CM3'), 'to' => 'CM1', 'rule' => $rule0112),
-			// TODO: 勝利したら CM1 表彰台で CM2 だっけ？
-			//'CM1+2+3' => array('needs' => array('CM1', 'CM2', 'CM3'), 'to' => 'CM1'),
 		);
 
 		if (empty($map[$rcatCode])) {
 			return Constant::RET_NO_ACTION;
 		}
-
+	
 		// 人数と順位についてチェック
 		$rankUpCount = 0;
 		for ($i = 0; $i < count($map[$rcatCode]['rule']); $i++) {
@@ -649,6 +763,7 @@ class ApiController extends ApiBaseController
 			'reason_id' => CategoryReason::$RESULT_UP->ID(),
 		);
 		$this->CategoryRacer->deleteAll($conditions);
+		// TODO: Soft or hard delete?
 
 		// 昇格前カテゴリーは cancel_date を設定
 		foreach ($catBinds as $catBind) {
