@@ -39,6 +39,9 @@ class CategoryRacersController extends ApiBaseController
  * @return void
  */
 	public function view($id = null) {
+		// deleted を閲覧可能とする。api での削除メソッド
+		$this->CategoryRacer->Behaviors->unload('Utils.SoftDelete');
+		
 		if (!$this->CategoryRacer->exists($id)) {
 			throw new NotFoundException(__('Invalid category racer'));
 		}

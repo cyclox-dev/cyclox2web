@@ -58,6 +58,7 @@ class ApiController extends ApiBaseController
 	public function updated_category_racer_ids($date = null)
 	{
 		if ($date) {
+			$this->CategoryRacer->Behaviors->unload('Utils.SoftDelete');
 			$dt = $this->__getFindSqlDate($date);
 			
 			if ($dt) {
