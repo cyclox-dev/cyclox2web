@@ -68,13 +68,6 @@ class AppController extends Controller {
 		$this->set('auth', $this->Auth->user());
 		$this->log('here is ' . $this->request->here());
 		
-		$this->Auth->actionPath = 'controllers/';
-        $this->Auth->authorize = 'actions';
-		
-		$this->Auth->loginAction = array('controller' => 'users', 'action' => 'login');
-        $this->Auth->logoutRedirect = array('controller' => 'users', 'action' => 'login');
-		$this->Auth->loginRedirect = '/';
-		
 		//$this->Auth->allow();
 		
 		// $components['Auth'] に設定すると API 通信時に html が飛んでしまうことがあるため、
@@ -92,6 +85,14 @@ class AppController extends Controller {
 				)
 			);//*/
 		} else {
+			// API 処理でフィルタされないように。
+			$this->Auth->actionPath = 'controllers/';
+			$this->Auth->authorize = 'actions';
+
+			$this->Auth->loginAction = array('controller' => 'users', 'action' => 'login');
+			$this->Auth->logoutRedirect = array('controller' => 'users', 'action' => 'login');
+			$this->Auth->loginRedirect = '/';
+
 			$this->Auth->authenticate = array(
 				'Form' => array(
 					'passwordHasher' => 'Blowfish',
