@@ -106,6 +106,7 @@ CakeLog::config('debug', array(
 	'engine' => 'File',
 	'types' => array('notice', 'info', 'debug'),
 	'file' => 'debug',
+	'size' => '3M',
 ));
 CakeLog::config('error', array(
 	'engine' => 'File',
