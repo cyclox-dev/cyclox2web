@@ -29,22 +29,22 @@ class PermissionHelper extends AppHelper
 			return true;
 		}
 
-		$this->log('path', LOG_DEBUG);
-		$this->log($path, LOG_DEBUG);
+		//$this->log('path', LOG_DEBUG);
+		//$this->log($path, LOG_DEBUG);
 		
 		$key = 'Auth.Permissions.' . Inflector::camelize($path['controller']) . '.' . $path['action'];
-		$this->log('key is:' . $key, LOG_DEBUG);
-		$this->log('val is:' . $this->Session->read($key) . ' is_null:' . is_null($this->Session->read($key)), LOG_DEBUG);
+		//$this->log('key is:' . $key, LOG_DEBUG);
+		//$this->log('val is:' . $this->Session->read($key) . ' is_null:' . is_null($this->Session->read($key)), LOG_DEBUG);
 		if ($this->Session->check($key))
 		{
 			$ret = ($this->Session->read($key) === true);
-			$this->log('ret:' . $ret, LOG_DEBUG);
+			//$this->log('ret:' . $ret, LOG_DEBUG);
 			return $ret;
 		}
 
 		$allkey = 'Auth.Permissions.controllers';
 		if ($this->Session->check($allkey) && $this->Session->read($allkey) === true) {
-			$this->log(':all key permissed', LOG_DEBUG);
+			//$this->log(':all key permissed', LOG_DEBUG);
 			return true;
 		}
 
