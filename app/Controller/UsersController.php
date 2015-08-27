@@ -7,14 +7,15 @@ App::uses('AppController', 'Controller');
  * @property PaginatorComponent $Paginator
  * @property SessionComponent $Session
  */
-class UsersController extends AppController {
+class UsersController extends AppController
+{
 
 /**
  * Components
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session');
+	public $components = array('Paginator', 'Session', 'Auth', 'Permission');
 
 	public function beforeFilter()
 	{
@@ -67,6 +68,9 @@ class UsersController extends AppController {
 				$this->Session->setFlash(__('The user could not be saved. Please, try again.'));
 			}
 		}
+		
+		$groups = $this->User->Group->find('list');
+		$this->set(compact('groups'));
 	}
 
 /**
@@ -92,6 +96,9 @@ class UsersController extends AppController {
 			$this->request->data = $this->User->find('first', $options);
 			$this->request->data['User']['password'] = null;
 		}
+		
+		$groups = $this->User->Group->find('list');
+		$this->set(compact('groups'));
 	}
 
 /**
@@ -188,7 +195,8 @@ class UsersController extends AppController {
  * @param string $id
  * @return void
  */
-	public function admin_delete($id = null) {
+	public function admin_delete($id = null)
+	{
 		$this->User->id = $id;
 		if (!$this->User->exists()) {
 			throw new NotFoundException(__('Invalid user'));
@@ -203,6 +211,19 @@ class UsersController extends AppController {
 	}
 	
 	public function login()
+	{
+		if ($this->request->is('post')) {
+			if ($this->Auth->login()) {
+				$this->Permission->init();
+				$this->redirect($this->Auth->redirect());
+			} else {
+				$this->Session->setFlash(__('Invalid username or password, try again'));
+			}
+		}
+	}
+	
+	// TODO: 未使用？
+	public function admin_login()
 	{
 		if ($this->request->is('post')) {
 			if ($this->Auth->login()) {

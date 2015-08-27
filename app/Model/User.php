@@ -17,8 +17,25 @@ class User extends AppModel
  */
 	public $displayField = 'username';
 	
-    public $actsAs = array('Utils.SoftDelete');
+	public $name = 'User';
 	
+    public $actsAs = array('Utils.SoftDelete', 'Acl' => 'requester');
+	
+	function parentNode()
+	{
+        if (!$this->id && empty($this->data)) {
+            return null;
+        }
+        $data = $this->data;
+        if (empty($this->data)) {
+            $data = $this->read();
+        }
+        if (!$data['User']['group_id']) {
+            return null;
+        } else {
+            return array('Group' => array('id' => $data['User']['group_id']));
+        }
+    }
 /**
  * Validation rules
  *
@@ -50,6 +67,21 @@ class User extends AppModel
 				'message' => 'そのメールアドレスはすでに使用されています。'
 			)
 		),
+	);
+
+/**
+ * belongsTo associations
+ *
+ * @var array
+ */
+	public $belongsTo = array(
+		'Group' => array(
+			'className' => 'Group',
+			'foreignKey' => 'group_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		)
 	);
 	
 	public function beforeSave($options = array())

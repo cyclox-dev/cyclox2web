@@ -36,8 +36,9 @@ class AppController extends Controller {
 		'DebugKit.Toolbar',
 		'PageTitle',
 		'Session',
+		'Acl',
 		'Auth' => array(
-			'authorize' => array('Controller'),
+			'authorize' => array('Actions' => array('actionPath' => 'controllers'), 'Controller')
 		),
 		'Maintenance.Maintenance' => array(
 			'maintenanceUrl' => array(
@@ -55,11 +56,26 @@ class AppController extends Controller {
         'Form' => array('className' => 'BoostCake.BoostCakeForm'),
         'Paginator' => array('className' => 'BoostCake.BoostCakePaginator'),
     );//*/
+
+	public $helpers = array(
+        'Session',
+        'Html' => array('className' => 'PermHtml'),
+        'Form' => array('className' => 'PermForm'),
+    );//*/
 	
 	function beforeFilter()
 	{
 		$this->set('auth', $this->Auth->user());
 		$this->log('here is ' . $this->request->here());
+		
+		$this->Auth->actionPath = 'controllers/';
+        $this->Auth->authorize = 'actions';
+		
+		$this->Auth->loginAction = array('controller' => 'users', 'action' => 'login');
+        $this->Auth->logoutRedirect = array('controller' => 'users', 'action' => 'login');
+		$this->Auth->loginRedirect = '/';
+		
+		//$this->Auth->allow();
 		
 		// $components['Auth'] に設定すると API 通信時に html が飛んでしまうことがあるため、
 		// URL から判定して認証設定を決める。
