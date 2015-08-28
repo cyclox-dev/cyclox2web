@@ -98,44 +98,72 @@
 	</ul>
 </div>
 <div class="related">
-	<h3><?php echo __('関連する出走グループ'); ?></h3>
-	<?php if (!empty($meet['EntryGroup'])): ?>
-	<table cellpadding = "0" cellspacing = "0">
-	<tr>
-		<th><?php echo __('Id'); ?></th>
-		<th><?php echo __('Meet Code'); ?></th>
-		<th><?php echo __('Name'); ?></th>
-		<th><?php echo __('Start Clock'); ?></th>
-		<th><?php echo __('Start Frac Distance'); ?></th>
-		<th><?php echo __('Lap Distance'); ?></th>
-		<th><?php echo __('Skip Lap Count'); ?></th>
-		<th><?php echo __('Created'); ?></th>
-		<th><?php echo __('Modified'); ?></th>
-		<th class="actions"><?php echo __('Actions'); ?></th>
-	</tr>
-	<?php foreach ($meet['EntryGroup'] as $entryGroup): ?>
-		<tr>
-			<td><?php echo $entryGroup['id']; ?></td>
-			<td><?php echo $entryGroup['meet_code']; ?></td>
-			<td><?php echo $entryGroup['name']; ?></td>
-			<td><?php echo $entryGroup['start_clock']; ?></td>
-			<td><?php echo $entryGroup['start_frac_distance']; ?></td>
-			<td><?php echo $entryGroup['lap_distance']; ?></td>
-			<td><?php echo $entryGroup['skip_lap_count']; ?></td>
-			<td><?php echo $entryGroup['created']; ?></td>
-			<td><?php echo $entryGroup['modified']; ?></td>
-			<td class="actions">
-				<?php echo $this->Html->link(__('View'), array('controller' => 'entry_groups', 'action' => 'view', $entryGroup['id'])); ?>
-				<?php echo $this->Html->link(__('Edit'), array('controller' => 'entry_groups', 'action' => 'edit', $entryGroup['id'])); ?>
-				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'entry_groups', 'action' => 'delete', $entryGroup['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryGroup['id'])); ?>
-			</td>
-		</tr>
-	<?php endforeach; ?>
-	</table>
-<?php endif; ?>
+	<h3><?php echo __('出走カテゴリー'); ?></h3>
+	<?php if (!empty($meet['EntryCategory'])): ?>
+		<?php App::uses('LapOutRule', 'Cyclox/Const'); ?>
+		<table cellpadding = "0" cellspacing = "0">
+			<tr>
+				<th><?php echo __('出走カテゴリー名'); ?></th>
+				<th><?php echo __('レースカテゴリー'); ?></th>
+				<th><?php echo __('スタート計測遅延(sec)'); ?></th>
+				<th><?php echo __('ラップアウト処理'); ?></th>
+				<th><?php echo __('出走グループ'); ?></th>
+				<th><?php echo __('Modified'); ?></th>
+				<th class="actions"><?php echo __('Actions'); ?></th>
+			</tr>
+		<?php foreach ($meet['EntryCategory'] as $entryCategory): ?>
+			<tr>
+				<td><?php echo $entryCategory['name']; ?></td>
+				<td><?php echo $entryCategory['races_category_code']; ?></td>
+				<td><?php echo $entryCategory['start_delay_sec']; ?></td>
+				<td><?php echo LapOutRule::ofVal($entryCategory['lapout_rule'])->expressJp(); ?></td>
+				<td><?php echo $entryCategory['entry_group_id']; ?></td>
+				<td><?php echo $entryCategory['modified']; ?></td>
+				<td class="actions">
+					<?php echo $this->Html->link(__('View'), array('controller' => 'entry_categories', 'action' => 'view', $entryCategory['id'])); ?>
+					<?php echo $this->Html->link(__('Edit'), array('controller' => 'entry_categories', 'action' => 'edit', $entryCategory['id'])); ?>
+					<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'entry_categories', 'action' => 'delete', $entryCategory['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryCategory['id'])); ?>
+				</td>
+			</tr>
+		<?php endforeach; ?>
+		</table>
+	<?php endif; ?>
 </div>
 <div class="related">
-	<h3><?php echo __('昇格者データ'); ?></h3>
+	<h3><?php echo __('出走グループ'); ?></h3>
+	<?php if (!empty($meet['EntryGroup'])): ?>
+		<table cellpadding = "0" cellspacing = "0">
+			<tr>
+				<th><?php echo __('Id'); ?></th>
+				<th><?php echo __('Name'); ?></th>
+				<th><?php echo __('Start Clock'); ?></th>
+				<th><?php echo __('Start Frac Distance'); ?></th>
+				<th><?php echo __('Lap Distance'); ?></th>
+				<th><?php echo __('計測Skip回数'); ?></th>
+				<th><?php echo __('Modified'); ?></th>
+				<th class="actions"><?php echo __('Actions'); ?></th>
+			</tr>
+		<?php foreach ($meet['EntryGroup'] as $entryGroup): ?>
+			<tr>
+				<td><?php echo $entryGroup['id']; ?></td>
+				<td><?php echo $entryGroup['name']; ?></td>
+				<td><?php echo $entryGroup['start_clock']; ?></td>
+				<td><?php echo $entryGroup['start_frac_distance']; ?></td>
+				<td><?php echo $entryGroup['lap_distance']; ?></td>
+				<td><?php echo $entryGroup['skip_lap_count']; ?></td>
+				<td><?php echo $entryGroup['modified']; ?></td>
+				<td class="actions">
+					<?php echo $this->Html->link(__('View'), array('controller' => 'entry_groups', 'action' => 'view', $entryGroup['id'])); ?>
+					<?php echo $this->Html->link(__('Edit'), array('controller' => 'entry_groups', 'action' => 'edit', $entryGroup['id'])); ?>
+					<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'entry_groups', 'action' => 'delete', $entryGroup['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryGroup['id'])); ?>
+				</td>
+			</tr>
+		<?php endforeach; ?>
+		</table>
+	<?php endif; ?>
+</div>
+<div class="related">
+	<h3><?php echo __('カテゴリー適用'); ?></h3>
 	<?php if (!empty($results)): ?>
 	<table cellpadding = "0" cellspacing = "0">
 	<tr>

@@ -13,7 +13,7 @@ App::uses('CategoryReason', 'Cyclox/Const');
  */
 class MeetsController extends ApiBaseController
 {
-	public $uses = array('Meet', 'CategoryRacer');
+	public $uses = array('Meet', 'CategoryRacer', 'EntryCategory');
 
 /**
  * Components
@@ -53,9 +53,24 @@ class MeetsController extends ApiBaseController
 		}
 		
 		$meet = $this->Meet->find('first', $options);
+		$this->log($meet, LOG_DEBUG);
 		if ($isApiCall) {
 			$this->success($meet);
 		} else {
+			$entryCategoryList = array();
+			// 出走カテゴリーも取得
+			foreach ($meet['EntryGroup'] as $eg) {
+				$egID = $eg['id'];
+				$conditions = array('entry_group_id' => $egID);
+				$ecats = $this->EntryCategory->find('all', array('conditions' => $conditions, 'recursive' => -1));
+				foreach ($ecats as $ecat) {
+					$entryCategoryList[] = $ecat['EntryCategory'];
+				}
+			}
+			$this->log('$entryCategoryList is', LOG_DEBUG);
+			$this->log($entryCategoryList, LOG_DEBUG);
+			
+			$meet['EntryCategory'] = $entryCategoryList;
 			$this->set('meet', $meet);
 			
 			// 昇格者データを取得

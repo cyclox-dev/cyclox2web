@@ -41,6 +41,21 @@ class LapOutRule
 		$this->expressJp = $e;
 	}
 	
+	/**
+	 * 指定値の Rule をかえす
+	 * @param int $value val 値
+	 * @return LapOutRule ルール。該当するものがない場合、NONE をかえす。
+	 */
+	public static function ofVal($value)
+	{
+		foreach (self::$rules as $r) {
+			if ($r->val() == $value) {
+				return $r;
+			}
+		}
+		return self::$NONE;
+	}
+	
 	/** @return int DB 値 */
 	public function val() { return $this->val; }
     /** @return string 名称 */
