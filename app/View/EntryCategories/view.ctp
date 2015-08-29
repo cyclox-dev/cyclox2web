@@ -1,7 +1,7 @@
 <div class="entryCategories view">
 <h2><?php echo __('Entry Category'); ?></h2>
 	<dl>
-		<dt><?php echo __('Id'); ?></dt>
+		<dt><?php echo __('ID'); ?></dt>
 		<dd>
 			<?php echo h($entryCategory['EntryCategory']['id']); ?>
 			&nbsp;
@@ -11,44 +11,71 @@
 			<?php echo $this->Html->link($entryCategory['EntryGroup']['name'], array('controller' => 'entry_groups', 'action' => 'view', $entryCategory['EntryGroup']['id'])); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Races Category'); ?></dt>
+		<dt><?php echo __('レースカテゴリー'); ?></dt>
 		<dd>
 			<?php echo $this->Html->link($entryCategory['RacesCategory']['name'], array('controller' => 'races_categories', 'action' => 'view', $entryCategory['RacesCategory']['code'])); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Name'); ?></dt>
+		<dt><?php echo __('出走カテゴリー名'); ?></dt>
 		<dd>
 			<?php echo h($entryCategory['EntryCategory']['name']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Start Delay Sec'); ?></dt>
+		<dt><?php echo __('計測遅延(sec)'); ?></dt>
 		<dd>
 			<?php echo h($entryCategory['EntryCategory']['start_delay_sec']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Lapout Rule'); ?></dt>
+		<dt><?php echo __('ラップアウト処理'); ?></dt>
 		<dd>
-			<?php echo h($entryCategory['EntryCategory']['lapout_rule']); ?>
+			<?php 
+				App::uses('LapOutRule', 'Cyclox/Const');
+				echo LapOutRule::ofVal($entryCategory['EntryCategory']['lapout_rule'])->expressJp();
+			?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('残留ポイント適用有無'); ?></dt>
+		<dt><?php echo __('残留ポイント'); ?></dt>
 		<dd>
-			<?php echo h($entryCategory['EntryCategory']['applies_hold_pt']); ?>
+			<?php echo ($entryCategory['EntryCategory']['applies_hold_pt'] ? '付与する' : '付与しない'); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('昇格適用有無'); ?></dt>
+		<dt><?php echo __('リザルトによる昇格'); ?></dt>
 		<dd>
-			<?php echo h($entryCategory['EntryCategory']['applies_rank_up']); ?>
+			<?php echo ($entryCategory['EntryCategory']['applies_rank_up'] ? 'あり' : '無し'); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('AJOCC ポイント適用有無'); ?></dt>
+		<dt><?php echo __('AJOCC ポイント'); ?></dt>
 		<dd>
-			<?php echo h($entryCategory['EntryCategory']['applies_ajocc_pt']); ?>
+			<?php echo ($entryCategory['EntryCategory']['applies_ajocc_pt'] ? '付与する' : '付与しない'); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('Note'); ?></dt>
 		<dd>
 			<?php echo h($entryCategory['EntryCategory']['note']); ?>
+			&nbsp;
+		</dd>
+	</dl>
+<p style="height: 1em"></p>
+<h3>Status</h3>
+	<dl>
+		<dt><?php echo __('Created'); ?></dt>
+		<dd>
+			<?php echo h($entryCategory['EntryCategory']['created']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Modified'); ?></dt>
+		<dd>
+			<?php echo h($entryCategory['EntryCategory']['modified']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Deleted'); ?></dt>
+		<dd>
+			<?php echo h(($entryCategory['EntryCategory']['deleted'] ? "Yes" : "No")); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Deleted Date'); ?></dt>
+		<dd>
+			<?php echo h($entryCategory['EntryCategory']['deleted_date']); ?>
 			&nbsp;
 		</dd>
 	</dl>
@@ -69,43 +96,100 @@
 	</ul>
 </div>
 <div class="related">
-	<h3><?php echo __('Related Entry Racers'); ?></h3>
+	<h3><?php echo __('出走選手一覧'); ?></h3>
 	<?php if (!empty($entryCategory['EntryRacer'])): ?>
-	<table cellpadding = "0" cellspacing = "0">
-	<tr>
-		<th><?php echo __('Id'); ?></th>
-		<th><?php echo __('Entry Category Id'); ?></th>
-		<th><?php echo __('Racer Code'); ?></th>
-		<th><?php echo __('Body Number'); ?></th>
-		<th><?php echo __('Name At Race'); ?></th>
-		<th><?php echo __('Entry Status'); ?></th>
-		<th><?php echo __('Team Name'); ?></th>
-		<th><?php echo __('Note'); ?></th>
-		<th class="actions"><?php echo __('Actions'); ?></th>
-	</tr>
-	<?php foreach ($entryCategory['EntryRacer'] as $entryRacer): ?>
-		<tr>
-			<td><?php echo $entryRacer['id']; ?></td>
-			<td><?php echo $entryRacer['entry_category_id']; ?></td>
-			<td><?php echo $entryRacer['racer_code']; ?></td>
-			<td><?php echo $entryRacer['body_number']; ?></td>
-			<td><?php echo $entryRacer['name_at_race']; ?></td>
-			<td><?php echo $entryRacer['entry_status']; ?></td>
-			<td><?php echo $entryRacer['team_name']; ?></td>
-			<td><?php echo $entryRacer['note']; ?></td>
-			<td class="actions">
-				<?php echo $this->Html->link(__('View'), array('controller' => 'entry_racers', 'action' => 'view', $entryRacer['id'])); ?>
-				<?php echo $this->Html->link(__('Edit'), array('controller' => 'entry_racers', 'action' => 'edit', $entryRacer['id'])); ?>
-				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'entry_racers', 'action' => 'delete', $entryRacer['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryRacer['id'])); ?>
-			</td>
-		</tr>
-	<?php endforeach; ?>
-	</table>
-<?php endif; ?>
-
-	<div class="actions">
-		<ul>
-			<li><?php echo $this->Html->link(__('New Entry Racer'), array('controller' => 'entry_racers', 'action' => 'add')); ?> </li>
-		</ul>
-	</div>
+		<?php App::uses('RacerEntryStatus', 'Cyclox/Const'); ?>
+		<?php App::uses('RacerResultStatus', 'Cyclox/Const'); ?>
+		<table cellpadding = "0" cellspacing = "0">
+			<tr>
+				<!-- <th><?php echo __('ID'); ?></th> -->
+				<th><?php echo __('BodyNo.'); ?></th>
+				<th><?php echo __('選手 Code'); ?></th>
+				<th><?php echo __('出走選手名'); ?></th>
+				<th><?php echo __('カナ名'); ?></th>
+				<th><?php echo __('Name'); ?></th>
+				<th><?php echo __('出走 Status'); ?></th>
+				<th><?php echo __('チーム名'); ?></th>
+				<th><?php echo __('Note'); ?></th>
+			</tr>
+			<?php foreach ($entryCategory['EntryRacer'] as $entryRacer): ?>
+				<tr>
+					<!-- <td><?php echo $entryRacer['EntryRacer']['id']; ?></td> -->
+					<td><?php echo $entryRacer['EntryRacer']['body_number']; ?></td>
+					<td><?php echo $this->Html->link($entryRacer['EntryRacer']['racer_code'], array('controller' => 'racers', 'action' => 'view', $entryRacer['EntryRacer']['racer_code'])); ?></td>
+					<td><?php echo $entryRacer['EntryRacer']['name_at_race']; ?></td>
+					<td><?php echo $entryRacer['EntryRacer']['name_kana_at_race']; ?></td>
+					<td><?php echo $entryRacer['EntryRacer']['name_en_at_race']; ?></td>
+					<td><?php echo RacerEntryStatus::ofVal($entryRacer['EntryRacer']['entry_status'])->msg(); ?></td>
+					<td><?php echo $entryRacer['EntryRacer']['team_name']; ?></td>
+					<td><?php echo $entryRacer['EntryRacer']['note']; ?></td>
+					<td class="actions">
+						<?php echo $this->Html->link('詳細', array('controller' => 'entry_racers', 'action' => 'view', $entryRacer['EntryRacer']['id'])); ?>
+						<?php /*echo $this->Html->link(__('Edit'), array('controller' => 'entry_racers', 'action' => 'edit', $entryRacer['EntryRacer']['id']));//*/ ?>
+						<?php /*echo $this->Form->postLink(__('Delete'), array('controller' => 'entry_racers', 'action' => 'delete', $entryRacer['EntryRacer']['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryRacer['EntryRacer']['id']));//*/ ?>
+					</td>
+				</tr>
+			<?php endforeach; ?>
+		</table>
+	<?php endif; ?>
+</div>
+<div class="related">
+	<?php if (!empty($results)): ?>
+	<h3><?php echo __('リザルト'); ?></h3>
+		<?php App::uses('Util', 'Cyclox/Util'); ?>
+		<?php App::uses('RacerEntryStatus', 'Cyclox/Const'); ?>
+		<table cellpadding = "0" cellspacing = "0">
+			<tr>
+				<!-- <th><?php echo __('ID'); ?></th> -->
+				<th><?php echo __('順位'); ?></th>
+				<th><?php echo __('Status'); ?></th>
+				<th><?php echo __('BodyNo.'); ?></th>
+				<th><?php echo __('選手 Code'); ?></th>
+				<th><?php echo __('出走選手名'); ?></th>
+				<th><?php echo __('周回数'); ?></th>
+				<th><?php echo __('ゴールTime'); ?></th>
+				<th><?php echo __('順位%'); ?></th>
+				<th><?php echo __('走行%'); ?></th>
+				<th><?php echo __('AjoccPt'); ?></th>
+				<?php if ($holdPointCount > 0): ?>
+					<th><?php echo __('残留Pt'); ?></th>
+				<?php endif; ?>
+				<!-- <th class="actions"><?php echo __('Actions'); ?></th> -->
+			</tr>
+			<?php foreach ($results as $result): ?>
+				<tr>
+					<!-- <td><?php echo $result['RacerResult']['id']; ?></td> -->
+					<td><?php echo $result['RacerResult']['rank']; ?></td>
+					<td><?php echo RacerResultStatus::ofVal($result['RacerResult']['status'])->code(); ?></td>
+					<td><?php echo $result['EntryRacer']['body_number']; ?></td>
+					<td><?php echo $this->Html->link($result['EntryRacer']['racer_code'], array('controller' => 'racers', 'action' => 'view', $result['EntryRacer']['racer_code'])); ?></td>
+					<td><?php echo $result['EntryRacer']['name_at_race']; ?></td>
+					<td><?php echo $result['RacerResult']['lap']; ?></td>
+					<td><?php echo Util::milli2Time($result['RacerResult']['goal_milli_sec']); ?></td>
+					<td><?php echo (empty($result['RacerResult']['run_per']) ? 0 : $result['RacerResult']['run_per']) . '%'; ?></td>
+					<td><?php echo (empty($result['RacerResult']['rank_per']) ? '--' : $result['RacerResult']['rank_per']) . '%'; ?></td>
+					<td><?php echo (empty($result['RacerResult']['ajocc_pt']) ? '' : $result['RacerResult']['ajocc_pt'] . 'pt'); ?></td>
+					<?php if ($holdPointCount > 0): ?>
+						<td><?php 
+							$str = '';
+							foreach ($result['RacerResult']['HoldPoint'] as $hpt) {
+								if (!empty($hpt['point'])) {
+									if (!empty($str)) {
+										$str .= ', ';
+									}
+									$str .= $hpt['point'] . 'pt/' . $hpt['category_code'];
+								}
+							}
+							echo $str;
+						?></td>
+					<?php endif; ?>
+				<td class="actions">
+						<?php echo $this->Html->link('詳細', array('controller' => 'racer_results', 'action' => 'view', $result['RacerResult']['id'])); ?>
+						<?php /*echo $this->Html->link(__('Edit'), array('controller' => 'racer_results', 'action' => 'edit', $result['RacerResult']['id']));//*/ ?>
+						<?php /*echo $this->Form->postLink(__('Delete'), array('controller' => 'racer_results', 'action' => 'delete', $result['RacerResult']['id']), array(), __('[%s] のデータを削除してよろしいですか？', $result['RacerResult']['id']));//*/ ?>
+					</td>
+				</tr>
+			<?php endforeach; ?>
+		</table>
+	<?php endif; ?>
 </div>

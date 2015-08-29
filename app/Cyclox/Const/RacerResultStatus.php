@@ -45,7 +45,7 @@ class RacerResultStatus
 	private $val;
 	private $msg;
 	private $code;
-	private $lank;
+	private $rank;
 	private $isLankedStatus;
 	
 	private function __construct($v, $m, $c, $l, $is)
@@ -53,8 +53,22 @@ class RacerResultStatus
 		$this->val = $v;
 		$this->msg = $m;
 		$this->code = $c;
-		$this->lank = $l;
+		$this->rank = $l;
 		$this->isLankedStatus = $is;
+	}
+	
+	/**
+	 * 指定値の RacerResultStatus インスタンスを取得する
+	 * @param int $value 整数値
+	 * @return RacerResultStatus RacerResultStatus インスタンス。該当するものがない場合、DNS をかえす。
+	 */
+	public static function ofVal($value) {
+		foreach (self::$statuses as $status) {
+			if ($status->val() == $value) {
+				return $status;
+			}
+		}
+		 return self::$DNS;
 	}
 	
 	/** @return int DB 値 */                                                                           
@@ -64,7 +78,7 @@ class RacerResultStatus
     /** @return string コード */
     public function code() { return $this->code; }
     /** @return int ステータス自体の順位 */
-    public function lank() { return $this->lank; }
+    public function rank() { return $this->rank; }
     /** @return boolean 順位適用となるステータスであるか */
     public function isLankedStatus() { return $this->isLankedStatus; }
 }

@@ -9,8 +9,10 @@ App::uses('ApiBaseController', 'Controller');
  * @property PaginatorComponent $Paginator
  * @property SessionComponent $Session
  */
-class EntryCategoriesController extends ApiBaseController {
-
+class EntryCategoriesController extends ApiBaseController
+{
+	public $uses = array('EntryCategory', 'EntryRacer');
+	
 /**
  * Components
  *
@@ -35,12 +37,52 @@ class EntryCategoriesController extends ApiBaseController {
  * @param string $id
  * @return void
  */
-	public function view($id = null) {
+	public function view($id = null)
+	{
 		if (!$this->EntryCategory->exists($id)) {
 			throw new NotFoundException(__('Invalid entry category'));
 		}
-		$options = array('conditions' => array('EntryCategory.' . $this->EntryCategory->primaryKey => $id));
-		$this->set('entryCategory', $this->EntryCategory->find('first', $options));
+		$options = array(
+			'conditions' => array('EntryCategory.' . $this->EntryCategory->primaryKey => $id),
+			'recursive' => 0,
+		);
+		$ecat = $this->EntryCategory->find('first', $options);
+		
+		$this->EntryRacer->Behaviors->load('Containable');
+		
+		$opt = array();
+		$opt['contain'] = array('RacerResult' => array('HoldPoint'));
+		$opt['conditions'] = array(
+			'entry_category_id' => $ecat['EntryCategory']['id']
+		);
+		$opt['order'] = array('body_number * 1' => 'asc'); // "* 1" -> 整数でオーダー
+		$eracers = $this->EntryRacer->find('all', $opt);
+		//$this->log('racers:', LOG_DEBUG);
+		//$this->log($eracers, LOG_DEBUG);
+		
+		$ecat['EntryRacer'] = $eracers;
+		$this->set('entryCategory', $ecat);
+		
+		// リザルトの entry_category_id の有効な数を数える（NULL だったらリザルト無しだから）
+		$results = array();
+		$holdPointCount = 0;
+		foreach ($eracers as $er) {
+			// リザルトのあるものだけを格納
+			if (isset($er['RacerResult']['id'])) {
+				$results[] = $er;
+				if (!empty($er['RacerResult']['HoldPoint'])) {
+					++$holdPointCount;
+				}
+			}
+		}
+		//$this->log('results:', LOG_DEBUG);
+		//$this->log($results, LOG_DEBUG);
+		
+		if (!empty($results)) {
+			$results = Set::sort($results, '{n}.RacerResult.order_index', 'asc');
+			$this->set('results', $results);
+			$this->set('holdPointCount', $holdPointCount);
+		}
 	}
 
 /**

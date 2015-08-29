@@ -57,4 +57,32 @@ class Util
 			return true;
 		}
 	}
+	
+	/**
+	 * ミリ秒を時間フォーマットしたもの（H:m:s.SSS など）をかえす。
+	 * @param int $milliSec ミリ秒
+	 * @param bool $fillsAllHms 1時間にみたない場合でも H:m;s まですべて埋めるか。
+	 */
+	public static function milli2Time($milliSec, $fillsAllHms = false)
+	{
+		$milli = $milliSec % 1000;
+		$sec = floor($milliSec / 1000);
+		
+		if (!$fillsAllHms) {
+			if ($sec < 60) {
+				return $sec . '.' . $milli;
+			} else if ($sec < 3600) {
+				$secInMin = $sec % 60;
+				$min = floor($sec / 60);
+				return $min . ':' . sprintf('%02d', $secInMin) . '.' . $milli;
+			}
+		}
+		
+		$secInMin = $sec % 60;
+		$min = floor($sec / 60);
+		$minInHour = $min % 60;
+		$hour = floor($min / 60);
+		
+		return $hour . ':' . sprintf('%02d', $minInHour) . ':' . sprintf('%02d', $secInMin) . '.' . $milli;
+	}
 }
