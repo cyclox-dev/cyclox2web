@@ -11,7 +11,7 @@ App::uses('ApiBaseController', 'Controller');
  */
 class EntryCategoriesController extends ApiBaseController
 {
-	public $uses = array('EntryCategory', 'EntryRacer');
+	public $uses = array('EntryCategory', 'EntryRacer', 'PointSeries');
 	
 /**
  * Components
@@ -51,7 +51,7 @@ class EntryCategoriesController extends ApiBaseController
 		$this->EntryRacer->Behaviors->load('Containable');
 		
 		$opt = array();
-		$opt['contain'] = array('RacerResult' => array('HoldPoint'));
+		$opt['contain'] = array('RacerResult' => array('HoldPoint', 'PointSeriesRacer'));
 		$opt['conditions'] = array(
 			'entry_category_id' => $ecat['EntryCategory']['id']
 		);
@@ -65,10 +65,43 @@ class EntryCategoriesController extends ApiBaseController
 		
 		// リザルトの entry_category_id の有効な数を数える（NULL だったらリザルト無しだから）
 		$results = array();
+		$psTitles = array(); // [n] => array('id' => id, 'name' => name)
 		$holdPointCount = 0;
 		foreach ($eracers as $er) {
 			// リザルトのあるものだけを格納
 			if (isset($er['RacerResult']['id'])) {
+				
+				// $er に対してシリーズポイント設定
+				if (!empty($er['RacerResult']['PointSeriesRacer'])) {
+					foreach ($er['RacerResult']['PointSeriesRacer'] as $psr) {
+						// point_series_is がタイトルにあるか検索
+						$finds = false;
+						$index = 0;
+						foreach ($psTitles as $title) {
+							if ($psr['point_series_id'] == $title['id']) {
+								$finds = true;
+								break;
+							}
+							++$index;
+						}
+						
+						if (!$finds) {
+							$opt = array('conditions' => array('id' => $psr['point_series_id']), 'recursive' => -1);
+							$series = $this->PointSeries->find('first', $opt);
+							$psTitles[$index] = array('id' => $psr['point_series_id'], 'name' => $series['PointSeries']['short_name']);
+						}
+						
+						if (empty($er['RacerResult']['points'])) {
+							$er['RacerResult']['points'] = array();
+						}
+						$er['RacerResult']['points'][$index] = array(
+							'pt' => $psr['point'],
+							'bonus' => $psr['bonus'],
+						);
+						// TODO: 検証 - ポイントシリーズが複数になった時にきちんと表示されるか。
+					}
+				}
+				
 				$results[] = $er;
 				if (!empty($er['RacerResult']['HoldPoint'])) {
 					++$holdPointCount;
@@ -77,11 +110,13 @@ class EntryCategoriesController extends ApiBaseController
 		}
 		//$this->log('results:', LOG_DEBUG);
 		//$this->log($results, LOG_DEBUG);
+		//$this->log($psTitles, LOG_DEBUG);
 		
 		if (!empty($results)) {
 			$results = Set::sort($results, '{n}.RacerResult.order_index', 'asc');
 			$this->set('results', $results);
 			$this->set('holdPointCount', $holdPointCount);
+			$this->set('psTitles', $psTitles);
 		}
 	}
 

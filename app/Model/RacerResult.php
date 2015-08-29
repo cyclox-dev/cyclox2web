@@ -121,6 +121,19 @@ class RacerResult extends AppModel
 			'exclusive' => '',
 			'finderQuery' => '',
 			'counterQuery' => ''
+		),
+		'PointSeriesRacer' => array(
+			'className' => 'PointSeriesRacer',
+			'foreignKey' => 'racer_result_id',
+			'dependent' => false,
+			'conditions' => '',
+			'fields' => '',
+			'order' => '',
+			'limit' => '',
+			'offset' => '',
+			'exclusive' => '',
+			'finderQuery' => '',
+			'counterQuery' => ''
 		)
 	);
 	

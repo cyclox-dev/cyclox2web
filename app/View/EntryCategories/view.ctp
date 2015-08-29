@@ -102,7 +102,7 @@
 		<?php App::uses('RacerResultStatus', 'Cyclox/Const'); ?>
 		<table cellpadding = "0" cellspacing = "0">
 			<tr>
-				<!-- <th><?php echo __('ID'); ?></th> -->
+				<th><?php echo __('ID'); ?></th>
 				<th><?php echo __('BodyNo.'); ?></th>
 				<th><?php echo __('選手 Code'); ?></th>
 				<th><?php echo __('出走選手名'); ?></th>
@@ -114,7 +114,7 @@
 			</tr>
 			<?php foreach ($entryCategory['EntryRacer'] as $entryRacer): ?>
 				<tr>
-					<!-- <td><?php echo $entryRacer['EntryRacer']['id']; ?></td> -->
+					<td><?php echo $entryRacer['EntryRacer']['id']; ?></td>
 					<td><?php echo $entryRacer['EntryRacer']['body_number']; ?></td>
 					<td><?php echo $this->Html->link($entryRacer['EntryRacer']['racer_code'], array('controller' => 'racers', 'action' => 'view', $entryRacer['EntryRacer']['racer_code'])); ?></td>
 					<td><?php echo $entryRacer['EntryRacer']['name_at_race']; ?></td>
@@ -135,12 +135,13 @@
 </div>
 <div class="related">
 	<?php if (!empty($results)): ?>
+	<p style="height: 1em"></p>
 	<h3><?php echo __('リザルト'); ?></h3>
 		<?php App::uses('Util', 'Cyclox/Util'); ?>
 		<?php App::uses('RacerEntryStatus', 'Cyclox/Const'); ?>
 		<table cellpadding = "0" cellspacing = "0">
 			<tr>
-				<!-- <th><?php echo __('ID'); ?></th> -->
+				<th><?php echo __('ID'); ?></th>
 				<th><?php echo __('順位'); ?></th>
 				<th><?php echo __('Status'); ?></th>
 				<th><?php echo __('BodyNo.'); ?></th>
@@ -150,6 +151,9 @@
 				<th><?php echo __('ゴールTime'); ?></th>
 				<th><?php echo __('順位%'); ?></th>
 				<th><?php echo __('走行%'); ?></th>
+				<?php foreach ($psTitles as $psTitle) :?>
+					<th><?php echo $this->Html->link($psTitle['name'], array('controller' => 'point_series', 'action' => 'view', $psTitle['id'])); ?></th>
+				<?php endforeach; ?>
 				<th><?php echo __('AjoccPt'); ?></th>
 				<?php if ($holdPointCount > 0): ?>
 					<th><?php echo __('残留Pt'); ?></th>
@@ -158,16 +162,31 @@
 			</tr>
 			<?php foreach ($results as $result): ?>
 				<tr>
-					<!-- <td><?php echo $result['RacerResult']['id']; ?></td> -->
+					<td><?php echo $result['RacerResult']['id']; ?></td>
 					<td><?php echo $result['RacerResult']['rank']; ?></td>
 					<td><?php echo RacerResultStatus::ofVal($result['RacerResult']['status'])->code(); ?></td>
 					<td><?php echo $result['EntryRacer']['body_number']; ?></td>
 					<td><?php echo $this->Html->link($result['EntryRacer']['racer_code'], array('controller' => 'racers', 'action' => 'view', $result['EntryRacer']['racer_code'])); ?></td>
 					<td><?php echo $result['EntryRacer']['name_at_race']; ?></td>
 					<td><?php echo $result['RacerResult']['lap']; ?></td>
-					<td><?php echo Util::milli2Time($result['RacerResult']['goal_milli_sec']); ?></td>
-					<td><?php echo (empty($result['RacerResult']['run_per']) ? 0 : $result['RacerResult']['run_per']) . '%'; ?></td>
+					<td><?php 
+						if (empty($result['RacerResult']['goal_milli_sec'])) {
+							echo '---';
+						} else {
+							echo Util::milli2Time($result['RacerResult']['goal_milli_sec']);
+						}
+					?></td>
+					<td><?php echo (1 * $result['RacerResult']['run_per']) . '%'; ?></td>
 					<td><?php echo (empty($result['RacerResult']['rank_per']) ? '--' : $result['RacerResult']['rank_per']) . '%'; ?></td>
+					<?php for ($i = 0; $i < count($psTitles); $i++): ?>
+						<td><?php
+							if (empty($result['RacerResult']['points'][$i])) {
+								echo '';
+							} else {
+								echo (1 * $result['RacerResult']['points'][$i]['pt']) . '+' . (1 * $result['RacerResult']['points'][$i]['bonus']) . 'pt';
+							}
+						?></td>
+					<?php endfor; ?>
 					<td><?php echo (empty($result['RacerResult']['ajocc_pt']) ? '' : $result['RacerResult']['ajocc_pt'] . 'pt'); ?></td>
 					<?php if ($holdPointCount > 0): ?>
 						<td><?php 
