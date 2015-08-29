@@ -110,7 +110,7 @@
 				<th><?php echo __('Name'); ?></th>
 				<th><?php echo __('出走 Status'); ?></th>
 				<th><?php echo __('チーム名'); ?></th>
-				<th><?php echo __('Note'); ?></th>
+				<th class="actions"><?php echo __('Actions'); ?></th>
 			</tr>
 			<?php foreach ($entryCategory['EntryRacer'] as $entryRacer): ?>
 				<tr>
@@ -122,7 +122,6 @@
 					<td><?php echo $entryRacer['EntryRacer']['name_en_at_race']; ?></td>
 					<td><?php echo RacerEntryStatus::ofVal($entryRacer['EntryRacer']['entry_status'])->msg(); ?></td>
 					<td><?php echo $entryRacer['EntryRacer']['team_name']; ?></td>
-					<td><?php echo $entryRacer['EntryRacer']['note']; ?></td>
 					<td class="actions">
 						<?php echo $this->Html->link('詳細', array('controller' => 'entry_racers', 'action' => 'view', $entryRacer['EntryRacer']['id'])); ?>
 						<?php /*echo $this->Html->link(__('Edit'), array('controller' => 'entry_racers', 'action' => 'edit', $entryRacer['EntryRacer']['id']));//*/ ?>
@@ -158,7 +157,7 @@
 				<?php if ($holdPointCount > 0): ?>
 					<th><?php echo __('残留Pt'); ?></th>
 				<?php endif; ?>
-				<!-- <th class="actions"><?php echo __('Actions'); ?></th> -->
+				<th class="actions"><?php echo __('Actions'); ?></th>
 			</tr>
 			<?php foreach ($results as $result): ?>
 				<tr>

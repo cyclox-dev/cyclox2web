@@ -64,8 +64,7 @@ App::uses('CategoryReason', 'Cyclox/Const');
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(__('カテゴリー所属を追加'), array('action' => 'add')); ?></li>
-		<li><?php echo $this->Html->link(__('> カテゴリーリスト'), array('controller' => 'categories', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('> カテゴリー所属リスト'), array('controller' => 'categories', 'action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('> 選手リスト'), array('controller' => 'racers', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('> 選手データを追加'), array('controller' => 'racers', 'action' => 'add')); ?> </li>
 	</ul>
 </div>

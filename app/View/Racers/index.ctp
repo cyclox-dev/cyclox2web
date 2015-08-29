@@ -84,8 +84,8 @@ function nameOrKana($name, $kana)
 		<td><?php echo h($racer['Racer']['deleted']); ?>&nbsp;</td>
 	-->
 		<td class="actions">
-			<?php echo $this->Html->link(__('View'), array('action' => 'view', $racer['Racer']['code'])); ?>
-			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $racer['Racer']['code'])); ?>
+			<?php echo $this->Html->link(__('詳細'), array('action' => 'view', $racer['Racer']['code'])); ?>
+			<?php echo $this->Html->link(__('編集'), array('action' => 'edit', $racer['Racer']['code'])); ?>
 			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $racer['Racer']['code'])
 				, array('confirm' => __('この選手 [code:%s] を削除してよろしいですか？', $racer['Racer']['code']))); ?>
 		</td>
@@ -136,6 +136,6 @@ function nameOrKana($name, $kana)
 	<ul>
 		<li><?php echo $this->Html->link(__('選手データを追加'), array('action' => 'add')); ?></li>
 		<li><?php echo $this->Html->link(__('> カテゴリー所属リスト'), array('controller' => 'category_racers', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('> カテゴリー所属を追加'), array('controller' => 'category_racers', 'action' => 'add')); ?> </li>
+		<!-- <li><?php echo $this->Html->link(__('> カテゴリー所属を追加'), array('controller' => 'category_racers', 'action' => 'add')); ?> </li> -->
 	</ul>
 </div>

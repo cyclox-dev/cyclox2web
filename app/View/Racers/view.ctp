@@ -141,7 +141,6 @@
 		<li><?php echo $this->Form->postLink(__('この選手データを削除'), array('action' => 'delete', $racer['Racer']['code']), array(),
 			__('この選手 [code:%s] を削除してよろしいですか？', $racer['Racer']['code'])); ?> </li>
 		<li><?php echo $this->Html->link(__('> 選手リスト'), array('action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('> 選手データを追加'), array('action' => 'add')); ?> </li>
 	</ul>
 </div>
 <div class="related">

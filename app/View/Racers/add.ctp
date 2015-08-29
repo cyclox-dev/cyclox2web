@@ -66,7 +66,5 @@
 	<ul>
 
 		<li><?php echo $this->Html->link(__('選手リスト'), array('action' => 'index')); ?></li>
-		<li><?php echo $this->Html->link(__('> カテゴリー所属リスト'), array('controller' => 'category_racers', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('> カテゴリー所属を追加'), array('controller' => 'category_racers', 'action' => 'add')); ?> </li>
 	</ul>
 </div>
