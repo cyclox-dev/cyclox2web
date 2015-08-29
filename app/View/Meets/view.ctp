@@ -26,7 +26,7 @@
 			<?php echo h($meet['Meet']['name']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('短縮名'); ?></dt>
+		<dt><?php echo __('Short Name'); ?></dt>
 		<dd>
 			<?php echo h($meet['Meet']['short_name']); ?>
 			&nbsp;
@@ -108,7 +108,7 @@
 				<th><?php echo __('スタート計測遅延(sec)'); ?></th>
 				<th><?php echo __('ラップアウト処理'); ?></th>
 				<th><?php echo __('出走グループ'); ?></th>
-				<th><?php echo __('Modified'); ?></th>
+				<th><?php echo __('更新日時'); ?></th>
 				<th class="actions"><?php echo __('Actions'); ?></th>
 			</tr>
 		<?php foreach ($meet['EntryCategory'] as $entryCategory): ?>
@@ -129,9 +129,10 @@
 		</table>
 	<?php endif; ?>
 </div>
-<div class="related">
-	<h3><?php echo __('出走グループ'); ?></h3>
-	<?php if (!empty($meet['EntryGroup'])): ?>
+<?php if (!empty($meet['EntryGroup'])): ?>
+	<div class="related">
+		<p style="height: 1em"></p>
+		<h3><?php echo __('出走グループ'); ?></h3>
 		<table cellpadding = "0" cellspacing = "0">
 			<tr>
 				<th><?php echo __('Id'); ?></th>
@@ -140,10 +141,10 @@
 				<th><?php echo __('Start Frac Distance'); ?></th>
 				<th><?php echo __('Lap Distance'); ?></th>
 				<th><?php echo __('計測Skip回数'); ?></th>
-				<th><?php echo __('Modified'); ?></th>
+				<th><?php echo __('更新日時'); ?></th>
 				<th class="actions"><?php echo __('Actions'); ?></th>
 			</tr>
-		<?php foreach ($meet['EntryGroup'] as $entryGroup): ?>
+			<?php foreach ($meet['EntryGroup'] as $entryGroup): ?>
 			<tr>
 				<td><?php echo $entryGroup['id']; ?></td>
 				<td><?php echo $entryGroup['name']; ?></td>
@@ -153,39 +154,40 @@
 				<td><?php echo $entryGroup['skip_lap_count']; ?></td>
 				<td><?php echo $entryGroup['modified']; ?></td>
 				<td class="actions">
-					<?php echo $this->Html->link(__('View'), array('controller' => 'entry_groups', 'action' => 'view', $entryGroup['id'])); ?>
-					<?php echo $this->Html->link(__('Edit'), array('controller' => 'entry_groups', 'action' => 'edit', $entryGroup['id'])); ?>
-					<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'entry_groups', 'action' => 'delete', $entryGroup['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryGroup['id'])); ?>
+						<?php echo $this->Html->link(__('View'), array('controller' => 'entry_groups', 'action' => 'view', $entryGroup['id'])); ?>
+						<?php echo $this->Html->link(__('Edit'), array('controller' => 'entry_groups', 'action' => 'edit', $entryGroup['id'])); ?>
+						<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'entry_groups', 'action' => 'delete', $entryGroup['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryGroup['id'])); ?>
+				</td>
+			</tr>
+			<?php endforeach; ?>
+		</table>
+	</div>
+<?php endif; ?>
+<?php if (!empty($results)): ?>
+	<div class="related">
+		<p style="height: 1em"></p>
+		<h3><?php echo __('カテゴリー適用（リザルトによる昇格）'); ?></h3>
+		<table cellpadding = "0" cellspacing = "0">
+		<tr>
+			<th><?php echo __('ID'); ?></th>
+			<th><?php echo __('選手 Code'); ?></th>
+			<th><?php echo __('名前'); ?></th>
+			<th><?php echo __('昇格先カテゴリー'); ?></th>
+			<th class="actions"><?php echo __('Actions'); ?></th>
+		</tr>
+		<?php foreach ($results as $result): ?>
+			<tr>
+				<td><?php echo $result['CategoryRacer']['id']; ?></td>
+				<td><?php echo $this->Html->link($result['CategoryRacer']['racer_code'], array('controller' => 'racers', 'action' => 'view', $result['CategoryRacer']['racer_code'])); ?></td>
+				<td><?php echo $result['Racer']['family_name'] . ' ' . $result['Racer']['first_name']; ?></td>
+				<td><?php echo $result['Category']['name']; ?></td>
+				<td class="actions">
+					<?php echo $this->Html->link(__('View'), array('controller' => 'category_racers', 'action' => 'view', $result['CategoryRacer']['id'])); ?>
+					<?php echo $this->Html->link(__('Edit'), array('controller' => 'category_racers', 'action' => 'edit', $result['CategoryRacer']['id'])); ?>
+					<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'category_racers', 'action' => 'delete', $result['CategoryRacer']['id']), array(), __('[%s] のデータを削除してよろしいですか？', $result['CategoryRacer']['id'])); ?>
 				</td>
 			</tr>
 		<?php endforeach; ?>
 		</table>
-	<?php endif; ?>
 </div>
-<div class="related">
-	<h3><?php echo __('カテゴリー適用'); ?></h3>
-	<?php if (!empty($results)): ?>
-	<table cellpadding = "0" cellspacing = "0">
-	<tr>
-		<th><?php echo __('ID'); ?></th>
-		<th><?php echo __('選手 Code'); ?></th>
-		<th><?php echo __('名前'); ?></th>
-		<th><?php echo __('昇格先カテゴリー'); ?></th>
-		<th class="actions"><?php echo __('Actions'); ?></th>
-	</tr>
-	<?php foreach ($results as $result): ?>
-		<tr>
-			<td><?php echo $result['CategoryRacer']['id']; ?></td>
-			<td><?php echo $this->Html->link($result['CategoryRacer']['racer_code'], array('controller' => 'racers', 'action' => 'view', $result['CategoryRacer']['racer_code'])); ?></td>
-			<td><?php echo $result['Racer']['family_name'] . ' ' . $result['Racer']['first_name']; ?></td>
-			<td><?php echo $result['Category']['name']; ?></td>
-			<td class="actions">
-				<?php echo $this->Html->link(__('View'), array('controller' => 'category_racers', 'action' => 'view', $result['CategoryRacer']['id'])); ?>
-				<?php echo $this->Html->link(__('Edit'), array('controller' => 'category_racers', 'action' => 'edit', $result['CategoryRacer']['id'])); ?>
-				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'category_racers', 'action' => 'delete', $result['CategoryRacer']['id']), array(), __('[%s] のデータを削除してよろしいですか？', $result['CategoryRacer']['id'])); ?>
-			</td>
-		</tr>
-	<?php endforeach; ?>
-	</table>
 <?php endif; ?>
-</div>

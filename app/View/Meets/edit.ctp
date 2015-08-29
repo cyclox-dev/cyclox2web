@@ -18,7 +18,7 @@
 			'maxYear' => date('Y') + 20,
 		));
 		echo $this->Form->input('name', array('type' => 'text', 'label' => '大会名'));
-		echo $this->Form->input('short_name', array('type' => 'text', 'label' => '短縮名'));
+		echo $this->Form->input('short_name', array('type' => 'text', 'label' => 'Short Name'));
 		echo $this->Form->input('location', array('type' => 'text', 'label' => '開催地'));
 		echo $this->Form->input('organized_by', array('type' => 'text', 'label' => '主催'));
 		echo $this->Form->input('homepage', array('type' => 'text'));

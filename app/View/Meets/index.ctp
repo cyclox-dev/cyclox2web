@@ -6,7 +6,7 @@
 			<th><?php echo $this->Paginator->sort('code', '大会 Code'); ?></th>
 			<th><?php echo $this->Paginator->sort('at_date', '開催日'); ?></th>
 			<th><?php echo $this->Paginator->sort('name', '大会名'); ?></th>
-			<th><?php echo $this->Paginator->sort('short_name', '短縮名'); ?></th>
+			<th><?php echo $this->Paginator->sort('short_name', 'Short Name'); ?></th>
 			<th><?php echo $this->Paginator->sort('meet_group_code', '大会 Group'); ?></th>
 			<th><?php echo $this->Paginator->sort('season_id'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>

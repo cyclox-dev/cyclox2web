@@ -53,7 +53,7 @@ class MeetsController extends ApiBaseController
 		}
 		
 		$meet = $this->Meet->find('first', $options);
-		$this->log($meet, LOG_DEBUG);
+		//$this->log($meet, LOG_DEBUG);
 		if ($isApiCall) {
 			$this->success($meet);
 		} else {
@@ -67,8 +67,8 @@ class MeetsController extends ApiBaseController
 					$entryCategoryList[] = $ecat['EntryCategory'];
 				}
 			}
-			$this->log('$entryCategoryList is', LOG_DEBUG);
-			$this->log($entryCategoryList, LOG_DEBUG);
+			//$this->log('$entryCategoryList is', LOG_DEBUG);
+			//$this->log($entryCategoryList, LOG_DEBUG);
 			
 			$meet['EntryCategory'] = $entryCategoryList;
 			$this->set('meet', $meet);
@@ -84,7 +84,7 @@ class MeetsController extends ApiBaseController
  *
  * @return void
  */
-	public function add()
+	public function add($mgCode = null)
 	{
 		if ($this->request->is('post')) {
 			$this->Meet->create();
@@ -95,7 +95,7 @@ class MeetsController extends ApiBaseController
 
 			if ($this->Meet->save($this->request->data)) {
 				$this->Session->setFlash(__('新規大会 [code:' . $code . '] を保存しました。'));
-				return $this->redirect(array('action' => 'index'));
+				return $this->redirect('/meets/view/' . $this->Meet->id);
 			} else {
 				$this->Session->setFlash(__('The meet could not be saved. Please, try again.'));
 			}
@@ -103,6 +103,11 @@ class MeetsController extends ApiBaseController
 		$seasons = $this->Meet->Season->find('list');
 		$meetGroups = $this->Meet->MeetGroup->find('list');
 		$this->set(compact('seasons', 'meetGroups'));
+		
+		if (!is_null($mgCode)) {
+			$this->set('meetGroupCode', $mgCode);
+			$this->request->data['Meet']['meet_group_code'] = $mgCode;
+		}
 	}
 
 /**

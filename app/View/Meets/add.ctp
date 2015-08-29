@@ -1,13 +1,26 @@
 <div class="meets form">
 <?php echo $this->Form->create('Meet'); ?>
 	<fieldset>
-		<legend><?php echo __('新規大会データの追加'); ?></legend>
+		<legend>
+			<?php 
+				if (isset($meetGroupCode)) {
+					echo __('大会グループ [%s] への大会の追加', $meetGroupCode);
+				} else {
+					echo __('新規大会データの追加');
+				}
+			?>
+		</legend>
 	<?php
 		$mg = array();
 		foreach ($meetGroups as $k => $v) {
 			$mg[$k] = $k . ': ' . $v;
 		}
-		echo $this->Form->input('meet_group_code', array('options' => $mg, 'label' => '大会 Group'));
+		
+		if (isset($meetGroupCode)) {
+			echo $this->Form->hidden('meet_group_code');
+		} else {
+			echo $this->Form->input('meet_group_code', array('options' => $mg, 'label' => '大会 Group'));
+		}
 		echo $this->Form->input('season_id');
 		echo $this->Form->input('at_date', array(
 			'label' => '開催日',
@@ -17,7 +30,7 @@
 			'maxYear' => date('Y') + 20,
 		));
 		echo $this->Form->input('name', array('type' => 'text', 'label' => '大会名'));
-		echo $this->Form->input('short_name', array('type' => 'text', 'label' => '短縮名'));
+		echo $this->Form->input('short_name', array('type' => 'text', 'label' => 'Short Name'));
 		echo $this->Form->input('location', array('type' => 'text', 'label' => '開催地'));
 		echo $this->Form->input('organized_by', array('type' => 'text', 'label' => '主催'));
 		echo $this->Form->input('homepage', array('type' => 'text'));

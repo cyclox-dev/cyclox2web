@@ -1,14 +1,13 @@
 <div class="meetGroups index">
-	<h2><?php echo __('Meet Groups'); ?></h2>
+	<h2><?php echo __('大会グループ'); ?></h2>
+	<p>東北ならば TCX, 信州なら CCM などと、各地のシリーズごとに分けられる大会のまとまり。</p>
 	<table cellpadding="0" cellspacing="0">
 	<thead>
 	<tr>
-			<th><?php echo $this->Paginator->sort('code'); ?></th>
-			<th><?php echo $this->Paginator->sort('name'); ?></th>
-			<th><?php echo $this->Paginator->sort('short_name'); ?></th>
-			<th><?php echo $this->Paginator->sort('description'); ?></th>
-			<th><?php echo $this->Paginator->sort('homepage'); ?></th>
-			<th class="actions"><?php echo __('Actions'); ?></th>
+			<th><?php echo $this->Paginator->sort('code', '大会グループ Code'); ?></th>
+			<th><?php echo $this->Paginator->sort('name', '名称'); ?></th>
+			<th><?php echo $this->Paginator->sort('short_name', '短縮名'); ?></th>
+			<th><?php echo $this->Paginator->sort('homepage', 'Homepage'); ?></th>
 	</tr>
 	</thead>
 	<tbody>
@@ -17,11 +16,10 @@
 		<td><?php echo h($meetGroup['MeetGroup']['code']); ?>&nbsp;</td>
 		<td><?php echo h($meetGroup['MeetGroup']['name']); ?>&nbsp;</td>
 		<td><?php echo h($meetGroup['MeetGroup']['short_name']); ?>&nbsp;</td>
-		<td><?php echo h($meetGroup['MeetGroup']['description']); ?>&nbsp;</td>
 		<td><?php echo h($meetGroup['MeetGroup']['homepage']); ?>&nbsp;</td>
 		<td class="actions">
-			<?php echo $this->Html->link(__('View'), array('action' => 'view', $meetGroup['MeetGroup']['code'])); ?>
-			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $meetGroup['MeetGroup']['code'])); ?>
+			<?php echo $this->Html->link(__('詳細'), array('action' => 'view', $meetGroup['MeetGroup']['code'])); ?>
+			<?php echo $this->Html->link(__('編集'), array('action' => 'edit', $meetGroup['MeetGroup']['code'])); ?>
 			<?php 
 				// 削除しないものとしておく。
 				//echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $meetGroup['MeetGroup']['code']), array('confirm' => __('[%s] のデータを削除してよろしいですか？', $meetGroup['MeetGroup']['code'])));
