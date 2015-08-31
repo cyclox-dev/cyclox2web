@@ -1,12 +1,12 @@
 <div class="entryCategories view">
-<h2><?php echo __('Entry Category'); ?></h2>
+<h2><?php echo __('出走カテゴリー'); ?></h2>
 	<dl>
 		<dt><?php echo __('ID'); ?></dt>
 		<dd>
 			<?php echo h($entryCategory['EntryCategory']['id']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Entry Group'); ?></dt>
+		<dt><?php echo __('出走グループ'); ?></dt>
 		<dd>
 			<?php echo $this->Html->link($entryCategory['EntryGroup']['name'], array('controller' => 'entry_groups', 'action' => 'view', $entryCategory['EntryGroup']['id'])); ?>
 			&nbsp;
@@ -83,16 +83,13 @@
 <div class="actions">
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
-		<li><?php echo $this->Html->link(__('Edit Entry Category'), array('action' => 'edit', $entryCategory['EntryCategory']['id'])); ?> </li>
-		<li><?php echo $this->Form->postLink(__('Delete Entry Category'), array('action' => 'delete', $entryCategory['EntryCategory']['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryCategory['EntryCategory']['id'])); ?> </li>
-		<li><?php echo $this->Html->link(__('List Entry Categories'), array('action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Entry Category'), array('action' => 'add')); ?> </li>
-		<li><?php echo $this->Html->link(__('List Entry Groups'), array('controller' => 'entry_groups', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Entry Group'), array('controller' => 'entry_groups', 'action' => 'add')); ?> </li>
-		<li><?php echo $this->Html->link(__('List Races Categories'), array('controller' => 'races_categories', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Races Category'), array('controller' => 'races_categories', 'action' => 'add')); ?> </li>
-		<li><?php echo $this->Html->link(__('List Entry Racers'), array('controller' => 'entry_racers', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Entry Racer'), array('controller' => 'entry_racers', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('この出走カテゴリーを編集'), array('action' => 'edit', $entryCategory['EntryCategory']['id'])); ?> </li>
+		<li><?php echo $this->Form->postLink(__('この出走カテゴリーを削除'), array('action' => 'delete', $entryCategory['EntryCategory']['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryCategory['EntryCategory']['id'])); ?> </li>
+		<li><?php echo $this->Html->link(__('> 出走カテゴリーリスト'), array('action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('> 出走カテゴリーを追加'), array('action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('> 出走グループリスト'), array('controller' => 'entry_groups', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('> レースカテゴリーリスト'), array('controller' => 'races_categories', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('> 出走選手リスト'), array('controller' => 'entry_racers', 'action' => 'index')); ?> </li>
 	</ul>
 </div>
 <div class="related">
