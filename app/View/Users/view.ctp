@@ -6,14 +6,6 @@
 			<?php echo h($user['User']['username']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Role'); ?></dt>
-		<dd>
-			<?php
-				App::uses('UserRole', 'Cyclox/Const');
-				echo h(UserRole::roleAt($user['User']['role'])->name());
-			?>
-			&nbsp;
-		</dd>
 		<dt><?php echo __('Email'); ?></dt>
 		<dd>
 			<?php echo h($user['User']['email']); ?>

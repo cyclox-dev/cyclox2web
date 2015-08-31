@@ -17,18 +17,17 @@ class Constant
 	
 	//const DISTANCE_NOTSET = -999.0; // null に設定する
 	
-	// TODO: meet 関連の2つの定数について CNFKEY を変更。
 	/**
 	 * 大会 code のシーズン表現位置についての最後に保存した番号を格納する。
 	 * 実際には CONFKEY_MEET_SEASON_EXP-THK のようなキーとなる。
 	 */
-	const CONFKEY_PREFIX_MEET_SEASON_EXP_PREFIX = 'CONFKEY_MEET_SEASON_EXP-';
+	const PKEY_MEET_SEASON_EXP_PREFIX = 'PKEY_MEET_SEASON_EXP-';
 	
 	/**
 	 * 大会 code のマスターナンバー位置についての最後に保存した値を格納する。
 	 * 実際には CONFKEY_MEET_MASTER_NUMBER-THK のようなキーとなる。
 	 */
-	const CONFKEY_PREFIX_MEET_MASTER_NUMBER = 'CONFKEY_MEET_MASTER_NUMBER-';
+	const PKEY_MEET_MASTER_NUMBER_PREFIX = 'PKEY_MEET_MASTER_NUMBER-';
 	
 	/**
 	 * 選手 code のシーズン表現位置について最後に保存した番号を格納する。

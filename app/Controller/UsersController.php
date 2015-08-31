@@ -222,7 +222,6 @@ class UsersController extends AppController
 		}
 	}
 	
-	// TODO: 未使用？
 	public function admin_login()
 	{
 		if ($this->request->is('post')) {

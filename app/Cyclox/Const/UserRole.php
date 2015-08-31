@@ -11,6 +11,9 @@
  */
 class UserRole
 {
+	// Group を使用しているので、現在未使用。
+	// TODO: Group に移行？
+	
 	public static $ADMIN;
 	public static $ORGANIZER;
 	public static $TEAMDIRECTOR;
@@ -30,7 +33,7 @@ class UserRole
 		self::$ADMIN = new UserRole('admin', 'Admin', '最高位のデータ管理者', 100);
 		self::$ORGANIZER = new UserRole('organizer', 'Organizer', 'レース主催者など', 70);
 		self::$TEAMDIRECTOR = new UserRole('team_director', 'Team Director', 'チーム監督', 50);
-		self::$RACER = new UserRole('racer', 'Racer', '選手', 35);
+		self::$RACER = new UserRole('racer', 'Racer', '選手', 40);
 		self::$GUEST = new UserRole('guest', 'Guest', 'ゲスト', 20);
 		self::$API = new UserRole('api', 'API', 'API 通信', 25);
 		

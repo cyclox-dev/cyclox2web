@@ -469,7 +469,6 @@ CREATE TABLE users
 	username varchar(50) BINARY NOT NULL,
 	password varchar(255) BINARY NOT NULL,
 	group_id int unsigned NOT NULL,
-	role varchar(64) BINARY NOT NULL,
 	email varchar(255) BINARY,
 	active tinyint(1) DEFAULT 0 NOT NULL,
 	created datetime DEFAULT null,

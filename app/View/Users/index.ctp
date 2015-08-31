@@ -1,6 +1,3 @@
-<?php
-App::uses('UserRole', 'Cyclox/Const');
-?>
 <div class="users index">
 	<h2><?php echo __('Users'); ?></h2>
 	<table cellpadding="0" cellspacing="0">
@@ -8,7 +5,6 @@ App::uses('UserRole', 'Cyclox/Const');
 	<tr>
 			<th><?php echo $this->Paginator->sort('username'); ?></th>
 			<th><?php echo $this->Paginator->sort('email'); ?></th>
-			<th><?php echo $this->Paginator->sort('role'); ?></th>
 			<th><?php echo $this->Paginator->sort('active'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
@@ -18,7 +14,6 @@ App::uses('UserRole', 'Cyclox/Const');
 	<tr>
 		<td><?php echo h($user['User']['username']); ?>&nbsp;</td>
 		<td><?php echo h($user['User']['email']); ?>&nbsp;</td>
-		<td><?php echo h(UserRole::roleAt($user['User']['role'])->name()); ?>&nbsp;</td>
 		<td><?php echo h($user['User']['active'] ? 'Yes' : 'No'); ?>&nbsp;</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $user['User']['id'])); ?>

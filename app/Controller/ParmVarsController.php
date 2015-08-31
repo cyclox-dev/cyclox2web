@@ -1,7 +1,6 @@
 <?php
 
 App::uses('AppController', 'Controller');
-App::uses('UserRole', 'Cyclox/Const');
 
 /**
  * ParmVars Controller
@@ -22,18 +21,6 @@ class ParmVarsController extends AppController {
 			'authorize' => array('Controller'),
 		),
 	);
-
-	public function isAuthorized($user)
-	{
-		$this->log($user['role']);
-		
-		if (isset($user['role']) && $user['role'] === UserRole::$ADMIN->val()) {
-			return true;
-		} else {
-			return false;
-		}
-		// TODO: エラー表示欲しい？
-	}
 	
 /**
  * index method

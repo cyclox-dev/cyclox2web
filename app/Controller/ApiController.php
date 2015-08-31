@@ -159,7 +159,7 @@ class ApiController extends ApiBaseController
 		foreach ($egroups as $egroup) {
 			foreach ($egroup['EntryCategory'] as $ec) {
 				if ($ec['name'] === $ecatName) {
-					$ecat = $ec; // TODO: 複数ヒットをエラーとする？
+					$ecat = $ec; // 複数ヒットをエラーとする？ -> No. 登録で重複させないように
 					$breaks = true;
 					break;
 				}
@@ -316,7 +316,7 @@ class ApiController extends ApiBaseController
 		foreach ($egroups as $egroup) {
 			foreach ($egroup['EntryCategory'] as $ec) {
 				if ($ec['name'] === $ecatName) {
-					$ecat = $ec; // TODO: 複数ヒットをエラーとする？
+					$ecat = $ec; // 複数ヒットをエラーとする？ -> No. 登録で重複させないように
 					$breaks = true;
 					break;
 				}
@@ -568,8 +568,8 @@ class ApiController extends ApiBaseController
 		//$this->log('cats:', LOG_DEBUG);
 		//$this->log($catBinds, LOG_DEBUG);
 		
-		// TODO: 警告を出す？
 		if (empty($catBinds)) {
+			// MORE: 有効なカテゴリーを1つも持たない場合に警告を出す？
 			return Constant::RET_NO_ACTION;
 		}
 		
@@ -601,7 +601,6 @@ class ApiController extends ApiBaseController
 					if ($catBind['CategoryRacer']['category_code'] === 'CM2') {
 						$newCategory = 'CM1';
 						$oldCat = 'CM2';
-						$this->log('has CM2', LOG_DEBUG);
 						break;
 					}
 				}
@@ -631,8 +630,10 @@ class ApiController extends ApiBaseController
 				}
 			}
 			
-			if (empty($newCategory)) return Constant::RET_NO_ACTION;
-			// TODO: 警告必要？
+			if (empty($newCategory)) {
+				// MORE: 持っているべきカテゴリー所持していないことについて警告を検討
+				return Constant::RET_NO_ACTION;
+			}
 			
 			$applyDate = date('Y/m/d', strtotime($meet['at_date'] . ' +1 day'));
 			
@@ -704,7 +705,7 @@ class ApiController extends ApiBaseController
 		);
 
 		// 文字列で判断する
-		// TODO: 処理改善。レースカテゴリーが含有するリザルト
+		// パラメタから処理したいが、複雑なのでやめておく。
 		// racesCatCode => array('needs' => 必要な所属, 'to' =>昇格先)
 		$map = array(
 			'C2' => array('needs' => array('C2'), 'to' => 'C1', 'rule' => $rule0123),
@@ -749,7 +750,7 @@ class ApiController extends ApiBaseController
 		}
 
 		if (!$hasCat) {
-			// TODO: 警告を検討すること
+			// MORE: 必要なカテゴリーに所属していない -> 警告を検討すること。
 			return Constant::RET_NO_ACTION;
 		}
 
@@ -763,8 +764,7 @@ class ApiController extends ApiBaseController
 			'apply_date' => $applyDate,
 			'reason_id' => CategoryReason::$RESULT_UP->ID(),
 		);
-		$this->CategoryRacer->deleteAll($conditions);
-		// TODO: Soft or hard delete?
+		$this->CategoryRacer->deleteAll($conditions); // MEMO: これは hard delete
 
 		// 昇格前カテゴリーは cancel_date を設定
 		foreach ($catBinds as $catBind) {
@@ -876,31 +876,31 @@ class ApiController extends ApiBaseController
 		}
 		
 		// カテゴリーの所属を確認
-		$catCodeGiveto = null;
+		$catCodeGiveTo = null;
 		foreach ($map[$rcatCode] as $catCode) {
 			foreach ($catBinds as $catBind) {
 				$this->log($catBind['CategoryRacer']['category_code'] . ' vs ' . $catCode, LOG_DEBUG);
 				if ($catBind['CategoryRacer']['category_code'] === $catCode) {
-					$catCodeGiveto = $catCode;
+					$catCodeGiveTo = $catCode;
 					$this->log('find!', LOG_DEBUG);
 					break;
 				}
 			}
 
-			if (!empty($catCodeGiveto)) break;
+			if (!empty($catCodeGiveTo)) break;
 		}
 
-		if (empty($catCodeGiveto)) {
-			// TODO: 警告を検討すること
+		if (empty($catCodeGiveTo)) {
+			// MORE: 出走に必要なカテゴリーを持っていないことについて警告を検討すること
 			return Constant::RET_NO_ACTION;
 		}
 		
-		$this->log('will give give hold point to:' . $catCodeGiveto . ' pt:' . $point, LOG_DEBUG);
+		$this->log('will give give hold point to:' . $catCodeGiveTo . ' pt:' . $point, LOG_DEBUG);
 		$hp = array();
 		$hp['HoldPoint'] = array();
 		$hp['HoldPoint']['racer_result_id'] = $racerResultId;
 		$hp['HoldPoint']['point'] = $point;
-		$hp['HoldPoint']['category_code'] = $catCodeGiveto;
+		$hp['HoldPoint']['category_code'] = $catCodeGiveTo;
 		
 		$this->HoldPoint->create();
 		if (!$this->HoldPoint->save($hp)) {

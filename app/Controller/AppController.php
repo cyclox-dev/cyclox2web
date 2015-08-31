@@ -85,6 +85,7 @@ class AppController extends Controller {
 			App::import('Lib', 'Error/ApiException');
 			App::import('Lib', 'Error/AppExceptionRenderer');
 
+			//*
 			AuthComponent::$sessionKey = false;
 			
 			$this->Auth->authenticate = array(
@@ -96,7 +97,7 @@ class AppController extends Controller {
 		} else {
 			// API 処理でフィルタされないように。
 			$this->Auth->actionPath = 'controllers/';
-			$this->Auth->authorize = 'actions';
+			$this->Auth->authorize = 'actions'; // TODO: 個別処理を考えたら Controller を追加すること。
 
 			$this->Auth->loginAction = array('controller' => 'users', 'action' => 'login');
 			$this->Auth->logoutRedirect = array('controller' => 'users', 'action' => 'login');

@@ -45,7 +45,7 @@ class AjoccUtil
 		}
 		
 		$pv = new ParmVar();
-		$pkeySeason = Constant::CONFKEY_PREFIX_MEET_SEASON_EXP_PREFIX . $meetGroupCode;
+		$pkeySeason = Constant::PKEY_MEET_SEASON_EXP_PREFIX . $meetGroupCode;
 		$seasonNo = '000';
 		$seasonNoObj = $pv->find('first', array('conditions' => array('ParmVar.pkey' => $pkeySeason)));
 		debug($seasonNoObj);
@@ -54,7 +54,7 @@ class AjoccUtil
 		}
 		
 		$pvn = new ParmVar();
-		$pkeyNo = Constant::CONFKEY_PREFIX_MEET_MASTER_NUMBER . $meetGroupCode;
+		$pkeyNo = Constant::PKEY_MEET_MASTER_NUMBER_PREFIX . $meetGroupCode;
 		$number = 0;
 		$numberObj = $pvn->find('first', array('conditions' => array('ParmVar.pkey' => $pkeyNo)));
 		debug($numberObj);
