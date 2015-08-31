@@ -22,8 +22,6 @@ class ApiBaseController extends AppController
 		return isset($this->request->params['ext']) && $this->request->params['ext'] === 'json';
 	}
 	
-	// TODO: Exception 対策
-	
 	//++++++++++++++++++++++++++++++++++++++++
 	// 以下、http://be-hase.com/php/478/ より拾いもの。
 	

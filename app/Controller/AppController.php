@@ -76,6 +76,15 @@ class AppController extends Controller {
 		if ($this->_isApiCall()) {
 			$this->log('is api call');
 			//$this->log($this->request->data);
+			
+			Configure::write('Exception', array(
+				'handler' => 'ErrorHandler::handleException',
+				'renderer' => 'AppExceptionRenderer',
+				'log' => true
+			));
+			App::import('Lib', 'Error/ApiException');
+			App::import('Lib', 'Error/AppExceptionRenderer');
+
 			AuthComponent::$sessionKey = false;
 			
 			$this->Auth->authenticate = array(
