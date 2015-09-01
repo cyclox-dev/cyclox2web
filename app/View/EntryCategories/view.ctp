@@ -172,8 +172,8 @@
 							echo Util::milli2Time($result['RacerResult']['goal_milli_sec']);
 						}
 					?></td>
-					<td><?php echo (1 * $result['RacerResult']['run_per']) . '%'; ?></td>
 					<td><?php echo (empty($result['RacerResult']['rank_per']) ? '--' : $result['RacerResult']['rank_per']) . '%'; ?></td>
+					<td><?php echo (1 * $result['RacerResult']['run_per']) . '%'; ?></td>
 					<?php for ($i = 0; $i < count($psTitles); $i++): ?>
 						<td><?php
 							if (empty($result['RacerResult']['points'][$i])) {
