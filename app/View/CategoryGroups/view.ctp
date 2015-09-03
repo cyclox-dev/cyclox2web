@@ -43,7 +43,7 @@
 		<th><?php echo __('Name'); ?></th>
 		<th><?php echo __('Short Name'); ?></th>
 		<th><?php echo __('Category Group Id'); ?></th>
-		<th><?php echo __('Lank'); ?></th>
+		<th><?php echo __('Rank'); ?></th>
 		<th><?php echo __('Race Min'); ?></th>
 		<th><?php echo __('Gender'); ?></th>
 		<th><?php echo __('Age Min'); ?></th>
@@ -60,7 +60,7 @@
 			<td><?php echo $category['name']; ?></td>
 			<td><?php echo $category['short_name']; ?></td>
 			<td><?php echo $category['category_group_id']; ?></td>
-			<td><?php echo $category['lank']; ?></td>
+			<td><?php echo $category['rank']; ?></td>
 			<td><?php echo $category['race_min']; ?></td>
 			<td><?php echo $category['gender']; ?></td>
 			<td><?php echo $category['age_min']; ?></td>

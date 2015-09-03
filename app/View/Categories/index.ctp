@@ -7,7 +7,7 @@
 			<th><?php echo $this->Paginator->sort('name'); ?></th>
 			<th><?php echo $this->Paginator->sort('short_name'); ?></th>
 			<th><?php echo $this->Paginator->sort('category_group_id'); ?></th>
-			<th><?php echo $this->Paginator->sort('lank'); ?></th>
+			<th><?php echo $this->Paginator->sort('rank'); ?></th>
 			<th><?php echo $this->Paginator->sort('race_min'); ?></th>
 			<th><?php echo $this->Paginator->sort('gender'); ?></th>
 			<th><?php echo $this->Paginator->sort('age_min'); ?></th>
@@ -28,7 +28,7 @@
 		<td>
 			<?php echo $this->Html->link($category['CategoryGroup']['name'], array('controller' => 'category_groups', 'action' => 'view', $category['CategoryGroup']['id'])); ?>
 		</td>
-		<td><?php echo h($category['Category']['lank']); ?>&nbsp;</td>
+		<td><?php echo h($category['Category']['rank']); ?>&nbsp;</td>
 		<td><?php echo h($category['Category']['race_min']); ?>&nbsp;</td>
 		<td><?php echo h($category['Category']['gender']); ?>&nbsp;</td>
 		<td><?php echo h($category['Category']['age_min']); ?>&nbsp;</td>

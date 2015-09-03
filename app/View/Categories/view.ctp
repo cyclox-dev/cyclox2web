@@ -21,9 +21,9 @@
 			<?php echo $this->Html->link($category['CategoryGroup']['name'], array('controller' => 'category_groups', 'action' => 'view', $category['CategoryGroup']['id'])); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Lank'); ?></dt>
+		<dt><?php echo __('Rank'); ?></dt>
 		<dd>
-			<?php echo h($category['Category']['lank']); ?>
+			<?php echo h($category['Category']['rank']); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('Race Min'); ?></dt>

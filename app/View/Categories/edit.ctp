@@ -7,7 +7,7 @@
 		echo $this->Form->input('name');
 		echo $this->Form->input('short_name');
 		echo $this->Form->input('category_group_id');
-		echo $this->Form->input('lank');
+		echo $this->Form->input('rank');
 		echo $this->Form->input('race_min');
 		echo $this->Form->input('gender');
 		echo $this->Form->input('age_min');
