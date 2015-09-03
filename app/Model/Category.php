@@ -58,9 +58,10 @@ class Category extends AppModel {
 				'message' => '必須項目です。',
 			),
 		),
-		'lank' => array(
+		'rank' => array(
 			'naturalNumber' => array(
 				'rule' => array('naturalNumber'),
+				'allowEmpty' => true,
 				'message' => '正の整数を入力して下さい。',
 			),
 		),
