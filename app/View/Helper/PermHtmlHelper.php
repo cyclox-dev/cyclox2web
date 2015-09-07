@@ -17,6 +17,10 @@ class PermHtmlHelper extends HtmlHelper
 
 	public function link($title, $url = null, $options = array(), $confirmMessage = false)
 	{
+		// delete を許可
+		if ($url == "#") {
+			return parent::link($title, $url, $options, $confirmMessage);
+		}
 		/* @20150826 以下削除。Delete が動かないため。
 		$options = array_merge(array(
 			'escape' => false,
