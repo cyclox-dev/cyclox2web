@@ -86,7 +86,7 @@ class AppController extends Controller {
 			App::import('Lib', 'Error/AppExceptionRenderer');
 
 			//*
-			AuthComponent::$sessionKey = false;
+			AuthComponent::$sessionKey = false;// TODO: reload で再度要求されてない？
 			
 			$this->Auth->authenticate = array(
 				'Basic' => array(

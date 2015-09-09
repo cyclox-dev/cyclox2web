@@ -453,6 +453,89 @@ class ApiController extends ApiBaseController
 	}
 	
 	/**
+	 * 次に払出す選手コードをかえす
+	 * @param string $meetGroupCode 大会グループコード
+	 * @param string $seasonNumber シーズンナンバー 156, 167 など。未指定ならば現在シーズンの値が使用される。
+	 */
+	public function next_racer_code_number($meetGroupCode = null, $seasonNumber = null)
+	{
+		if (empty($meetGroupCode)) {
+			throw new BadRequestException('meet_group_code is needed.');
+		}
+		
+		// intval で string 先頭のゼロは除去される。
+		
+		$snumberStr = $seasonNumber;
+		if (empty($snumberStr)) {
+			$snumberStr = AjoccUtil::seasonExp();
+		} else if (strlen($snumberStr) != 3) {
+			throw new BadRequestException('season_number should be length=3 and integer');
+		}
+		
+		// MORE: 検証処理の一般化
+		
+		// 値の検証
+		$sn = intval($snumberStr);
+		if ($snumberStr !== '000') {
+			// 小数は考えないことにする。
+			if (!is_numeric($snumberStr) || $sn === false) {
+				throw new BadRequestException('season_number should be length=3 and integer');
+			}
+
+			$pre = (int)($sn / 10);
+			$next = $sn % 10;
+			//$this->log('pre:' . $pre . ' next:' . $next, LOG_DEBUG);
+
+			if ((int)(($pre % 10 + 1) % 10) != $next) {
+				throw new BadRequestException('season_number is bad formatted');
+			}
+		}
+		
+		$this->Racer->Behaviors->unload('Utils.SoftDelete'); // contains delete
+		$racers = $this->Racer->find('list', array(
+			'fields' => array('code'),
+			'recursive' => -1,
+			'conditions' => array('code LIKE' => $meetGroupCode . '-' . $sn . '%'),
+		));
+		
+		// 最大値を求める
+		$max = -1;
+		foreach ($racers as $code) {
+			//$this->log('code is ' . $code . ' ' . substr_count($code, '-'), LOG_DEBUG);
+			if (substr_count($code, '-') != 2) {
+				continue;
+			}
+			
+			$hifnPos = strrpos($code, '-');
+			if ($hifnPos === false || $hifnPos >= strlen($code) - 1) {
+				continue;
+			}
+			
+			$numStr = substr($code, $hifnPos + 1);
+			$this->log('num str:' . $numStr, LOG_DEBUG);
+			if (!is_numeric($numStr)) {
+				continue;
+			}
+			// 小数、10進数以外の表記は intval(string) なら問題なし。
+			
+			$num = intval($numStr);
+			if ($num === false) {
+				continue;
+			}
+			
+			if ($num > $max) {
+				$max = $num;
+			}
+		}
+		
+		if ($max === -1) {
+			return $this->success(array('racer_code_next_number' => 1));
+		} else {
+			return $this->success(array('racer_code_next_number' => $max + 1));
+		}
+	}
+	
+	/**
 	 * SQL 条件に必要な日付オブジェクトをかえす
 	 * @param type $dateStr 日付の文字列表現
 	 * @return boolean 返還後文字列もしくは false をかえす
