@@ -53,8 +53,8 @@ class PermissionComponent extends Component
 			}
 		}
 		
-		$this->log('session:', LOG_DEBUG);
-		$this->log($this->Session->read('Auth.Permissions'), LOG_DEBUG);
+		//$this->log('session:', LOG_DEBUG);
+		//$this->log($this->Session->read('Auth.Permissions'), LOG_DEBUG);
 
 	}
 
