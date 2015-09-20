@@ -11,11 +11,6 @@
 	<?php
 		App::uses('CategoryReason', 'Cyclox/Const');
 		
-		$rs = array();
-		foreach ($racers as $r) {
-			$rs[$r['Racer']['code']] = $r['Racer']['code'] . ': ' . $r['Racer']['family_name'] . ' ' . $r['Racer']['first_name'];
-		}
-		
 		$cats = array();
 		foreach ($categories as $key => $val) {
 			$cats[$key] = $key . ': ' . $val;
@@ -34,7 +29,7 @@
 		if (isset($racerCode)) {
 			echo $this->Form->hidden('racer_code');
 		} else {
-			echo $this->Form->input('racer_code', array('options' => $rs, 'label' => '選手 Code'));
+			echo $this->Form->input('racer_code', array('label' => '選手 Code'));
 		}
 		
 		echo $this->Form->input('category_code', array('options' => $cats));
