@@ -512,7 +512,7 @@ class ApiController extends ApiBaseController
 			}
 			
 			$numStr = substr($code, $hifnPos + 1);
-			$this->log('num str:' . $numStr, LOG_DEBUG);
+			//$this->log('num str:' . $numStr, LOG_DEBUG);
 			if (!is_numeric($numStr)) {
 				continue;
 			}
@@ -533,6 +533,94 @@ class ApiController extends ApiBaseController
 		} else {
 			return $this->success(array('racer_code_next_number' => $max + 1));
 		}
+	}
+	
+	/**
+	 * 更新のあった選手データを取得する。
+	 * 
+	 * QUERY: int $offset 取得するデータ上のオフセット。デフォルト値はゼロ
+	 * QUERY: int $limit 取得するデータの件数。デフォルト値は30。
+	 * QUERY: date $date これより後に更新された選手データが取得される。指定なしの場合、全てのデータを対象とする。
+	 * RETURN: 選手データの配列 'response' => array('racers' => array([] => array('Racer' => $DATA,,,
+	 */
+	public function updated_racers()
+	{	
+		//$this->log('offset params is:', LOG_DEBUG);
+		//$this->log($this->params->query, LOG_DEBUG);
+		
+		$offset = 0;
+		if (!empty($this->params->query['offset'])) {
+			$offset = $this->params->query['offset'];
+		}
+		
+		$limit = 30;
+		if (!empty($this->params->query['limit'])) {
+			$limit = $this->params->query['limit'];
+		}
+		
+		$opt = array(
+			'recursive' => -1,
+			'offset' => $offset,
+			'limit' => $limit,
+		);
+		
+		if (!empty($this->params->query['date'])) {
+			$dt = $this->__getFindSqlDate($this->params->query['date']);
+			if (!$dt) {
+				throw new BadRequestException('argument "date" should be Date formatted by YY-MM-dd-HH-mm-ss');
+			}
+			
+			$opt['conditions'] = array(
+				'modified >' => $dt
+			);
+		}
+		
+		$racers = $this->Racer->find('all', $opt);
+		return $this->success(array('racers' => $racers));
+	}
+	
+	/**
+	 * 更新のあった選手カテゴリー所属データを取得する。
+	 * 
+	 * QUERY: int $offset 取得するデータ上のオフセット。デフォルト値はゼロ
+	 * QUERY: int $limit 取得するデータの件数。デフォルト値は30。
+	 * QUERY: date $date これより後に更新された選手データが取得される。指定なしの場合、全てのデータを対象とする。
+	 * RETURN: 選手データの配列 'response' => array('category_racers' => array([] => array('CategoryRacer' => $DATA,,,
+	 */
+	public function updated_category_racers()
+	{	
+		//$this->log('offset params is:', LOG_DEBUG);
+		//$this->log($this->params->query, LOG_DEBUG);
+		
+		$offset = 0;
+		if (!empty($this->params->query['offset'])) {
+			$offset = $this->params->query['offset'];
+		}
+		
+		$limit = 30;
+		if (!empty($this->params->query['limit'])) {
+			$limit = $this->params->query['limit'];
+		}
+		
+		$opt = array(
+			'recursive' => -1,
+			'offset' => $offset,
+			'limit' => $limit,
+		);
+		
+		if (!empty($this->params->query['date'])) {
+			$dt = $this->__getFindSqlDate($this->params->query['date']);
+			if (!$dt) {
+				throw new BadRequestException('argument "date" should be Date formatted by YY-MM-dd-HH-mm-ss');
+			}
+			
+			$opt['conditions'] = array(
+				'modified >' => $dt
+			);
+		}
+		
+		$catRacers = $this->CategoryRacer->find('all', $opt);
+		return $this->success(array('category_racers' => $catRacers));
 	}
 	
 	/**
