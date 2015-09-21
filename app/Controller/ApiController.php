@@ -560,8 +560,6 @@ class ApiController extends ApiBaseController
 		
 		$opt = array(
 			'recursive' => -1,
-			'offset' => $offset,
-			'limit' => $limit,
 		);
 		
 		if (!empty($this->params->query['date'])) {
@@ -575,8 +573,13 @@ class ApiController extends ApiBaseController
 			);
 		}
 		
+		$count = $this->Racer->find('count', $opt);
+		
+		$opt['offset'] = $offset;
+		$opt['limit'] = $limit;
 		$racers = $this->Racer->find('all', $opt);
-		return $this->success(array('racers' => $racers));
+		
+		return $this->success(array('racers' => $racers, 'total' => $count));
 	}
 	
 	/**
@@ -604,8 +607,6 @@ class ApiController extends ApiBaseController
 		
 		$opt = array(
 			'recursive' => -1,
-			'offset' => $offset,
-			'limit' => $limit,
 		);
 		
 		if (!empty($this->params->query['date'])) {
@@ -619,8 +620,13 @@ class ApiController extends ApiBaseController
 			);
 		}
 		
+		$count = $this->CategoryRacer->find('count', $opt);
+		
+		$opt['offset'] = $offset;
+		$opt['limit'] = $limit;
 		$catRacers = $this->CategoryRacer->find('all', $opt);
-		return $this->success(array('category_racers' => $catRacers));
+		
+		return $this->success(array('category_racers' => $catRacers, 'total' => $count));
 	}
 	
 	/**
