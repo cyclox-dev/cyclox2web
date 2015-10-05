@@ -684,7 +684,7 @@ class ApiController extends ApiBaseController
 				)
 			),
 			array(
-				'started_over' => 10, 'points' => array(
+				'started_over' => 0, 'points' => array(
 					28, 20, 15, 12, 10, 8,  6,  5,  4,  3,
 					3,  2,  2,  2,  1,  1,  1,  1,  1,  1,
 				)
