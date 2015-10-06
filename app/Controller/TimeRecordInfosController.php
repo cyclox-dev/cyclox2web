@@ -56,7 +56,6 @@ class TimeRecordInfosController extends AppController {
 				$this->Session->setFlash(__('The time record info could not be saved. Please, try again.'));
 			}
 		}
-		$entryGroups = $this->TimeRecordInfo->EntryGroup->find('list');
 		$this->set(compact('entryGroups'));
 	}
 
@@ -82,7 +81,6 @@ class TimeRecordInfosController extends AppController {
 			$options = array('conditions' => array('TimeRecordInfo.' . $this->TimeRecordInfo->primaryKey => $id));
 			$this->request->data = $this->TimeRecordInfo->find('first', $options);
 		}
-		$entryGroups = $this->TimeRecordInfo->EntryGroup->find('list');
 		$this->set(compact('entryGroups'));
 	}
 

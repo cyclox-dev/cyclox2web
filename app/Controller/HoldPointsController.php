@@ -56,7 +56,6 @@ class HoldPointsController extends AppController {
 				$this->Session->setFlash(__('The hold point could not be saved. Please, try again.'));
 			}
 		}
-		$racerResults = $this->HoldPoint->RacerResult->find('list');
 		$this->set(compact('racerResults'));
 	}
 
@@ -82,7 +81,6 @@ class HoldPointsController extends AppController {
 			$options = array('conditions' => array('HoldPoint.' . $this->HoldPoint->primaryKey => $id));
 			$this->request->data = $this->HoldPoint->find('first', $options);
 		}
-		$racerResults = $this->HoldPoint->RacerResult->find('list');
 		$this->set(compact('racerResults'));
 	}
 

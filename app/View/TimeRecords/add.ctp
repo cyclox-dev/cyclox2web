@@ -3,7 +3,7 @@
 	<fieldset>
 		<legend><?php echo __('Add Time Record'); ?></legend>
 	<?php
-		echo $this->Form->input('racer_result_id');
+		echo $this->Form->input('racer_result_id', array('label' => 'Racer Result ID', 'type' => 'number'));
 		echo $this->Form->input('lap');
 		echo $this->Form->input('time_milli');
 	?>

@@ -56,7 +56,6 @@ class RacerResultsController extends AppController {
 				$this->Session->setFlash(__('The racer result could not be saved. Please, try again.'));
 			}
 		}
-		$entryRacers = $this->RacerResult->EntryRacer->find('list');
 		$this->set(compact('entryRacers'));
 	}
 
@@ -82,7 +81,6 @@ class RacerResultsController extends AppController {
 			$options = array('conditions' => array('RacerResult.' . $this->RacerResult->primaryKey => $id));
 			$this->request->data = $this->RacerResult->find('first', $options);
 		}
-		$entryRacers = $this->RacerResult->EntryRacer->find('list');
 		$this->set(compact('entryRacers'));
 	}
 

@@ -3,7 +3,7 @@
 	<fieldset>
 		<legend><?php echo __('Add Entry Racer'); ?></legend>
 	<?php
-		echo $this->Form->input('entry_category_id');
+		echo $this->Form->input('entry_category_id', array('label' => 'Entry Category ID', 'type' => 'number'));
 		echo $this->Form->input('racer_code');
 		echo $this->Form->input('body_number');
 		echo $this->Form->input('name_at_race');

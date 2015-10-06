@@ -4,7 +4,7 @@
 		<legend><?php echo __('Edit Hold Point'); ?></legend>
 	<?php
 		echo $this->Form->input('id');
-		echo $this->Form->input('racer_result_id');
+		echo $this->Form->input('racer_result_id', array('label' => 'Racer Result ID', 'type' => 'number'));
 		echo $this->Form->input('point');
 		echo $this->Form->input('category_code');
 	?>

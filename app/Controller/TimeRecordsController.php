@@ -56,7 +56,6 @@ class TimeRecordsController extends AppController {
 				$this->Session->setFlash(__('The time record could not be saved. Please, try again.'));
 			}
 		}
-		$racerResults = $this->TimeRecord->RacerResult->find('list');
 		$this->set(compact('racerResults'));
 	}
 
@@ -82,7 +81,6 @@ class TimeRecordsController extends AppController {
 			$options = array('conditions' => array('TimeRecord.' . $this->TimeRecord->primaryKey => $id));
 			$this->request->data = $this->TimeRecord->find('first', $options);
 		}
-		$racerResults = $this->TimeRecord->RacerResult->find('list');
 		$this->set(compact('racerResults'));
 	}
 

@@ -3,7 +3,7 @@
 	<fieldset>
 		<legend><?php echo __('Add Time Record Info'); ?></legend>
 	<?php
-		echo $this->Form->input('entry_group_id');
+		echo $this->Form->input('entry_group_id', array('label' => 'Entry Group ID', 'type' => 'number'));
 		echo $this->Form->input('time_start_datetime');
 		echo $this->Form->input('skip_lap_count');
 		echo $this->Form->input('distance');

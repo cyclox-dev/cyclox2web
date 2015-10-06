@@ -72,8 +72,6 @@ class EntryRacersController extends ApiBaseController {
 				$this->Session->setFlash(__('The entry racer could not be saved. Please, try again.'));
 			}
 		}
-		$entryCategories = $this->EntryRacer->EntryCategory->find('list');
-		$racers = $this->EntryRacer->Racer->find('list');
 		$this->set(compact('entryCategories', 'racers'));
 	}
 	
@@ -119,8 +117,6 @@ class EntryRacersController extends ApiBaseController {
 			$options = array('conditions' => array('EntryRacer.' . $this->EntryRacer->primaryKey => $id));
 			$this->request->data = $this->EntryRacer->find('first', $options);
 		}
-		$entryCategories = $this->EntryRacer->EntryCategory->find('list');
-		$racers = $this->EntryRacer->Racer->find('list');
 		$this->set(compact('entryCategories', 'racers'));
 	}
 

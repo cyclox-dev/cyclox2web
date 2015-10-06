@@ -57,10 +57,8 @@ class PointSeriesRacersController extends AppController {
 			}
 		}
 		$pointSeries = $this->PointSeriesRacer->PointSeries->find('list');
-		$racerResults = $this->PointSeriesRacer->RacerResult->find('list');
-		$racers = $this->PointSeriesRacer->Racer->find('list');
 		$meetPointSeries = $this->PointSeriesRacer->MeetPointSeries->find('list');
-		$this->set(compact('pointSeries', 'racerResults', 'racers', 'meetPointSeries'));
+		$this->set(compact('pointSeries', 'meetPointSeries'));
 	}
 
 /**
@@ -86,9 +84,8 @@ class PointSeriesRacersController extends AppController {
 			$this->request->data = $this->PointSeriesRacer->find('first', $options);
 		}
 		$pointSeries = $this->PointSeriesRacer->PointSeries->find('list');
-		$racerResults = $this->PointSeriesRacer->RacerResult->find('list');
 		$meetPointSeries = $this->PointSeriesRacer->MeetPointSeries->find('list');
-		$this->set(compact('pointSeries', 'racerResults', 'racers', 'meetPointSeries'));
+		$this->set(compact('pointSeries', 'meetPointSeries'));
 	}
 
 /**

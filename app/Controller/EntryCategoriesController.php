@@ -149,7 +149,6 @@ class EntryCategoriesController extends ApiBaseController
 				$this->Session->setFlash(__('The entry category could not be saved. Please, try again.'));
 			}
 		}
-		$entryGroups = $this->EntryCategory->EntryGroup->find('list');
 		$racesCategories = $this->EntryCategory->RacesCategory->find('list');
 		$this->set(compact('entryGroups', 'racesCategories'));
 	}
@@ -196,7 +195,6 @@ class EntryCategoriesController extends ApiBaseController
 			$options = array('conditions' => array('EntryCategory.' . $this->EntryCategory->primaryKey => $id));
 			$this->request->data = $this->EntryCategory->find('first', $options);
 		}
-		$entryGroups = $this->EntryCategory->EntryGroup->find('list');
 		$racesCategories = $this->EntryCategory->RacesCategory->find('list');
 		$this->set(compact('entryGroups', 'racesCategories'));
 	}

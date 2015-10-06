@@ -3,7 +3,7 @@
 	<fieldset>
 		<legend><?php echo __('Add Racer Result'); ?></legend>
 	<?php
-		echo $this->Form->input('entry_racer_id');
+		echo $this->Form->input('entry_racer_id', array('label' => 'Entry Racer ID', 'type' => 'number'));
 		echo $this->Form->input('order_index');
 		echo $this->Form->input('rank');
 		echo $this->Form->input('status');

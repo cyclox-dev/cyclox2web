@@ -3,7 +3,7 @@
 	<fieldset>
 		<legend><?php echo __('Add Entry Category'); ?></legend>
 	<?php
-		echo $this->Form->input('entry_group_id');
+		echo $this->Form->input('entry_group_id', array('label' => 'Entry Group ID', 'type' => 'number'));
 		echo $this->Form->input('races_category_code');
 		echo $this->Form->input('name');
 		echo $this->Form->input('start_delay_sec');

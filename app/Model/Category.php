@@ -117,19 +117,6 @@ class Category extends AppModel {
  * @var array
  */
 	public $hasMany = array(
-		'CategoryRacer' => array(
-			'className' => 'CategoryRacer',
-			'foreignKey' => 'category_code',
-			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
-		),
 		'CategoryRacesCategory' => array(
 			'className' => 'CategoryRacesCategory',
 			'foreignKey' => 'category_code',

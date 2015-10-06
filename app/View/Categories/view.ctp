@@ -84,51 +84,6 @@
 	</ul>
 </div>
 <div class="related">
-	<h3><?php echo __('Related Category Racers'); ?></h3>
-	<?php if (!empty($category['CategoryRacer'])): ?>
-	<table cellpadding = "0" cellspacing = "0">
-	<tr>
-		<th><?php echo __('Racer Code'); ?></th>
-		<th><?php echo __('Category Code'); ?></th>
-		<th><?php echo __('Apply Date'); ?></th>
-		<th><?php echo __('Reason Id'); ?></th>
-		<th><?php echo __('Reason Note'); ?></th>
-		<th><?php echo __('Meet Code'); ?></th>
-		<th><?php echo __('Cancel Date'); ?></th>
-		<th><?php echo __('Created'); ?></th>
-		<th><?php echo __('Modified'); ?></th>
-		<th><?php echo __('Deleted'); ?></th>
-		<th class="actions"><?php echo __('Actions'); ?></th>
-	</tr>
-	<?php foreach ($category['CategoryRacer'] as $categoryRacer): ?>
-		<tr>
-			<td><?php echo $categoryRacer['racer_code']; ?></td>
-			<td><?php echo $categoryRacer['category_code']; ?></td>
-			<td><?php echo $categoryRacer['apply_date']; ?></td>
-			<td><?php echo $categoryRacer['reason_id']; ?></td>
-			<td><?php echo $categoryRacer['reason_note']; ?></td>
-			<td><?php echo $categoryRacer['meet_code']; ?></td>
-			<td><?php echo $categoryRacer['cancel_date']; ?></td>
-			<td><?php echo $categoryRacer['created']; ?></td>
-			<td><?php echo $categoryRacer['modified']; ?></td>
-			<td><?php echo $categoryRacer['deleted']; ?></td>
-			<td class="actions">
-				<?php echo $this->Html->link(__('View'), array('controller' => 'category_racers', 'action' => 'view', $categoryRacer['id'])); ?>
-				<?php echo $this->Html->link(__('Edit'), array('controller' => 'category_racers', 'action' => 'edit', $categoryRacer['id'])); ?>
-				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'category_racers', 'action' => 'delete', $categoryRacer['id']), array(), __('[%s] のデータを削除してよろしいですか？', $categoryRacer['id'])); ?>
-			</td>
-		</tr>
-	<?php endforeach; ?>
-	</table>
-<?php endif; ?>
-
-	<div class="actions">
-		<ul>
-			<li><?php echo $this->Html->link(__('New Category Racer'), array('controller' => 'category_racers', 'action' => 'add')); ?> </li>
-		</ul>
-	</div>
-</div>
-<div class="related">
 	<h3><?php echo __('Related Category Races Categories'); ?></h3>
 	<?php if (!empty($category['CategoryRacesCategory'])): ?>
 	<table cellpadding = "0" cellspacing = "0">
