@@ -620,6 +620,7 @@ class ApiController extends ApiBaseController
 			);
 		}
 		
+		$this->CategoryRacer->Behaviors->unload('Utils.SoftDelete'); // deleted もひろう
 		$count = $this->CategoryRacer->find('count', $opt);
 		
 		$opt['offset'] = $offset;
