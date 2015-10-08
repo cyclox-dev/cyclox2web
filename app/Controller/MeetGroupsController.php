@@ -9,7 +9,9 @@ App::uses('ApiBaseController', 'Controller');
  * @property PaginatorComponent $Paginator
  * @property SessionComponent $Session
  */
-class MeetGroupsController extends ApiBaseController {
+class MeetGroupsController extends ApiBaseController
+{
+	public $uses = array('MeetGroup', 'Meet');
 
 /**
  * Components
@@ -43,13 +45,17 @@ class MeetGroupsController extends ApiBaseController {
 		$isApiCall = $this->_isApiCall();
 		
 		$options = array('conditions' => array('MeetGroup.' . $this->MeetGroup->primaryKey => $id));
-		if ($isApiCall) {
-			$options['recursive'] = -1;
-		}
+		$options['recursive'] = -1;
 		$meetGroup = $this->MeetGroup->find('first', $options);
 		if ($isApiCall) {
 			$this->success($meetGroup);
 		} else {
+			$this->Meet->Behaviors->load('Utils.SoftDelete');
+			$options = array('conditions' => array('meet_group_code' => $id));
+			$meets = $this->Meet->find('all', $options);
+			$meetGroup['meets'] = $meets;
+			$this->log('Meet:', LOG_DEBUG);
+			$this->log($meets, LOG_DEBUG);
 			$this->set('meetGroup', $meetGroup);
 		}
 	}

@@ -79,16 +79,16 @@
 	</tr>
 	<?php foreach ($meetGroup['meets'] as $meets): ?>
 		<tr>
-			<td><?php echo $this->Html->link($meets['code'], array('controller' => 'meets', 'action' => 'view', $meets['code'])); ?></td>
-			<td><?php echo $meets['at_date']; ?></td>
-			<td><?php echo $meets['name']; ?></td>
-			<td><?php echo $meets['short_name']; ?></td>
-			<td><?php echo $meets['location']; ?></td>
-			<td><?php echo (1 * $meets['start_frac_distance']) . '+' . (1 * $meets['lap_distance']) . 'km'; ?></td>
+			<td><?php echo $this->Html->link($meets['Meet']['code'], array('controller' => 'meets', 'action' => 'view', $meets['Meet']['code'])); ?></td>
+			<td><?php echo $meets['Meet']['at_date']; ?></td>
+			<td><?php echo $meets['Meet']['name']; ?></td>
+			<td><?php echo $meets['Meet']['short_name']; ?></td>
+			<td><?php echo $meets['Meet']['location']; ?></td>
+			<td><?php echo (1 * $meets['Meet']['start_frac_distance']) . '+' . (1 * $meets['Meet']['lap_distance']) . 'km'; ?></td>
 			<td class="actions">
-				<?php echo $this->Html->link(__('詳細'), array('controller' => 'meets', 'action' => 'view', $meets['code'])); ?>
-				<?php echo $this->Html->link(__('編集'), array('controller' => 'meets', 'action' => 'edit', $meets['code'])); ?>
-				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'meets', 'action' => 'delete', $meets['code']), array(), __('[%s] のデータを削除してよろしいですか？', $meets['code'])); ?>
+				<?php echo $this->Html->link(__('詳細'), array('controller' => 'meets', 'action' => 'view', $meets['Meet']['code'])); ?>
+				<?php echo $this->Html->link(__('編集'), array('controller' => 'meets', 'action' => 'edit', $meets['Meet']['code'])); ?>
+				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'meets', 'action' => 'delete', $meets['Meet']['code']), array(), __('[%s] のデータを削除してよろしいですか？', $meets['Meet']['code'])); ?>
 			</td>
 		</tr>
 	<?php endforeach; ?>
