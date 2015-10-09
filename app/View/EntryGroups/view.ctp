@@ -23,12 +23,24 @@
 		</dd>
 		<dt><?php echo __('Start Frac Distance'); ?></dt>
 		<dd>
-			<?php echo h($entryGroup['EntryGroup']['start_frac_distance']); ?>
+			<?php 
+			if (is_null($entryGroup['EntryGroup']['start_frac_distance'])) {
+				echo h($entryGroup['Meet']['start_frac_distance']);
+			} else {
+				echo h($entryGroup['EntryGroup']['start_frac_distance']);
+			}
+			?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('Lap Distance'); ?></dt>
 		<dd>
-			<?php echo h($entryGroup['EntryGroup']['lap_distance']); ?>
+			<?php 
+			if (is_null($entryGroup['EntryGroup']['lap_distance'])) {
+				echo h($entryGroup['Meet']['lap_distance']);
+			} else {
+				echo h($entryGroup['EntryGroup']['lap_distance']);
+			}
+			?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('Skip Lap Count'); ?></dt>
