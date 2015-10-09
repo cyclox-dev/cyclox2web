@@ -66,7 +66,7 @@ class AppController extends Controller {
 	function beforeFilter()
 	{
 		$this->set('auth', $this->Auth->user());
-		$this->log('here is ' . $this->request->here());
+		$this->log('here is ' . $this->request->here(), LOG_DEBUG);
 		
 		//$this->Auth->allow();
 		
@@ -74,7 +74,6 @@ class AppController extends Controller {
 		// URL から判定して認証設定を決める。
 		
 		if ($this->_isApiCall()) {
-			$this->log('is api call');
 			//$this->log($this->request->data);
 			
 			Configure::write('Exception', array(
