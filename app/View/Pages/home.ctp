@@ -31,4 +31,6 @@
 <p><?php echo $this->Html->link("選手リザルト（出走選手ごと）", "/racer_results/index");?></p>
 
 <h2>その他</h2>
+<p><?php echo $this->Html->link("ユティリティ【オーガナイザ用】", "/org_util");?></p>
 <p><?php echo $this->Html->link("ページごと権限設定【管理者用】", "/admin/acl/aros/ajax_role_permissions");?></p>
+
