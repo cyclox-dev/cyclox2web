@@ -27,6 +27,9 @@ class ApiController extends ApiBaseController
 	
 	public $components = array('Session', 'RequestHandler');
 	
+	// 昇格処理用
+	private $_offsetRankup;
+	
 	/**
 	 * 更新すべき大会情報についての code リストを取得する
 	 * @param date $date 最後の更新ダウンロード日時
@@ -388,6 +391,9 @@ class ApiController extends ApiBaseController
 				}
 			}
 			
+			// 昇格処理用。繰り上げがあるため、別ループで処理する。
+			$results4Rup = array();
+			
 			foreach ($this->request->data['body-result'] as $body => $result) {
 				$er = $erMap[$body];
 				if (empty($er)) {
@@ -419,13 +425,12 @@ class ApiController extends ApiBaseController
 				
 				// Open 参加は除く
 				if (!$isOpenRacer) {
-					// result_id, rcat, 出走人数より昇格判定（ポイントもできそう）
-					$ret = $this->__setupRankUp($er['EntryRacer']['racer_code'], $this->RacerResult->id,
-							$result['RacerResult'], $startedCount, $ecat, $meet['Meet']);
-					if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
-						$this->log($er['EntryRacer']['racer_code'] . ' の昇格処理に失敗しました。', LOG_ERR);
-					}
-					// __setupRankUp() 内で昇格時の残留ポイント付与も行われている。
+					$rupInfo = array(
+						'racer_code' => $er['EntryRacer']['racer_code'],
+						'rrid' => $this->RacerResult->id,
+						'result' => $result['RacerResult']
+					);
+					$results4Rup[] = $rupInfo;
 					
 					$ret = $this->__setupHoldPoint($er['EntryRacer']['racer_code'], $this->RacerResult->id,
 							$result['RacerResult'], $ecat, $meet['Meet']);
@@ -443,6 +448,22 @@ class ApiController extends ApiBaseController
 				}
 			}
 			
+			// TODO: __setupRankUp について、昔の処理利用しているため、かなり重い。要改善。
+			
+			$this->log($results4Rup, LOG_DEBUG);
+			// 昇格処理
+			usort($results4Rup, array($this, '_compare_result_rank_4rup'));
+			
+			$this->_offsetRankup = 0;
+			foreach ($results4Rup as $r4rup)
+			{
+				$ret = $this->__setupRankUp($r4rup['racer_code'], $r4rup['rrid'],
+						$r4rup['result'], $startedCount, $ecat, $meet['Meet']);
+				if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
+					$this->log($er['EntryRacer']['racer_code'] . ' の昇格処理に失敗しました。', LOG_ERR);
+				}
+			}
+			$this->log('end', LOG_DEBUG);
 			$this->TransactionManager->commit($transaction);
 			return $this->success(array('ok')); // 件数とか？
 		} catch (Exception $ex) {
@@ -450,6 +471,27 @@ class ApiController extends ApiBaseController
 			$this->TransactionManager->rollback($transaction);
 			return $this->error('予期しないエラー:' . $ex, self::STATUS_CODE_BAD_REQUEST);
 		}
+	}
+	
+	/**
+	 * 昇格処理用ソートコールバック。 ['result']['rank'] の値を比較する。順位順にならべる。null は最後。
+	 * @param type $a
+	 * @param type $b
+	 * @return int 順序
+	 */
+	public static function _compare_result_rank_4rup($a, $b)
+	{
+		if (empty($a['result']['rank'])) {
+			if (empty($b['result']['rank'])) {
+				return 0;
+			}
+			return 1;
+		} else if (empty($b['result']['rank'])) {
+			return -1;
+		}
+		
+		return $a['result']['rank'] - $b['result']['rank'];
+		//*/
 	}
 	
 	/**
@@ -725,7 +767,6 @@ class ApiController extends ApiBaseController
 			empty($ecat) || empty($meet)) {
 			return Constant::RET_ERROR;
 		}
-		
 		$rank = empty($result['rank']) ? null : $result['rank'];
 
 		if ($ecat['applies_rank_up'] != 1 || empty($rank)) {
@@ -910,9 +951,51 @@ class ApiController extends ApiBaseController
 		}
 		//$this->log($i . '人まで昇格 vs rank:' . $rank, LOG_DEBUG);
 
-		if ($rankUpCount == 0 || $rank > $rankUpCount) {
+		if ($rankUpCount == 0 || $rank > $rankUpCount + $this->_offsetRankup) {
 			return Constant::RET_NO_ACTION;
 		}
+		
+		// 年齢基準判定
+		if ($rcatCode == 'C2' || $rcatCode == 'C3' || $rcatCode == 'C4' || $rcatCode == 'C3+4') {
+			$this->Racer->actsAs = array('Utils.SoftDelete'); // deleted を拾わないように
+			$conditions = array('code' => $racerCode);
+			$racer = $this->Racer->find('first', array('conditions' => $conditions, 'recursive' => -1));
+			$birth = $racer['Racer']['birth_date'];
+			
+			if (!empty($birth)) {
+				// そのシーズンの最初の日4/1（=学年初日）に何歳であるか
+				$meetDate = new DateTime($meet['at_date']);
+				$year = $meetDate->format('Y');
+				if ($meetDate->format('m') < 4) {
+					--$year;
+				}
+				$baseDate = new DateTime($year . '/04/01');
+				$schoolAge = Util::ageAt(new DateTime($birth), $baseDate) - 5; // 6歳が小学1年生
+				
+				$isBadAge = false;
+				
+				if ($map[$rcatCode]['to'] == 'C1') {
+					// 高3
+					$isBadAge = ($schoolAge < 12);
+				} else if ($map[$rcatCode]['to'] == 'C2') {
+					// 高1
+					$isBadAge = ($schoolAge < 10);
+				} else if ($map[$rcatCode]['to'] == 'C3') {
+					// 中2
+					$isBadAge = ($schoolAge < 8);
+				}
+				
+				if ($isBadAge) {
+					$this->log('選手:' . $racerCode . 'について、対象年齢外のため、昇格なしとしました。', LOG_NOTICE);
+					$this->log('school age:' . $schoolAge, LOG_DEBUG);
+					$this->_offsetRankup++;
+					return Constant::RET_NO_ACTION;
+				}
+			} else {
+				$this->log('昇格処理において選手の生年月日が不明でした。選手コード:' . $racerCode
+					. '昇格は適用しますが、チェックが必要です。', LOG_WARNING);
+			}
+		}//*/
 
 		// カテゴリーの所属を確認
 		$hasCat = false;
@@ -966,7 +1049,11 @@ class ApiController extends ApiBaseController
 		$cr['CategoryRacer']['category_code'] = $map[$rcatCode]['to'];
 		$cr['CategoryRacer']['apply_date'] = $applyDate;
 		$cr['CategoryRacer']['reason_id'] = CategoryReason::$RESULT_UP->ID();
-		$cr['CategoryRacer']['reason_note'] = "";
+		if ($rank > $rankUpCount) {
+			$cr['CategoryRacer']['reason_note'] = "繰り上げ昇格";
+		} else {
+			$cr['CategoryRacer']['reason_note'] = "";
+		}
 		$cr['CategoryRacer']['racer_result_id'] = $racerResultId;
 		$cr['CategoryRacer']['meet_code'] = $meet['code'];
 		$cr['CategoryRacer']['cancel_date'] = null;

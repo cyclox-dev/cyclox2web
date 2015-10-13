@@ -85,4 +85,31 @@ class Util
 		
 		return $hour . ':' . sprintf('%02d', $minInHour) . ':' . sprintf('%02d', $secInMin) . '.' . $milli;
 	}
+	
+	/**
+	 * 生年月日から年齢をかえす
+	 * @param DateTime $birth 生年月日
+	 * @param DateTime $atDate 判定日
+	 * @return int 年齢。引数が無効な場合、-1 をかえす。
+	 */
+	public static function ageAt($birth, $atDate = null)
+	{
+		if (empty($birth)) {
+			return -1;
+		}
+		
+		if (!($birth instanceof DateTime)) {
+			return -1;
+		}
+		
+		if (empty($atDate)) {
+			$atDate = new DateTime('now');
+		} else {
+			if (!($atDate instanceof DateTime)) {
+				return -1;
+			}
+		}
+		
+		return (int)(($atDate->format('Ymd') - $birth->format('Ymd')) / 10000);
+	}
 }
