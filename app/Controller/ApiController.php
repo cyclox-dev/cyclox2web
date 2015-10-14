@@ -963,31 +963,28 @@ class ApiController extends ApiBaseController
 			$birth = $racer['Racer']['birth_date'];
 			
 			if (!empty($birth)) {
-				// そのシーズンの最初の日4/1（=学年初日）に何歳であるか
+				// uci cx age をチェック
 				$meetDate = new DateTime($meet['at_date']);
-				$year = $meetDate->format('Y');
-				if ($meetDate->format('m') < 4) {
-					--$year;
-				}
-				$baseDate = new DateTime($year . '/04/01');
-				$schoolAge = Util::ageAt(new DateTime($birth), $baseDate) - 5; // 6歳が小学1年生
+				$uciCxAge = Util::uciCXAgeAt(new DateTime($birth), $meetDate);
+				$this->log('uciCxAge:' . $uciCxAge, LOG_DEBUG);
 				
 				$isBadAge = false;
 				
 				if ($map[$rcatCode]['to'] == 'C1') {
-					// 高3
-					$isBadAge = ($schoolAge < 12);
+					// U23 以上
+					$isBadAge = ($uciCxAge < 19);
 				} else if ($map[$rcatCode]['to'] == 'C2') {
-					// 高1
-					$isBadAge = ($schoolAge < 10);
+					// Junior 以上
+					$isBadAge = ($uciCxAge < 17);
 				} else if ($map[$rcatCode]['to'] == 'C3') {
-					// 中2
-					$isBadAge = ($schoolAge < 8);
+					// Youth? 以上
+					$isBadAge = ($uciCxAge < 15);
 				}
+				// TODO: カテゴリーの設定から引き出すように。（DB 上データを修正してから）
 				
 				if ($isBadAge) {
 					$this->log('選手:' . $racerCode . 'について、対象年齢外のため、昇格なしとしました。', LOG_NOTICE);
-					$this->log('school age:' . $schoolAge, LOG_DEBUG);
+					$this->log('$uciCxAge:' . $uciCxAge, LOG_DEBUG);
 					$this->_offsetRankup++;
 					return Constant::RET_NO_ACTION;
 				}

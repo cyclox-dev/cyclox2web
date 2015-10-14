@@ -112,4 +112,41 @@ class Util
 		
 		return (int)(($atDate->format('Ymd') - $birth->format('Ymd')) / 10000);
 	}
+	
+	/**
+	 * 生年月日から判定される UCI シクロクロス年齢をかえす
+	 * @param DateTime $birth 生年月日
+	 * @param DateTime $atDate 判定日
+	 * @return int UCI 年齢。引数が無効な場合、-1 をかえす。
+	 */
+	public static function uciCXAgeAt($birth, $atDate = null)
+	{
+		if (empty($birth)) {
+			return -1;
+		}
+		
+		if (!($birth instanceof DateTime)) {
+			return -1;
+		}
+		
+		if (empty($atDate)) {
+			$atDate = new DateTime('now');
+		} else {
+			if (!($atDate instanceof DateTime)) {
+				return -1;
+			}
+		}
+		
+		if ($birth > $atDate) {
+			return -1;
+		}
+		
+		$year = (int)$atDate->format('Y');
+		$month = (int)$atDate->format('m');
+		if ($month >= 4) {
+			++$year;
+		}
+		
+		return $year - $birth->format('Y');
+	}
 }
