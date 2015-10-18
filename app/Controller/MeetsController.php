@@ -54,6 +54,20 @@ class MeetsController extends ApiBaseController
 		
 		$meet = $this->Meet->find('first', $options);
 		//$this->log($meet, LOG_DEBUG);
+		
+		if (!$isApiCall) {
+			foreach ($meet['EntryGroup'] as &$eg) { // 参照渡しで書き換え
+				// 距離設定がない場合は大会設定を利用
+				$this->log('sf:' . $eg['start_frac_distance'] . ' lap:' . $eg['lap_distance'], LOG_DEBUG);
+				if (is_null($eg['start_frac_distance'])) {
+					$eg['start_frac_distance'] = $meet['Meet']['start_frac_distance'];
+				}
+				if (is_null($eg['lap_distance'])) {
+					$eg['lap_distance'] = $meet['Meet']['lap_distance'];
+				}
+			}
+			unset($eg);
+		}
 		if ($isApiCall) {
 			$this->success($meet);
 		} else {

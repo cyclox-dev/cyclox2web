@@ -70,6 +70,9 @@ class ApiBaseController extends AppController
 		$this->response->statusCode(400);
         //$this->set('_serialize', array('meta', 'error'));
 		
+		$this->log('API Error!');
+		$this->log($this->result);
+		
 		$this->render('/Api/json/default');
     }
  

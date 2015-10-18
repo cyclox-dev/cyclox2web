@@ -157,8 +157,8 @@
 			<th><?php echo __('ID'); ?></th>
 			<th><?php echo __('選手 Code'); ?></th>
 			<th><?php echo __('Category Code'); ?></th>
-			<th><?php echo __('適用日'); ?></th>
-			<th><?php echo __('解消日'); ?></th>
+			<th><?php echo __('所属開始日'); ?></th>
+			<th><?php echo __('所属終了日'); ?></th>
 			<th><?php echo __('適用タイプ'); ?></th>
 			<th><?php echo __('関連リザルト ID'); ?></th>
 			<th><?php echo __('関連大会 Code'); ?></th>

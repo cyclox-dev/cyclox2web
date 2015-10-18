@@ -16,12 +16,12 @@
 			<?php echo $this->Html->link($categoryRacer['Category']['name'], array('controller' => 'categories', 'action' => 'view', $categoryRacer['Category']['code'])); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('適用日'); ?></dt>
+		<dt><?php echo __('所属開始日（適用日）'); ?></dt>
 		<dd>
 			<?php echo h($categoryRacer['CategoryRacer']['apply_date']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('解消日'); ?></dt>
+		<dt><?php echo __('所属終了日（解消日）'); ?></dt>
 		<dd>
 			<?php echo h($categoryRacer['CategoryRacer']['cancel_date']); ?>
 			&nbsp;
