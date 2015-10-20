@@ -164,7 +164,10 @@
 					<td><?php echo $result['EntryRacer']['body_number']; ?></td>
 					<td><?php echo $this->Html->link($result['EntryRacer']['racer_code'], array('controller' => 'racers', 'action' => 'view', $result['EntryRacer']['racer_code'])); ?></td>
 					<td><?php echo $result['EntryRacer']['name_at_race']; ?></td>
-					<td><?php echo $result['RacerResult']['lap']; ?></td>
+					<td><?php
+						$isDns = RacerResultStatus::ofVal($result['RacerResult']['status'])->val() === RacerResultStatus::$DNS->val();
+						echo $isDns ? '' : $result['RacerResult']['lap']; ?>
+					</td>
 					<td><?php 
 						if (empty($result['RacerResult']['goal_milli_sec'])) {
 							echo '---';
@@ -173,7 +176,7 @@
 						}
 					?></td>
 					<td><?php echo (empty($result['RacerResult']['rank_per']) ? '--' : $result['RacerResult']['rank_per']) . '%'; ?></td>
-					<td><?php echo (1 * $result['RacerResult']['run_per']) . '%'; ?></td>
+					<td><?php echo is_null($result['RacerResult']['run_per']) ? '--%' : (1 * $result['RacerResult']['run_per']) . '%'; ?></td>
 					<?php for ($i = 0; $i < count($psTitles); $i++): ?>
 						<td><?php
 							if (empty($result['RacerResult']['points'][$i])) {
