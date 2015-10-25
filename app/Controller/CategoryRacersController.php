@@ -166,6 +166,15 @@ class CategoryRacersController extends ApiBaseController
 	 */
 	public function delete($id = null) 
 	{
+		if ($this->_isApiCall()) {
+			return $this->__deleteOnApi($id);
+		} else {
+			return $this->__deleteOnPage($id);
+		}
+	}
+	
+	private function __deleteOnPage($id = null)
+	{
 		$this->CategoryRacer->id = $id;
 		if (!$this->CategoryRacer->exists()) {
 			throw new NotFoundException(__('Invalid category racer'));
@@ -178,5 +187,19 @@ class CategoryRacersController extends ApiBaseController
 		}
 		
 		return $this->redirect(array('action' => 'index'));
+	}
+	
+	private function __deleteOnApi($id = null)
+	{
+		$this->CategoryRacer->id = $id;
+		if (!$this->CategoryRacer->exists()) {
+			throw new NotFoundException(__('Invalid category racer'));
+		}
+		$this->request->allowMethod('post', 'delete');
+		if ($this->CategoryRacer->delete()) {
+			return $this->success(array('ok'));
+		} else {
+			return $this->error('削除処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
+		}
 	}
 }
