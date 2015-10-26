@@ -810,28 +810,13 @@ class ApiController extends ApiBaseController
 			}
 			
 			$newCategory = null;
-			$oldCat = null;
+			$oldCats = null;
 			
 			$this->log('rank is,,,:' . $rank, LOG_DEBUG);
 			
 			if ($rank === 1) {
-				// カテゴリー所持の確認
-				foreach ($catBinds as $catBind) {
-					if ($catBind['CategoryRacer']['category_code'] === 'CM2') {
-						$newCategory = 'CM1';
-						$oldCat = 'CM2';
-						break;
-					}
-				}
-				if (empty($newCategory)) {
-					foreach ($catBinds as $catBind) {
-						if ($catBind['CategoryRacer']['category_code'] === 'CM3') {
-							$newCategory = 'CM1';
-							$oldCat = 'CM3';
-							break;
-						}
-					}
-				}
+				$newCategory = 'CM1';
+				$oldCats = array('CM2', 'CM3');
 			} else if ($rank === 2 || $rank === 3) {
 				// CM2 なら処理なし
 				foreach ($catBinds as $catBind) {
@@ -839,18 +824,9 @@ class ApiController extends ApiBaseController
 						return Constant::RET_NO_ACTION;
 					}
 				}
-				// カテゴリー所持の確認
-				foreach ($catBinds as $catBind) {
-					if ($catBind['CategoryRacer']['category_code'] === 'CM3') {
-						$newCategory = 'CM2';
-						$oldCat = 'CM3';
-						break;
-					}
-				}
-			}
-			
-			if (empty($newCategory)) {
-				// MORE: 持っているべきカテゴリー所持していないことについて警告を検討
+				$newCategory = 'CM2';
+				$oldCats = array('CM3');
+			} else {
 				return Constant::RET_NO_ACTION;
 			}
 			
@@ -866,14 +842,16 @@ class ApiController extends ApiBaseController
 			);
 			$this->CategoryRacer->deleteAll($conditions);
 			
-			foreach ($catBinds as $catBind) {
-				if ($catBind['CategoryRacer']['category_code'] === $oldCat) {
-					$catBind['CategoryRacer']['cancel_date'] = $meet['at_date'];
-					$this->CategoryRacer->create();
-					if (!$this->CategoryRacer->save($catBind)) {
-						$this->log('CategoryRacer の cancel_date 設定->保存に失敗', LOG_ERR);
+			foreach($oldCats as $oldCat) {
+				foreach ($catBinds as $catBind) {
+					if ($catBind['CategoryRacer']['category_code'] === $oldCat) {
+						$catBind['CategoryRacer']['cancel_date'] = $meet['at_date'];
+						$this->CategoryRacer->create();
+						if (!$this->CategoryRacer->save($catBind)) {
+							$this->log('CategoryRacer の cancel_date 設定->保存に失敗', LOG_ERR);
+						}
+						// not break: 全部キャンセルする
 					}
-					// not break: 全部キャンセルする
 				}
 			}
 			
@@ -995,6 +973,8 @@ class ApiController extends ApiBaseController
 		}//*/
 
 		// カテゴリーの所属を確認
+		// --> しない。レースに勝てば所属にかかわらず昇格とする。
+		/*
 		$hasCat = false;
 		foreach ($catBinds as $catBind) {
 			foreach ($map[$rcatCode]['needs'] as $catName) {
@@ -1011,6 +991,7 @@ class ApiController extends ApiBaseController
 			// MORE: 必要なカテゴリーに所属していない -> 警告を検討すること。
 			return Constant::RET_NO_ACTION;
 		}
+		//*/
 
 		$applyDate = date('Y/m/d', strtotime($meet['at_date'] . ' +1 day'));
 
@@ -1121,14 +1102,14 @@ class ApiController extends ApiBaseController
 			'C1' => array('C1'),
 			'C2' => array('C2'),
 			'C3' => array('C3'),
-			'C3+4' => array('C3'),
-			//'C4' => array('C4'), // 不要
+			'C3+4' => array('C3', 'C4'),
+			'C4' => array('C4'),
 			'CM1' => array('CM1'),
 			'CM2' => array('CM2'),
-			//'CM3' => array('CM3'), // 不要
+			'CM3' => array('CM3'),
 			//'CM4' => array('CM4'), // 不要
-			'CM1+2+3' => array('CM1', 'CM2'),
-			'CM2+3' => array('CM2'),
+			'CM1+2+3' => array('CM1', 'CM2', 'CM3'),
+			'CM2+3' => array('CM2', 'CM3'),
 		);
 		
 		$rcatCode = $ecat['races_category_code'];
@@ -1153,8 +1134,9 @@ class ApiController extends ApiBaseController
 		}
 
 		if (empty($catCodeGiveTo)) {
-			// MORE: 出走に必要なカテゴリーを持っていないことについて警告を検討すること
-			return Constant::RET_NO_ACTION;
+			// 出走したカテゴリーに与える
+			$index = count($map[$rcatCode]) - 1;
+			$catCodeGiveTo = $map[$rcatCode][$index];
 		}
 		
 		$this->log('will give give hold point to:' . $catCodeGiveTo . ' pt:' . $point, LOG_DEBUG);
