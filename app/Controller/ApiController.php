@@ -379,8 +379,8 @@ class ApiController extends ApiBaseController
 			//$this->log($this->request->data['body-result'], LOG_DEBUG);
 			//$this->log($meet, LOG_DEBUG);
 			
-			// 昇格処理のために出走人数のカウント
-			$startedCount = 0;
+			$topLapCount = 0; // ポイント計算のためにレース周回数（ラップタイム最高数）をカウント
+			$startedCount = 0; // 昇格処理のために出走人数のカウント
 			foreach ($this->request->data['body-result'] as $body => $result) {
 				$er = $erMap[$body];
 				if (!empty($er) && $er['EntryRacer']['entry_status'] != RacerEntryStatus::$OPEN->val()) {
@@ -388,6 +388,10 @@ class ApiController extends ApiBaseController
 					if ($rstatus != RacerResultStatus::$DNS->val()) {
 						++$startedCount;
 					}
+				}
+				$lapCount = $result['RacerResult']['lap'];
+				if ($lapCount > $topLapCount) {
+					$topLapCount = $lapCount;
 				}
 			}
 			
@@ -441,7 +445,7 @@ class ApiController extends ApiBaseController
 					}
 					
 					$ret = $this->__setupPoints($er['EntryRacer']['racer_code'], $this->RacerResult->id,
-							$result['RacerResult'], $startedCount, $ecat, $meet['Meet']);
+							$result['RacerResult'], $startedCount, $ecat, $meet['Meet'], $topLapCount);
 					if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
 						$this->log($er['EntryRacer']['racer_code'] . ' のポイント計算に失敗しました。', LOG_ERR);
 					}
@@ -1162,9 +1166,10 @@ class ApiController extends ApiBaseController
 	 * @param int $raceStartedCount レースの出走人数（Open 参加を除く）
 	 * @param string $ecat 出走カテゴリー
 	 * @param date $meet 大会データ
+	 * @param int $raceLapCount レースのトップ周回数
 	 * @return int Constant.RET_ のいずれか
 	 */
-	private function __setupPoints($racerCode, $racerResultId, $result, $raceStartedCount, $ecat, $meet)
+	private function __setupPoints($racerCode, $racerResultId, $result, $raceStartedCount, $ecat, $meet, $raceLapCount)
 	{
 		if (empty($racerCode) || empty($racerResultId) || empty($result) || empty($raceStartedCount) ||
 			empty($ecat) || empty($meet)) {
@@ -1181,7 +1186,7 @@ class ApiController extends ApiBaseController
 			$calc = PointCalculator::getCalculator($ptSetting['PointSeries']['calc_rule']);
 			if (empty($calc)) return;
 			
-			$pt = $calc->calc($result, $ecat, $ptSetting['MeetPointSeries']['grade']);
+			$pt = $calc->calc($result, $ptSetting['MeetPointSeries']['grade'], $raceLapCount);
 			if (!empty($pt)) {
 				$psr = array();
 				$psr['PointSeriesRacer'] = array(

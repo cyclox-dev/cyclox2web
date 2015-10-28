@@ -67,20 +67,20 @@ class PointCalculator extends Object
 	/**
 	 * 
 	 * @param type $result
-	 * @param type $ecat
 	 * @param type $grade
+	 * @param int $raceLapCount レーストップの周回数
 	 * @return int 点数配列 array('point' => point, 'bonus' => bonus)。エラーの場合は null をかえす。
 	 */
-	public function calc($result, $ecat, $grade) {
+	public function calc($result, $grade, $raceLapCount) {
 		$pt = null;
 		switch ($this->val()) {
-			case self::$JCX_156->val(): $pt = $this->__calcJCXElite156($result, $ecat, $grade); break;
+			case self::$JCX_156->val(): $pt = $this->__calcJCXElite156($result, $grade, $raceLapCount); break;
 		}
 		
 		return $pt;
 	}
 	
-	private function __calcJCXElite156($result, $ecat, $grade) {
+	private function __calcJCXElite156($result, $grade, $raceLapCount) {
 		
 		//$this->log('grade:' . $grade . ' result:', LOG_DEBUG);
 		//$this->log($result, LOG_DEBUG);
@@ -127,14 +127,14 @@ class PointCalculator extends Object
 			$pointMap['point'] = $set[$grade]['run_pt'];
 		}
 		
-		// 同一周回ならば +20pt
-		$topLap = $this->__pullTopLap($ecat);
-		if (!empty($topLap)) {
-			if ($result['lap'] >= $topLap) {
-				$pointMap['bonus'] = 20;
-			}
-		}
+		$this->log('result:', LOG_DEBUG);
+		$this->log($result, LOG_DEBUG);
 		
+		// 同一周回ならば +20pt
+		if ($result['lap'] >= $raceLapCount) {
+			$pointMap['bonus'] = 20;
+		}
+
 		return $pointMap;
 	}
 	
