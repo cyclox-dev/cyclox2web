@@ -136,6 +136,15 @@ class CategoryRacersController extends ApiBaseController
  * @return void
  */
 	public function edit($id = null) {
+		if ($this->_isApiCall()) {
+			return $this->__editOnApi($id);
+		} else {
+			return $this->__editOnPage($id);
+		}
+	}
+	
+	private function __editOnPage($id = null)
+	{
 		if (!$this->CategoryRacer->exists($id)) {
 			throw new NotFoundException(__('Invalid category racer'));
 		}
@@ -155,6 +164,24 @@ class CategoryRacersController extends ApiBaseController
 		$meets = $this->Meet->find('list', array('fields' => array('Meet.code', 'Meet.name')));
 		
 		$this->set(compact('categories', 'meets'));
+	}
+	
+	private function __editOnApi($id = null)
+	{
+		if ($this->request->is('post')) {
+			if (!$this->CategoryRacer->exists($id)) {
+				throw new NotFoundException(__('Invalid category racer'));
+			}
+			$this->CategoryRacer->id = $id;
+			if ($this->CategoryRacer->save($this->request->data)) {
+				$newId = $this->CategoryRacer->id;
+				return $this->success(array('id' => $newId)); // add とそろえる
+			} else {
+				return $this->error('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
+			}
+		} else {
+			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
+		}
 	}
 
 	/**
