@@ -169,6 +169,10 @@ class CategoryRacersController extends ApiBaseController
 	private function __editOnApi($id = null)
 	{
 		if ($this->request->is('post')) {
+			
+			// Local edit -> web delete -> update to web での対策
+			$this->CategoryRacer->Behaviors->unload('Utils.SoftDelete');
+			
 			if (!$this->CategoryRacer->exists($id)) {
 				throw new NotFoundException(__('Invalid category racer'));
 			}
