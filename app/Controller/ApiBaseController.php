@@ -67,7 +67,7 @@ class ApiBaseController extends AppController
         //ちゃんと400ステータスコードにするの大事。後述
         
 		$this->set('error', $this->result['error']);
-		$this->response->statusCode(400);
+		//$this->response->statusCode(400);
         //$this->set('_serialize', array('meta', 'error'));
 		
 		$this->log('API Error!');
@@ -87,7 +87,7 @@ class ApiBaseController extends AppController
         }
  
         //ちゃんと400ステータスコードにするの大事。後述
-        $this->response->statusCode(400);
+        //$this->response->statusCode(400);
         $this->set('meta', $this->result['meta']);
         $this->set('error', $this->result['error']);
         $this->set('_serialize', array('meta', 'error'));
