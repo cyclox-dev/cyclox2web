@@ -73,6 +73,7 @@ class RacersController extends ApiBaseController
 			$options['recursive'] = -1;
 		}
 		
+		$this->Racer->Behaviors->unload('Utils.SoftDelete'); // 削除済みも表示する
 		$this->Racer->CategoryRacer->Behaviors->load('Utils.SoftDelete');
 		
 		$racer = $this->Racer->find('first', $options);
@@ -250,13 +251,16 @@ class RacersController extends ApiBaseController
 	 */
 	private function __editOnApi($code = null)
 	{
-		if (!$this->Racer->exists($code)) {
-			return $this->error('不正なリクエストです。（指定の選手コードが存在しません）。');
-		}
-		
 		$this->log($this->request->data);
 		
 		if ($this->request->is(array('post', 'put'))) {
+			
+			// Local edit -> web delete -> update to web での対策
+			$this->Racer->Behaviors->unload('Utils.SoftDelete');
+			if (!$this->Racer->exists($code)) {
+				return $this->error('不正なリクエストです。（指定の選手コードが存在しません）。');
+			}
+			
 			if ($this->Racer->save($this->request->data)) {
 				return $this->success(array());
 			} else {
