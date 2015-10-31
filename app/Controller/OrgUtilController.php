@@ -1,7 +1,9 @@
 <?php
 
 App::uses('ApiBaseController', 'Controller');
-
+App::uses('Folder', 'Utility');
+App::uses('File', 'Utility');
+App::uses('Gender', 'Cyclox/Const');
 /*
  *  created at 2015/10/04 by shun
  */
@@ -13,9 +15,12 @@ App::uses('ApiBaseController', 'Controller');
  */
 class OrgUtilController extends ApiBaseController
 {
-	 public $uses = array('Meet', 'Category', 'EntryGroup', 'EntryRacer', 'CategoryRacer');
+	 public $uses = array('Meet', 'Category', 'EntryGroup', 'EntryRacer', 'CategoryRacer', 'Racer');
 	 
 	 public $components = array('Session', 'RequestHandler');
+	 
+	 const __PATH_RACERS = 'cyclox2/org_util/racers/';
+	 const __RACERS_FILE_PREFIX = 'racers_';
 
 	/**
 	 * index method
@@ -313,5 +318,188 @@ class OrgUtilController extends ApiBaseController
 		}
 		
 		return $b['total'] - $a['total'];
+	}
+	
+	public function racer_list_csv_links()
+	{
+		$cats = $this->Category->find('all', array('fields' => array('code', 'name'), 'recursive' => -1));
+		
+		$this->log($cats, LOG_DEBUG);
+		
+		// TODO: Category ごとは後で実装する。
+		//$this->set('cats', $cats);
+	}
+	
+	public function download_racers_csv()
+	{
+		if (!$this->request->is('post')) {
+			throw new BadMethodCallException('Bad method.');
+		}
+		
+		$this->_mkdir4RacerList();
+		
+		$catCode = $this->request->data['category_code'];
+		
+		$filename = self::__RACERS_FILE_PREFIX;
+		if (empty($catCode)) {
+			$catCode = 'all';
+		}
+		$filename .= $catCode;
+		
+		$this->log('tmp:' . TMP, LOG_DEBUG);
+		$file = new File(TMP . self::__PATH_RACERS . $filename . '.csv');
+		$this->log($file, LOG_DEBUG);
+		
+		if (!$file->exists())
+		{
+			$this->Session->setFlash($catCode . __('用の選手リストのファイルがありません。少し後でお試し下さい。'));
+			return $this->redirect(array('action' => 'racer_list_csv_links'));
+		}
+		
+		//$this->log('update:' . date('Ymd\THi', $file->lastChange()), LOG_DEBUG);
+		$dlFilename = $filename . '_' . date('Ymd\THi', $file->lastChange()) . '.csv';
+		
+		$this->log($file->path, LOG_DEBUG);
+		
+		$this->autoRender = false;
+		$this->response->file($file->path, array('name' => $dlFilename, 'download' => true));
+	}
+	
+	/**
+	 * 選手リストを作成（更新）する
+	 */
+	public function create_racer_lists()
+	{
+		$this->_mkdir4RacerList();
+		
+		$this->Racer->Behaviors->load('Utils.SoftDelete');
+		$this->CategoryRacer->Behaviors->load('Utils.SoftDelete');
+		
+		//++++++++++++++++++++++++++++++++++++++++
+		// All
+		$this->log('start all racer csv', LOG_DEBUG);
+		
+		$tmpFile = new File(TMP . self::__PATH_RACERS . self::__RACERS_FILE_PREFIX . 'all.csv.tmp');
+		if ($tmpFile->exists()) {
+			$tmpFile->delete();
+		}
+		$tmpFile->create();
+		
+		$tmpFile->append('AJOCC 選手リスト,更新日:' . date('Y/m/d') ."\n");
+		$tmpFile->append('選手コード,姓,名,姓（かな）,名（かな）,姓 (en),名 (en),性別,生年月日,国籍,Jcf No.,UCI No.,UCI Code,都道府県,所属カテゴリー' . "\n");
+		
+		$offset = 0;
+		$limit = 100;
+		while (true)
+		{
+			$racers = $this->Racer->find('all', 
+				array('offset' => $offset, 'limit' => $limit, 'order' => array('code' => 'ASC')));
+			
+			if (empty($racers)) {
+				break;
+			}
+			
+			// 念のため時間も指定しておく
+			$dateNowFrom = (new DateTime('now'))->setTime(0, 0, 0);
+			$dateNowTo = (new DateTime('now'))->setTime(23, 59, 59);
+			
+			foreach ($racers as $racer) {
+				$r = $racer['Racer'];
+				
+				$genExp = '';
+				if ($r['gender'] == Gender::$MALE->val()) {
+					$genExp = 'M';
+				} else if ($r['gender'] == Gender::$FEMALE->val()) {
+					$genExp = 'F';
+				}
+				
+				$catExp = '';
+				foreach ($racer['CategoryRacer'] as $catRacer) {
+					// 過去のカテゴリーは排除
+					if (!empty($catRacer['cancel_date'])) {
+						$cancelDate = new DateTime($catRacer['cancel_date']);
+						if ($cancelDate < $dateNowTo) {
+							continue;
+						}
+					}
+					
+					if (empty($catRacer['apply_date'])) {
+						continue;
+					}
+					
+					// 将来のカテゴリーも排除
+					$applyDate = new DateTime($catRacer['apply_date']);
+					if ($applyDate > $dateNowFrom) {
+						continue;
+					}
+					
+					if (!empty($catExp)) {
+						$catExp .= ',';
+					}
+					$catExp .= $catRacer['category_code'];
+				}
+				
+				$tmpFile->append(
+					$this->__strOrEmpty($r['code']) . ',' .
+					$this->__strOrEmpty($r['family_name']) . ',' .
+					$this->__strOrEmpty($r['first_name']) . ',' .
+					$this->__strOrEmpty($r['family_name_kana']) . ',' .
+					$this->__strOrEmpty($r['first_name_kana']) . ',' .
+					$this->__strOrEmpty($r['family_name_en']) . ',' .
+					$this->__strOrEmpty($r['first_name_en']) . ',' .
+					$genExp . ',' .
+					$this->__strOrEmpty($r['birth_date']) . ',' .
+					$this->__strOrEmpty($r['nationality_code']) . ',' .
+					$this->__strOrEmpty($r['jcf_number']) . ',' .
+					$this->__strOrEmpty($r['uci_number']) . ',' .
+					$this->__strOrEmpty($r['uci_code']) . ',' .
+					$this->__strOrEmpty($r['prefecture']) . ',' .
+					'"' . $catExp . '"' .
+					"\n"
+					);
+			}
+			
+			$offset += $limit;
+		}
+		
+		$tmpFile->close();
+		
+		$filename = TMP . self::__PATH_RACERS . self::__RACERS_FILE_PREFIX . 'all.csv';
+		$tmpFile->copy($filename, true);
+		
+		$this->log('end all racer csv', LOG_DEBUG);
+		
+		//++++++++++++++++++++++++++++++++++++++++
+		// category ごと
+		
+		// TODO: Category ごとリスト実装
+		
+		$this->Session->setFlash(h('選手リストを更新しました。'));
+		$this->redirect(array('action' => 'racer_list_csv_links'));
+	}
+	
+	/**
+	 * empty の場合には空文字をかえす
+	 * @param string $str
+	 * @return string null でない文字列
+	 */
+	private function __strOrEmpty($str)
+	{
+		return emptY($str) ? '' : $str;
+	}
+	
+	/**
+	 * 選手一覧用のディレクトリを作成する
+	 */
+	private function _mkdir4RacerList()
+	{
+		$dir = new Folder();
+		$dir->create(TMP . 'cyclox2');
+		
+		$dir = new Folder();
+		$dir->create(TMP . 'cyclox2/org_util');
+		
+		$dir = new Folder();
+		$dir->create(TMP . 'cyclox2/org_util/racers');
 	}
 }

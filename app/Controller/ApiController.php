@@ -456,7 +456,7 @@ class ApiController extends ApiBaseController
 			
 			$this->log($results4Rup, LOG_DEBUG);
 			// 昇格処理
-			usort($results4Rup, array($this, '_compare_result_rank_4rup'));
+			usort($results4Rup, array($this, '__compare_result_rank_4rup'));
 			
 			$this->_offsetRankup = 0;
 			foreach ($results4Rup as $r4rup)
@@ -483,7 +483,7 @@ class ApiController extends ApiBaseController
 	 * @param type $b
 	 * @return int 順序
 	 */
-	public static function _compare_result_rank_4rup($a, $b)
+	public static function __compare_result_rank_4rup($a, $b)
 	{
 		if (empty($a['result']['rank'])) {
 			if (empty($b['result']['rank'])) {

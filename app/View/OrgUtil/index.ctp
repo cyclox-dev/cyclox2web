@@ -6,5 +6,9 @@
 
 ?>
 
+<h2>選手一覧</h2>
+<p><?php echo $this->Html->link("CSV ダウンロード", array('action' => 'racer_list_csv_links'));?></p>
+
 <h2>AJOCC Point</h2>
 <p><?php echo $this->Html->link("CSV ダウンロード", array('action' => 'ajocc_pt_csv_links'));?></p>
+
