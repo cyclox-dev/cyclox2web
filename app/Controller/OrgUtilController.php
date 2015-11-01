@@ -385,8 +385,9 @@ class OrgUtilController extends ApiBaseController
 		}
 		$tmpFile->create();
 		
-		$tmpFile->append('AJOCC 選手リスト,更新日:' . date('Y/m/d') ."\n");
-		$tmpFile->append('選手コード,姓,名,姓（かな）,名（かな）,姓 (en),名 (en),性別,生年月日,国籍,Jcf No.,UCI No.,UCI Code,都道府県,所属カテゴリー' . "\n");
+		$tmpFile->append(mb_convert_encoding('AJOCC 選手リスト,更新日:' . date('Y/m/d') ."\n", 'SJIS', 'auto'));
+		$tmpFile->append(mb_convert_encoding('選手コード,姓,名,姓（かな）,名（かな）,姓 (en),名 (en),性別,生年月日,国籍,Jcf No.,UCI No.,UCI Code,都道府県,所属カテゴリー' . "\n"
+					, 'SJIS', 'auto'));
 		
 		$offset = 0;
 		$limit = 100;
@@ -440,22 +441,24 @@ class OrgUtilController extends ApiBaseController
 				}
 				
 				$tmpFile->append(
-					$this->__strOrEmpty($r['code']) . ',' .
-					$this->__strOrEmpty($r['family_name']) . ',' .
-					$this->__strOrEmpty($r['first_name']) . ',' .
-					$this->__strOrEmpty($r['family_name_kana']) . ',' .
-					$this->__strOrEmpty($r['first_name_kana']) . ',' .
-					$this->__strOrEmpty($r['family_name_en']) . ',' .
-					$this->__strOrEmpty($r['first_name_en']) . ',' .
-					$genExp . ',' .
-					$this->__strOrEmpty($r['birth_date']) . ',' .
-					$this->__strOrEmpty($r['nationality_code']) . ',' .
-					$this->__strOrEmpty($r['jcf_number']) . ',' .
-					$this->__strOrEmpty($r['uci_number']) . ',' .
-					$this->__strOrEmpty($r['uci_code']) . ',' .
-					$this->__strOrEmpty($r['prefecture']) . ',' .
-					'"' . $catExp . '"' .
-					"\n"
+					mb_convert_encoding(
+						$this->__strOrEmpty($r['code']) . ',' .
+						$this->__strOrEmpty($r['family_name']) . ',' .
+						$this->__strOrEmpty($r['first_name']) . ',' .
+						$this->__strOrEmpty($r['family_name_kana']) . ',' .
+						$this->__strOrEmpty($r['first_name_kana']) . ',' .
+						$this->__strOrEmpty($r['family_name_en']) . ',' .
+						$this->__strOrEmpty($r['first_name_en']) . ',' .
+						$genExp . ',' .
+						$this->__strOrEmpty($r['birth_date']) . ',' .
+						$this->__strOrEmpty($r['nationality_code']) . ',' .
+						$this->__strOrEmpty($r['jcf_number']) . ',' .
+						$this->__strOrEmpty($r['uci_number']) . ',' .
+						$this->__strOrEmpty($r['uci_code']) . ',' .
+						$this->__strOrEmpty($r['prefecture']) . ',' .
+						'"' . $catExp . '"' . // カンマ対策でダブルクォート囲み
+						"\n"
+					, 'SJIS', 'auto')
 					);
 			}
 			

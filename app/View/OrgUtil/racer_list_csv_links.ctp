@@ -9,7 +9,7 @@
 
 <p><?php
 	echo $this->Form->postLink(
-		h('All'),
+		h('全選手一覧'),
 		array('action' => 'download_racers_csv')
 	);
 ?></p>
