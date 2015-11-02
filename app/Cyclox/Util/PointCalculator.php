@@ -14,6 +14,7 @@ App::uses('EntryRacer', 'Model');
 class PointCalculator extends Object
 {
 	public static $JCX_156;
+	public static $KNS_156;
 	
 	private static $calculators;
 	
@@ -25,9 +26,11 @@ class PointCalculator extends Object
 	public static function init()
 	{
 		self::$JCX_156 = new PointCalculator(1, 'JCX-156', '2015-16 JCX で使用するポイントテーブル。');
+		self::$KNS_156 = new PointCalculator(2, 'KNS-156', '2015-16 関西クロスで使用するポイントテーブル。配点は AJOCC ポイントと同じ。');
 		
 		self::$calculators = array(
 			self::$JCX_156,
+			self::$KNS_156,
 		);
 	}
 	
@@ -69,18 +72,24 @@ class PointCalculator extends Object
 	 * @param type $result
 	 * @param type $grade
 	 * @param int $raceLapCount レーストップの周回数
-	 * @return int 点数配列 array('point' => point, 'bonus' => bonus)。エラーの場合は null をかえす。
+	 * @param int $raceStartedCount レース出走人数
+	 * @return int 点数配列 array('point' => point, 'bonus' => bonus)。付与するポイントが皆無の場合、null をかえす。
 	 */
-	public function calc($result, $grade, $raceLapCount) {
+	public function calc($result, $grade, $raceLapCount, $raceStartedCount) {
 		$pt = null;
 		switch ($this->val()) {
-			case self::$JCX_156->val(): $pt = $this->__calcJCXElite156($result, $grade, $raceLapCount); break;
+			case self::$JCX_156->val(): $pt = $this->__calcJCXElite156($result, $grade, $raceLapCount, $raceStartedCount); break;
+			case self::$KNS_156->val(): $pt = $this->__calcKNS156($result, $grade, $raceLapCount, $raceStartedCount); break;
+		}
+		
+		if (empty($pt['point']) && empty($pt['bonus'])) {
+			return null;
 		}
 		
 		return $pt;
 	}
 	
-	private function __calcJCXElite156($result, $grade, $raceLapCount) {
+	private function __calcJCXElite156($result, $grade, $raceLapCount, $raceStartedCount) {
 		
 		//$this->log('grade:' . $grade . ' result:', LOG_DEBUG);
 		//$this->log($result, LOG_DEBUG);
@@ -122,13 +131,12 @@ class PointCalculator extends Object
 		$rankIndex = $result['rank'] - 1;
 		if (!empty($set[$grade]['rank_pt'][$rankIndex])) {
 			$pointMap['point'] = $set[$grade]['rank_pt'][$rankIndex];
-		}
-		else if (!empty($set[$grade]['run_pt'])) {
+		} else if (!empty($set[$grade]['run_pt'])) {
 			$pointMap['point'] = $set[$grade]['run_pt'];
 		}
 		
-		$this->log('result:', LOG_DEBUG);
-		$this->log($result, LOG_DEBUG);
+		//$this->log('result:', LOG_DEBUG);
+		//$this->log($result, LOG_DEBUG);
 		
 		// 同一周回ならば +20pt
 		if ($result['lap'] >= $raceLapCount) {
@@ -158,6 +166,72 @@ class PointCalculator extends Object
 		if (empty($resultLap['RacerResult']['lap'])) return null;
 		
 		return $resultLap['RacerResult']['lap'];
+	}
+	
+	/**
+	 * 2015-16シーズンの関西クロスのポイントをかえす。配点は 15-16 の AJOCC ポイントと同じ。
+	 * @param type $result 選手ごとリザルト
+	 * @param type $grade グレードはこのポイントテーブルでは関係しない。
+	 * @param type $raceLapCount レーストップの周回数
+	 * @param int $raceStartedCount レース出走人数
+	 * @return int ポイント。取得ポイントがない場合は null をかえす。
+	 */
+	private function __calcKNS156($result, $grade, $raceLapCount, $raceStartedCount) {
+		
+		//$this->log('grade:' . $grade . ' result:', LOG_DEBUG);
+		//$this->log($result, LOG_DEBUG);
+		//$this->log('ecat', LOG_DEBUG);
+		//$this->log($ecat, LOG_DEBUG);
+		
+		if (empty($result['rank'])) return null;
+		
+		// grade -> points
+		$map = array(
+			array(
+				'started_over' => 40, 'points' => array(
+					56, 47, 41, 36, 32, 28, 25, 22, 20, 18,
+					16, 14, 13, 12, 11, 10,  9,  9,  8,  8,
+					 7,  7,  7,  6,  6,  6,  5,  5,  5,  5,
+					 4,  4,  4,  4,  3,  3,  3,  3,  3,  3,
+					 2,  2,  2,  2,  2,  2,  2,  1,  1,  1,
+					 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+				)
+			),
+			array(
+				'started_over' => 20, 'points' => array(
+					42, 34, 28, 24, 21, 18, 15, 13, 11, 10,
+					9,  8,  7,  6,  6,  5,  5,  4,  4,  4,
+					3,  3,  3,  3,  2,  2,  2,  2,  2,  2,
+					2,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+				)
+			),
+			array(
+				'started_over' => 0, 'points' => array(
+					28, 20, 15, 12, 10, 8,  6,  5,  4,  3,
+					3,  2,  2,  2,  1,  1,  1,  1,  1,  1,
+				)
+			)
+		);
+		
+		$rankIndex = $result['rank'] - 1;
+		
+		// ポイントの決定
+		$point = null;
+		foreach ($map as $item) {
+			if ($raceStartedCount > $item['started_over']) {
+				
+				if (isset($item['points'][$rankIndex])) {
+					$point = $item['points'][$rankIndex];
+					break;
+				}
+			}
+		}
+		
+		$pointMap = array();
+		$pointMap['point'] = $point;
+		$pointMap['bonus'] = null;
+
+		return $pointMap;
 	}
 }
 PointCalculator::init();

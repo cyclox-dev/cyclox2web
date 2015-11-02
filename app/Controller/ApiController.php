@@ -1186,7 +1186,7 @@ class ApiController extends ApiBaseController
 			$calc = PointCalculator::getCalculator($ptSetting['PointSeries']['calc_rule']);
 			if (empty($calc)) return;
 			
-			$pt = $calc->calc($result, $ptSetting['MeetPointSeries']['grade'], $raceLapCount);
+			$pt = $calc->calc($result, $ptSetting['MeetPointSeries']['grade'], $raceLapCount, $raceStartedCount);
 			if (!empty($pt)) {
 				$psr = array();
 				$psr['PointSeriesRacer'] = array(
