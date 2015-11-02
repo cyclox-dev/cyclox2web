@@ -182,7 +182,11 @@
 							if (empty($result['RacerResult']['points'][$i])) {
 								echo '';
 							} else {
-								echo (1 * $result['RacerResult']['points'][$i]['pt']) . '+' . (1 * $result['RacerResult']['points'][$i]['bonus']) . 'pt';
+								$pointStr = 1 * $result['RacerResult']['points'][$i]['pt'];
+								if (!empty($result['RacerResult']['points'][$i]['bonus'])) {
+									$pointStr .= '+' . (1 * $result['RacerResult']['points'][$i]['bonus']);
+								}
+								echo $pointStr . 'pt';
 							}
 						?></td>
 					<?php endfor; ?>
