@@ -414,6 +414,16 @@ class OrgUtilController extends ApiBaseController
 					$genExp = 'F';
 				}
 				
+				$birthExp = '';
+				if (!empty($r['birth_date'])) {
+					$dt = new DateTime($r['birth_date']);
+					$year = $dt->format('Y');
+					$this->log('$year:' . $year, LOG_DEBUG);
+					if ($year > 1905) {
+						$birthExp = $r['birth_date'];
+					}
+				}
+				
 				$catExp = '';
 				foreach ($racer['CategoryRacer'] as $catRacer) {
 					// 過去のカテゴリーは排除
@@ -450,7 +460,7 @@ class OrgUtilController extends ApiBaseController
 						$this->__strOrEmpty($r['family_name_en']) . ',' .
 						$this->__strOrEmpty($r['first_name_en']) . ',' .
 						$genExp . ',' .
-						$this->__strOrEmpty($r['birth_date']) . ',' .
+						$this->__strOrEmpty($birthExp) . ',' .
 						$this->__strOrEmpty($r['nationality_code']) . ',' .
 						$this->__strOrEmpty($r['jcf_number']) . ',' .
 						$this->__strOrEmpty($r['uci_number']) . ',' .
