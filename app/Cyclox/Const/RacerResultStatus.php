@@ -29,8 +29,8 @@ class RacerResultStatus
 		self::$FIN = new RacerResultStatus(1, 'ゴール到達', 'FIN', 100, true);
 		self::$DNF = new RacerResultStatus(2, 'ゴールできず', 'DNF', 30, false);
 		self::$DNQ = new RacerResultStatus(3, '失格(除外)', 'DNQ', 10, false);
-		self::$LAPOUT = new RacerResultStatus(4, '周回遅れラップアウト', 'DNF', 60, true);
-		self::$LAPOUT80 = new RacerResultStatus(5, '80%ラップアウト適用', 'DNF', 65, true);
+		self::$LAPOUT = new RacerResultStatus(4, '周回遅れラップアウト', 'DNF(Lap-Out)', 60, true);
+		self::$LAPOUT80 = new RacerResultStatus(5, '80%ラップアウト適用', 'DNF(80%Out)', 65, true);
 		
 		self::$statuses = array(
 			self::$DNS,
