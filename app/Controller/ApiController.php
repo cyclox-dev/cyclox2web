@@ -541,7 +541,7 @@ class ApiController extends ApiBaseController
 		$racers = $this->Racer->find('list', array(
 			'fields' => array('code'),
 			'recursive' => -1,
-			'conditions' => array('code LIKE' => $meetGroupCode . '-' . $sn . '%'),
+			'conditions' => array('code LIKE' => $meetGroupCode . '-' . $snumberStr . '-%'),
 		));
 		
 		// 最大値を求める
@@ -579,6 +579,42 @@ class ApiController extends ApiBaseController
 		} else {
 			return $this->success(array('racer_code_next_number' => $max + 1));
 		}
+	}
+	
+	/**
+	 * 
+	 * @param type $meetGroupCode
+	 * @param type $seasonExp
+	 * @param type $minNumber
+	 * @return array 
+	 */
+	public function racer_code_4tails($meetGroupCode = null, $seasonExp = null)
+	{
+		if (empty($meetGroupCode) || empty($seasonExp)) {
+			$this->error('大会グループもしくはシーズンの指定が無効です。', self::STATUS_CODE_BAD_REQUEST);
+		}
+		
+		$snumberStr = $seasonExp;
+		if (empty($snumberStr)) {
+			$snumberStr = AjoccUtil::seasonExp();
+		} else if (strlen($snumberStr) != 3) {
+			$this->error('season_number should be length=3 and integer', self::STATUS_CODE_BAD_REQUEST);
+		}
+		
+		$this->Racer->Behaviors->unload('Utils.SoftDelete'); // contains deleted
+		$racers = $this->Racer->find('list', array(
+			'fields' => array('code'),
+			'recursive' => -1,
+			'conditions' => array('code LIKE' => $meetGroupCode . '-' . $snumberStr . '-%'),
+		));
+		
+		$codes = array();
+		foreach ($racers as $code)
+		{
+			$codes[] = $code;
+		}
+		
+		return $this->success(array('codes' => $codes));
 	}
 	
 	/**
