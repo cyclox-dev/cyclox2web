@@ -318,7 +318,7 @@ class ApiController extends ApiBaseController
 		$breaks = false;
 		foreach ($egroups as $egroup) {
 			foreach ($egroup['EntryCategory'] as $ec) {
-				if ($ec['name'] === $ecatName) {
+				if ($ec['name'] === $ecatName) { // ecat.deleted は出てこない
 					$ecat = $ec; // 複数ヒットをエラーとする？ -> No. 登録で重複させないように
 					$breaks = true;
 					break;
