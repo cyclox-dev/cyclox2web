@@ -415,6 +415,14 @@ class ApiController extends ApiBaseController
 			$topLapCount = 0; // ポイント計算のためにレース周回数（ラップタイム最高数）をカウント
 			$startedCount = 0; // 昇格処理のために出走人数のカウント
 			foreach ($this->request->data['body-result'] as $body => $result) {
+				if (empty($erMap[$body])) {
+					$this->TransactionManager->rollback($transaction);
+					return $this->error("無効な BodyNo. の設定が存在します。\n"
+						. "出走データとリザルトをチェックして下さい。\n"
+						. "（出走設定を再度 upload すると解決する場合があります。）", self::STATUS_CODE_BAD_REQUEST);
+				}
+				//$this->log($result);
+				
 				$er = $erMap[$body];
 				if (!empty($er) && $er['EntryRacer']['entry_status'] != RacerEntryStatus::$OPEN->val()) {
 					$rstatus = $result['RacerResult']['status'];
@@ -433,12 +441,6 @@ class ApiController extends ApiBaseController
 			
 			foreach ($this->request->data['body-result'] as $body => $result) {
 				$er = $erMap[$body];
-				if (empty($er)) {
-					$this->TransactionManager->rollback($transaction);
-					return $this->error('無効な BodyNo. の設定が存在します。出走データをチェックして下さい。', self::STATUS_CODE_BAD_REQUEST);
-				}
-				//$this->log($result);
-				
 				$isOpenRacer = ($er['EntryRacer']['entry_status'] == RacerEntryStatus::$OPEN->val());
 				
 				$ajoccPt = 0;
