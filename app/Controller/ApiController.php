@@ -220,12 +220,35 @@ class ApiController extends ApiBaseController
 			return $this->error('出走グループキー "entry_cats" がありません。', self::STATUS_CODE_BAD_REQUEST);
 		}
 		
+		$duplicatedEcatNames = array();
+		
 		// 出走グループ名が同じものがあった場合、出走データ + リザルトを除去する。
 		if (!empty($this->request->data['entry_group']['EntryGroup']['name']) &&
 				!empty($this->request->data['entry_group']['EntryGroup']['meet_code'])) {
 			$egroupName = $this->request->data['entry_group']['EntryGroup']['name'];
 			$meetCode = $this->request->data['entry_group']['EntryGroup']['meet_code'];
 			
+			// 出走グループ名が異なり、同じ名前の出走カテゴリーがある場合には警告（出走グループ名同じなら下流で削除）
+			$egroups = $this->EntryGroup->find('all', array('conditions' => array('meet_code' => $meetCode)));
+			$cats = $this->request->data['entry_cats'];
+			if (is_array($cats) && !emptY($cats)) {
+				foreach ($cats as $cat) {
+					//$this->log('vs ' . $egroupName . 'ofEcat:' . $cat['EntryCategory']['name'], LOG_DEBUG);
+					foreach ($egroups as $egroup) {
+						//$this->log('egroupName:' . $egroup['EntryGroup']['name'], LOG_DEBUG);
+						if ($egroup['EntryGroup']['name'] === $egroupName) continue; // これから削除するものは除く
+						foreach ($egroup['EntryCategory'] as $e) {
+							//$this->log('e-name:' . $e['name'], LOG_DEBUG);
+							if ($cat['EntryCategory']['name'] === $e['name']) {
+								$duplicatedEcatNames[] = $e['name'];
+								break;
+							}
+						}
+					}
+				}
+			}
+			
+			// 同じ名前の出走グループを削除
 			$opt = array('conditions' => array('name' => $egroupName, 'meet_code' => $meetCode));
 			$oldGroups = $this->EntryGroup->find('list', $opt);
 			
@@ -274,7 +297,12 @@ class ApiController extends ApiBaseController
 			}
 			
 			$this->TransactionManager->commit($transaction);
-			return $this->success(array('ok')); // 件数とか？
+			
+			if (empty($duplicatedEcatNames)) {
+				return $this->success(array('ok')); // 件数とか？
+			} else {
+				return $this->success(array('duplidated_entry_category' => $duplicatedEcatNames));
+			}
 		} catch (Exception $ex) {
 			$this->log('exception:' . $ex.message, LOG_DEBUG);
 			$this->TransactionManager->rollback($transaction);
@@ -309,7 +337,12 @@ class ApiController extends ApiBaseController
 		
 		// 出走カテゴリーの特定
 		
-		$egroups = $this->EntryGroup->find('all', array('conditions' => array('meet_code' => $meetCode)));
+		$opt = array(
+			'conditions' => array('meet_code' => $meetCode),
+			'order' => array('EntryGroup.modified' => 'desc')
+			// 新しい方の出走グループを使用する。出走グループ名前変更対策。
+		);
+		$egroups = $this->EntryGroup->find('all', $opt);
 		if (empty($egroups)) {
 			return $this->error('大会が見つかりません。', self::STATUS_CODE_BAD_REQUEST);
 		}
