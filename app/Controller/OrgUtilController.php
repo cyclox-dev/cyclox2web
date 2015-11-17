@@ -15,11 +15,12 @@ App::uses('Gender', 'Cyclox/Const');
  */
 class OrgUtilController extends ApiBaseController
 {
-	 public $uses = array('Meet', 'Category', 'EntryGroup', 'EntryRacer', 'CategoryRacer', 'Racer');
+	 public $uses = array('Meet', 'Category', 'EntryGroup', 'EntryRacer', 'CategoryRacer', 'Racer'
+			, 'PointSeries');
 	 
 	 public $components = array('Session', 'RequestHandler');
 	 
-	 const __PATH_RACERS = 'cyclox2/org_util/racers/';
+	 const __PATH_RACERS = 'cyclox2/org_util/racers';
 	 const __RACERS_FILE_PREFIX = 'racers_';
 
 	/**
@@ -347,12 +348,12 @@ class OrgUtilController extends ApiBaseController
 		$filename .= $catCode;
 		
 		$this->log('tmp:' . TMP, LOG_DEBUG);
-		$file = new File(TMP . self::__PATH_RACERS . $filename . '.csv');
+		$file = new File(TMP . self::__PATH_RACERS . '/' . $filename . '.csv');
 		$this->log($file, LOG_DEBUG);
 		
 		if (!$file->exists())
 		{
-			$this->Session->setFlash($catCode . __('用の選手リストのファイルがありません。少し後でお試し下さい。'));
+			$this->Session->setFlash($catCode . __('用の選手リストのファイルがありません。ファイルの更新が必要です。'));
 			return $this->redirect(array('action' => 'racer_list_csv_links'));
 		}
 		
@@ -379,7 +380,7 @@ class OrgUtilController extends ApiBaseController
 		// All
 		$this->log('start all racer csv', LOG_DEBUG);
 		
-		$tmpFile = new File(TMP . self::__PATH_RACERS . self::__RACERS_FILE_PREFIX . 'all.csv.tmp');
+		$tmpFile = new File(TMP . self::__PATH_RACERS . '/' . self::__RACERS_FILE_PREFIX . 'all.csv.tmp');
 		if ($tmpFile->exists()) {
 			$tmpFile->delete();
 		}
@@ -442,7 +443,7 @@ class OrgUtilController extends ApiBaseController
 					$applyDate = new DateTime($catRacer['apply_date']);
 					if ($applyDate > $dateNowFrom) {
 						continue;
-					}
+					} 
 					
 					if (!empty($catExp)) {
 						$catExp .= ',';
@@ -477,7 +478,7 @@ class OrgUtilController extends ApiBaseController
 		
 		$tmpFile->close();
 		
-		$filename = TMP . self::__PATH_RACERS . self::__RACERS_FILE_PREFIX . 'all.csv';
+		$filename = TMP . self::__PATH_RACERS . '/' . self::__RACERS_FILE_PREFIX . 'all.csv';
 		$tmpFile->copy($filename, true);
 		
 		$this->log('end all racer csv', LOG_DEBUG);
@@ -489,6 +490,14 @@ class OrgUtilController extends ApiBaseController
 		
 		$this->Session->setFlash(h('選手リストを更新しました。'));
 		$this->redirect(array('action' => 'racer_list_csv_links'));
+	}
+	
+	
+	public function point_series_csv_links()
+	{
+		$pss = $this->PointSeries->find('list');
+		$this->log($pss, LOG_DEBUG);
+		$this->set('links', $pss);
 	}
 	
 	/**
@@ -513,6 +522,6 @@ class OrgUtilController extends ApiBaseController
 		$dir->create(TMP . 'cyclox2/org_util');
 		
 		$dir = new Folder();
-		$dir->create(TMP . 'cyclox2/org_util/racers');
+		$dir->create(TMP . self::__PATH_RACERS);
 	}
 }

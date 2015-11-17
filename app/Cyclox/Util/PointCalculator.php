@@ -89,8 +89,8 @@ class PointCalculator extends Object
 		return $pt;
 	}
 	
-	private function __calcJCXElite156($result, $grade, $raceLapCount, $raceStartedCount) {
-		
+	private function __calcJCXElite156($result, $grade, $raceLapCount, $raceStartedCount)
+	{
 		//$this->log('grade:' . $grade . ' result:', LOG_DEBUG);
 		//$this->log($result, LOG_DEBUG);
 		//$this->log('ecat', LOG_DEBUG);
