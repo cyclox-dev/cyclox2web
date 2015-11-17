@@ -577,36 +577,35 @@ class ApiController extends ApiBaseController
 			'fields' => array('code'),
 			'recursive' => -1,
 			'conditions' => array('code LIKE' => $meetGroupCode . '-' . $snumberStr . '-%'),
+			'order' => array('code' => 'ASC'),
 		));
 		
 		// 最大値を求める
 		$max = -1;
 		foreach ($racers as $code) {
-			//$this->log('code is ' . $code . ' ' . substr_count($code, '-'), LOG_DEBUG);
+			// イレギュラーな選手コードも想定しておこう
 			if (substr_count($code, '-') != 2) {
 				continue;
 			}
 			
-			$hifnPos = strrpos($code, '-');
-			if ($hifnPos === false || $hifnPos >= strlen($code) - 1) {
-				continue;
-			}
+			$strs = explode('-', $code);
+			$numStr = $strs[2];
 			
-			$numStr = substr($code, $hifnPos + 1);
-			//$this->log('num str:' . $numStr, LOG_DEBUG);
 			if (!is_numeric($numStr)) {
 				continue;
 			}
-			// 小数、10進数以外の表記は intval(string) なら問題なし。
 			
 			$num = intval($numStr);
-			if ($num === false) {
+			if ($num === 0) {
 				continue;
 			}
 			
-			if ($num > $max) {
-				$max = $num;
+			//$this->log('max:' . $max . ' num:' . $num, LOG_DEBUG);
+			if ($max > 0 && $num != $max + 1) {
+				break;
 			}
+			
+			$max = $num;
 		}
 		
 		if ($max === -1) {
