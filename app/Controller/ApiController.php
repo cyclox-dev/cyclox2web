@@ -489,7 +489,7 @@ class ApiController extends ApiBaseController
 			
 			// TODO: __setupRankUp について、昔の処理利用しているため、かなり重い。要改善。
 			
-			$this->log($results4Rup, LOG_DEBUG);
+			//$this->log($results4Rup, LOG_DEBUG);
 			// 昇格処理
 			usort($results4Rup, array($this, '__compare_result_rank_4rup'));
 			

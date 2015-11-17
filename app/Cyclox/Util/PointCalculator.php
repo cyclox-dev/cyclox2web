@@ -1,6 +1,7 @@
 <?php
 
 App::uses('EntryRacer', 'Model');
+App::uses('RacerResultStatus', 'Cyclox/Const');
 
 /*
  *  created at 2015/08/16 by shun
@@ -139,7 +140,7 @@ class PointCalculator extends Object
 		//$this->log($result, LOG_DEBUG);
 		
 		// 同一周回ならば +20pt
-		if ($result['lap'] >= $raceLapCount) {
+		if ($result['lap'] >= $raceLapCount && $result['status'] == RacerResultStatus::$FIN) {
 			$pointMap['bonus'] = 20;
 		}
 
@@ -185,52 +186,33 @@ class PointCalculator extends Object
 		
 		if (empty($result['rank'])) return null;
 		
-		// grade -> points
-		$map = array(
-			array(
-				'started_over' => 40, 'points' => array(
-					56, 47, 41, 36, 32, 28, 25, 22, 20, 18,
-					16, 14, 13, 12, 11, 10,  9,  9,  8,  8,
-					 7,  7,  7,  6,  6,  6,  5,  5,  5,  5,
-					 4,  4,  4,  4,  3,  3,  3,  3,  3,  3,
-					 2,  2,  2,  2,  2,  2,  2,  1,  1,  1,
-					 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-				)
+		$pointSet = array(
+			'rank_pt' => array(
+				200, 160, 140, 120, 110, 100, 90,  80,  70,  60,
+				58,  56,  54,  52,  50,  48,  46,  44,  42,  40,
+				39,  38,  37,  36,  35,  34,  33,  32,  31,  30,
+				29,  28,  27,  26,  25,  24,  23,  22,  21,  20,
+				19,  18,  17,  16,  15,  14,  13,  12,  11,  10,
 			),
-			array(
-				'started_over' => 20, 'points' => array(
-					42, 34, 28, 24, 21, 18, 15, 13, 11, 10,
-					9,  8,  7,  6,  6,  5,  5,  4,  4,  4,
-					3,  3,  3,  3,  2,  2,  2,  2,  2,  2,
-					2,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-				)
-			),
-			array(
-				'started_over' => 0, 'points' => array(
-					28, 20, 15, 12, 10, 8,  6,  5,  4,  3,
-					3,  2,  2,  2,  1,  1,  1,  1,  1,  1,
-				)
-			)
+			'run_pt' => 5, // 順位付いたらもらえるポイント（51位以下）
 		);
 		
 		$rankIndex = $result['rank'] - 1;
 		
-		// ポイントの決定
-		$point = null;
-		foreach ($map as $item) {
-			if ($raceStartedCount > $item['started_over']) {
-				
-				if (isset($item['points'][$rankIndex])) {
-					$point = $item['points'][$rankIndex];
-					break;
-				}
-			}
+		$point = 0;
+		if (isset($pointSet['rank_pt'][$rankIndex])) {
+			$point = $pointSet['rank_pt'][$rankIndex];
+		} else {
+			$point = $pointSet['run_pt'];
 		}
 		
 		$pointMap = array();
 		$pointMap['point'] = $point;
-		$pointMap['bonus'] = null;
-
+		
+		if ($result['lap'] >= $raceLapCount && RacerResultStatus::ofVal($result['status']) == RacerResultStatus::$FIN) {
+			$pointMap['bonus'] = 20;
+		}
+		
 		return $pointMap;
 	}
 }
