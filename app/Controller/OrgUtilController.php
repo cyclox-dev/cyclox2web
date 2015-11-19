@@ -279,16 +279,31 @@ class OrgUtilController extends ApiBaseController
 			'集計日,' . date('Y/m/d H:i:s') . "\n\n";
 		
 		// A1, A2 は空
-		$body .= '選手 Code,選手名,';
+		$body .= '順位,選手 Code,選手名,';
 		
 		foreach ($meetTitles as $title) {
 			$body .= $title . ',';
 		}
 		$body .= "合計,自乗和\n";
 		
+		$rank = 0;
+		$skip = 0;
+		$preTotal = -1;
+		$preSqured = -1;
+		
 		foreach ($racerPoints as $rcode => $rp) {
-			$this->log('name is:' . $rp['name'], LOG_DEBUG);
-			$line = $rcode . ',' . $rp['name'] . ',';
+			//$this->log('name is:' . $rp['name'], LOG_DEBUG);
+			
+			if ($rp['total'] == $preTotal && $rp['totalSquared'] == $preSqured) {
+				 ++$skip;
+			} else {
+				$rank += 1 + $skip;
+				$skip = 0;
+				$preTotal = $rp['total'];
+				$preSqured = $rp['totalSquared'];
+			}
+			
+			$line = $rank . ',' . $rcode . ',' . $rp['name'] . ',';
 			for ($i = 0; $i < count($meetTitles); $i++) {
 				if (!empty($rp['points'][$i])) {
 					$line .= $rp['points'][$i];
