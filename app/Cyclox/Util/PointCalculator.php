@@ -27,7 +27,7 @@ class PointCalculator extends Object
 	public static function init()
 	{
 		self::$JCX_156 = new PointCalculator(1, 'JCX-156', '2015-16 JCX で使用するポイントテーブル。');
-		self::$KNS_156 = new PointCalculator(2, 'KNS-156', '2015-16 関西クロスで使用するポイントテーブル。配点は AJOCC ポイントと同じ。');
+		self::$KNS_156 = new PointCalculator(2, 'KNS-156', '2015-16 関西クロスで使用するポイントテーブル。配点は JCX ポイントと同じ。完走ボーナスは無し。');
 		
 		self::$calculators = array(
 			self::$JCX_156,
@@ -140,7 +140,7 @@ class PointCalculator extends Object
 		//$this->log($result, LOG_DEBUG);
 		
 		// 同一周回ならば +20pt
-		if ($result['lap'] >= $raceLapCount && $result['status'] == RacerResultStatus::$FIN) {
+		if ($result['lap'] >= $raceLapCount && $result['status'] == RacerResultStatus::$FIN->val()) {
 			$pointMap['bonus'] = 20;
 		}
 
@@ -209,9 +209,7 @@ class PointCalculator extends Object
 		$pointMap = array();
 		$pointMap['point'] = $point;
 		
-		if ($result['lap'] >= $raceLapCount && RacerResultStatus::ofVal($result['status']) == RacerResultStatus::$FIN) {
-			$pointMap['bonus'] = 20;
-		}
+		// 完走ボーナスは無し。20151120 by クマモトさん
 		
 		return $pointMap;
 	}
