@@ -2,8 +2,8 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 /* Drop Tables */
 
-DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS category_racers;
+DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
 DROP TABLE IF EXISTS time_records;
@@ -257,10 +257,16 @@ CREATE TABLE meet_point_series
 	meet_code varchar(11) BINARY NOT NULL,
 	entry_category_name varchar(255) BINARY NOT NULL,
 	grade tinyint unsigned NOT NULL,
+	-- その大会で取得したポイントの有効期間の開始日。開始日当日も有効である。
+	point_term_begin date,
+	-- その大会で取得したポイントの有効期間の終了日。終了日当日はポイントは有効であり、翌日は無効となる。
+	point_term_end date,
 	created datetime,
 	modified datetime,
 	deleted_date datetime,
 	deleted tinyint(1) DEFAULT 0 NOT NULL,
+	-- カンマ区切りでそれぞれの集計に関するヒントを提供する
+	hint varchar(255) BINARY,
 	PRIMARY KEY (id)
 );
 
