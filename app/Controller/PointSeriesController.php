@@ -170,25 +170,34 @@ class PointSeriesController extends AppController
 		$nameMap = array(); // 名前取得用。key: racer_code, val: name（半角スペース区切り）
 		// TODO チーム名も
 		
+		$hints = array(); // 必ず集計する大会インデックスを取得しておく
 		for ($i = 0; $i < count($mpss); $i++) {
 			$mps = $mpss[$i];
 			//$this->log('mps id:' . $mps['MeetPointSeries']['id'], LOG_DEBUG);
+			
+			$hints[] = $mps['MeetPointSeries']['hint'];
+			
 			$op = array(
 				'conditions' => array('meet_point_series_id' => $mps['MeetPointSeries']['id']),
-				'contain' => array('Racer.family_name', 'Racer.first_name')
+				'contain' => array('Racer.family_name', 'Racer.first_name', 'RacerResult.rank')
 			);
 			$psrs = $this->PointSeriesRacer->find('all', $op);
-			$this->log('psrs is...' . count($psrs), LOG_DEBUG);
+			//$this->log('psrs is...' . count($psrs), LOG_DEBUG);
 			
 			foreach ($psrs as $psr) {
 				$racerCode = $psr['PointSeriesRacer']['racer_code'];
 				if (empty($racerPoints[$racerCode])) {
 					$racerPoints[$racerCode] = array();
 				}
+				$this->log($psr, LOG_DEBUG);
 				// ゼロも格納する
 				$racerPoints[$racerCode][$meetIndex] = array();
 				$racerPoints[$racerCode][$meetIndex]['pt'] = $psr['PointSeriesRacer']['point']; // not null
 				$racerPoints[$racerCode][$meetIndex]['bonus'] = $psr['PointSeriesRacer']['bonus']; // may null
+				if (!empty($psr['RacerResult']['rank'])) {
+					// リザルト順位で比較する時用
+					$racerPoints[$racerCode][$meetIndex]['rank'] = $psr['RacerResult']['rank'];
+				}
 				
 				if (empty($nameMap[$racerCode])) {
 					$nameMap[$racerCode] = $psr['Racer']['family_name'] . ' ' . $psr['Racer']['first_name'];
@@ -199,7 +208,7 @@ class PointSeriesController extends AppController
 		}
 		
 		//$this->log($racerPoints, LOG_DEBUG);
-		$ranking = $sumUpRule->calc($racerPoints);
+		$ranking = $sumUpRule->calc($racerPoints, $hints);
 		
 		if (empty($ranking)) {
 			throw new InternalErrorException('could not sum up ranking...');

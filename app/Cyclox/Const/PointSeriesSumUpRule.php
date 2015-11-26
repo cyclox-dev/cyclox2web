@@ -9,6 +9,8 @@ class RankingPointUnit
 	public $code = null; // string
 	public $rank = 999; // int
 	public $rankPt = array(); // int array 集計値を順に持つ
+	
+	public $points = array(); // array of int. index は大会インデックス, value['pt'], value['bonus']
 }
 
 /**
@@ -31,7 +33,7 @@ class PointSeriesSumUpRule extends Object
 	
 	public static function init()
 	{
-		self::$JCX_156 = new PointSeriesSumUpRule(1, 'JCX156', 'grade2の上位6戦とgrade1のポイントを採用する。合計->自乗和->最近の成績で比較する。');
+		self::$JCX_156 = new PointSeriesSumUpRule(1, 'JCX156', 'hint:required とそれ以外の上位6戦のポイントを採用する。合計->自乗和->最近の成績で比較する。');
 		self::$KNS_156 = new PointSeriesSumUpRule(2, '合計のみ', '合計点のみ。全戦の成績を採用する。同点の場合は同順位。');
 		self::$TOTAL_UP = new PointSeriesSumUpRule(3, '合計のみ', '合計点のみ。全戦の成績を採用する。同点の場合は同順位。');
 		
@@ -66,6 +68,8 @@ class PointSeriesSumUpRule extends Object
 	
 	public function __construct($v, $t, $d) 
 	{
+		parent::__construct();
+		
 		$this->val = $v;
 		$this->title = $t;
 		$this->description = $d;
@@ -81,9 +85,10 @@ class PointSeriesSumUpRule extends Object
 	/**
 	 * 集計する
 	 * @param type $racerPointMap 選手コードをキー値として、大会獲得順に並んでいる。
+	 * @param array $hints $racerPointMap の中のインデックスに対応したヒント
 	 * @return ランキングと集計ポイント（メソッド冒頭参照）
 	 */
-	public function calc($racerPointMap = array())
+	public function calc($racerPointMap = array(), $hints = array())
 	{
 		/* パラメタ $racerPointMap は以下の様な array
 		array(
@@ -105,9 +110,9 @@ class PointSeriesSumUpRule extends Object
 		
 		$ranking = null;
 		switch ($this->val()) {
-			case self::$JCX_156->val(): $ranking = $this->__calcJCX156($racerPointMap); break;
-			case self::$KNS_156->val(): $ranking = $this->__calcKNS156($racerPointMap); break;
-			case self::$TOTAL_UP->val(): $ranking = $this->__calcTotalUp($racerPointMap); break;
+			case self::$JCX_156->val(): $ranking = $this->__calcJCX156($racerPointMap, $hints); break;
+			case self::$KNS_156->val(): $ranking = $this->__calcKNS156($racerPointMap, $hints); break;
+			case self::$TOTAL_UP->val(): $ranking = $this->__calcTotalUp($racerPointMap, $hints); break;
 		}
 		
 		return $ranking;
@@ -117,16 +122,155 @@ class PointSeriesSumUpRule extends Object
 	 * JCX2015-16 ランキングを集計する
 	 * @param type $racerPointMap 選手コードをキー値として、大会獲得順に並んでいる。
 	 */
-	public function __calcJCX156($racerPointMap = array())
+	public function __calcJCX156($racerPointMap = array(), $hints = array())
 	{
+		$requiredIndices = array();
+		for ($i = 0; $i < count($hints); $i++) {
+			$hint = $hints[$i];
+			$requiredIndices[] = $this->_requiredMeetPS($hint);
+		}
 		
+		$rankPtUits = array();
+		foreach ($racerPointMap as $rcode => $points) {
+			$rpUnit = new RankingPointUnit();
+			$rpUnit->code = $rcode;
+			
+			$pt = 0;
+			$sq = 0;
+			$outReqs = array(); // required でないやつら
+			
+			// 配列の last index から実長さ取得
+			end($points);
+			$pointsLen = key($points) + 1;
+			reset($points);
+			
+			// required を先に取得
+			for ($i = 0; $i < $pointsLen + 1; $i++) {
+				if (empty($points[$i])) {
+					continue;
+				}
+				$point = $points[$i];
+				if ($requiredIndices[$i]) {
+					$pt += $point['pt'] + $point['bonus'];
+					$sq += ($point['pt'] + $point['bonus']) * ($point['pt'] + $point['bonus']);
+				} else {
+					$outReqs[] = $point;
+				}
+			}
+			
+			usort($outReqs, array($this, '__comparePoint'));
+			
+			for ($i = 0; $i < count($outReqs) && $i < 6; $i++) {
+				$point = $outReqs[$i];
+				$pt += $point['pt'] + $point['bonus'];
+				$sq += ($point['pt'] + $point['bonus']) * ($point['pt'] + $point['bonus']);
+			}
+			
+			$rpUnit->rankPt[] = $pt; // index:0 に合計値を格納
+			$rpUnit->rankPt[] = $sq; // index:1 に自乗値を格納
+			$rpUnit->points = $points; // usort 用にセット
+			
+			$rankPtUits[] = $rpUnit;
+		}
+		
+		usort($rankPtUits, array($this, '__compareOfJCX156'));
+		
+		// 順位付け
+		$rank = 1;
+		for ($i = 0; $i < count($rankPtUits); $i++) {
+			$rpUnit = $rankPtUits[$i];
+			$rpUnit->rank = $rank;
+			++$rank;
+		}
+		
+		$rMap = array();
+		$rMap['rank_pt_title'] = array('集計点', '自乗点');
+		$rMap['ranking'] = $rankPtUits;
+		
+		return $rMap;
+	}
+	
+	/**
+	 * 集計されるべき meet point series であるかをかえす
+	 * @param string $hints カンマで句切られたヒント文字列
+	 * @return boolean 集計されるべき meet point series であるか
+	 */
+	private function _requiredMeetPS($hints)
+	{
+		if (empty($hints)) {
+			return false;
+		}
+		
+		$strs = explode(',', $hints);
+		
+		foreach ($strs as $s) {
+			if ($s === 'required') {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	static function __comparePoint($pointA, $pointB)
+	{
+		if (empty($pointA['pt'])) {
+			return -1;
+		}
+		if (empty($pointB['pt'])) {
+			return 1;
+		}
+		
+		return ($pointB['pt'] + $pointB['bonus']) - ($pointA['pt'] + $pointA['bonus']);
+	}
+	
+	static function __compareOfJCX156(RankingPointUnit $a, RankingPointUnit $b)
+	{
+		// 合計点比較
+		if ($a->rankPt[0] != $b->rankPt[0])
+		{
+			return $b->rankPt[0] - $a->rankPt[0];
+		}
+		
+		// 自乗点比較
+		if ($a->rankPt[1] != $b->rankPt[1])
+		{
+			return $b->rankPt[1] - $a->rankPt[1];
+		}
+		
+		// 一番近い成績での比較
+		end($a->points);
+		$keyA = key($a->points);
+		end($b->points);
+		$keyB = key($b->points);
+		
+		$ret = 0;
+		
+		// 最近の成績がある方が上
+		
+		if ($keyA == $keyB) {
+			if ($b->points[$keyB]['pt'] == $a->points[$keyA]['pt']) {
+				// 最近の成績位置Bが等しく、ポイントも同じならば最近成績が上の方が上
+				$ret = $a->points[$keyA]['rank'] - $b->points[$keyB]['rank'];
+			} else {
+				// 最近の成績ポイントが上の方が上
+				$ret = $b->points[$keyB]['pt'] - $a->points[$keyA]['pt'];
+			}
+		} else {
+			$ret = $keyB - $keyA;
+		}
+		
+		reset($a->points);
+		reset($b->points);
+		
+		return $ret;
 	}
 	
 	/**
 	 * 
 	 * @param type $racerPointMap 選手コードをキー値として、大会獲得順に並んでいる。
 	 */
-	public function __calcKNS156($racerPointMap = array())
+	public function __calcKNS156($racerPointMap = array(), $hints = array())
 	{
 		// 選手ごと合計値を計算
 		$i = 0;
@@ -178,7 +322,7 @@ class PointSeriesSumUpRule extends Object
 		return $b->rankPt[0] - $a->rankPt[0];
 	}
 	
-	public function __calcTotalUp($racerPointMap = array())
+	public function __calcTotalUp($racerPointMap = array(), $hints = array())
 	{
 		// 2015-1116 に作成した関西の処理で良いかも。
 	}
