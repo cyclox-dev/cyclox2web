@@ -221,7 +221,7 @@ class PointSeriesController extends AppController
 			$tmpFile->delete();
 		}
 		$tmpFile->create();
-		$tmpFile->append(mb_convert_encoding($ps['PointSeries']['name'] . ' ランキング,更新日:' . date('Y/m/d') ."\n", 'SJIS', 'auto'));
+		$tmpFile->append(mb_convert_encoding($ps['PointSeries']['name'] . ' ランキング,更新日:' . date('Y/m/d') ."\n", 'UTF-8', 'auto'));
 		$rowString = '順位,選手 Code,選手名';
 		foreach ($mpss as $mps) {
 			$rowString .= ',' . $mps['MeetPointSeries']['express_in_series'];
@@ -229,7 +229,7 @@ class PointSeriesController extends AppController
 		foreach ($ranking['rank_pt_title'] as $title) {
 			$rowString .= ',' . $title;
 		}
-		$tmpFile->append(mb_convert_encoding($rowString . "\n", 'SJIS', 'auto'));
+		$tmpFile->append(mb_convert_encoding($rowString . "\n", 'UTF-8', 'auto'));
 		
 		foreach ($ranking['ranking'] as $rpUnit) {
 			$rowString = $rpUnit->rank . ',' . $rpUnit->code . ',"' . $nameMap[$rpUnit->code] . '"';
@@ -252,7 +252,7 @@ class PointSeriesController extends AppController
 				$rowString .= ',' . $pt;
 			}
 			
-			$tmpFile->append(mb_convert_encoding($rowString . "\n", 'SJIS', 'auto'));
+			$tmpFile->append(mb_convert_encoding($rowString . "\n", 'UTF-8', 'auto'));
 		}
 		
 		$tmpFile->close();
