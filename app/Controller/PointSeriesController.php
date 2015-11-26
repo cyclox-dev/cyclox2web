@@ -4,6 +4,7 @@ App::uses('AppController', 'Controller');
 App::uses('Folder', 'Utility');
 App::uses('File', 'Utility');
 App::uses('PointSeriesSumUpRule', 'Cyclox/Const');
+App::uses('Util', 'Cyclox/Util');
 
 /**
  * PointSeries Controller
@@ -14,7 +15,7 @@ App::uses('PointSeriesSumUpRule', 'Cyclox/Const');
  */
 class PointSeriesController extends AppController
 {
-	public $uses = array('PointSeries', 'MeetPointSeries', 'PointSeriesRacer');
+	public $uses = array('PointSeries', 'MeetPointSeries', 'PointSeriesRacer', 'Season');
 
 /**
  * Components
@@ -179,7 +180,7 @@ class PointSeriesController extends AppController
 			
 			$op = array(
 				'conditions' => array('meet_point_series_id' => $mps['MeetPointSeries']['id']),
-				'contain' => array('Racer.family_name', 'Racer.first_name', 'RacerResult.rank')
+				'contain' => array('Racer.family_name', 'Racer.first_name', 'Racer.birth_date', 'RacerResult.rank')
 			);
 			$psrs = $this->PointSeriesRacer->find('all', $op);
 			//$this->log('psrs is...' . count($psrs), LOG_DEBUG);
@@ -200,7 +201,12 @@ class PointSeriesController extends AppController
 				}
 				
 				if (empty($nameMap[$racerCode])) {
-					$nameMap[$racerCode] = $psr['Racer']['family_name'] . ' ' . $psr['Racer']['first_name'];
+					$name = $psr['Racer']['family_name'] . ' ' . $psr['Racer']['first_name'];
+					if ($this->__isLessElite($psr['Racer']['birth_date'], $mps['PointSeries']['season_id'])) {
+						$name .= '*';
+					}
+					
+					$nameMap[$racerCode] = $name;
 				}
 			}
 			
@@ -263,6 +269,31 @@ class PointSeriesController extends AppController
 		$this->Session->setFlash(h($ps['PointSeries']['name'] . 'のランキングファイルを更新しました。'));
 		
 		$this->redirect(array('controller' => 'OrgUtil', 'action' => 'point_series_csv_links'));
+	}
+	
+	/**
+	 * UCI Elite 未満の年齢であるかをかえす
+	 * @param date $birth 生年月日
+	 * @param int $seasonID 年齢判定シーズン ID。null 指定、もしくは無効なシーズン ID 指定ならば現在日時で判定する。
+	 * @return boolean Elite 未満の年齢であるか
+	 */
+	private function __isLessElite($birth, $seasonID)
+	{
+		$atDate = new DateTime('now');
+		if (!empty($seasonID)) {
+			$season = $this->Season->find('first', array('conditions' => array('id' => $seasonID), 'recurive' => 0));
+			$this->log('season:', LOG_DEBUG);
+			$this->log($season, LOG_DEBUG);
+			
+			if (!empty($season['Season']['end_date'])) {
+				$atDate = new DateTime($season['Season']['end_date']);
+			}
+		}
+		
+		$uciAge = Util::uciCXAgeAt(new DateTime($birth), $atDate);
+		$this->log('uci age:' . $uciAge, LOG_DEBUG);
+		
+		return $uciAge < 23;
 	}
 	
 	public function download_point_ranking_csv()
