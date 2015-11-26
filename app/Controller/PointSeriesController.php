@@ -279,6 +279,8 @@ class PointSeriesController extends AppController
 	 */
 	private function __isLessElite($birth, $seasonID)
 	{
+		if (empty($birth)) return false;
+		
 		$atDate = new DateTime('now');
 		if (!empty($seasonID)) {
 			$season = $this->Season->find('first', array('conditions' => array('id' => $seasonID), 'recurive' => 0));
