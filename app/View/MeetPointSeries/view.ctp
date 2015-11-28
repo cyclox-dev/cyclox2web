@@ -31,6 +31,21 @@
 			<?php echo h($meetPointSeries['MeetPointSeries']['grade']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('Point 有効期間の開始日'); ?></dt>
+		<dd>
+			<?php echo h($meetPointSeries['MeetPointSeries']['point_term_begin']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Point 有効期間の終了日（終了日はポイント有効）'); ?></dt>
+		<dd>
+			<?php echo h($meetPointSeries['MeetPointSeries']['point_term_end']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Hint（集計時ヒント）'); ?></dt>
+		<dd>
+			<?php echo h($meetPointSeries['MeetPointSeries']['hint']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Created'); ?></dt>
 		<dd>
 			<?php echo h($meetPointSeries['MeetPointSeries']['created']); ?>

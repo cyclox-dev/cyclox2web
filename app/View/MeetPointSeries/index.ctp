@@ -4,13 +4,14 @@
 	<thead>
 	<tr>
 			<th><?php echo $this->Paginator->sort('id'); ?></th>
-			<th><?php echo $this->Paginator->sort('point_series_id'); ?></th>
-			<th><?php echo $this->Paginator->sort('express_in_series'); ?></th>
-			<th><?php echo $this->Paginator->sort('meet_code'); ?></th>
-			<th><?php echo $this->Paginator->sort('entry_category_name'); ?></th>
+			<th><?php echo $this->Paginator->sort('point_series_id', 'ポイントシリーズ'); ?></th>
+			<th><?php echo $this->Paginator->sort('express_in_series', '名称'); ?></th>
+			<th><?php echo $this->Paginator->sort('meet_code', '大会コード'); ?></th>
+			<th><?php echo $this->Paginator->sort('entry_category_name', '出走カテゴリー名'); ?></th>
 			<th><?php echo $this->Paginator->sort('grade'); ?></th>
-			<th><?php echo $this->Paginator->sort('created'); ?></th>
-			<th><?php echo $this->Paginator->sort('modified'); ?></th>
+			<th><?php echo $this->Paginator->sort('point_term_begin', "Pt開始日"); ?></th>
+			<th><?php echo $this->Paginator->sort('point_term_end', 'Pt終了日'); ?></th>
+			<th><?php echo $this->Paginator->sort('hint'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>
@@ -27,8 +28,9 @@
 		</td>
 		<td><?php echo h($meetPointSeries['MeetPointSeries']['entry_category_name']); ?>&nbsp;</td>
 		<td><?php echo h($meetPointSeries['MeetPointSeries']['grade']); ?>&nbsp;</td>
-		<td><?php echo h($meetPointSeries['MeetPointSeries']['created']); ?>&nbsp;</td>
-		<td><?php echo h($meetPointSeries['MeetPointSeries']['modified']); ?>&nbsp;</td>
+		<td><?php echo h($meetPointSeries['MeetPointSeries']['point_term_begin']); ?>&nbsp;</td>
+		<td><?php echo h($meetPointSeries['MeetPointSeries']['point_term_end']); ?>&nbsp;</td>
+		<td><?php echo h($meetPointSeries['MeetPointSeries']['hint']); ?>&nbsp;</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $meetPointSeries['MeetPointSeries']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $meetPointSeries['MeetPointSeries']['id'])); ?>
