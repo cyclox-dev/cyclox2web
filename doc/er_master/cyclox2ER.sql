@@ -256,7 +256,7 @@ CREATE TABLE meet_point_series
 	-- 例）CX 東北による2013-14シーズンの1発目のレースならば THK-134-001
 	meet_code varchar(11) BINARY NOT NULL,
 	entry_category_name varchar(255) BINARY NOT NULL,
-	grade tinyint unsigned NOT NULL,
+	grade tinyint unsigned,
 	-- その大会で取得したポイントの有効期間の開始日。開始日当日も有効である。
 	point_term_begin date,
 	-- その大会で取得したポイントの有効期間の終了日。終了日当日はポイントは有効であり、翌日は無効となる。
@@ -295,6 +295,7 @@ CREATE TABLE point_series
 	-- 個人、チームなど
 	-- 
 	point_to tinyint unsigned NOT NULL,
+	point_term_rule tinyint unsigned DEFAULT 1,
 	season_id int unsigned,
 	created datetime,
 	modified datetime,
