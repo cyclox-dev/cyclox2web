@@ -22,7 +22,6 @@ class PointSeriesSumUpRule extends Object
 {
 	public static $JCX_156;
 	public static $KNS_156;
-	public static $TOTAL_UP;
 	
 	private static $rules;
 	
@@ -33,14 +32,12 @@ class PointSeriesSumUpRule extends Object
 	
 	public static function init()
 	{
-		self::$JCX_156 = new PointSeriesSumUpRule(1, 'JCX156', 'hint:required とそれ以外の上位6戦のポイントを採用する。合計->自乗和->最近の成績で比較する。');
-		self::$KNS_156 = new PointSeriesSumUpRule(2, '合計のみ', '合計点のみ。全戦の成績を採用する。同点の場合は同順位。');
-		self::$TOTAL_UP = new PointSeriesSumUpRule(3, '合計のみ', '合計点のみ。全戦の成績を採用する。同点の場合は同順位。');
+		self::$JCX_156 = new PointSeriesSumUpRule(1, 'JCX-156', 'hint:required とそれ以外の上位6戦のポイントを採用する。合計->自乗和->最近の成績で比較する。');
+		self::$KNS_156 = new PointSeriesSumUpRule(2, '全戦合計のみ', '合計点のみ。全戦の成績を採用する。同点の場合は同順位。');
 		
 		self::$rules = array(
 			self::$JCX_156,
 			self::$KNS_156,
-			self::$TOTAL_UP
 		);
 	}
 	

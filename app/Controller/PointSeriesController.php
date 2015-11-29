@@ -3,7 +3,10 @@
 App::uses('AppController', 'Controller');
 App::uses('Folder', 'Utility');
 App::uses('File', 'Utility');
+App::uses('PointCalculator', 'Cyclox/Util');
 App::uses('PointSeriesSumUpRule', 'Cyclox/Const');
+App::uses('PointSeriesPointTo', 'Cyclox/Const');
+App::uses('PointSeriesTermOfValidityRule', 'Cyclox/Const');
 App::uses('Util', 'Cyclox/Util');
 
 /**
@@ -70,6 +73,11 @@ class PointSeriesController extends AppController
 		}
 		$seasons = $this->PointSeries->Season->find('list');
 		$this->set(compact('seasons'));
+		
+		$this->set('pointCalculators', PointCalculator::calculators());
+		$this->set('sumUpRules', PointSeriesSumUpRule::rules());
+		$this->set('pointTos', PointSeriesPointTo::pointToList());
+		$this->set('termRules', PointSeriesTermOfValidityRule::rules());
 	}
 
 /**
@@ -96,6 +104,11 @@ class PointSeriesController extends AppController
 		}
 		$seasons = $this->PointSeries->Season->find('list');
 		$this->set(compact('seasons'));
+		
+		$this->set('pointCalculators', PointCalculator::calculators());
+		$this->set('sumUpRules', PointSeriesSumUpRule::rules());
+		$this->set('pointTos', PointSeriesPointTo::pointToList());
+		$this->set('termRules', PointSeriesTermOfValidityRule::rules());
 	}
 
 /**

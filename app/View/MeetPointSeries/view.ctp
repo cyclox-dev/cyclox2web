@@ -1,27 +1,27 @@
 <div class="meetPointSeries view">
-<h2><?php echo __('Meet Point Series'); ?></h2>
+<h2><?php echo __('ポイントシリーズ - 大会設定の詳細'); ?></h2>
 	<dl>
 		<dt><?php echo __('Id'); ?></dt>
 		<dd>
 			<?php echo h($meetPointSeries['MeetPointSeries']['id']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Point Series'); ?></dt>
+		<dt><?php echo __('ポイントシリーズ'); ?></dt>
 		<dd>
 			<?php echo $this->Html->link($meetPointSeries['PointSeries']['name'], array('controller' => 'point_series', 'action' => 'view', $meetPointSeries['PointSeries']['id'])); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Express In Series'); ?></dt>
+		<dt><?php echo __('シリーズ内名称'); ?></dt>
 		<dd>
 			<?php echo h($meetPointSeries['MeetPointSeries']['express_in_series']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Meet'); ?></dt>
+		<dt><?php echo __('大会'); ?></dt>
 		<dd>
 			<?php echo $this->Html->link($meetPointSeries['Meet']['name'], array('controller' => 'meets', 'action' => 'view', $meetPointSeries['Meet']['code'])); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Entry Category Name'); ?></dt>
+		<dt><?php echo __('出走カテゴリー名'); ?></dt>
 		<dd>
 			<?php echo h($meetPointSeries['MeetPointSeries']['entry_category_name']); ?>
 			&nbsp;
@@ -46,6 +46,10 @@
 			<?php echo h($meetPointSeries['MeetPointSeries']['hint']); ?>
 			&nbsp;
 		</dd>
+	</dl>
+<p style="height: 1em"></p>
+<h3>Status</h3>
+	<dl>
 		<dt><?php echo __('Created'); ?></dt>
 		<dd>
 			<?php echo h($meetPointSeries['MeetPointSeries']['created']); ?>

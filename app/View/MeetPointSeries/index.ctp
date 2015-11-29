@@ -1,11 +1,11 @@
 <div class="meetPointSeries index">
-	<h2><?php echo __('Meet Point Series'); ?></h2>
+	<h2><?php echo __('ポイントシリーズ - 大会設定'); ?></h2>
 	<table cellpadding="0" cellspacing="0">
 	<thead>
 	<tr>
 			<th><?php echo $this->Paginator->sort('id'); ?></th>
 			<th><?php echo $this->Paginator->sort('point_series_id', 'ポイントシリーズ'); ?></th>
-			<th><?php echo $this->Paginator->sort('express_in_series', '名称'); ?></th>
+			<th><?php echo $this->Paginator->sort('express_in_series', 'シリーズ内名称'); ?></th>
 			<th><?php echo $this->Paginator->sort('meet_code', '大会コード'); ?></th>
 			<th><?php echo $this->Paginator->sort('entry_category_name', '出走カテゴリー名'); ?></th>
 			<th><?php echo $this->Paginator->sort('grade'); ?></th>

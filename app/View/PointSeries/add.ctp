@@ -3,12 +3,33 @@
 	<fieldset>
 		<legend><?php echo __('Add Point Series'); ?></legend>
 	<?php
-		echo $this->Form->input('name');
-		echo $this->Form->input('short_name');
-		echo $this->Form->input('description');
-		echo $this->Form->input('calc_rule');
-		echo $this->Form->input('sum_up_rule');
-		echo $this->Form->input('point_to');
+		echo $this->Form->input('name', array('label' => 'シリーズタイトル'));
+		echo $this->Form->input('short_name', array('label' => '短縮タイトル'));
+		echo $this->Form->input('description', array('label' => '詳細'));
+		
+		$calcRules = array();
+		foreach ($pointCalculators as $calc) {
+			$calcRules[$calc->val()] = $calc->name();
+		}
+		echo $this->Form->input('calc_rule', array('label' => '配点ルール', 'options' => $calcRules));
+		
+		$suRules = array();
+		foreach ($sumUpRules as $rule) {
+			$suRules[$rule->val()] = $rule->title();
+		}
+		echo $this->Form->input('sum_up_rule', array('label' => '集計ルール', 'options' => $suRules));
+		
+		$toRules = array();
+		foreach ($pointTos as $to) {
+			$toRules[$to->val()] = $to->title();
+		}
+		echo $this->Form->input('point_to', array('label' => '付与対象', 'options' => $toRules));
+		
+		$termSelects = array();
+		foreach ($termRules as $rule) {
+			$termSelects[$rule->val()] = $rule->title();
+		}
+		echo $this->Form->input('point_term_rule', array('label' => 'Pt有効期間ルール', 'options' => $termSelects));
 		echo $this->Form->input('season_id', array('empty' => '--'));
 	?>
 	</fieldset>

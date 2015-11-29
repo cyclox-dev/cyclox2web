@@ -1,15 +1,21 @@
 <div class="pointSeries index">
+	<?php 
+		App::uses('PointCalculator', 'Cyclox/Util');
+		App::uses('PointSeriesSumUpRule', 'Cyclox/Const');
+		App::uses('PointSeriesPointTo', 'Cyclox/Const');
+		App::uses('PointSeriesTermOfValidityRule', 'Cyclox/Const');
+	?>
 	<h2><?php echo __('Point Series'); ?></h2>
 	<table cellpadding="0" cellspacing="0">
 	<thead>
 	<tr>
 			<th><?php echo $this->Paginator->sort('id'); ?></th>
-			<th><?php echo $this->Paginator->sort('name'); ?></th>
-			<th><?php echo $this->Paginator->sort('short_name'); ?></th>
-			<th><?php echo $this->Paginator->sort('description'); ?></th>
-			<th><?php echo $this->Paginator->sort('calc_rule'); ?></th>
-			<th><?php echo $this->Paginator->sort('sum_up_rule'); ?></th>
-			<th><?php echo $this->Paginator->sort('point_to'); ?></th>
+			<th><?php echo $this->Paginator->sort('name', 'タイトル'); ?></th>
+			<th><?php echo $this->Paginator->sort('short_name', '短縮名'); ?></th>
+			<th><?php echo $this->Paginator->sort('calc_rule', '配点ルール'); ?></th>
+			<th><?php echo $this->Paginator->sort('sum_up_rule', '集計ルール'); ?></th>
+			<th><?php echo $this->Paginator->sort('point_to', 'PointTo'); ?></th>
+			<th><?php echo $this->Paginator->sort('point_term_rule', '期間ルール'); ?></th>
 			<th><?php echo $this->Paginator->sort('season_id'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
@@ -20,12 +26,20 @@
 		<td><?php echo h($pointSeries['PointSeries']['id']); ?>&nbsp;</td>
 		<td><?php echo h($pointSeries['PointSeries']['name']); ?>&nbsp;</td>
 		<td><?php echo h($pointSeries['PointSeries']['short_name']); ?>&nbsp;</td>
-		<td><?php echo h($pointSeries['PointSeries']['description']); ?>&nbsp;</td>
-		<td><?php echo h($pointSeries['PointSeries']['calc_rule']); ?>&nbsp;</td>
-		<td><?php echo h($pointSeries['PointSeries']['sum_up_rule']); ?>&nbsp;</td>
-		<td><?php echo h($pointSeries['PointSeries']['point_to']); ?>&nbsp;</td>
+		<td><?php
+			echo h(PointCalculator::getCalculator($pointSeries['PointSeries']['calc_rule'])->name()); 
+		?>&nbsp;</td>
+		<td><?php
+			echo h(PointSeriesSumUpRule::ruleAt($pointSeries['PointSeries']['sum_up_rule'])->title());
+		?>&nbsp;</td>
+		<td><?php
+			echo h(PointSeriesPointTo::pointToAt($pointSeries['PointSeries']['point_to'])->title());
+		?>&nbsp;</td>
+		<td><?php
+			echo h(PointSeriesTermOfValidityRule::ruleAt($pointSeries['PointSeries']['point_term_rule'])->title());
+		?>&nbsp;</td>
 		<td>
-			<?php echo $this->Html->link($pointSeries['Season']['name'], array('controller' => 'seasons', 'action' => 'view', $pointSeries['Season']['id'])); ?>
+			<?php echo $this->Html->link($pointSeries['Season']['short_name'], array('controller' => 'seasons', 'action' => 'view', $pointSeries['Season']['id'])); ?>
 			&nbsp;
 		</td>
 		<td class="actions">

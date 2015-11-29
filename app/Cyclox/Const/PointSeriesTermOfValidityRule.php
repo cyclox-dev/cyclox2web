@@ -11,8 +11,8 @@
  */
 class PointSeriesTermOfValidityRule
 {
-	public static $ONE_YEAR;
 	public static $ENDLESS;
+	public static $ONE_YEAR;
 	
 	private static $__rules;
 	
@@ -23,12 +23,12 @@ class PointSeriesTermOfValidityRule
 	
 	public static function init()
 	{
-		self::$ONE_YEAR = new PointSeriesTermOfValidityRule(1, '1年間有効', '獲得日（レース日）の翌日からポイントが有効になる。翌年の獲得日と同じ月日まで有効で、次の日に失効。');
-		self::$ENDLESS = new PointSeriesTermOfValidityRule(2, '無期限有効', '獲得日（レース日）の翌日からポイントが有効になる。失効しない。');
+		self::$ENDLESS = new PointSeriesTermOfValidityRule(1, '無期限有効', '獲得日（レース日）の翌日からポイントが有効になる。失効しない。');
+		self::$ONE_YEAR = new PointSeriesTermOfValidityRule(2, '1年間有効', '獲得日（レース日）の翌日からポイントが有効になる。翌年の獲得日前日まで有効。');
 		
 		self::$__rules = array(
-			self::$ONE_YEAR,
 			self::$ENDLESS,
+			self::$ONE_YEAR,
 		);
 	}
 	
@@ -39,7 +39,7 @@ class PointSeriesTermOfValidityRule
 	 */
 	public static function ruleAt($val)
 	{
-		foreach (self::$rules as $rule) {
+		foreach (self::$__rules as $rule) {
 			if ($rule->val() == $val) {
 				return $rule;
 			}
