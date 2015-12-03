@@ -26,16 +26,6 @@
 			<?php echo h($pointSeriesRacer['PointSeriesRacer']['bonus']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Gained Date'); ?></dt>
-		<dd>
-			<?php echo h($pointSeriesRacer['PointSeriesRacer']['gained_date']); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('Expiry Date'); ?></dt>
-		<dd>
-			<?php echo h($pointSeriesRacer['PointSeriesRacer']['expiry_date']); ?>
-			&nbsp;
-		</dd>
 		<dt><?php echo __('Racer Result'); ?></dt>
 		<dd>
 			<?php echo $this->Html->link($pointSeriesRacer['RacerResult']['id'], array('controller' => 'racer_results', 'action' => 'view', $pointSeriesRacer['RacerResult']['id'])); ?>

@@ -7,8 +7,6 @@
 		echo $this->Form->input('point_series_id');
 		echo $this->Form->input('point');
 		echo $this->Form->input('bonus');
-		echo $this->Form->input('gained_date');
-		echo $this->Form->input('expiry_date');
 		echo $this->Form->input('racer_result_id', array('label' => 'Racer Result ID', 'type' => 'number'));
 		echo $this->Form->input('meet_point_series_id');
 		echo $this->Form->input('note');

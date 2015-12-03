@@ -8,8 +8,6 @@
 			<th><?php echo $this->Paginator->sort('point_series_id'); ?></th>
 			<th><?php echo $this->Paginator->sort('point'); ?></th>
 			<th><?php echo $this->Paginator->sort('bonus'); ?></th>
-			<th><?php echo $this->Paginator->sort('gained_date'); ?></th>
-			<th><?php echo $this->Paginator->sort('expiry_date'); ?></th>
 			<th><?php echo $this->Paginator->sort('racer_result_id'); ?></th>
 			<th><?php echo $this->Paginator->sort('meet_point_series_id'); ?></th>
 			<th><?php echo $this->Paginator->sort('note'); ?></th>
@@ -28,8 +26,6 @@
 		</td>
 		<td><?php echo h($pointSeriesRacer['PointSeriesRacer']['point']); ?>&nbsp;</td>
 		<td><?php echo h($pointSeriesRacer['PointSeriesRacer']['bonus']); ?>&nbsp;</td>
-		<td><?php echo h($pointSeriesRacer['PointSeriesRacer']['gained_date']); ?>&nbsp;</td>
-		<td><?php echo h($pointSeriesRacer['PointSeriesRacer']['expiry_date']); ?>&nbsp;</td>
 		<td>
 			<?php echo $this->Html->link($pointSeriesRacer['RacerResult']['id'], array('controller' => 'racer_results', 'action' => 'view', $pointSeriesRacer['RacerResult']['id'])); ?>
 		</td>

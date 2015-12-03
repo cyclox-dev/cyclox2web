@@ -2,8 +2,8 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 /* Drop Tables */
 
-DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS category_races_categories;
+DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
 DROP TABLE IF EXISTS time_records;
@@ -315,8 +315,6 @@ CREATE TABLE point_series_racers
 	point_series_id int unsigned NOT NULL,
 	point int unsigned NOT NULL,
 	bonus int,
-	gained_date date NOT NULL,
-	expiry_date date,
 	racer_result_id int unsigned,
 	meet_point_series_id int unsigned,
 	note text BINARY,
