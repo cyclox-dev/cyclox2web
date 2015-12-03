@@ -343,7 +343,7 @@ class PointSeriesController extends AppController
 		if (!$file->exists())
 		{
 			$this->Session->setFlash(__('ランキングのファイルがありません。ファイルの更新が必要です。'));
-			return $this->redirect(array('controller' => 'OrgUtil', 'action' => 'racer_list_csv_links'));
+			return $this->redirect(array('controller' => 'OrgUtil', 'action' => 'point_series_csv_links'));
 		}
 		
 		$options = array('conditions' => array('PointSeries.' . $this->PointSeries->primaryKey => $psid));

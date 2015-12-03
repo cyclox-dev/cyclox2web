@@ -9,7 +9,7 @@
 	<p>
 		<?php
 		echo $this->Form->postLink(
-			h($name),
+			h($name . ' Download'),
 			array('controller' => 'PointSeries', 'action' => 'download_point_ranking_csv'),
 			array('data' => array('point_series_id' => $id))
 		);
