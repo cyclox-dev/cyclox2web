@@ -163,10 +163,14 @@ class PointSeriesController extends AppController
 		$op = array(
 			'conditions' => array(
 				'point_series_id' => $id,
-				'or' => array(
-					array('point_term_end >=' => date('yyyy-mm-dd')),
-					array('point_term_end ' => null),
-				)
+				array('or' => array(
+					array('point_term_end >=' => date('Y-m-d')),
+					array('point_term_end' => null),
+				)),
+				array('or' => array(
+					array('point_term_begin <=' => date('Y-m-d')),
+					array('point_term_begin' => null),
+				)),
 			),
 			'order' => array('Meet.at_date' => 'ASC'),
 		);
