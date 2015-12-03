@@ -66,8 +66,46 @@ class PointSeriesTermOfValidityRule
     /** @return string ルール内容 */                                            
     public function description() { return $this->__description; }
 	
+	/**
+	 * ポイント有効期間をかえす
+	 * @param date $date ポイント獲得の基準となる日。一般には大会日。
+	 * @return array array('begin' => date, 'end' => date) の形式
+	 */
+	public function calc($date = null)
+	{
+		$dt = $date;
+		if (empty($date)) {
+			$dt = date('Ymd'); // 本日日付
+		}
+		
+		$term = array();
+		switch ($this->val()) {
+			case self::$ENDLESS->val(): $term = $this->__calcEndless($date); break;
+			case self::$ONE_YEAR->val(): $term = $this->__calc1year($date); break;
+		}
+		
+		return $term;
+	}
 	
-	// TODO: meet_point_series に期間設定を行なうメソッドを追加して配置
+	private function __calcEndless($date) {
+		$dt = new DateTime($date);
+		$dt->modify('+1 day');
+		
+		return array('begin' => $dt->format('Y-m-d'));
+	}
+	
+	private function __calc1year($date) {
+		$begin = new DateTime($date);
+		$begin->modify('+1 day');
+		
+		$end = new DateTime($date);
+		$end->modify('-1 day');
+		$end->modify('+1 year');
+		return array(
+			'begin' => $begin->format('Y-m-d'),
+			'end' => $end->format('Y-m-d')
+		);
+	}
 	
 }
 PointSeriesTermOfValidityRule::init();

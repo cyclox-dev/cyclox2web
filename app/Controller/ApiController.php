@@ -8,6 +8,7 @@ App::uses('RacerEntryStatus', 'Cyclox/Const');
 App::uses('Constant', 'Cyclox/Const');
 App::uses('CategoryReason', 'Cyclox/Const');
 App::uses('PointCalculator', 'Cyclox/Util');
+App::uses('PointSeriesTermOfValidityRule', 'Cyclox/Const');
 
 /*
  *  created at 2015/06/19 by shun
@@ -365,6 +366,18 @@ class ApiController extends ApiBaseController
 			return $this->error("出走カテゴリーが見つかりません。", self::STATUS_CODE_BAD_REQUEST);
 		}
 		
+		//++++++++++++++++++++++++++++++++++++++++
+		// meet point series の有効期間設定
+		$ret = $this->__setupTermOfSeriesPoint($meetCode, $ecatName);
+		// Transaction は使用せず
+		
+		if (!$ret) {
+			$this->log("ポイントシリーズの有効期間設定が無効です。（処理は続行します。）", LOG_ERR);
+			// not return
+		}
+		
+		//++++++++++++++++++++++++++++++++++++++++
+		// 各個人の成績
 		
 		// 出走選手取得
 
@@ -531,6 +544,66 @@ class ApiController extends ApiBaseController
 		
 		return $a['result']['rank'] - $b['result']['rank'];
 		//*/
+	}
+	
+	private function __setupTermOfSeriesPoint($meetCode, $ecatName)
+	{
+		if (empty($meetCode) || empty($ecatName)) {
+			return false;
+		}
+		
+		$opt = array(
+			'conditions' => array(
+				'meet_code' => $meetCode,
+				'entry_category_name' => $ecatName
+			)
+		);
+		$mpss = $this->MeetPointSeries->find('all', $opt);
+		
+		if (empty($mpss)) {
+			return true;
+		}
+		
+		foreach ($mpss as $mps) {
+			$termRuleVal = $mps['PointSeries']['point_term_rule'];
+			$rule = PointSeriesTermOfValidityRule::ruleAt($termRuleVal);
+			if (is_null($rule)) {
+				$this->log('期間設定ルールを設定できません。', LOG_DEBUG);
+				return false;
+			}
+			
+			if (!empty($rule)) {
+				$term = $rule->calc($mps['Meet']['at_date']);
+				
+				$newMps = array();
+				$newMps['MeetPointSeries'] = array();
+				
+				if (!empty($term['begin'])) {
+					$newMps['MeetPointSeries']['point_term_begin'] = $term['begin'];
+				} else {
+					$newMps['MeetPointSeries']['point_term_begin'] = null;
+				}
+				if (!empty($term['end'])) {
+					$newMps['MeetPointSeries']['point_term_end'] = $term['end'];
+				} else {
+					$newMps['MeetPointSeries']['point_term_end'] = null;
+				}
+				
+				$this->log($mps, LOG_DEBUG);
+				
+				if (!empty($term['begin']) || !empty($term['end'])) {
+					$this->MeetPointSeries->id = $mps['MeetPointSeries']['id'];
+					$ret = $this->MeetPointSeries->save($newMps);
+					
+					if (!$ret) {
+						$this->log('MeetPointSeries の保存に失敗しました。', LOG_ERR);
+						return false;
+					}
+				}
+			}
+		}
+		
+		return true;
 	}
 	
 	/**
