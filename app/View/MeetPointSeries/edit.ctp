@@ -1,3 +1,24 @@
+
+<?php echo $this->Html->scriptStart(); ?>
+$(document).ready(function(){
+	var r = $('<button name="new button" type="button">＜ 開始日を無しに設定</button>');
+	r.click(function() {
+		$("#MeetPointSeriesPointTermBeginYear option").each(function() { this.selected = (this.text == ""); });
+		$("#MeetPointSeriesPointTermBeginMonth option").each(function() { this.selected = (this.text == ""); });
+		$("#MeetPointSeriesPointTermBeginDay option").each(function() { this.selected = (this.text == ""); });
+	});
+	$(".point_term_begin").append(r);
+	
+	var b = $('<button name="new button" type="button">＜ 終了日を無しに設定</button>');
+	b.click(function() {
+		$("#MeetPointSeriesPointTermEndYear option").each(function() { this.selected = (this.text == ""); });
+		$("#MeetPointSeriesPointTermEndMonth option").each(function() { this.selected = (this.text == ""); });
+		$("#MeetPointSeriesPointTermEndDay option").each(function() { this.selected = (this.text == ""); });
+	});
+	$(".point_term_end").append(b);
+});
+<?php echo $this->Html->scriptEnd(); ?>
+
 <div class="meetPointSeries form">
 <?php echo $this->Form->create('MeetPointSeries'); ?>
 	<fieldset>
@@ -20,10 +41,11 @@
 				'year' => 0,
 				'month' => 0,
 				'day' => 0
-			)
+			),
+			'div' => 'point_term_begin'
 		));
 		echo $this->Form->input('point_term_end', array(
-			'label' => 'ポイント有効期間の終了日／終了日はポイント有効',
+			'label' => 'ポイント有効期間の終了日／終了日はポイント有効／配点時に自動的に設定されます。指定が必要な場合のみ変更して下さい。',
 			'dateFormat' => 'YMD',
 			'monthNames' => false,
 			// 以下空の値 (->null) の表示設定
@@ -34,7 +56,7 @@
 				'month' => 0,
 				'day' => 0
 			),
-			'after' => $this->Html->tag('div', '終了日が必要な場合、配点時に自動的に設定されます。指定が必要な場合のみ変更して下さい。')
+			'div' => 'point_term_end',
 		));
 		echo $this->Form->input('hint', array('label' => 'ヒント／集計設定詳細を確認して下さい。半角カンマ区切りで複数入力可。'));
 	?>
