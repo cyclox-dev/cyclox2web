@@ -107,6 +107,7 @@
 		<th><?php echo __('Grade'); ?></th>
 		<th><?php echo __('Pt開始日'); ?></th>
 		<th><?php echo __('Pt終了日'); ?></th>
+		<th><?php echo __('集計時ヒント'); ?></th>
 		<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	<?php foreach ($pointSeries['MeetPointSeries'] as $meetPointSeries): ?>
@@ -118,6 +119,7 @@
 			<td><?php echo $meetPointSeries['grade']; ?></td>
 			<td><?php echo $meetPointSeries['point_term_begin']; ?></td>
 			<td><?php echo $meetPointSeries['point_term_end']; ?></td>
+			<td><?php echo $meetPointSeries['hint']; ?></td>
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'meet_point_series', 'action' => 'view', $meetPointSeries['id'])); ?>
 				<?php echo $this->Html->link(__('Edit'), array('controller' => 'meet_point_series', 'action' => 'edit', $meetPointSeries['id'])); ?>

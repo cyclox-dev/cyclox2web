@@ -58,7 +58,7 @@ $(document).ready(function(){
 			),
 			'div' => 'point_term_end',
 		));
-		echo $this->Form->input('hint', array('label' => 'ヒント／集計設定詳細を確認して下さい。半角カンマ区切りで複数入力可。'));
+		echo $this->Form->input('hint', array('label' => '集計時ヒント／集計設定詳細を確認して下さい。半角カンマ区切りで複数入力可。'));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>

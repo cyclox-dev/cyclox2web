@@ -11,7 +11,7 @@
 			<th><?php echo $this->Paginator->sort('grade'); ?></th>
 			<th><?php echo $this->Paginator->sort('point_term_begin', "Pt開始日"); ?></th>
 			<th><?php echo $this->Paginator->sort('point_term_end', 'Pt終了日'); ?></th>
-			<th><?php echo $this->Paginator->sort('hint'); ?></th>
+			<th><?php echo $this->Paginator->sort('hint', '集計時ヒント'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>

@@ -41,7 +41,7 @@
 			<?php echo h($meetPointSeries['MeetPointSeries']['point_term_end']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Hint（集計時ヒント）'); ?></dt>
+		<dt><?php echo __('集計時ヒント'); ?></dt>
 		<dd>
 			<?php echo h($meetPointSeries['MeetPointSeries']['hint']); ?>
 			&nbsp;
