@@ -1103,7 +1103,7 @@ class ApiController extends ApiBaseController
 					$isBadAge = ($uciCxAge < 17);
 				} else if ($map[$rcatCode]['to'] == 'C3') {
 					// Youth? 以上
-					$isBadAge = ($uciCxAge < 15);
+					$isBadAge = false;// ($uciCxAge < 15); 2015/12 の AJOCC 会議にて Youth でも C3 に昇格 OK とする
 				}
 				// TODO: カテゴリーの設定から引き出すように。（DB 上データを修正してから）
 				
