@@ -113,7 +113,7 @@ class EntryCategoriesController extends ApiBaseController
 		//$this->log($psTitles, LOG_DEBUG);
 		
 		if (!empty($results)) {
-			$results = Set::sort($results, '{n}.RacerResult.order_index', 'asc');
+			$results = Hash::sort($results, '{n}.RacerResult.order_index', 'asc');
 			$this->set('results', $results);
 			$this->set('holdPointCount', $holdPointCount);
 			$this->set('psTitles', $psTitles);
