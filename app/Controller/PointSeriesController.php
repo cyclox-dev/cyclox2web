@@ -248,6 +248,7 @@ class PointSeriesController extends AppController
 		$rowString = '順位,選手 Code,選手名';
 		foreach ($mpss as $mps) {
 			$rowString .= ',' . $mps['MeetPointSeries']['express_in_series'];
+			$rowString .= ',' . $mps['MeetPointSeries']['express_in_series'] . 'Bonus';
 		}
 		foreach ($ranking['rank_pt_title'] as $title) {
 			$rowString .= ',' . $title;
@@ -260,14 +261,18 @@ class PointSeriesController extends AppController
 			for ($i = 0; $i < count($mpss); $i++)
 			{
 				$rowString .= ',';
-				if (!isset($racerPoints[$rpUnit->code][$i])) continue;
+				if (!isset($racerPoints[$rpUnit->code][$i])) {
+					$rowString .= ',';
+					continue;
+				}
 				
 				$point = $racerPoints[$rpUnit->code][$i];
 				if (!empty($point['pt'])) {
 					$rowString .= $point['pt'];
 				}
+				$rowString .= ',';
 				if (!empty($point['bonus'])) {
-					$rowString .= '+' . $point['bonus'];
+					$rowString .= $point['bonus'];
 				}
 			}
 			
