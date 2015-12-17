@@ -61,6 +61,13 @@ function nameOrKana($name, $kana)
 		<td><?php
 			$cats = '';
 			foreach ($racer['CategoryRacer'] as $cat) {
+				if ($cat['apply_date'] == null || $cat['apply_date'] > date('Y-m-d')) {
+					continue;
+				}
+				if (!empty($cat['cancel_date']) && $cat['cancel_date'] < date('Y-m-d')) {
+					continue;
+				}
+				
 				if (strlen($cats) > 0) {
 					$cats .= ',';
 				}
