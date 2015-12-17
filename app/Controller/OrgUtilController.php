@@ -243,6 +243,11 @@ class OrgUtilController extends ApiBaseController
 						$index = count($meetTitles) - 1;
 						$rp['points'][$index] = $eracer['RacerResult']['ajocc_pt'];
 						
+						if (!empty($eracer['EntryRacer']['team_name'])) {
+							// 最後のチーム名を格納しておく
+							$rp['team'] = $eracer['EntryRacer']['team_name'];
+						}
+						
 						$racerPoints[$rcode] = $rp;
 					}
 				}
@@ -266,10 +271,10 @@ class OrgUtilController extends ApiBaseController
 		// sort
 		uasort($racerPoints, array($this, "_compareAjoccPoint"));
 		
-		$this->log('title:', LOG_DEBUG);
-		$this->log($meetTitles, LOG_DEBUG);
-		$this->log('points:', LOG_DEBUG);
-		$this->log($racerPoints, LOG_DEBUG);
+		//$this->log('title:', LOG_DEBUG);
+		//$this->log($meetTitles, LOG_DEBUG);
+		//$this->log('points:', LOG_DEBUG);
+		//$this->log($racerPoints, LOG_DEBUG);
 		
 		$year = $this->request->data['base_year'];
 		$seasonExp = $year . '-' . ($year % 100 + 1);
@@ -279,7 +284,7 @@ class OrgUtilController extends ApiBaseController
 			'集計日,' . date('Y/m/d H:i:s') . "\n\n";
 		
 		// A1, A2 は空
-		$body .= '順位,選手 Code,選手名,';
+		$body .= '順位,選手 Code,選手名,チーム,';
 		
 		foreach ($meetTitles as $title) {
 			$body .= $title . ',';
@@ -304,6 +309,10 @@ class OrgUtilController extends ApiBaseController
 			}
 			
 			$line = $rank . ',' . $rcode . ',' . $rp['name'] . ',';
+			if (!empty($rp['team'])) {
+				$line .= $rp['team'];
+			}
+			$line .= ',';
 			for ($i = 0; $i < count($meetTitles); $i++) {
 				if (!empty($rp['points'][$i])) {
 					$line .= $rp['points'][$i];

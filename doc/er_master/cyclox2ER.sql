@@ -2,13 +2,13 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 /* Drop Tables */
 
-DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS category_racers;
+DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
+DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS time_records;
 DROP TABLE IF EXISTS hold_points;
-DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
 DROP TABLE IF EXISTS entry_categories;
@@ -336,6 +336,7 @@ CREATE TABLE racers
 	first_name varchar(255) BINARY NOT NULL,
 	first_name_kana varchar(255) BINARY NOT NULL,
 	first_name_en varchar(255) BINARY NOT NULL,
+	team varchar(255) BINARY,
 	gender tinyint NOT NULL,
 	birth_date date,
 	-- JPN など
