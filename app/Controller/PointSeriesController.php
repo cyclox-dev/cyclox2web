@@ -186,7 +186,7 @@ class PointSeriesController extends AppController
 		
 		$this->PointSeriesRacer->Behaviors->load('Containable');
 		$nameMap = array(); // 名前取得用。key: racer_code, val: name（半角スペース区切り）
-		// TODO チーム名も
+		$teamMap = array(); // 同上チーム名取得用。
 		
 		$hints = array(); // 必ず集計する大会インデックスを取得しておく
 		for ($i = 0; $i < count($mpss); $i++) {
@@ -195,9 +195,19 @@ class PointSeriesController extends AppController
 			
 			$hints[] = $mps['MeetPointSeries']['hint'];
 			
+			$contains = array(
+				'Racer' => array('fields' => array('family_name', 'first_name', 'team', 'birth_date')),
+				'RacerResult' => array(
+					'fields' => array('rank'),
+					'EntryRacer' => array(
+						'fields' => array('name_at_race', 'team_name')
+					)
+				)
+			);
+			
 			$op = array(
 				'conditions' => array('meet_point_series_id' => $mps['MeetPointSeries']['id']),
-				'contain' => array('Racer.family_name', 'Racer.first_name', 'Racer.birth_date', 'RacerResult.rank')
+				'contain' => $contains
 			);
 			$psrs = $this->PointSeriesRacer->find('all', $op);
 			//$this->log('psrs is...' . count($psrs), LOG_DEBUG);
@@ -225,6 +235,19 @@ class PointSeriesController extends AppController
 					
 					$nameMap[$racerCode] = $name;
 				}
+				if (empty($teamMap[$racerCode])) {
+					if (!empty($psr['Racer']['team'])) {
+						$teamMap[$racerCode] = $psr['Racer']['team'];
+					}
+				}
+				
+				// それぞれのシリーズ内の選手名、チーム名を表示するため、result->entryRacer から取得。
+				if (!emptY($psr['RacerResult']['EntryRacer']['name_at_race'])) {
+					$nameMap[$racerCode] = $psr['RacerResult']['EntryRacer']['name_at_race'];
+				}
+				if (!emptY($psr['RacerResult']['EntryRacer']['team_name'])) {
+					$teamMap[$racerCode] = $psr['RacerResult']['EntryRacer']['team_name'];
+				}
 			}
 			
 			++$meetIndex;
@@ -245,7 +268,7 @@ class PointSeriesController extends AppController
 		}
 		$tmpFile->create();
 		$tmpFile->append(mb_convert_encoding($ps['PointSeries']['name'] . ' ランキング,更新日:' . date('Y/m/d') ."\n", 'UTF-8', 'auto'));
-		$rowString = '順位,選手 Code,選手名';
+		$rowString = '順位,選手 Code,選手名,チーム名';
 		foreach ($mpss as $mps) {
 			$rowString .= ',' . $mps['MeetPointSeries']['express_in_series'];
 			$rowString .= ',' . $mps['MeetPointSeries']['express_in_series'] . 'Bonus';
@@ -256,7 +279,11 @@ class PointSeriesController extends AppController
 		$tmpFile->append(mb_convert_encoding($rowString . "\n", 'UTF-8', 'auto'));
 		
 		foreach ($ranking['ranking'] as $rpUnit) {
-			$rowString = $rpUnit->rank . ',' . $rpUnit->code . ',"' . $nameMap[$rpUnit->code] . '"';
+			$rowString = $rpUnit->rank . ',' . $rpUnit->code . ','
+				. $this->__dQuoteEscaped($nameMap[$rpUnit->code]) . ',';
+			if (!empty($teamMap[$rpUnit->code])) {
+				$rowString .= $this->__dQuoteEscaped($teamMap[$rpUnit->code]);
+			}
 			
 			for ($i = 0; $i < count($mpss); $i++)
 			{
@@ -291,6 +318,15 @@ class PointSeriesController extends AppController
 		$this->Session->setFlash(h($ps['PointSeries']['name'] . 'のランキングファイルを更新しました。'));
 		
 		$this->redirect(array('controller' => 'OrgUtil', 'action' => 'point_series_csv_links'));
+	}
+	
+	/**
+	 * ダブルクオートで囲み、内部のダブルクオートをエスケープした文字列をかえす
+	 * @param string $s 文字列
+	 */
+	private function __dQuoteEscaped($s)
+	{
+		return '"' . str_replace('"', '""', $s) . '"';
 	}
 	
 	/**
