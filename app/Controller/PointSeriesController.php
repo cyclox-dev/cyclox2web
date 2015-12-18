@@ -235,11 +235,7 @@ class PointSeriesController extends AppController
 					
 					$nameMap[$racerCode] = $name;
 				}
-				if (empty($teamMap[$racerCode])) {
-					if (!empty($psr['Racer']['team'])) {
-						$teamMap[$racerCode] = $psr['Racer']['team'];
-					}
-				}
+				// $psr['Racer']['team'] は現在のチーム名とは異なる可能性もあるので、格納しない（出走チーム名無しの場合）。
 				
 				// それぞれのシリーズ内の選手名、チーム名を表示するため、result->entryRacer から取得。
 				if (!emptY($psr['RacerResult']['EntryRacer']['name_at_race'])) {
