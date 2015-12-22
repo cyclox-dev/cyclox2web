@@ -839,6 +839,29 @@ class ApiController extends ApiBaseController
 	}
 	
 	/**
+	 * 選手データまとめて upload API
+	 * @throws BadRequestException .json 拡張子無しでのアクセス時
+	 */
+	public function upload_racers()
+	{
+		if (!$this->_isApiCall()) {
+			throw new BadRequestException('無効なアクセスです。');
+		}
+		
+		if (!$this->request->is('post')) {
+			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
+		}
+		
+		$this->log($this->request->data, LOG_DEBUG);
+		
+		if (!$this->Racer->saveMany($this->request->data)) {
+			return $this->error('Saving racers failed.', self::STATUS_CODE_BAD_REQUEST);
+		}
+		
+		return $this->success(array('ok'));
+	}
+	
+	/**
 	 * AJOCC Point を計算する
 	 * @param type $result リザルト
 	 * @param type $startedCount 出走人数
