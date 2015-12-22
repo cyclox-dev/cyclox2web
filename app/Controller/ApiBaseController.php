@@ -15,7 +15,7 @@ class ApiBaseController extends AppController
 {
 	const STATUS_CODE_BAD_REQUEST = 400;
 	const STATUS_CODE_METHOD_NOT_ALLOWED = 405;
-	const STATUS_CODE_WERVICE_UNAVAILABEL = 503;
+	const STATUS_CODE_SERVICE_UNAVAILABEL = 503;
 	
 	protected function _isApiCall()
 	{

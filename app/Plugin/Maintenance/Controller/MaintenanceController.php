@@ -24,7 +24,7 @@ class MaintenanceController extends ApiBaseController
 		
 		// maintenance.json とはならないので以下無効なコード TODO: api call での対応
 		if ($this->_isApiCall()) {
-			return $this->error('現在メンテナンス中です。', self::STATUS_CODE_WERVICE_UNAVAILABEL);
+			return $this->error('現在メンテナンス中です。', self::STATUS_CODE_SERVICE_UNAVAILABEL);
 		}
 	}
 }
