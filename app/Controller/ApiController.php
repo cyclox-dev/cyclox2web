@@ -934,10 +934,12 @@ class ApiController extends ApiBaseController
 		//$this->log('cats:', LOG_DEBUG);
 		//$this->log($catBinds, LOG_DEBUG);
 		
+		/* 
+		 * 所属を条件としないことにする。
 		if (empty($catBinds)) {
 			// MORE: 有効なカテゴリーを1つも持たない場合に警告を出す？
 			return Constant::RET_NO_ACTION;
-		}
+		}//*/
 		
 		$rcatCode = $ecat['races_category_code'];
 		
