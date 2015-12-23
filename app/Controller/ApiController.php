@@ -852,13 +852,34 @@ class ApiController extends ApiBaseController
 			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
 		}
 		
-		$this->log($this->request->data, LOG_DEBUG);
+		//$this->log($this->request->data, LOG_DEBUG);
 		
-		if (!$this->Racer->saveMany($this->request->data)) {
-			return $this->error('Saving racers failed.', self::STATUS_CODE_BAD_REQUEST);
+		if ($this->Racer->saveMany($this->request->data)) {
+			return $this->success(array('ok'));
 		}
 		
-		return $this->success(array('ok'));
+		return $this->error('Saving racers failed.', self::STATUS_CODE_BAD_REQUEST);
+	}
+	
+	/**
+	 * カテゴリー所属をまとめて upload API
+	 * @throws BadRequestException .json 拡張子無しでのアクセス時
+	 */
+	public function upload_category_racers()
+	{
+		if (!$this->_isApiCall()) {
+			throw new BadRequestException('無効なアクセスです。');
+		}
+		
+		if (!$this->request->is('post')) {
+			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
+		}
+		
+		if ($this->CategoryRacer->saveMany($this->request->data)) {
+			return $this->success(array('id_list' => $this->CategoryRacer->getUpdatedIdList()));
+		}
+		
+		return $this->error('Saving category-racers failed.', self::STATUS_CODE_BAD_REQUEST);
 	}
 	
 	/**
