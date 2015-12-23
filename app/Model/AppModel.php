@@ -29,7 +29,13 @@ App::uses('Model', 'Model');
  *
  * @package       app.Model
  */
-class AppModel extends Model {
+class AppModel extends Model
+{
+	/**
+	 * 直前に保存した id のリスト
+	 * @var type 
+	 */
+	private $__idList = array();
 	
 	/**
 	 * soft delete のためのオーバライド。ref: https://github.com/CakeDC/utils
@@ -65,5 +71,22 @@ class AppModel extends Model {
 	 */
 	public function existsOnDB($id = null) {
 		return parent::exists($id);
+	}
+	
+	// override
+	function afterSave($created, $options = array())
+	{
+		$this->__idList[] = $this->getID();
+		
+		return parent::afterSave($created, $options);
+	}
+	
+	/**
+	 * 直前に更新したオブジェクトの ID の配列をかえす
+	 * @return Array ID 配列
+	 */
+	public function getUpdatedIdList()
+	{
+		return $this->__idList;
 	}
 }
