@@ -899,7 +899,9 @@ class ApiController extends ApiBaseController
 	}
 	
 	/**
-	 * カテゴリー所属をまとめて upload API
+	 * カテゴリー所属をまとめて upload API。
+	 * post body により CategoryRacer を更新する。レスポンスはリクエストの配列位置に対応する
+	 * ID (on svr) が格納される。
 	 * @throws BadRequestException .json 拡張子無しでのアクセス時
 	 */
 	public function upload_category_racers()
@@ -912,8 +914,63 @@ class ApiController extends ApiBaseController
 			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
 		}
 		
-		if ($this->CategoryRacer->saveMany($this->request->data)) {
-			return $this->success(array('id_list' => $this->CategoryRacer->getUpdatedIdList()));
+		// MEMO: saveMany では deleted を勘案してくれない。
+		// よってループで保存すべきものだけを抽出してから saveMany する。
+		
+		if (is_array($this->request->data)) {
+			$saveCatRacers = array(); // 保存対象のみ格納する（deleted は除外）
+			$deletedIndexList = array();
+			$deletedIds = array();
+			$index = 0;
+			
+			foreach ($this->request->data as $crMap)	{
+				if (empty($crMap['CategoryRacer'])) {
+					return $this->error('key:Racer not found.', self::STATUS_CODE_BAD_REQUEST);
+				}
+				$cr = $crMap['CategoryRacer'];
+				
+				$this->CategoryRacer->Behaviors->load('Utils.SoftDelete');
+				
+				if (!emptY($cr['id']) && $this->CategoryRacer->exists($cr['id'])) {
+					$saveCatRacers[] = $crMap;
+					$this->log('id:' . $cr['id'] . ' is exists(not del', LOG_DEBUG);
+				} else {
+					$this->CategoryRacer->Behaviors->unload('Utils.SoftDelete');
+					if (!emptY($cr['id']) && $this->CategoryRacer->exists($cr['id'])) {
+						// deleted = 別個に save
+						$deletedIndexList[] = $index;
+						$deletedIds[] = $cr['id'];
+						$this->log('id:' . $cr['id'] . ' is exists but deleted', LOG_DEBUG);
+						
+						$crMap['CategoryRacer']['deleted'] = 0;
+						$crMap['CategoryRacer']['deleted_date'] = null;
+						$this->log('crMap:', LOG_DEBUG);
+						$this->log($crMap, LOG_DEBUG);
+						
+						if (!$this->CategoryRacer->save($crMap)) {
+							return $this->error('Saving (deleted)category-racers failed.', self::STATUS_CODE_BAD_REQUEST);
+						}
+					} else {
+						// 新規選手登録
+						$saveCatRacers[] = $crMap;
+						$this->log('index:' . $index . ' is new racer', LOG_DEBUG);
+					}
+				}
+				++$index;
+			}
+			
+			$this->CategoryRacer->resetUpdatedIdList();
+			
+			if (empty($saveCatRacers) || $this->CategoryRacer->saveMany($saveCatRacers)) {
+				$idList = $this->CategoryRacer->getUpdatedIdList();
+				
+				// 削除された位置に 'deleted' を挿入
+				for ($i = 0; $i < count($deletedIndexList); $i++) {
+					array_splice($idList, $deletedIndexList[$i], 0, $deletedIds[$i]);
+				}
+				
+				return $this->success(array('id_list' => $idList));
+			}
 		}
 		
 		return $this->error('Saving category-racers failed.', self::STATUS_CODE_BAD_REQUEST);

@@ -89,4 +89,12 @@ class AppModel extends Model
 	{
 		return $this->__idList;
 	}
+	
+	/**
+	 * 直前に更新したオブジェクトの ID の配列をリセットする
+	 */
+	public function resetUpdatedIdList()
+	{
+		$this->__idList = array();
+	}
 }
