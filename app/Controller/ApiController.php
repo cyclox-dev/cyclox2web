@@ -855,17 +855,20 @@ class ApiController extends ApiBaseController
 		//$this->log($this->request->data, LOG_DEBUG);
 		
 		// MEMO: saveMany では deleted を勘案してくれない。
-		// よってループで保存すべきものだけを抽出してから saveMany する。
+		// よってループで保存すべきものだけを抽出して saveMany する。
+		// deleted な選手の更新の場合は変更適用し、deleted でなくする
 		
 		if (is_array($this->request->data)) {
 			$saveRacers = array(); // 保存対象のみ格納する（deleted は除外）
-			$deletedRacerCodes = array();
 			
 			foreach ($this->request->data as $racerMap)	{
 				if (empty($racerMap['Racer'])) {
 					return $this->error('key:Racer not found.', self::STATUS_CODE_BAD_REQUEST);
 				}
 				$r = $racerMap['Racer'];
+				if (empty($r['code'])) {
+					return $this->error('key:Racer.code not found.', self::STATUS_CODE_BAD_REQUEST);
+				}
 				
 				$this->Racer->Behaviors->load('Utils.SoftDelete');
 				
@@ -875,9 +878,15 @@ class ApiController extends ApiBaseController
 				} else {
 					$this->Racer->Behaviors->unload('Utils.SoftDelete');
 					if ($this->Racer->exists($r['code'])) {
-						// deleted = 更新しない。
-						$deletedRacerCodes[] = $r['code'];
-						//$this->log('code:' . $r['code'] . ' is exists', LOG_DEBUG);
+						// deleted => not deleted に設定し、変更も適用。
+						//$this->log('code:' . $r['code'] . ' is exists(deleted)', LOG_DEBUG);
+						$racerMap['Racer']['deleted'] = 0;
+						$racerMap['Racer']['deleted_date'] = null;
+						
+						if (!$this->Racer->save($racerMap)) {
+							return $this->error('Saving (deleted)racers failed.', self::STATUS_CODE_BAD_REQUEST);
+						}
+						
 					} else {
 						// 新規選手登録
 						$saveRacers[] = $racerMap;
@@ -887,11 +896,11 @@ class ApiController extends ApiBaseController
 			}
 			
 			if (empty($saveRacers)) {
-				return $this->success(array('deleted' => $deletedRacerCodes));
+				return $this->success('ok');
 			}
 			
 			if ($this->Racer->saveMany($saveRacers)) {
-				return $this->success(array('deleted' => $deletedRacerCodes));
+				return $this->success('ok');
 			}
 		}
 		
