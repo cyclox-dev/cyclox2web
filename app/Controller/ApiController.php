@@ -1080,7 +1080,7 @@ class ApiController extends ApiBaseController
 			),
 			'apply_date <=' => $meet['at_date'],
 		);
-		$this->CategoryRacer->actsAs = array('Utils.SoftDelete'); // deleted を拾わないように
+		$this->CategoryRacer->Behaviors->load('Utils.SoftDelete');
 		$catBinds = $this->CategoryRacer->find('all', array('conditions' => $conditions, 'recursive' => -1));
 		//$this->log('cats:', LOG_DEBUG);
 		//$this->log($catBinds, LOG_DEBUG);
@@ -1235,7 +1235,7 @@ class ApiController extends ApiBaseController
 		
 		// 年齢基準判定
 		if ($rcatCode == 'C2' || $rcatCode == 'C3' || $rcatCode == 'C4' || $rcatCode == 'C3+4') {
-			$this->Racer->actsAs = array('Utils.SoftDelete'); // deleted を拾わないように
+			$this->Racer->Behaviors->unload('Utils.SoftDelete'); // Error 対策で deleted も含めて考える
 			$conditions = array('code' => $racerCode);
 			$racer = $this->Racer->find('first', array('conditions' => $conditions, 'recursive' => -1));
 			$birth = $racer['Racer']['birth_date'];
