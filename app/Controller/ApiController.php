@@ -84,6 +84,8 @@ class ApiController extends ApiBaseController
 	 */
 	public function updated_racer_codes($date = null)
 	{
+		$this->Racer->Behaviors->unload('Utils.SoftDelete'); // deleted もひろう
+		
 		if ($date) {
 			$dt = $this->__getFindSqlDate($date);
 			
@@ -736,6 +738,8 @@ class ApiController extends ApiBaseController
 	{	
 		//$this->log('offset params is:', LOG_DEBUG);
 		//$this->log($this->params->query, LOG_DEBUG);
+		
+		$this->Racer->Behaviors->unload('Utils.SoftDelete'); // deleted もひろう
 		
 		$offset = 0;
 		if (!empty($this->params->query['offset'])) {
