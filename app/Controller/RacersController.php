@@ -91,21 +91,6 @@ class RacersController extends ApiBaseController
 	 */
 	public function add() 
 	{
-		if ($this->request->is(array('post', 'put'))) {
-			if (!$this->_validateFamilyName()) {
-				$this->Racer->validator()->invalidate('family_name', '姓のいずれかに入力が必要です。');
-				$this->Racer->validator()->invalidate('family_name_kana', '姓のいずれかに入力が必要です。');
-				$this->Racer->validator()->invalidate('family_name_en', '姓のいずれかに入力が必要です。');
-				return;
-			}
-			if (!$this->_validateFirstName()) {
-				$this->Racer->validator()->invalidate('first_name', '姓のいずれかに入力が必要です。');
-				$this->Racer->validator()->invalidate('first_name_kana', '姓のいずれかに入力が必要です。');
-				$this->Racer->validator()->invalidate('first_name_en', '姓のいずれかに入力が必要です。');
-				return;
-			}
-		}
-		
 		if ($this->_isApiCall()) {
 			return $this->__addOnApi();
 		} else {
@@ -151,6 +136,20 @@ class RacersController extends ApiBaseController
 	private function __addOnPage()
 	{
 		if ($this->request->is(array('post', 'put'))) {
+			
+			if (!$this->_validateFamilyName()) {
+				$this->Racer->validator()->invalidate('family_name', '姓のいずれかに入力が必要です。');
+				$this->Racer->validator()->invalidate('family_name_kana', '姓のいずれかに入力が必要です。');
+				$this->Racer->validator()->invalidate('family_name_en', '姓のいずれかに入力が必要です。');
+				return;
+			}
+			if (!$this->_validateFirstName()) {
+				$this->Racer->validator()->invalidate('first_name', '姓のいずれかに入力が必要です。');
+				$this->Racer->validator()->invalidate('first_name_kana', '姓のいずれかに入力が必要です。');
+				$this->Racer->validator()->invalidate('first_name_en', '姓のいずれかに入力が必要です。');
+				return;
+			}
+		
 			$this->Racer->create();
 			$code = AjoccUtil::nextRacerCode();
 			$this->request->data['Racer']['code'] = $code;
@@ -173,6 +172,13 @@ class RacersController extends ApiBaseController
 		if ($this->request->is('post')) {
 			//$this->log($this->request->data, LOG_DEBUG);
 			$this->Racer->create();
+			
+			if (empty($this->request->data['Racer']['family_name'])) {
+				$this->request->data['Racer']['family_name'] = '_姓が未入力です';
+			}
+			if (empty($this->request->data['Racer']['first_name'])) {
+				$this->request->data['Racer']['first_name'] = '_名前が未入力です';
+			}
 			
 			if (empty($this->request->data['Racer']['family_name_kana'])) {
 				$this->request->data['Racer']['family_name_kana'] = '';
