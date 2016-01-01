@@ -887,6 +887,7 @@ class ApiController extends ApiBaseController
 						$racerMap['Racer']['deleted'] = 0;
 						$racerMap['Racer']['deleted_date'] = null;
 						
+						
 						if (!$this->Racer->save($racerMap)) {
 							return $this->error('Saving (deleted)racers failed.', self::STATUS_CODE_BAD_REQUEST);
 						}
@@ -946,19 +947,19 @@ class ApiController extends ApiBaseController
 				
 				if (!emptY($cr['id']) && $this->CategoryRacer->exists($cr['id'])) {
 					$saveCatRacers[] = $crMap;
-					$this->log('id:' . $cr['id'] . ' is exists(not del', LOG_DEBUG);
+					//$this->log('id:' . $cr['id'] . ' is exists(not del', LOG_DEBUG);
 				} else {
 					$this->CategoryRacer->Behaviors->unload('Utils.SoftDelete');
 					if (!emptY($cr['id']) && $this->CategoryRacer->exists($cr['id'])) {
 						// deleted = 別個に save
 						$deletedIndexList[] = $index;
 						$deletedIds[] = $cr['id'];
-						$this->log('id:' . $cr['id'] . ' is exists but deleted', LOG_DEBUG);
+						//$this->log('id:' . $cr['id'] . ' is exists but deleted', LOG_DEBUG);
 						
 						$crMap['CategoryRacer']['deleted'] = 0;
 						$crMap['CategoryRacer']['deleted_date'] = null;
-						$this->log('crMap:', LOG_DEBUG);
-						$this->log($crMap, LOG_DEBUG);
+						//$this->log('crMap:', LOG_DEBUG);
+						//$this->log($crMap, LOG_DEBUG);
 						
 						if (!$this->CategoryRacer->save($crMap)) {
 							return $this->error('Saving (deleted)category-racers failed.', self::STATUS_CODE_BAD_REQUEST);
@@ -966,7 +967,7 @@ class ApiController extends ApiBaseController
 					} else {
 						// 新規選手登録
 						$saveCatRacers[] = $crMap;
-						$this->log('index:' . $index . ' is new racer', LOG_DEBUG);
+						//$this->log('index:' . $index . ' is new racer', LOG_DEBUG);
 					}
 				}
 				++$index;
