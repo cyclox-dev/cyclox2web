@@ -207,10 +207,13 @@ class CategoryRacersController extends ApiBaseController
 	private function __deleteOnPage($id = null)
 	{
 		$this->CategoryRacer->id = $id;
+		$this->CategoryRacer->Behaviors->unload('Utils.SoftDelete'); // 一旦 deleted が存在するかについても確認
 		if (!$this->CategoryRacer->exists()) {
 			throw new NotFoundException(__('Invalid category racer'));
 		}
 		$this->request->allowMethod('post', 'delete');
+		
+		$this->CategoryRacer->Behaviors->load('Utils.SoftDelete');
 		if ($this->CategoryRacer->delete()) {
 			$this->Session->setFlash(__('選手のカテゴリー所属情報 [ID:' . $id . '] を削除しました（削除日時の適用）。'));
 		} else {
@@ -223,8 +226,10 @@ class CategoryRacersController extends ApiBaseController
 	private function __deleteOnApi($id = null)
 	{
 		$this->CategoryRacer->id = $id;
+		
+		// soft, hard いずれでも削除されていれば OK とする
 		if (!$this->CategoryRacer->exists()) {
-			throw new NotFoundException(__('Invalid category racer'));
+			return $this->success('already deleted');
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->CategoryRacer->delete()) {
