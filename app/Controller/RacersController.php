@@ -267,6 +267,16 @@ class RacersController extends ApiBaseController
 				return $this->error('不正なリクエストです。（指定の選手コードが存在しません）。');
 			}
 			
+			// team の空入力での書換えは無しとする（Cyclox2 App ver1.10 のバグ対策）
+			if (isset($this->request->data['Racer']['team'])) {
+				if ($this->request->data['Racer']['team'] === '') {
+					unset($this->request->data['Racer']['team']);
+				}
+			}
+			
+			//$this->log('racer:', LOG_DEBUG);
+			//$this->log($this->request->data['Racer'], LOG_DEBUG);
+			
 			if ($this->Racer->save($this->request->data)) {
 				return $this->success(array());
 			} else {

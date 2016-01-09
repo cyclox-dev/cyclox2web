@@ -874,6 +874,15 @@ class ApiController extends ApiBaseController
 					return $this->error('key:Racer.code not found.', self::STATUS_CODE_BAD_REQUEST);
 				}
 				
+				// team の空入力での書換えは無しとする（Cyclox2 App ver1.10 のバグ対策）
+				if (isset($racerMap['Racer']['team'])) {
+					if ($racerMap['Racer']['team'] === '') {
+						unset($racerMap['Racer']['team']);
+					}
+				}
+				//$this->log('racer:', LOG_DEBUG);
+				//$this->log($racerMap['Racer'], LOG_DEBUG);
+			
 				$this->Racer->Behaviors->load('Utils.SoftDelete');
 				
 				if ($this->Racer->exists($r['code'])) {
