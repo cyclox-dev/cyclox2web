@@ -12,6 +12,7 @@ App::uses('AjoccUtil', 'Cyclox/Util');
  */
 class RacersController extends ApiBaseController
 {
+	public $uses = array('Racer', 'EntryRacer');
 
 /**
  * Components
@@ -63,9 +64,6 @@ class RacersController extends ApiBaseController
 			throw new NotFoundException(__('Invalid racer'));
 		}
 		
-		// MORE:deleted も表示する？
-		//$this->Racer->softDelete(false);
-		
 		$isApiCall = $this->_isApiCall();
 		
 		$options = array('conditions' => array('Racer.' . $this->Racer->primaryKey => $code));
@@ -74,14 +72,94 @@ class RacersController extends ApiBaseController
 		}
 		
 		$this->Racer->Behaviors->unload('Utils.SoftDelete'); // 削除済みも表示する
-		$this->Racer->CategoryRacer->Behaviors->load('Utils.SoftDelete');
 		
 		$racer = $this->Racer->find('first', $options);
+		
 		if ($isApiCall) {
 			$this->success($racer);
 		} else {
+			$opt = array('conditions' => array('racer_code' => $code));
+
+			$entryCount = $this->EntryRacer->find('count', $opt);
+			
+			// order by Meet.at_date では find できないので、
+			// 最新更新の20件を find して地道に at_date ソートで最新10件程度を表示する。
+			$opt['order'] = array('EntryRacer.modified' => 'asc');
+			$opt['limit'] = 20; // 最新更新の20件取得しておいて10件の最新を配置
+			// TODO: 改善できるなら改善
+			
+			$this->EntryRacer->Behaviors->load('Containable');
+			$opt['contain'] = array(
+				'RacerResult' => array(
+					'HoldPoint'
+				),
+				'EntryCategory' => array(
+					'EntryGroup' => array(
+						'fields' => array(),
+						'Meet' => array(
+							'fields' => array('code', 'short_name', 'at_date'),
+						)
+					)
+				)
+			);
+			$entries = $this->EntryRacer->find('all', $opt);
+			/*
+			$this->log('count:' . $entryCount, LOG_DEBUG);
+			$this->log('entries', LOG_DEBUG);
+			$this->log($entries, LOG_DEBUG);
+			//*/
+
 			$this->set('racer', $racer);
+			$this->set('entryCount', $entryCount);
+			$this->set('entries', $entries);
 		}
+	}
+	
+	/**
+	 * 選手のリザルトを表示する
+	 * @param type $code 選手コード
+	 * @throws NotFoundException
+	 */
+	public function results($code = null)
+	{
+		if (!$this->Racer->existsOnDB($code)) {
+			throw new NotFoundException(__('Invalid racer'));
+		}
+		
+		$this->Racer->Behaviors->unload('Utils.SoftDelete'); // 削除済みも表示する
+		$options = array('conditions' => array('Racer.' . $this->Racer->primaryKey => $code));
+		$racer = $this->Racer->find('first', $options);
+		
+		$opt = array(
+			'conditions' => array('racer_code' => $code),
+			'order' => array('EntryRacer.modified' => 'asc'),
+		);
+		// order by Meet.at_date では find できないので、
+		// 最新更新の20件を find して地道 at_date ソートする。
+		
+		$this->EntryRacer->Behaviors->load('Containable');
+		$opt['contain'] = array(
+			'RacerResult' => array(
+				'HoldPoint'
+			),
+			'EntryCategory' => array(
+				'EntryGroup' => array(
+					'fields' => array(),
+					'Meet' => array(
+						'fields' => array('code', 'short_name', 'at_date'),
+					)
+				)
+			)
+		);
+		$entries = $this->EntryRacer->find('all', $opt);
+		/*
+		$this->log('count:' . $entryCount, LOG_DEBUG);
+		$this->log('entries', LOG_DEBUG);
+		$this->log($entries, LOG_DEBUG);
+		//*/
+
+		$this->set('racer', $racer);
+		$this->set('entries', $entries);
 	}
 
 	/**

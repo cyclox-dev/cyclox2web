@@ -70,11 +70,11 @@ class Util
 		
 		if (!$fillsAllHms) {
 			if ($sec < 60) {
-				return $sec . '.' . $milli;
+				return $sec . '.' . sprintf('%03d', $milli);
 			} else if ($sec < 3600) {
 				$secInMin = $sec % 60;
 				$min = floor($sec / 60);
-				return $min . ':' . sprintf('%02d', $secInMin) . '.' . $milli;
+				return $min . ':' . sprintf('%02d', $secInMin) . '.' . sprintf('%03d', $milli);
 			}
 		}
 		
@@ -83,7 +83,7 @@ class Util
 		$minInHour = $min % 60;
 		$hour = floor($min / 60);
 		
-		return $hour . ':' . sprintf('%02d', $minInHour) . ':' . sprintf('%02d', $secInMin) . '.' . $milli;
+		return $hour . ':' . sprintf('%02d', $minInHour) . ':' . sprintf('%02d', $secInMin) . '.' . sprintf('%03d', $milli);
 	}
 	
 	/**
