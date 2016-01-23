@@ -4,7 +4,7 @@
 		App::uses('RacerEntryStatus', 'Cyclox/Const');
 		App::uses('RacerResultStatus', 'Cyclox/Const');
 	?>
-	<h3><?php echo __('エントリー／リザルト'); ?></h3>
+	<h2><?php echo __($racer['Racer']['family_name'] . ' ' . $racer['Racer']['first_name'] . ' [' . $racer['Racer']['code'] . '] のエントリー／リザルト'); ?></h2>
 		<table cellpadding = "0" cellspacing = "0">
 			<tr>
 				<th><?php echo __('大会'); ?></th>
