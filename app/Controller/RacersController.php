@@ -72,6 +72,7 @@ class RacersController extends ApiBaseController
 		}
 		
 		$this->Racer->Behaviors->unload('Utils.SoftDelete'); // 削除済みも表示する
+		$this->Racer->CategoryRacer->Behaviors->load('Utils.SoftDelete');
 		
 		$racer = $this->Racer->find('first', $options);
 		
