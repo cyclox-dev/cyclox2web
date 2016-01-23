@@ -11,6 +11,11 @@
 			<?php echo h($user['User']['email']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('Group'); ?></dt>
+		<dd>
+			<?php echo h($user['Group']['name']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Active'); ?></dt>
 		<dd>
 			<?php echo h($user['User']['active'] ? 'Yes' : 'No'); ?>
