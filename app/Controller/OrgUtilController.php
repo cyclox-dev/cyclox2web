@@ -450,7 +450,13 @@ class OrgUtilController extends ApiBaseController
 				}
 				
 				$catExp = '';
+				$cats = array();
 				foreach ($racer['CategoryRacer'] as $catRacer) {
+					// すでに表示しているものは排除
+					if (in_array($catRacer['category_code'], $cats)) {
+						continue;
+					}
+					
 					// 過去のカテゴリーは排除
 					if (!empty($catRacer['cancel_date'])) {
 						$cancelDate = new DateTime($catRacer['cancel_date']);
@@ -467,12 +473,13 @@ class OrgUtilController extends ApiBaseController
 					$applyDate = new DateTime($catRacer['apply_date']);
 					if ($applyDate > $dateNowFrom) {
 						continue;
-					} 
+					}
 					
 					if (!empty($catExp)) {
 						$catExp .= ',';
 					}
 					$catExp .= $catRacer['category_code'];
+					$cats[] = $catRacer['category_code'];
 				}
 				
 				$tmpFile->append(
