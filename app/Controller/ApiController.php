@@ -429,6 +429,7 @@ class ApiController extends ApiBaseController
 			
 			$topLapCount = 0; // ポイント計算のためにレース周回数（ラップタイム最高数）をカウント
 			$startedCount = 0; // 昇格処理のために出走人数のカウント
+			$finCount = 0;
 			foreach ($this->request->data['body-result'] as $body => $result) {
 				if (empty($erMap[$body])) {
 					$this->TransactionManager->rollback($transaction);
@@ -443,6 +444,11 @@ class ApiController extends ApiBaseController
 					$rstatus = $result['RacerResult']['status'];
 					if ($rstatus != RacerResultStatus::$DNS->val()) {
 						++$startedCount;
+						if ($rstatus == RacerResultStatus::$FIN->val()
+								|| $rstatus == RacerResultStatus::$LAPOUT->val()
+								|| $rstatus == RacerResultStatus::$LAPOUT80->val()) {
+							++$finCount;
+						}
 					}
 				}
 				$lapCount = $result['RacerResult']['lap'];
@@ -512,7 +518,7 @@ class ApiController extends ApiBaseController
 			foreach ($results4Rup as $r4rup)
 			{
 				$ret = $this->__setupRankUp($r4rup['racer_code'], $r4rup['rrid'],
-						$r4rup['result'], $startedCount, $ecat, $meet['Meet']);
+						$r4rup['result'], $finCount, $ecat, $meet['Meet']);
 				if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
 					$this->log($er['EntryRacer']['racer_code'] . ' の昇格処理に失敗しました。', LOG_ERR);
 				}
@@ -1064,14 +1070,14 @@ class ApiController extends ApiBaseController
 	 * @param string $racerCode 選手コード
 	 * @param int $racerResultId リザルト ID
 	 * @param int $result リザルト
-	 * @param int $raceStartedCount レースの出走人数（Open 参加を除く）
+	 * @param int $finRacerCount レースの完走人数（Open 参加を除く）
 	 * @param string $ecat 出走カテゴリー
 	 * @param date $meet 大会データ
 	 * @return int Constant.RET_ のいずれか
 	 */
-	private function __setupRankUp($racerCode, $racerResultId, $result, $raceStartedCount, $ecat, $meet)
+	private function __setupRankUp($racerCode, $racerResultId, $result, $finRacerCount, $ecat, $meet)
 	{
-		if (empty($racerCode) || empty($racerResultId) || empty($result) || empty($raceStartedCount) ||
+		if (empty($racerCode) || empty($racerResultId) || empty($result) || empty($finRacerCount) ||
 			empty($ecat) || empty($meet)) {
 			return Constant::RET_ERROR;
 		}
@@ -1232,7 +1238,7 @@ class ApiController extends ApiBaseController
 		$rankUpCount = 0;
 		for ($i = 0; $i < count($map[$rcatCode]['rule']); $i++) {
 			$racerCount = $map[$rcatCode]['rule'][$i]['racer_count'];
-			if ($raceStartedCount >= $racerCount) {
+			if ($finRacerCount >= $racerCount) {
 				$rankUpCount = $map[$rcatCode]['rule'][$i]['up'];
 				break;
 			}
