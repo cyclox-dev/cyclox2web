@@ -184,7 +184,7 @@ class ApiController extends ApiBaseController
 			'fields' => array('id', 'body_number')
 		);
 		$eracers = $this->EntryRacer->find('all', $conditions);
-		$this->log($eracers, LOG_DEBUG);
+		//$this->log($eracers, LOG_DEBUG);
 
 		if (empty($eracers)) {
 			return $this->error("出走カテゴリーに選手が設定されていません。", self::STATUS_CODE_BAD_REQUEST);
@@ -192,7 +192,7 @@ class ApiController extends ApiBaseController
 
 		$erMap = array();
 		
-		$this->log($eracers, LOG_DAEMON);
+		//$this->log($eracers, LOG_DEBUG);
 
 		foreach ($eracers as $eracer) {
 			$erMap[$eracer['EntryRacer']['body_number']] = $eracer['EntryRacer']['id'];
@@ -523,7 +523,7 @@ class ApiController extends ApiBaseController
 					$this->log($er['EntryRacer']['racer_code'] . ' の昇格処理に失敗しました。', LOG_ERR);
 				}
 			}
-			$this->log('end', LOG_DEBUG);
+			//$this->log('end', LOG_DEBUG);
 			$this->TransactionManager->commit($transaction);
 			return $this->success(array('ok')); // 件数とか？
 		} catch (Exception $ex) {
@@ -597,7 +597,7 @@ class ApiController extends ApiBaseController
 					$newMps['MeetPointSeries']['point_term_end'] = null;
 				}
 				
-				$this->log($mps, LOG_DEBUG);
+				//$this->log($mps, LOG_DEBUG);
 				
 				if (!empty($term['begin']) || !empty($term['end'])) {
 					$this->MeetPointSeries->id = $mps['MeetPointSeries']['id'];
@@ -1061,7 +1061,7 @@ class ApiController extends ApiBaseController
 			}
 		}
 		
-		$this->log('ajocc pt is: ' . $point, LOG_DEBUG);
+		//$this->log('ajocc pt is: ' . $point, LOG_DEBUG);
 		return $point;
 	}
 	
@@ -1114,13 +1114,13 @@ class ApiController extends ApiBaseController
 		// M1+2+3 は勝利したら CM1 表彰台で CM2（降格なし）
 		if ($rcatCode === 'CM1+2+3')
 		{
-			$this->log('CM1+2+3 rank up', LOG_DEBUG);
+			//$this->log('CM1+2+3 rank up', LOG_DEBUG);
 			
 			// CM1 持ってるなら処理なし
 			foreach ($catBinds as $catBind) {
-				$this->log('curr:' . $catBind['CategoryRacer']['category_code'], LOG_DEBUG);
+				//$this->log('curr:' . $catBind['CategoryRacer']['category_code'], LOG_DEBUG);
 				if ($catBind['CategoryRacer']['category_code'] === 'CM1') {
-					$this->log('find cm1', LOG_DEBUG);
+					//$this->log('find cm1', LOG_DEBUG);
 					return Constant::RET_NO_ACTION;
 				}
 			}
@@ -1128,7 +1128,7 @@ class ApiController extends ApiBaseController
 			$newCategory = null;
 			$oldCats = null;
 			
-			$this->log('rank is,,,:' . $rank, LOG_DEBUG);
+			//$this->log('rank is,,,:' . $rank, LOG_DEBUG);
 			
 			if ($rank === 1) {
 				$newCategory = 'CM1';
@@ -1171,7 +1171,7 @@ class ApiController extends ApiBaseController
 				}
 			}
 			
-			$this->log('will create', LOG_DEBUG);
+			//$this->log('will create', LOG_DEBUG);
 			
 			$cr = array();
 			$cr['CategoryRacer'] = array();
@@ -1190,7 +1190,7 @@ class ApiController extends ApiBaseController
 				return Constant::RET_FAILED;
 			}
 
-			$this->log('(with rank-up) will give give hold point to:' . $newCategory, LOG_DEBUG);
+			//$this->log('(with rank-up) will give give hold point to:' . $newCategory, LOG_DEBUG);
 			$hp = array();
 			$hp['HoldPoint'] = array();
 			$hp['HoldPoint']['racer_result_id'] = $racerResultId;
@@ -1260,7 +1260,7 @@ class ApiController extends ApiBaseController
 				// uci cx age をチェック
 				$meetDate = new DateTime($meet['at_date']);
 				$uciCxAge = Util::uciCXAgeAt(new DateTime($birth), $meetDate);
-				$this->log('uciCxAge:' . $uciCxAge, LOG_DEBUG);
+				//$this->log('uciCxAge:' . $uciCxAge, LOG_DEBUG);
 				
 				$isBadAge = false;
 				
@@ -1358,7 +1358,7 @@ class ApiController extends ApiBaseController
 			return Constant::RET_FAILED;
 		}
 
-		$this->log('(with rank-up) will give give hold point to:' . $map[$rcatCode]['to'], LOG_DEBUG);
+		//$this->log('(with rank-up) will give give hold point to:' . $map[$rcatCode]['to'], LOG_DEBUG);
 		$hp = array();
 		$hp['HoldPoint'] = array();
 		$hp['HoldPoint']['racer_result_id'] = $racerResultId;
@@ -1397,7 +1397,7 @@ class ApiController extends ApiBaseController
 			return Constant::RET_NO_ACTION;
 		}
 		$point = ($result['rank_per'] <= 25) ? 3 : 1;
-		$this->log('point will be, ' . $point, LOG_DEBUG);
+		//$this->log('point will be, ' . $point, LOG_DEBUG);
 		
 		// 選手の現在のカテゴリー所属を取得
 		$conditions = array(
@@ -1438,10 +1438,10 @@ class ApiController extends ApiBaseController
 		$catCodeGiveTo = null;
 		foreach ($map[$rcatCode] as $catCode) {
 			foreach ($catBinds as $catBind) {
-				$this->log($catBind['CategoryRacer']['category_code'] . ' vs ' . $catCode, LOG_DEBUG);
+				//$this->log($catBind['CategoryRacer']['category_code'] . ' vs ' . $catCode, LOG_DEBUG);
 				if ($catBind['CategoryRacer']['category_code'] === $catCode) {
 					$catCodeGiveTo = $catCode;
-					$this->log('find!', LOG_DEBUG);
+					//$this->log('find!', LOG_DEBUG);
 					break;
 				}
 			}
@@ -1455,7 +1455,7 @@ class ApiController extends ApiBaseController
 			$catCodeGiveTo = $map[$rcatCode][$index];
 		}
 		
-		$this->log('will give give hold point to:' . $catCodeGiveTo . ' pt:' . $point, LOG_DEBUG);
+		//$this->log('will give give hold point to:' . $catCodeGiveTo . ' pt:' . $point, LOG_DEBUG);
 		$hp = array();
 		$hp['HoldPoint'] = array();
 		$hp['HoldPoint']['racer_result_id'] = $racerResultId;
