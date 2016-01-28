@@ -1393,9 +1393,15 @@ class ApiController extends ApiBaseController
 			return Constant::RET_NO_ACTION;
 		}
 		
-		if (empty($result['rank_per']) || $result['rank_per'] > 66) {
+		if (!(isset($result['rank_per']) && $result['rank_per'] === 0)) {
+			if (empty($result['rank_per'])) {
+				return Constant::RET_NO_ACTION;
+			}
+		}
+		if ($result['rank_per'] > 66) {
 			return Constant::RET_NO_ACTION;
 		}
+		
 		$point = ($result['rank_per'] <= 25) ? 3 : 1;
 		//$this->log('point will be, ' . $point, LOG_DEBUG);
 		
