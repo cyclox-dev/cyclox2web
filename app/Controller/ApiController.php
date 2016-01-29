@@ -24,7 +24,7 @@ class ApiController extends ApiBaseController
 	public $uses = array('TransactionManager',
 		'Meet', 'CategoryRacer', 'Racer', 'MeetGroup', 'Season',
 		'EntryGroup', 'EntryCategory', 'EntryRacer', 'RacerResult', 'TimeRecord', 'HoldPoint',
-		'PointSeries', 'MeetPointSeries', 'PointSeriesRacer');
+		'PointSeries', 'MeetPointSeries', 'PointSeriesRacer', 'RacesCategory');
 	
 	public $components = array('Session', 'RequestHandler');
 	
@@ -478,6 +478,8 @@ class ApiController extends ApiBaseController
 				$this->RacerResult->create();
 				$result['RacerResult']['entry_racer_id'] = $er['EntryRacer']['id'];
 				$result['RacerResult']['ajocc_pt'] = $ajoccPt;
+				$result['RacerResult']['as_category']
+						= $this->__calcAsCategory($er['EntryRacer']['racer_code'], $ecat, $meet['Meet']['at_date']);
 				if (!$this->RacerResult->saveAssociated($result)) {
 					$this->TransactionManager->rollback($transaction);
 					return $this->error('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
@@ -532,6 +534,159 @@ class ApiController extends ApiBaseController
 			return $this->error('予期しないエラー:' . $ex, self::STATUS_CODE_BAD_REQUEST);
 		}
 	}
+	
+	/**
+	 * レース時に「どのカテゴリーの選手として出走したか」をかえす
+	 * @param string $racerCode 選手 Code
+	 * @param array $ecat レースの出走カテゴリー
+	 * @param array $atDate 判定日付 null の場合、現在日が使用される
+	 * @return string カテゴリー Code
+	 */
+	private function __calcAsCategory($racerCode, $ecat, $atDate = null)
+	{
+		if (empty($racerCode) || empty($ecat)) {
+			$this->log('as category 取得に必要な引数が不足しています。', LOG_ERR);
+			return null;
+		}
+		
+		$dt = empty($atDate) ? date("Y-m-d") : $atDate;
+		
+		// deleted は見ない
+		$this->CategoryRacer->Behaviors->load('Utils.SoftDelete');
+		
+		$opt = array(
+			'conditions' => array(
+				'racer_code' => $racerCode,
+				'AND' => array(
+					'NOT' => array('apply_date' => null), 
+					'apply_date <=' => $dt
+				),
+				array('OR' => array(
+					array('cancel_date' => null),
+					array('cancel_date >=' => $dt),
+				)),
+			),
+			'recursive' => 1,
+		);
+		//$this->log('condition:', LOG_DEBUG);
+		//$this->log($opt, LOG_DEBUG);
+		$cats = $this->CategoryRacer->find('all', $opt);
+		
+		$opt = array(
+			'conditions' => array('code' => $ecat['races_category_code']),
+			'recursive' => 2
+		);
+		$rcat = $this->RacesCategory->find('first', $opt);
+		
+		/*$this->log('rcat:', LOG_DEBUG);
+		$this->log($rcat, LOG_DEBUG);
+		$this->log('cats:', LOG_DEBUG);
+		$this->log($cats, LOG_DEBUG);//*/
+		
+		// デフォルト値は ecat.races_cat_code とする
+		$ret = $ecat['races_category_code'];
+		$isSingleCat = false;
+		
+		// レースに設定されたカテゴリー（rank の低い方）とする
+		if (!empty($rcat)) {
+			$catsOnRace = array();
+			foreach ($rcat['CategoryRacesCategory'] as $crc) {
+				if (!empty($crc['Category'])) {
+					$catsOnRace[] = $crc['Category'];
+				}
+			}
+			
+			if (!empty($catsOnRace)) {
+				if (count($catsOnRace) == 1) {
+					$ret = $catsOnRace[0]['code'];
+					$isSingleCat = true;
+				} else {
+					$ret = $this->__getLowRankedCatCode($catsOnRace);
+				}
+			}
+		}
+		
+		if (!$isSingleCat && !empty($cats)) {
+			// 所持しているカテゴリーのうち、レースに設定されていて、高い方とする。
+			$catCodesOnRace = array();
+			foreach ($rcat['CategoryRacesCategory'] as $crc) {
+				if (!empty($crc['Category'])) {
+					$catCodesOnRace[] = $crc['Category']['code'];
+				}
+			}
+			
+			//$this->log('$catCodesOnRace:', LOG_DEBUG);
+			//$this->log($catCodesOnRace, LOG_DEBUG);
+			
+			$catCodes = array();
+			foreach ($cats as $c) {
+				$code = $c['CategoryRacer']['category_code'];
+				if (in_array($code, $catCodesOnRace)) {
+					$catCodes[] = $c['Category'];
+				}
+			}
+			
+			//$this->log('$catCodes', LOG_DEBUG);
+			//$this->log($catCodes, LOG_DEBUG);
+			
+			if (!empty($catCodes)) {
+				$ret = $this->__getHighRankedCatCode($catCodes);
+			}
+		}
+		
+		return $ret;
+	}
+	
+	/**
+	 * 高い順位（=低い rank 値）が設定されたカテゴリーの Code をかえす。
+	 * @param type $cats カテゴリー配列
+	 * @return string カテゴリー Code。比較ができない場合は第1要素をかえす。エラーの場合 null をかえす。
+	 */
+	private function __getHighRankedCatCode($cats = array()) {
+		if (empty($cats)) {
+			return null;
+		}
+		
+		$highCat = $cats[0];
+		
+		for ($i = 1; $i < count($cats); $i++) {
+			$cat = $cats[$i];
+			
+			if (!empty($cat['rank'])) {
+				if (empty($highCat['rank']) || $cat['rank'] < $highCat['rank']) {
+					$highCat = $cat;
+				}
+			}
+		}
+		
+		return $highCat['code'];
+	}
+	
+	/**
+	 * 低い順位（=高い rank 値）が設定されたカテゴリーの Code をかえす。
+	 * @param type $cats カテゴリー配列
+	 * @return string カテゴリー Code。比較ができない場合は第1要素をかえす。エラーの場合 null をかえす。
+	 */
+	private function __getLowRankedCatCode($cats = array()) {
+		if (empty($cats)) {
+			return null;
+		}
+		
+		$lowerCat = $cats[0];
+		
+		for ($i = 1; $i < count($cats); $i++) {
+			$cat = $cats[$i];
+			
+			if (!empty($cat['rank'])) {
+				if (empty($lowerCat['rank']) || $cat['rank'] > $lowerCat['rank']) {
+					$lowerCat = $cat;
+				}
+			}
+		}
+		
+		return $lowerCat['code'];
+	}
+	
 	
 	/**
 	 * 昇格処理用ソートコールバック。 ['result']['rank'] の値を比較する。順位順にならべる。null は最後。
