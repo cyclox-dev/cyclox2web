@@ -3,6 +3,11 @@
 	<fieldset>
 		<legend><?php echo __('Edit Racer Result'); ?></legend>
 	<?php
+		$cats = array();
+		foreach ($categories as $key => $val) {
+			$cats[$key] = $key . ': ' . $val;
+		}
+	
 		echo $this->Form->input('id');
 		echo $this->Form->input('entry_racer_id', array('label' => 'Entry Racer ID', 'type' => 'number'));
 		echo $this->Form->input('order_index');
@@ -15,6 +20,7 @@
 		echo $this->Form->input('rank_per');
 		echo $this->Form->input('run_per');
 		echo $this->Form->input('ajocc_pt');
+		echo $this->Form->input('as_category', array('label' => '成績対象カテゴリー', 'options' => $cats, 'empty' => '---'));
 		echo $this->Form->input('note');
 	?>
 	</fieldset>

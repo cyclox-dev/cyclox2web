@@ -61,6 +61,11 @@
 			<?php echo h($racerResult['RacerResult']['ajocc_pt']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('成績対象カテゴリー'); ?></dt>
+		<dd>
+			<?php echo h($racerResult['RacerResult']['as_category']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Note'); ?></dt>
 		<dd>
 			<?php echo h($racerResult['RacerResult']['note']); ?>

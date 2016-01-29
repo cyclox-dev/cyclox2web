@@ -87,6 +87,13 @@ class RacerResult extends AppModel
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''
+		),
+		'Category' => array(
+			'className' => 'Category',
+			'foreignKey' => 'as_category',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
 		)
 	);
 

@@ -7,7 +7,9 @@ App::uses('AppController', 'Controller');
  * @property PaginatorComponent $Paginator
  * @property SessionComponent $Session
  */
-class RacerResultsController extends AppController {
+class RacerResultsController extends AppController
+{
+	var $uses = array('RacerResult', 'Category');
 
 /**
  * Components
@@ -56,7 +58,8 @@ class RacerResultsController extends AppController {
 				$this->Session->setFlash(__('The racer result could not be saved. Please, try again.'));
 			}
 		}
-		$this->set(compact('entryRacers'));
+		$categories = $this->Category->find('list', array('fields' => array('Category.code', 'Category.name')));
+		$this->set(compact('entryRacers', 'categories'));
 	}
 
 /**
@@ -81,7 +84,8 @@ class RacerResultsController extends AppController {
 			$options = array('conditions' => array('RacerResult.' . $this->RacerResult->primaryKey => $id));
 			$this->request->data = $this->RacerResult->find('first', $options);
 		}
-		$this->set(compact('entryRacers'));
+		$categories = $this->Category->find('list', array('fields' => array('Category.code', 'Category.name')));
+		$this->set(compact('entryRacers', 'categories'));
 	}
 
 /**

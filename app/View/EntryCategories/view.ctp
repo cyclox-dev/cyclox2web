@@ -176,7 +176,7 @@
 						}
 					?></td>
 					<td><?php echo is_null($result['RacerResult']['rank_per']) ? '--' : $result['RacerResult']['rank_per'] . '%'; ?></td>
-					<td><?php echo is_null($result['RacerResult']['run_per']) ? '--%' : (1 * $result['RacerResult']['run_per']) . '%'; ?></td>
+					<td><?php echo is_null($result['RacerResult']['run_per']) ? '--' : (1 * $result['RacerResult']['run_per']) . '%'; ?></td>
 					<?php for ($i = 0; $i < count($psTitles); $i++): ?>
 						<td><?php
 							if (empty($result['RacerResult']['points'][$i])) {
@@ -190,7 +190,17 @@
 							}
 						?></td>
 					<?php endfor; ?>
-					<td><?php echo (empty($result['RacerResult']['ajocc_pt']) ? '' : $result['RacerResult']['ajocc_pt'] . 'pt'); ?></td>
+					<td><?php
+						if (empty($result['RacerResult']['ajocc_pt'])) {
+							echo '';
+						} else {
+							$ptStr = $result['RacerResult']['ajocc_pt'] . 'pt';
+							if (!empty($result['RacerResult']['as_category'])) {
+								$ptStr .= '/' . $result['RacerResult']['as_category'];
+							}
+							echo $ptStr;
+						}
+					?></td>
 					<?php if ($holdPointCount > 0): ?>
 						<td><?php 
 							$str = '';
