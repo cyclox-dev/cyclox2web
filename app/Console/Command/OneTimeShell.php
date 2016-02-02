@@ -4,6 +4,8 @@
  *  created at 2015/12/21 by shun
  */
 
+App::uses('ApiController', 'Controller');
+
 /**
  * 1回だけの処理に使用する。コンソールから起動する。
  * 例）
@@ -12,11 +14,19 @@
  */
 class OneTimeShell extends AppShell
 {
-	public $uses = array('EntryGroup', 'EntryRacer', 'Racer', 'CategoryRacer');
+	public $uses = array('EntryGroup', 'EntryRacer', 'Racer', 'CategoryRacer', 'RacerResult');
 	
-    public function main() {
+	private $__apiController;
+	
+	public function main()
+	{
         $this->out('please input function name as 1st arg.');
     }
+	
+	function startup()
+	{
+		$this->__apiController = new ApiController();
+	}
 	
 	/**
 	 * EntryRacer.team_name から Racer.team を設定する。コンソールでの処理。起動方法は
@@ -180,5 +190,105 @@ class OneTimeShell extends AppShell
 		}
 		
 		$this->out('<<< End setupDuplicatedCatRacerDeleted');
+	}
+	
+	/**
+	 * RacerResult に as_category param を設定する
+	 * > cd app ディレクトリ
+	 * > Console/cake one_time setupAsCategory 0 100
+	 */
+	public function setupAsCategory()
+	{
+		if (!isset($this->args[0]) || !isset($this->args[1])) {
+			$this->out('2つの引数（整数／offset 位置, 処理件数）が必要です。');
+			return;
+		}
+		
+		$this->out('>>> Start setupsetupAsCategoryDuplicatedCatRacerDeleted');
+		$this->out('offset:' . $this->args[0] . ' limit:' . $this->args[1]);
+		
+		$opt = array(
+			'offset' => $this->args[0],
+			'limit' => $this->args[1],
+			'recursive' => -1,
+			'conditions' => array('deleted' => 0)
+		);
+		
+		$this->RacerResult->Behaviors->load('Utils.SoftDelete');
+		$rrs = $this->RacerResult->find('all', $opt);
+		
+		$this->EntryRacer->Behaviors->load('Utils.SoftDelete');
+		$this->EntryRacer->Behaviors->load('Containable');
+		
+		$erOpt = array(
+			'contain' => array(
+				'EntryCategory' => array(
+					'EntryGroup' => array(
+						'fields' => array(),
+						'Meet' => array(
+							'fields' => array('at_date')
+						)
+					)
+				)
+			)
+		);
+		
+		$countSuccess = 0;
+		$countFailed = 0;
+		$countNoNeed = 0;
+		
+		foreach ($rrs as $result) {
+			if (!empty($result['RacerResult']['as_category'])) {
+				++$countNoNeed;
+				continue;
+			}
+			
+			$erOpt['conditions'] = array('EntryRacer.id' => $result['RacerResult']['entry_racer_id']);
+			
+			$er = $this->EntryRacer->find('first', $erOpt);
+			
+			if (empty($er) || empty($er['EntryRacer']['racer_code'])) {
+				$this->out('result[id:' . $result['RacerResult']['id'] . '] について、EntryRacer もしくは'
+					. 'それに関する選手コードが empty です。');
+				continue;
+			}
+			
+			if (empty($er['EntryCategory'])) {
+				$this->out('result[id:' . $result['RacerResult']['id'] . '] について、出走カテゴリーが empty です。');
+				continue;
+			}
+			
+			if (empty($er['EntryCategory']['EntryGroup']['Meet']['at_date'])) {
+				$this->out('result[id:' . $result['RacerResult']['id'] . '] について、Meet.at_date が empty です。');
+				continue;
+			}
+			
+			$asCat = $this->__apiController->calcAsCategory($er['EntryRacer']['racer_code'], $er['EntryCategory']
+					, $er['EntryCategory']['EntryGroup']['Meet']['at_date']);
+			
+			if (empty($asCat)) {
+				$this->out('result[id:' . $result['RacerResult']['id'] . '] について有効な as category を取得できませんでした。');
+				continue;
+			}
+			
+			$r = array();
+			$r['RacerResult'] = $result['RacerResult'];
+			$r['RacerResult']['as_category'] = $asCat;
+			
+			if ($this->RacerResult->save($r)) {
+				$this->out('result[id:' . $result['RacerResult']['id'] . '] につい as_category を設定。');
+				++$countSuccess;
+			} else {
+				$this->out('result[id:' . $result['RacerResult']['id'] . '] につい保存に失敗しました。');
+				++$countFailed;
+			}
+		}
+		
+		if (count($rrs) < $this->args[1]) {
+			$this->out('指定した件数がありませんでした（処理終了の可能性）');
+		}
+		
+		$this->out('処理数 succcess:' . $countSuccess . ' failed:' . $countFailed . ' notNeed:' . $countNoNeed);
+		$this->out('<<< End setupAsCategory');
 	}
 }

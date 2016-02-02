@@ -542,6 +542,18 @@ class ApiController extends ApiBaseController
 	 * @param array $atDate 判定日付 null の場合、現在日が使用される
 	 * @return string カテゴリー Code
 	 */
+	public function calcAsCategory($racerCode, $ecat, $atDate = null)
+	{
+		return $this->__calcAsCategory($racerCode, $ecat, $atDate);
+	}
+	
+	/**
+	 * レース時に「どのカテゴリーの選手として出走したか」をかえす
+	 * @param string $racerCode 選手 Code
+	 * @param array $ecat レースの出走カテゴリー
+	 * @param array $atDate 判定日付 null の場合、現在日が使用される
+	 * @return string カテゴリー Code
+	 */
 	private function __calcAsCategory($racerCode, $ecat, $atDate = null)
 	{
 		if (empty($racerCode) || empty($ecat)) {
