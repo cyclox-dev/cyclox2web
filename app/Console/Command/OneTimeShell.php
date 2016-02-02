@@ -8,7 +8,7 @@
  * 1回だけの処理に使用する。コンソールから起動する。
  * 例）
  * > cd Cake/app
- * > Consle/cake one_time TheMethodName arg,,,
+ * > Console/cake one_time TheMethodName arg,,,
  */
 class OneTimeShell extends AppShell
 {
@@ -101,16 +101,17 @@ class OneTimeShell extends AppShell
 	public function setupDuplicatedCatRacerDeleted()
 	{
 		if (!isset($this->args[0]) || !isset($this->args[1])) {
-			$this->out('2つの引数（整数、offset 位置, 処理件数）が必要です。');
+			$this->out('2つの引数（整数／offset 位置, 処理件数）が必要です。');
 			return;
 		}
+		
+		$this->out('>>> Start setupDuplicatedCatRacerDeleted');
 		
 		//$this->out('offset:' . $this->args[0] . ' limit:' . $this->args[1]);
 		$offset = $this->args[0];
 		$limit = $this->args[1];
 		
 		$opt = array(
-			'limit' => 1,
 			'recursive' => -1,
 			'conditions' => array('deleted' => 0)
 		);
@@ -177,5 +178,7 @@ class OneTimeShell extends AppShell
 		if ($i - $offset < $limit) {
 			$this->out('指定した件数がありませんでした（処理終了の可能性）');
 		}
+		
+		$this->out('<<< End setupDuplicatedCatRacerDeleted');
 	}
 }
