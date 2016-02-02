@@ -187,26 +187,33 @@ class OrgUtilController extends ApiBaseController
 						//$this->log($eracer, LOG_DEBUG);
 						if (empty($eracer['RacerResult']['ajocc_pt'])) continue;
 						
-						// 大会日におけるカテゴリーの所持を確認
-						$this->CategoryRacer->actsAs = array('Utils.SoftDelete'); // deleted を拾わないように
-						
-						$opt = array('recursive' => -1);
-						$opt['conditions'] = array(
-							'racer_code' => $eracer['Racer']['code'],
-							'category_code' => $this->request->data['category_code'],
-							array('AND' => array(
-								'NOT' => array('apply_date' => null), 
-								'apply_date <=' => $meet['Meet']['at_date'])
-							),
-							array('OR' => array(
-								array('cancel_date' => null),
-								array('cancel_date >=' => $meet['Meet']['at_date']),
-							)),
-						);
-						$crCount = $this->CategoryRacer->find('count', $opt);
-						//$this->log('cr count:' . $crCount, LOG_DEBUG);
-						
-						if ($crCount == 0) continue;
+						if (!empty($eracer['RacerResult']['as_category'])) {
+							// as_category 値があるならそれで判定
+							if ($eracer['RacerResult']['as_category'] != $this->request->data['category_code']) {
+								continue;
+							}
+						} else {
+							// 大会日におけるカテゴリーの所持を確認
+							$this->CategoryRacer->actsAs = array('Utils.SoftDelete'); // deleted を拾わないように
+
+							$opt = array('recursive' => -1);
+							$opt['conditions'] = array(
+								'racer_code' => $eracer['Racer']['code'],
+								'category_code' => $this->request->data['category_code'],
+								array('AND' => array(
+									'NOT' => array('apply_date' => null), 
+									'apply_date <=' => $meet['Meet']['at_date'])
+								),
+								array('OR' => array(
+									array('cancel_date' => null),
+									array('cancel_date >=' => $meet['Meet']['at_date']),
+								)),
+							);
+							$crCount = $this->CategoryRacer->find('count', $opt);
+							//$this->log('cr count:' . $crCount, LOG_DEBUG);
+
+							if ($crCount == 0) continue;
+						}
 						
 						// シーズン最終日でのカテゴリー所持を確認（シーズン途中でのカテゴリー中断は想定しない）
 						// 現在日がシーズン最終日をすぎていなくても、最終日計算で OK
