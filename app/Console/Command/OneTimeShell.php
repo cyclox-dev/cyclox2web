@@ -5,6 +5,7 @@
  */
 
 App::uses('ApiController', 'Controller');
+App::uses('RacerResultStatus', 'Cyclox/Const');
 
 /**
  * 1回だけの処理に使用する。コンソールから起動する。
@@ -290,5 +291,110 @@ class OneTimeShell extends AppShell
 		
 		$this->out('処理数 succcess:' . $countSuccess . ' failed:' . $countFailed . ' notNeed:' . $countNoNeed);
 		$this->out('<<< End setupAsCategory');
+	}
+	
+	/**
+	 * 順位ありで ajocc point がついていない箇所について ajocc point を設定する。
+	 * > cd app ディレクトリ
+	 * > Console/cake one_time setupAjoccPtToEmpty 0 100
+	 */
+	public function setupAjoccPtToEmpty()
+	{
+		if (!isset($this->args[0]) || !isset($this->args[1])) {
+			$this->out('2つの引数（整数／offset 位置, 処理件数）が必要です。');
+			return;
+		}
+		
+		$this->out('>>> Start setupAjoccPtToEmpty');
+		$this->out('offset:' . $this->args[0] . ' limit:' . $this->args[1]);
+		
+		$this->RacerResult->Behaviors->load('Utils.SoftDelete');
+		$this->RacerResult->Behaviors->load('Containable');
+		
+		$opt = array(
+			'offset' => $this->args[0],
+			'limit' => $this->args[1],
+			'conditions' => array(
+				'ajocc_pt' => 0,
+				'NOT' => array('rank' => null)
+			),
+			'contain' => array(
+				'EntryRacer'
+			)
+		);
+		
+		$rrs = $this->RacerResult->find('all', $opt);
+		
+		foreach ($rrs as $rr) {
+			if (empty($rr['EntryRacer']['entry_category_id'])) {
+				$this->out('出走カテゴリー ID が設定されていません。');
+				continue;
+			}
+			
+			$this->log('rr is', LOG_DEBUG);
+			$this->log($rr, LOG_DEBUG);
+			
+			// 出走人数をカウント
+			$ecatId = $rr['EntryRacer']['entry_category_id'];
+			$started = $this->__calcStartedCount($ecatId);
+			
+			$pt = $this->__apiController->calcAjoccPt($rr['RacerResult'], $started);
+			$this->out('ecat[id:' . $ecatId . '] 出走人数:' . $started . ' point:' . $pt);
+			
+			if ($pt !== -1) {
+				$result = array();
+				$result['RacerResult'] = $rr['RacerResult'];
+				$result['RacerResult']['ajocc_pt'] = $pt;
+				
+				if ($this->RacerResult->save($result)) {
+					$this->out('EntryRacer[id:' . $rr['EntryRacer']['id'] . '] について、Result[id:'
+							. $this->RacerResult->id . '] を保存しました。pt:' . $pt);
+				} else {
+					$this->out('EntryRacer[id:' . $rr['EntryRacer']['id'] . '] について、Result の保存に失敗しました。');
+				}
+			}
+		}
+		
+		$this->out('<<< End setupAjoccPtToEmpty');
+	}
+	
+	/**
+	 * 出走人数をかえす
+	 * @param int $ecatId 出走カテゴリー ID
+	 * @return int 出走人数
+	 */
+	private function __calcStartedCount($ecatId)
+	{
+		if (empty($ecatId)) return null;
+		
+		$this->EntryRacer->Behaviors->load('Utils.SoftDelete');
+		$this->EntryRacer->Behaviors->load('Containable');
+		
+		$opt = array(
+			'conditions' => array(
+				'entry_category_id' => $ecatId
+			),
+			'contain' => array(
+				'RacerResult' => array(
+					'fields' => array(
+						'status'
+					)
+				)
+			)
+		);
+		
+		$started = 0;
+		
+		$eracers = $this->EntryRacer->find('all', $opt);
+		
+		foreach ($eracers as $er) {
+			if (isset($er['RacerResult']['status'])) {
+				if ($er['RacerResult']['status'] != RacerResultStatus::$DNS->val()) {
+					++$started;
+				}
+			}
+		}
+		
+		return $started;
 	}
 }

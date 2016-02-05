@@ -1178,6 +1178,17 @@ class ApiController extends ApiBaseController
 	 * @param type $startedCount 出走人数
 	 * @return int ポイント。エラーの場合 -1 をかえす。
 	 */
+	public function calcAjoccPt($result, $startedCount)
+	{
+		return $this->__calcAjoccPt($result, $startedCount);
+	}
+	
+	/**
+	 * AJOCC Point を計算する
+	 * @param type $result リザルト
+	 * @param type $startedCount 出走人数
+	 * @return int ポイント。エラーの場合 -1 をかえす。
+	 */
 	private function __calcAjoccPt($result, $startedCount)
 	{
 		if (empty($result) || $startedCount <= 0) {
