@@ -151,7 +151,7 @@ class CategoryRacersController extends ApiBaseController
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->CategoryRacer->save($this->request->data)) {
 				$this->Session->setFlash(__('The category racer has been saved.'));
-				return $this->redirect('/category_racers/view/' . $this->CategoryRacer->id);
+				return $this->redirect(array('controller' => 'Racers', 'action' => 'view', $this->request->data['CategoryRacer']['racer_code']));
 			} else {
 				$this->Session->setFlash(__('The category racer could not be saved. Please, try again.'));
 			}
@@ -213,6 +213,9 @@ class CategoryRacersController extends ApiBaseController
 		}
 		$this->request->allowMethod('post', 'delete');
 		
+		$options = array('conditions' => array('CategoryRacer.' . $this->CategoryRacer->primaryKey => $id));
+		$cr = $this->CategoryRacer->find('first', $options);
+		
 		$this->CategoryRacer->Behaviors->load('Utils.SoftDelete');
 		if ($this->CategoryRacer->delete()) {
 			$this->Session->setFlash(__('選手のカテゴリー所属情報 [ID:' . $id . '] を削除しました（削除日時の適用）。'));
@@ -220,7 +223,7 @@ class CategoryRacersController extends ApiBaseController
 			$this->Session->setFlash(__('選手のカテゴリー所属情報削除に失敗しました。'));
 		}
 		
-		return $this->redirect(array('action' => 'index'));
+		return $this->redirect(array('controller' => 'Racers', 'action' => 'view', $cr['CategoryRacer']['racer_code']));
 	}
 	
 	private function __deleteOnApi($id = null)
