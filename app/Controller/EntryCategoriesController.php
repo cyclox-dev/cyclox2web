@@ -18,7 +18,7 @@ class EntryCategoriesController extends ApiBaseController
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session', 'RequestHandler');
+	public $components = array('Paginator', 'Session', 'RequestHandler', 'ResultParamCalc');
 
 /**
  * index method
@@ -48,6 +48,7 @@ class EntryCategoriesController extends ApiBaseController
 		);
 		$ecat = $this->EntryCategory->find('first', $options);
 		
+		$this->EntryRacer->Behaviors->load('Utils.SoftDelete');
 		$this->EntryRacer->Behaviors->load('Containable');
 		
 		$opt = array();
@@ -218,5 +219,50 @@ class EntryCategoriesController extends ApiBaseController
 			$this->Session->setFlash(__('The entry category could not be deleted. Please, try again.'));
 		}
 		return $this->redirect(array('action' => 'index'));
+	}
+	
+	public function recalc_result($ecatId = null)
+	{
+		$this->request->allowMethod('post');
+		
+		$this->EntryCategory->Behaviors->load('Containable');
+		
+		$options = array(
+			'conditions' => array('EntryCategory.' . $this->EntryCategory->primaryKey => $ecatId),
+			'contain' => array(
+				'EntryRacer' => array(
+					'RacerResult'
+				)
+			)
+		);
+		$ecat = $this->EntryCategory->find('first', $options);
+		
+		//$this->log('ecat:', LOG_DEBUG);
+		//$this->log($ecat, LOG_DEBUG);
+		
+		if (empty($ecat['EntryRacer'])) {
+			$this->Session->setFlash(__('出走する選手が設定されていません。'));
+		} else {
+			$ers = array();
+			foreach ($ecat['EntryRacer'] as $eracer) {
+				if (!empty($eracer['RacerResult'])) {
+					$er = array();
+					$er['EntryRacer'] = $eracer;
+					$er['RacerResult'] = $eracer['RacerResult'];
+
+					$ers[] = $er;
+				}
+			}
+			
+			$this->log('er count:' . count($ers), LOG_DEBUG);
+			
+			if (count($ers) == 0) {
+				$this->Session->setFlash(__('リザルトが設定されていません。'));
+			} else {
+				$this->ResultParamCalc->reCalcResults($ers, $ecat['EntryCategory']);
+			}
+		}
+		
+		return $this->redirect(array('action' => 'view', $ecat['EntryCategory']['id']));
 	}
 }

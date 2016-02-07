@@ -133,6 +133,8 @@
 	<?php if (!empty($results)): ?>
 	<p style="height: 1em"></p>
 	<h3><?php echo __('リザルト'); ?></h3>
+	<div><?php echo $this->Form->postLink(__('リザルトを再計算する'), array('controller' => 'entry_categories', 'action' => 'recalc_result', $entryCategory['EntryCategory']['id'])
+				, array(), __("この出走カテゴリーに紐づく\n+ 昇格\n+ シリーズポイント\n+ 残留ポイント\nを再計算してよろしいですか？\n（現在の昇格やポイントは削除されます。）")); ?></div>
 		<?php App::uses('Util', 'Cyclox/Util'); ?>
 		<?php App::uses('RacerEntryStatus', 'Cyclox/Const'); ?>
 		<table cellpadding = "0" cellspacing = "0">
