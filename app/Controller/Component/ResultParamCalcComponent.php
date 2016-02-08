@@ -121,17 +121,6 @@ class ResultParamCalcComponent extends Component
 
 		$racesCat = $ecat['races_category_code'];
 
-		// リザルトに紐づく昇格を削除
-		foreach ($results as $result) {
-			$r = $result['RacerResult'];
-
-			if (!$this->CategoryRacer->deleteAll(array('racer_result_id' => $r['id']))) {
-				$this->log('result[id:' . $r['id'] . '] の古いカテゴリー所属の削除に失敗しました。', LOG_ERR);
-				// continue
-			}
-			//$this->log('cat racer of [racer result id:' . $r['id'] . '] を削除', LOG_DEBUG);
-		}
-
 		if ($ecat['applies_rank_up'] == 1) {
 			if ($racesCat === 'CM1+2+3') {
 				// M1+2+3 は勝利したら CM1 表彰台で CM2（降格なし）
@@ -328,6 +317,15 @@ class ResultParamCalcComponent extends Component
 		// 現在所属しているかは見ない。不整合の場合は手動での修正とする。
 		
 		$applyDate = date('Y/m/d', strtotime($this->__atDate . ' +1 day'));
+		
+		$conditions = array(
+			'racer_code' => $racerCode,
+			'meet_code' => $this->__meetCode,
+			'category_code' => $this->__rankUpMap[$racesCat]['to'],
+			'apply_date' => $applyDate,
+			'reason_id' => CategoryReason::$RESULT_UP->ID(),
+		);
+		$this->CategoryRacer->deleteAll($conditions);
 		
 		$cr = array();
 		$cr['CategoryRacer'] = array();
