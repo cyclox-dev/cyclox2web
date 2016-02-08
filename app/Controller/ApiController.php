@@ -26,7 +26,7 @@ class ApiController extends ApiBaseController
 		'EntryGroup', 'EntryCategory', 'EntryRacer', 'RacerResult', 'TimeRecord', 'HoldPoint',
 		'PointSeries', 'MeetPointSeries', 'PointSeriesRacer', 'RacesCategory');
 	
-	public $components = array('Session', 'RequestHandler');
+	public $components = array('Session', 'RequestHandler', 'ResultParamCalc');
 	
 	// 昇格処理用
 	private $_offsetRankup;
@@ -321,6 +321,187 @@ class ApiController extends ApiBaseController
 	 * @return void
 	 */
 	public function add_result($meetCode = null, $ecatName = null)
+	{
+		if (!$this->_isApiCall()) {
+			throw new BadRequestException('無効なアクセスです。');
+		}
+		
+		if (!$this->request->is('post')) {
+			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
+		}
+		
+		if (emptY($meetCode) || empty($ecatName)) {
+			return $this->error('大会 Code または出走カテゴリー名が指定されていません。', self::STATUS_CODE_BAD_REQUEST);
+		}
+		
+		if (!isset($this->request->data['body-result'])) {
+			return $this->error('"body-result" の値が設定されていません。', self::STATUS_CODE_BAD_REQUEST);
+		}
+		
+		// 出走カテゴリーの特定
+		
+		$opt = array(
+			'conditions' => array('meet_code' => $meetCode),
+			'order' => array('EntryGroup.modified' => 'desc')
+			// 新しい方の出走グループを使用する。出走グループ名前変更対策。
+		);
+		$egroups = $this->EntryGroup->find('all', $opt);
+		if (empty($egroups)) {
+			return $this->error('大会が見つかりません。', self::STATUS_CODE_BAD_REQUEST);
+		}
+		
+		$ecats = array();
+		foreach ($egroups as $egroup) {
+			foreach ($egroup['EntryCategory'] as $ec) {
+				if ($ec['deleted'] == 0 && $ec['name'] === $ecatName) { // ecat.deleted は出てこない
+					$ecats[] = $ec;
+				}
+			}
+		}
+		unset($ec);
+
+		if (empty($ecats)) {
+			return $this->error("出走カテゴリーが見つかりません。", self::STATUS_CODE_BAD_REQUEST);
+		}
+		
+		// modified が一番新しいものを
+		$ecat = $ecats[0];
+		for ($i = 1; $i < count($ecats); $i++) {
+			$ec = $ecats[$i];
+			if ($ec['modified'] > $ecat['modified']) {
+				$ecat = $ec;
+			}
+		}
+		
+		//++++++++++++++++++++++++++++++++++++++++
+		// meet point series の有効期間設定
+		$ret = $this->__setupTermOfSeriesPoint($meetCode, $ecatName);
+		// Transaction は使用せず
+		
+		if (!$ret) {
+			$this->log("ポイントシリーズの有効期間設定が無効です。（処理は続行します。）", LOG_ERR);
+			// not return
+		}
+		
+		//++++++++++++++++++++++++++++++++++++++++
+		// 各個人の成績
+		
+		// 出走選手取得
+		$conditions = array(
+			'conditions' => array('entry_category_id' => $ecat['id'])
+		);
+		$eracers = $this->EntryRacer->find('all', $conditions);
+		
+		if (empty($eracers)) {
+			return $this->error("出走カテゴリーに選手が設定されていません。", self::STATUS_CODE_BAD_REQUEST);
+		}
+		
+		$erMap = array(); // key:body value entry_racer
+		foreach ($eracers as $eracer) {
+			$erMap[$eracer['EntryRacer']['body_number']] = $eracer;
+		}
+		
+		$opt = array('conditions' => array('code' => $meetCode), 'recursive' => -1);
+		$meet = $this->Meet->find('first', $opt);
+		
+		// メイン処理
+		
+		$errs = array(); // 保存処理後の result param 計算&設定用
+		
+		$transaction = $this->TransactionManager->begin();
+		try {
+			// 現在ある全てのリザルトデータを削除
+			foreach ($eracers as $er) {
+				if (!empty($er['RacerResult']['id'])) {
+					$result_id = $er['RacerResult']['id'];
+					
+					if (!$this->RacerResult->exists($result_id)) {
+						continue;
+					}
+				
+					if (!$this->RacerResult->delete($result_id)) {
+						$this->TransactionManager->rollback($transaction);
+						return $this->error('リザルトの削除に失敗しました（想定しないエラー）。', self::STATUS_CODE_BAD_REQUEST);
+					}
+				}
+			}
+			
+			$startedCount = 0; // 昇格処理のために出走人数のカウント
+			foreach ($this->request->data['body-result'] as $body => $result) {
+				if (empty($erMap[$body])) {
+					$this->TransactionManager->rollback($transaction);
+					return $this->error("無効な BodyNo. の設定が存在します。\n"
+						. "出走データとリザルトをチェックして下さい。\n"
+						. "（出走設定を再度 upload すると解決する場合があります。）", self::STATUS_CODE_BAD_REQUEST);
+				}
+				//$this->log($result);
+				
+				$er = $erMap[$body];
+				if (!empty($er) && $er['EntryRacer']['entry_status'] != RacerEntryStatus::$OPEN->val()) {
+					$rstatus = $result['RacerResult']['status'];
+					if ($rstatus != RacerResultStatus::$DNS->val()) {
+						++$startedCount;
+					}
+				}
+			}
+			
+			foreach ($this->request->data['body-result'] as $body => $result) {
+				$er = $erMap[$body];
+				$isOpenRacer = ($er['EntryRacer']['entry_status'] == RacerEntryStatus::$OPEN->val());
+				
+				$ajoccPt = 0;
+				if (!$isOpenRacer && $ecat['applies_ajocc_pt']) {
+					$ret = $this->__calcAjoccPt($result['RacerResult'], $startedCount);
+					if ($ret == -1) {
+						$this->log($er['EntryRacer']['racer_code'] . ' の Ajocc point 計算処理に失敗しました。', LOG_ERR);
+					} else {
+						$ajoccPt = $ret;
+					}
+				}
+				
+				// リザルトの保存
+				$this->RacerResult->create();
+				$result['RacerResult']['entry_racer_id'] = $er['EntryRacer']['id'];
+				$result['RacerResult']['ajocc_pt'] = $ajoccPt;
+				$result['RacerResult']['as_category']
+						= $this->__calcAsCategory($er['EntryRacer']['racer_code'], $ecat, $meet['Meet']['at_date']);
+				if (!$this->RacerResult->saveAssociated($result)) {
+					$this->TransactionManager->rollback($transaction);
+					return $this->error('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
+				}
+				$this->log('new result id:' . $this->RacerResult->id, LOG_DEBUG);
+				$result['RacerResult']['id'] = $this->RacerResult->id;
+				
+				$err = array();
+				$err['EntryRacer'] = $erMap[$body]['EntryRacer'];
+				$err['RacerResult'] = $result['RacerResult'];
+				$errs[] = $err;
+			}
+			
+			//$this->log('end', LOG_DEBUG);
+			$this->TransactionManager->commit($transaction);
+		} catch (Exception $ex) {
+			$this->log('exception:' . $ex.message, LOG_DEBUG);
+			$this->TransactionManager->rollback($transaction);
+			return $this->error('予期しないエラー:' . $ex, self::STATUS_CODE_BAD_REQUEST);
+		}
+		
+		if (count($errs) == 0) {
+			$this->log('リザルトが設定されていません。', LOG_DEBUG);
+		} else {
+			$this->ResultParamCalc->reCalcResults($errs, $ecat);
+		}
+		
+		return $this->success(array('ok')); // 件数とか？
+	}	
+	
+	/**
+	 * 結果を upload する。add_result 旧版
+	 * @param string $meetCode 大会コード
+	 * @param string $ecatName 出走カテゴリー名
+	 * @return void
+	 */
+	private function __add_result_OLD($meetCode = null, $ecatName = null)
 	{
 		if (!$this->_isApiCall()) {
 			throw new BadRequestException('無効なアクセスです。');
