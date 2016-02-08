@@ -162,10 +162,12 @@ class ResultParamCalcComponent extends Component
 						continue;
 					}
 
+					$r = $result['RacerResult'];
+					
 					if ($count > 0) {
-						$ret = !$this->__setupCatRacerCancel($result['EntryRacer']['racer_code'], $this->__rankUpMap[$racesCat]['needs']);
+						$ret = $this->__setupCatRacerCancel($result['EntryRacer']['racer_code'], $this->__rankUpMap[$racesCat]['needs']);
 						if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
-							$this->log('result[id:' . $r['id'] . '] のカテゴリー所属の cancel_date 設定に失敗しました。', LOG_ERR);
+							$this->log('選手[coce:' . $result['EntryRacer']['racer_code'] . '] のカテゴリー所属の cancel_date 設定に失敗しました。', LOG_ERR);
 							// continue
 						}
 
