@@ -26,10 +26,13 @@ class OneTimeShell extends AppShell
         $this->out('please input function name as 1st arg.');
     }
 	
+	// @Override
 	function startup()
 	{
 		$this->__apiController = new ApiController();
-		$this->__resParamCalc = new ResultParamCalcComponent();
+		
+		$collection = new ComponentCollection();
+		$this->__resParamCalc = new ResultParamCalcComponent($collection);
 	}
 	
 	/**
