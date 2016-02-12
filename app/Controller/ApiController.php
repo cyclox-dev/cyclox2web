@@ -426,7 +426,7 @@ class ApiController extends ApiBaseController
 				}
 			}
 			
-			$startedCount = 0; // 昇格処理のために出走人数のカウント
+			// entry racer の有無をチェック
 			foreach ($this->request->data['body-result'] as $body => $result) {
 				if (empty($erMap[$body])) {
 					$this->TransactionManager->rollback($transaction);
@@ -434,35 +434,14 @@ class ApiController extends ApiBaseController
 						. "出走データとリザルトをチェックして下さい。\n"
 						. "（出走設定を再度 upload すると解決する場合があります。）", self::STATUS_CODE_BAD_REQUEST);
 				}
-				//$this->log($result);
-				
-				$er = $erMap[$body];
-				if (!empty($er) && $er['EntryRacer']['entry_status'] != RacerEntryStatus::$OPEN->val()) {
-					$rstatus = $result['RacerResult']['status'];
-					if ($rstatus != RacerResultStatus::$DNS->val()) {
-						++$startedCount;
-					}
-				}
 			}
 			
 			foreach ($this->request->data['body-result'] as $body => $result) {
 				$er = $erMap[$body];
-				$isOpenRacer = ($er['EntryRacer']['entry_status'] == RacerEntryStatus::$OPEN->val());
-				
-				$ajoccPt = 0;
-				if (!$isOpenRacer && $ecat['applies_ajocc_pt']) {
-					$ret = $this->__calcAjoccPt($result['RacerResult'], $startedCount);
-					if ($ret == -1) {
-						$this->log($er['EntryRacer']['racer_code'] . ' の Ajocc point 計算処理に失敗しました。', LOG_ERR);
-					} else {
-						$ajoccPt = $ret;
-					}
-				}
 				
 				// リザルトの保存
 				$this->RacerResult->create();
 				$result['RacerResult']['entry_racer_id'] = $er['EntryRacer']['id'];
-				$result['RacerResult']['ajocc_pt'] = $ajoccPt;
 				$result['RacerResult']['as_category']
 						= $this->ResultParamCalc->asCategory($er['EntryRacer']['racer_code'], $ecat, $meet['Meet']['at_date']);
 				if (!$this->RacerResult->saveAssociated($result)) {
@@ -1016,77 +995,6 @@ class ApiController extends ApiBaseController
 		}
 		
 		return $this->error('Saving category-racers failed.', self::STATUS_CODE_BAD_REQUEST);
-	}
-	
-	/**
-	 * AJOCC Point を計算する
-	 * @param type $result リザルト
-	 * @param type $startedCount 出走人数
-	 * @return int ポイント。エラーの場合 -1 をかえす。
-	 */
-	public function calcAjoccPt($result, $startedCount)
-	{
-		return $this->__calcAjoccPt($result, $startedCount);
-	}
-	
-	/**
-	 * AJOCC Point を計算する
-	 * @param type $result リザルト
-	 * @param type $startedCount 出走人数
-	 * @return int ポイント。エラーの場合 -1 をかえす。
-	 */
-	private function __calcAjoccPt($result, $startedCount)
-	{
-		if (empty($result) || $startedCount <= 0) {
-			return -1;
-		}
-		
-		if (empty($result['rank'])) {
-			return 0;
-		}
-		
-		$map = array(
-			array(
-				'started_over' => 40, 'points' => array(
-					56, 47, 41, 36, 32, 28, 25, 22, 20, 18,
-					16, 14, 13, 12, 11, 10,  9,  9,  8,  8,
-					 7,  7,  7,  6,  6,  6,  5,  5,  5,  5,
-					 4,  4,  4,  4,  3,  3,  3,  3,  3,  3,
-					 2,  2,  2,  2,  2,  2,  2,  1,  1,  1,
-					 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-				)
-			),
-			array(
-				'started_over' => 20, 'points' => array(
-					42, 34, 28, 24, 21, 18, 15, 13, 11, 10,
-					9,  8,  7,  6,  6,  5,  5,  4,  4,  4,
-					3,  3,  3,  3,  2,  2,  2,  2,  2,  2,
-					2,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-				)
-			),
-			array(
-				'started_over' => 0, 'points' => array(
-					28, 20, 15, 12, 10, 8,  6,  5,  4,  3,
-					3,  2,  2,  2,  1,  1,  1,  1,  1,  1,
-				)
-			)
-		);
-		
-		// ポイントの決定
-		$point = 0;
-		foreach ($map as $item) {
-			if ($startedCount > $item['started_over']) {
-				$rankIndex = $result['rank'] - 1;
-				
-				if (isset($item['points'][$rankIndex])) {
-					$point = $item['points'][$rankIndex];
-					break;
-				}
-			}
-		}
-		
-		//$this->log('ajocc pt is: ' . $point, LOG_DEBUG);
-		return $point;
 	}
 	
 	/**

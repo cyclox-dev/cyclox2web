@@ -19,6 +19,7 @@ App::uses('CategoryRacer', 'Model');
 App::uses('RacesCategory', 'Model');
 App::uses('PointSeriesRacer', 'Model');
 App::uses('MeetPointSeries', 'Model');
+App::uses('RacerResult', 'Model');
 
 /**
  * リザルトを計算するコンポーネント
@@ -52,6 +53,7 @@ class ResultParamCalcComponent extends Component
 	private $RacesCategory;
 	private $PointSeriesRacer;
 	private $MeetPointSeries;
+	private $RacerResult;
 	
 	/**
 	 * 出走カテゴリーごとのリザルトを再計算する。Transaction 処理はこのメソッドの外部で行なうこと。
@@ -67,6 +69,33 @@ class ResultParamCalcComponent extends Component
 		}
 		
 		$this->__setupParams($results);
+		
+		// ajocc point の適用
+		foreach ($results as $result) {
+			$r = $result['RacerResult'];
+			
+			$ajoccPt = 0; // デフォルトでゼロに設定
+			
+			if ($ecat['applies_ajocc_pt']) {
+				$isOpenRacer = ($result['EntryRacer']['entry_status'] == RacerEntryStatus::$OPEN->val());
+				if (!$isOpenRacer) {
+					$ajoccPt = $this->calcAjoccPt($r['rank'], $this->__started);
+					//$this->log('ajocc pt:' . $ajoccPt, LOG_DEBUG);
+					if ($ajoccPt == -1) {
+						$this->log('AjoccPoint が計算できません。ゼロに設定します。', LOG_ERR);
+						$ajoccPt = 0;
+					}
+				}
+			}
+			
+			$this->RacerResult->id = $r['id'];
+			$param = array('ajocc_pt' => $ajoccPt);
+			if (!$this->RacerResult->save($param)) {
+				$this->log('result[id:' . $r['id'] . '] の ajocc point 書換えに失敗しました。', LOG_DEBUG);
+				// not break
+			}
+		}
+		
 		$this->__setupMeetParams($ecat);
 		
 		if (empty($this->__atDate) || empty($this->__meetCode)) {
@@ -92,6 +121,72 @@ class ResultParamCalcComponent extends Component
 		}
 	}
 	
+	/**
+	 * AJOCC Point を計算する
+	 * @param type $rank リザルト順位
+	 * @param type $startedCount 出走人数
+	 * @return int ポイント。エラーの場合 -1 をかえす。
+	 */
+	public function calcAjoccPt($rank, $startedCount)
+	{
+		if (!isset($rank) || is_null($rank) || $startedCount <= 0) {
+			return -1;
+		}
+		
+		if (empty($rank)) {
+			return 0;
+		}
+		
+		$map = array(
+			array(
+				'started_over' => 40, 'points' => array(
+					56, 47, 41, 36, 32, 28, 25, 22, 20, 18,
+					16, 14, 13, 12, 11, 10,  9,  9,  8,  8,
+					 7,  7,  7,  6,  6,  6,  5,  5,  5,  5,
+					 4,  4,  4,  4,  3,  3,  3,  3,  3,  3,
+					 2,  2,  2,  2,  2,  2,  2,  1,  1,  1,
+					 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+				)
+			),
+			array(
+				'started_over' => 20, 'points' => array(
+					42, 34, 28, 24, 21, 18, 15, 13, 11, 10,
+					9,  8,  7,  6,  6,  5,  5,  4,  4,  4,
+					3,  3,  3,  3,  2,  2,  2,  2,  2,  2,
+					2,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+				)
+			),
+			array(
+				'started_over' => 0, 'points' => array(
+					28, 20, 15, 12, 10, 8,  6,  5,  4,  3,
+					3,  2,  2,  2,  1,  1,  1,  1,  1,  1,
+				)
+			)
+		);
+		
+		// ポイントの決定
+		$point = 0;
+		foreach ($map as $item) {
+			if ($startedCount > $item['started_over']) {
+				$rankIndex = $rank - 1;
+				
+				if (isset($item['points'][$rankIndex])) {
+					$point = $item['points'][$rankIndex];
+					break;
+				}
+			}
+		}
+		
+		//$this->log('ajocc pt is: ' . $point, LOG_DEBUG);
+		return $point;
+	}
+	
+	/**
+	 * リザルトに関するポイントなどを再計算する
+	 * @param array $results リザルト
+	 * @param array $ecat 出走カテゴリー
+	 * @return boolean 処理に成功したか
+	 */
 	private function __reCalcResults($results, $ecat)
 	{
 		foreach ($results as $result) {
@@ -807,7 +902,6 @@ class ResultParamCalcComponent extends Component
 		
 		$this->Racer = new Racer();
 		$this->Racer->Behaviors->load('Utils.SoftDelete');
-		$this->HoldPoint = new HoldPoint();
 		$this->EntryGroup = new EntryGroup();
 		$this->EntryGroup->Behaviors->load('Utils.SoftDelete');
 		$this->CategoryRacer = new CategoryRacer();
@@ -816,6 +910,10 @@ class ResultParamCalcComponent extends Component
 		$this->RacesCategory->Behaviors->load('Utils.SoftDelete');
 		$this->MeetPointSeries = new MeetPointSeries();
 		$this->MeetPointSeries->Behaviors->load('Utils.SoftDelete');
+		$this->RacerResult = new RacerResult();
+		$this->RacerResult->Behaviors->load('Utils.SoftDelete');
+		
+		$this->HoldPoint = new HoldPoint();
 		$this->PointSeriesRacer = new PointSeriesRacer();
 		
 		if (empty($results)) {

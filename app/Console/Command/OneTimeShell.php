@@ -6,6 +6,7 @@
 
 App::uses('ApiController', 'Controller');
 App::uses('RacerResultStatus', 'Cyclox/Const');
+App::uses('RacerEntryStatus', 'Cyclox/Const');
 App::uses('ResultParamCalcComponent', 'Controller/Component'); 
 
 /**
@@ -325,7 +326,9 @@ class OneTimeShell extends AppShell
 				'NOT' => array('rank' => null)
 			),
 			'contain' => array(
-				'EntryRacer'
+				'EntryRacer' => array(
+					'EntryCategory'
+				)
 			)
 		);
 		
@@ -337,15 +340,25 @@ class OneTimeShell extends AppShell
 				continue;
 			}
 			
-			$this->log('rr is', LOG_DEBUG);
-			$this->log($rr, LOG_DEBUG);
+			if (!empty($rr['EntryRacer']['EntryCategory']['applies_ajocc_pt'])
+					&& !$rr['EntryRacer']['EntryCategory']['applies_ajocc_pt']) {
+				continue;
+			}
+			
+			//$this->log('rr is', LOG_DEBUG);
+			//$this->log($rr, LOG_DEBUG);
 			
 			// 出走人数をカウント
 			$ecatId = $rr['EntryRacer']['entry_category_id'];
 			$started = $this->__calcStartedCount($ecatId);
 			
-			$pt = $this->__apiController->calcAjoccPt($rr['RacerResult'], $started);
-			$this->out('ecat[id:' . $ecatId . '] 出走人数:' . $started . ' point:' . $pt);
+			$pt = 0;
+			$isOpenRacer = ($rr['EntryRacer']['entry_status'] == RacerEntryStatus::$OPEN->val());
+			
+			if (!$isOpenRacer) {
+				$pt = $this->__resParamCalc->calcAjoccPt($rr['RacerResult']['rank'], $started);
+				$this->out('ecat[id:' . $ecatId . '] 出走人数:' . $started . ' point:' . $pt);
+			}
 			
 			if ($pt !== -1) {
 				$result = array();
@@ -358,6 +371,8 @@ class OneTimeShell extends AppShell
 				} else {
 					$this->out('EntryRacer[id:' . $rr['EntryRacer']['id'] . '] について、Result の保存に失敗しました。');
 				}
+			} else {
+				$this->out('EntryRacer[id:' . $rr['EntryRacer']['id'] . '] について、Ajocc Point の計算に失敗しました。');
 			}
 		}
 		
