@@ -6,6 +6,7 @@
 
 App::uses('ApiController', 'Controller');
 App::uses('RacerResultStatus', 'Cyclox/Const');
+App::uses('ResultParamCalcComponent', 'Controller/Component'); 
 
 /**
  * 1回だけの処理に使用する。コンソールから起動する。
@@ -18,6 +19,7 @@ class OneTimeShell extends AppShell
 	public $uses = array('EntryGroup', 'EntryRacer', 'Racer', 'CategoryRacer', 'RacerResult');
 	
 	private $__apiController;
+	private $__resParamCalc;
 	
 	public function main()
 	{
@@ -27,6 +29,7 @@ class OneTimeShell extends AppShell
 	function startup()
 	{
 		$this->__apiController = new ApiController();
+		$this->__resParamCalc = new ResultParamCalcComponent();
 	}
 	
 	/**
@@ -264,7 +267,7 @@ class OneTimeShell extends AppShell
 				continue;
 			}
 			
-			$asCat = $this->__apiController->calcAsCategory($er['EntryRacer']['racer_code'], $er['EntryCategory']
+			$asCat = $this->__resParamCalc->asCategory($er['EntryRacer']['racer_code'], $er['EntryCategory']
 					, $er['EntryCategory']['EntryGroup']['Meet']['at_date']);
 			
 			if (empty($asCat)) {
