@@ -591,7 +591,7 @@ class ResultParamCalcComponent extends Component
 		$point = ($result['rank_per'] <= 25) ? 3 : 1;
 		
 		// 付与先カテゴリーの取得
-		$asCat = $this->__asCategory($racerCode, $ecat);
+		$asCat = $this->__asCategory($racerCode, $ecat, $this->__atDate);
 		if (empty($asCat)) {
 			return Constant::RET_ERROR;
 		}
@@ -623,9 +623,27 @@ class ResultParamCalcComponent extends Component
 	 * レース時に「どのカテゴリーの選手として出走したか」をかえす
 	 * @param string $racerCode 選手 Code
 	 * @param array $ecat レースの出走カテゴリー
+	 * @param date $atDate 判定日
 	 * @return string カテゴリー Code
 	 */
-	private function __asCategory($racerCode, $ecat)
+	public function asCategory($racerCode, $ecat, $atDate)
+	{
+		$this->CategoryRacer = new CategoryRacer();
+		$this->CategoryRacer ->Behaviors->load('Utils.SoftDelete');
+		$this->RacesCategory = new RacesCategory();
+		$this->RacesCategory->Behaviors->load('Utils.SoftDelete');
+		
+		return $this->__asCategory($racerCode, $ecat, $atDate);
+	}
+	
+	/**
+	 * レース時に「どのカテゴリーの選手として出走したか」をかえす
+	 * @param string $racerCode 選手 Code
+	 * @param array $ecat レースの出走カテゴリー
+	 * @param date $atDate 判定日
+	 * @return string カテゴリー Code
+	 */
+	private function __asCategory($racerCode, $ecat, $atDate)
 	{
 		if (empty($racerCode) || empty($ecat)) {
 			$this->log('as category 取得に必要な引数が不足しています。', LOG_ERR);
@@ -637,11 +655,11 @@ class ResultParamCalcComponent extends Component
 				'racer_code' => $racerCode,
 				'AND' => array(
 					'NOT' => array('apply_date' => null), 
-					'apply_date <=' => $this->__atDate
+					'apply_date <=' => $atDate
 				),
 				array('OR' => array(
 					array('cancel_date' => null),
-					array('cancel_date >=' => $this->__atDate),
+					array('cancel_date >=' => $atDate),
 				)),
 			),
 			'recursive' => 1,

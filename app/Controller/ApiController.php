@@ -464,7 +464,7 @@ class ApiController extends ApiBaseController
 				$result['RacerResult']['entry_racer_id'] = $er['EntryRacer']['id'];
 				$result['RacerResult']['ajocc_pt'] = $ajoccPt;
 				$result['RacerResult']['as_category']
-						= $this->__calcAsCategory($er['EntryRacer']['racer_code'], $ecat, $meet['Meet']['at_date']);
+						= $this->ResultParamCalc->asCategory($er['EntryRacer']['racer_code'], $ecat, $meet['Meet']['at_date']);
 				if (!$this->RacerResult->saveAssociated($result)) {
 					$this->TransactionManager->rollback($transaction);
 					return $this->error('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
