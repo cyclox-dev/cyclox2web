@@ -355,7 +355,7 @@ class OneTimeShell extends AppShell
 			$pt = 0;
 			$isOpenRacer = ($rr['EntryRacer']['entry_status'] == RacerEntryStatus::$OPEN->val());
 			
-			if (!$isOpenRacer) {
+			if (!$isOpenRacer && isset($rr['RacerResult']['rank'])) {
 				$pt = $this->__resParamCalc->calcAjoccPt($rr['RacerResult']['rank'], $started);
 				$this->out('ecat[id:' . $ecatId . '] 出走人数:' . $started . ' point:' . $pt);
 			}

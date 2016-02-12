@@ -78,11 +78,11 @@ class ResultParamCalcComponent extends Component
 			
 			if ($ecat['applies_ajocc_pt']) {
 				$isOpenRacer = ($result['EntryRacer']['entry_status'] == RacerEntryStatus::$OPEN->val());
-				if (!$isOpenRacer) {
+				if (!$isOpenRacer && isset($r['rank'])) {
 					$ajoccPt = $this->calcAjoccPt($r['rank'], $this->__started);
 					//$this->log('ajocc pt:' . $ajoccPt, LOG_DEBUG);
 					if ($ajoccPt == -1) {
-						$this->log('AjoccPoint が計算できません。ゼロに設定します。', LOG_ERR);
+						$this->log('AjoccPoint が計算できません。rank:' . $r['rank'] . ' --> ptゼロに設定します。', LOG_ERR);
 						$ajoccPt = 0;
 					}
 				}
