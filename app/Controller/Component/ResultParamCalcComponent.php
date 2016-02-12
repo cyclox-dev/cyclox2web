@@ -129,7 +129,7 @@ class ResultParamCalcComponent extends Component
 	 */
 	public function calcAjoccPt($rank, $startedCount)
 	{
-		if (!isset($rank) || is_null($rank) || $startedCount <= 0) {
+		if ($startedCount <= 0) {
 			return -1;
 		}
 		
