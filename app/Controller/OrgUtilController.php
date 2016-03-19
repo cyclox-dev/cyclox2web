@@ -17,7 +17,7 @@ class OrgUtilController extends ApiBaseController
 {
 	 public $uses = array('TransactionManager',
 		 'Meet', 'Category', 'EntryGroup', 'EntryRacer', 'CategoryRacer', 'Racer'
-			, 'PointSeries', 'PointSeriesRacer');
+			, 'PointSeries', 'PointSeriesRacer', 'UniteRacerLog');
 	 
 	 public $components = array('Session', 'RequestHandler');
 	 
@@ -661,6 +661,7 @@ class OrgUtilController extends ApiBaseController
 
 		if ($this->__uniteRacer($united, $uniteTo)) {
 
+			/*
 			$this->log('デバッグで rollback します。', LOG_DEBUG);
 			$this->TransactionManager->rollback($transaction);/*/
 			$this->TransactionManager->commit($transaction);//*/
@@ -688,7 +689,7 @@ class OrgUtilController extends ApiBaseController
 			'code' => $united,
 			'united_to' => $uniteTo
 		);
-
+		
 		if (!$this->Racer->save($param)) {
 			$this->log('Racer への適用に失敗しました。', LOG_ERR);
 			return false;
@@ -699,7 +700,9 @@ class OrgUtilController extends ApiBaseController
 			$this->log('統合する Racer の削除に失敗しました。', LOG_ERR);
 			return false;
 		}
-
+		
+		$uniteLog = '';
+		
 		// category racer 書換え
 		$param = array(
 			'conditions' => array('racer_code' => $united),
@@ -725,6 +728,7 @@ class OrgUtilController extends ApiBaseController
 			}
 
 			$this->log('catRacer[id:' . $ids . '] の選手コードを書換え。', LOG_DEBUG);
+			$uniteLog .= 'カテゴリー所属 (CategoryRacer) = [id:' . $ids . '] ';
 		}
 		
 		// entry racer 書換え
@@ -753,6 +757,7 @@ class OrgUtilController extends ApiBaseController
 			}
 
 			$this->log('EntryRacer[id:' . $ids . '] の選手コードを書換え。', LOG_DEBUG);
+			$uniteLog .= '出走選手データ (EntryRacer) = [id:' . $ids . "] ";
 		}
 		
 		// point series racers
@@ -781,6 +786,22 @@ class OrgUtilController extends ApiBaseController
 			}
 			
 			$this->log('PointSeriesRacer[id:' . $ids . '] の選手コードを書換え。', LOG_DEBUG);
+			$uniteLog .= 'シリーズポイント取得データ (PointSeriesRacer) = [id:' . $ids . "]";
+		}
+		
+		$urLog = array();
+		$urLog['UniteRacerLog'] = array();
+		$urLog['UniteRacerLog']['united'] = $united;
+		$urLog['UniteRacerLog']['unite_to'] = $uniteTo;
+		$urLog['UniteRacerLog']['at_date'] = date("Y-m-d H:i:s");
+		if (empty($uniteLog)) {
+			$urLog['UniteRacerLog']['log'] = '選手データを除き、この統合処理により変更されたデータはありません。';
+		} else {
+			$urLog['UniteRacerLog']['log'] = "選手データ統合により変更されたデータ:\n" . $uniteLog;
+		}
+		
+		if (!$this->UniteRacerLog->save($urLog)) {
+			$this->log('選手データ統合処理のログ保存に失敗しました。' . $united . '→' . $uniteTo, LOG_ERR);
 		}
 		
 		return true;

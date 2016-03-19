@@ -2,13 +2,13 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 /* Drop Tables */
 
-DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS category_races_categories;
+DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
-DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS time_records;
 DROP TABLE IF EXISTS hold_points;
+DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
 DROP TABLE IF EXISTS entry_categories;
@@ -21,6 +21,7 @@ DROP TABLE IF EXISTS meets;
 DROP TABLE IF EXISTS meet_groups;
 DROP TABLE IF EXISTS parm_vars;
 DROP TABLE IF EXISTS point_series;
+DROP TABLE IF EXISTS unite_racer_log;
 DROP TABLE IF EXISTS racers;
 DROP TABLE IF EXISTS races_categories;
 DROP TABLE IF EXISTS seasons;
@@ -466,6 +467,23 @@ CREATE TABLE time_record_info
 	PRIMARY KEY (id),
 	UNIQUE (id),
 	UNIQUE (entry_group_id)
+);
+
+
+CREATE TABLE unite_racer_log
+(
+	id int unsigned NOT NULL AUTO_INCREMENT,
+	-- 例）THK-134-0002
+	-- 標準では12文字になるが、最後が4桁を超える可能性ありとして長さ16文字としている。
+	united varchar(16) BINARY NOT NULL,
+	-- 統合先選手のコード
+	unite_to varchar(16) BINARY NOT NULL,
+	at_date datetime NOT NULL,
+	log text,
+	created datetime,
+	modified datetime,
+	PRIMARY KEY (id),
+	UNIQUE (id)
 );
 
 

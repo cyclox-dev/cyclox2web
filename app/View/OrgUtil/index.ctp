@@ -17,3 +17,4 @@
 
 <h2>選手データ統合（名寄せ）</h2>
 <p><?php echo $this->Html->link("選手データを統合する", array('action' => 'unite_racer'));?></p>
+<p><?php echo $this->Html->link("統合処理ログ", array('controller' => 'unite_racer_logs', 'action' => 'index'));?></p>
