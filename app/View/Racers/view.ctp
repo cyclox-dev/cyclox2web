@@ -1,5 +1,9 @@
 <div class="racers view">
 <h2><?php echo __('選手データ'); ?></h2>
+<?php if (!empty($racer['Racer']['united_to'])): ?>
+	<p><?php echo __('※この選手は選手コード:' . $racer['Racer']['united_to'] . 'の選手に統合されています。'); ?></p>
+<?php endif; ?>
+<p></p>
 	<dl>
 		<dt><?php echo __('選手 Code'); ?></dt>
 		<dd>

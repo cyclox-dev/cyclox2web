@@ -26,7 +26,7 @@ class ApiController extends ApiBaseController
 		'EntryGroup', 'EntryCategory', 'EntryRacer', 'RacerResult', 'TimeRecord', 'HoldPoint',
 		'PointSeries', 'MeetPointSeries', 'PointSeriesRacer', 'RacesCategory');
 	
-	public $components = array('Session', 'RequestHandler', 'ResultParamCalc');
+	public $components = array('Session', 'RequestHandler', 'ResultParamCalc', 'UnifiedRacer');
 	
 	// 昇格処理用
 	private $_offsetRankup;
@@ -285,9 +285,20 @@ class ApiController extends ApiBaseController
 			}
 			
 			$cats = $this->request->data['entry_cats'];
+			
 			if (is_array($cats) && !emptY($cats)) {
 				foreach ($cats as $cat) {
 					$this->EntryCategory->create();
+					
+					foreach ($cat['EntryRacer'] as &$er) {
+						$trueCode = $this->UnifiedRacer->trueRacerCode($er['racer_code']);
+						if (!empty($trueCode)) {
+							$this->log('add_entry - EntryRacer[name:' . $er['name_at_race'] . ']の選手コードを' 
+									. $er['racer_code'] . '→' . $trueCode . 'に変換しました。', LOG_DEBUG);
+							$er['racer_code'] = $trueCode;
+						}
+					}
+					unset($er);
 					
 					$cat['EntryCategory']['entry_group_id'] = $this->EntryGroup->id;
 					//$this->log('cat:', LOG_DEBUG);

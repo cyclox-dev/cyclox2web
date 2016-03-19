@@ -15,8 +15,9 @@ App::uses('Gender', 'Cyclox/Const');
  */
 class OrgUtilController extends ApiBaseController
 {
-	 public $uses = array('Meet', 'Category', 'EntryGroup', 'EntryRacer', 'CategoryRacer', 'Racer'
-			, 'PointSeries');
+	 public $uses = array('TransactionManager',
+		 'Meet', 'Category', 'EntryGroup', 'EntryRacer', 'CategoryRacer', 'Racer'
+			, 'PointSeries', 'PointSeriesRacer');
 	 
 	 public $components = array('Session', 'RequestHandler');
 	 
@@ -562,5 +563,226 @@ class OrgUtilController extends ApiBaseController
 		
 		$dir = new Folder();
 		$dir->create(TMP . self::__PATH_RACERS);
+	}
+	
+	private function __confirm_unite_racer()
+	{
+		if (empty($this->request->data['racer_code_united']) || empty($this->request->data['racer_code_unite_to'])) {
+			$this->Session->setFlash(__('選手コードが未入力です。'));
+			return false;
+		}
+
+		if ($this->request->data['racer_code_united'] === $this->request->data['racer_code_unite_to']) {
+			$this->Session->setFlash(__('異なる選手コードを入力して下さい。'));
+			return false;
+		}
+
+		$united = $this->request->data['racer_code_united'];
+		$uniteTo = $this->request->data['racer_code_unite_to'];
+
+		if (!$this->Racer->existsOnDB($united)) {
+			$this->Session->setFlash(__('統合される選手コードを持つ選手が存在しません。'));
+			return false;
+		} else if (!$this->Racer->exists($united)) {
+			$this->Session->setFlash(__('統合元の選手データは削除済みです。'));
+			return false;
+		}
+
+		if (!$this->Racer->existsOnDB($uniteTo)) {
+			$this->Session->setFlash(__('統合先の選手コードを持つ選手が存在しません。'));
+			return false;
+		} else if (!$this->Racer->exists($uniteTo)) {
+			$this->Session->setFlash(__('統合先の選手データは削除済みです。'));
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * 選手データ統合アクション
+	 * @return void
+	 */
+	public function unite_racer()
+	{
+		if ($this->request->is('post')) {
+
+			if (!$this->__confirm_unite_racer()) {
+				return;
+			}
+
+			$united = $this->request->data['racer_code_united'];
+			$uniteTo = $this->request->data['racer_code_unite_to'];
+
+			$racerUniteTo = $this->Racer->find('first', array('conditions' => array('code' => $uniteTo)));
+
+			if (empty($racerUniteTo)) {
+				$this->Session->setFlash(__('想定しないエラーです。'));
+				$this->redirect(array('action' => 'unite_racer'));
+				return;
+			} else if (!empty($racerUniteTo['Racer']['united_to'])) {
+				$this->Session->setFlash(__('統合先の選手データは' . $racerUniteTo['Racer']['united_to'] .  'の選手に統合済みです。'));
+				$this->redirect(array('action' => 'unite_racer'));
+				return;
+			}
+
+			$racerUnited = $this->Racer->find('first', array('conditions' => array('code' => $united)));
+			if (empty($racerUnited)) {
+				$this->Session->setFlash(__('想定しないエラーです。'));
+				$this->redirect(array('action' => 'unite_racer'));
+				return;
+			}
+
+			$this->set('uniteTo', $racerUniteTo);
+			$this->set('united', $racerUnited);
+			$this->render('unite_racer_confirm');
+		}
+	}
+	
+	/**
+	 * 選手コードを統合する
+	 */
+	public function do_unite_racer()
+	{
+		$this->log($this->request->data, LOG_DEBUG);
+		
+		$this->request->allowMethod('post');
+		
+		if (!$this->__confirm_unite_racer()) {
+			$this->Session->setFlash('選手データ不正のため、統合に失敗しました。');
+			$this->redirect('unite_racer');
+			return false;
+		}
+
+		$united = $this->request->data['racer_code_united'];
+		$uniteTo = $this->request->data['racer_code_unite_to'];
+
+		$transaction = $this->TransactionManager->begin();
+
+		if ($this->__uniteRacer($united, $uniteTo)) {
+
+			$this->log('デバッグで rollback します。', LOG_DEBUG);
+			$this->TransactionManager->rollback($transaction);/*/
+			$this->TransactionManager->commit($transaction);//*/
+
+			
+			$this->redirect(array('controller' => 'racers' ,'action' => 'view', $uniteTo));
+		} else {
+			$this->Session->setFlash(__('選手データの統合に失敗しました'));
+			$this->TransactionManager->rollback($transaction);
+			
+			$this->redirect('unite_racer');
+		}
+	}
+	
+	/**
+	 * 選手データの統合処理を行なう
+	 * @param string $united 統合される選手コード
+	 * @param string $uniteTo 統合先選手コード
+	 * @return boolean 統合に成功したか
+	 */
+	private function __uniteRacer($united, $uniteTo)
+	{
+		// racer への適用
+		$param = array(
+			'code' => $united,
+			'united_to' => $uniteTo
+		);
+
+		if (!$this->Racer->save($param)) {
+			$this->log('Racer への適用に失敗しました。', LOG_ERR);
+			return false;
+		}
+		
+		// 統合元を削除
+		if (!$this->Racer->delete($united)) {
+			$this->log('統合する Racer の削除に失敗しました。', LOG_ERR);
+			return false;
+		}
+
+		// category racer 書換え
+		$param = array(
+			'conditions' => array('racer_code' => $united),
+			'recursive' => -1
+		);
+		$catRacers = $this->CategoryRacer->find('all', $param);
+		
+		if (!empty($catRacers)) {
+			$param = array();
+			$ids = '';
+			foreach ($catRacers as $cr) {
+				$param[] = array(
+					'id' => $cr['CategoryRacer']['id'],
+					'racer_code' => $uniteTo
+				);
+
+				$ids .= $cr['CategoryRacer']['id'] . ',';
+			}
+
+			if (!$this->CategoryRacer->saveAll($param)) {
+				$this->log('CategoryRacer の書換えに失敗しました。', LOG_ERR);
+				return false;
+			}
+
+			$this->log('catRacer[id:' . $ids . '] の選手コードを書換え。', LOG_DEBUG);
+		}
+		
+		// entry racer 書換え
+		$param = array(
+			'conditions' => array('racer_code' => $united),
+			'recursive' => -1
+		);
+		
+		$eracers = $this->EntryRacer->find('all', $param);
+		
+		if (!empty($eracers)) {
+			$param = array();
+			$ids = '';
+			foreach ($eracers as $er) {
+				$param[] = array(
+					'id' => $er['EntryRacer']['id'],
+					'racer_code' => $uniteTo
+				);
+
+				$ids .= $er['EntryRacer']['id'] . ',';
+			}
+
+			if (!$this->EntryRacer->saveAll($param)) {
+				$this->log('EntryRacer の書換えに失敗しました。', LOG_ERR);
+				return false;
+			}
+
+			$this->log('EntryRacer[id:' . $ids . '] の選手コードを書換え。', LOG_DEBUG);
+		}
+		
+		// point series racers
+		$param = array(
+			'conditions' => array('racer_code' => $united),
+			'recursive' => -1
+		);
+		
+		$psrs = $this->PointSeriesRacer->find('all', $param);
+		
+		if (!empty($psrs)) {
+			$param = array();
+			$ids = '';
+			foreach ($psrs as $psr) {
+				$param[] = array(
+					'id' => $psr['PointSeriesRacer']['id'],
+					'racer_code' => $uniteTo
+				);
+
+				$ids .= $psr['PointSeriesRacer']['id'] . ',';
+			}
+
+			if (!$this->PointSeriesRacer->saveAll($param)) {
+				$this->log('PointSeriesRacer の書換えに失敗しました。', LOG_ERR);
+				return false;
+			}
+			
+			$this->log('PointSeriesRacer[id:' . $ids . '] の選手コードを書換え。', LOG_DEBUG);
+		}
+		
+		return true;
 	}
 }
