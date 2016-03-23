@@ -12,7 +12,7 @@
 
 <h2>選手</h2>
 <p><?php echo $this->Html->link("選手情報", "/racers/index");?></p>
-<p><?php echo $this->Html->link("選手 = カテゴリー Bind", "/category_racers /index");?></p>
+<p><?php echo $this->Html->link("選手カテゴリー所属", "/category_racers /index");?></p>
 
 <h2>カテゴリー設定</h2>
 <p><?php echo $this->Html->link("カテゴリー", "/categories/index");?></p>
