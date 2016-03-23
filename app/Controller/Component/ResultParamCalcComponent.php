@@ -542,8 +542,13 @@ class ResultParamCalcComponent extends Component
 		
 		foreach ($catBinds as $catBind) {
 			if (in_array($catBind['CategoryRacer']['category_code'], $catList)) {
-				$catBind['CategoryRacer']['cancel_date'] = $this->__atDate;
-				if (!$this->CategoryRacer->save($catBind)) {
+				
+				$cr = array(
+					'id' => $catBind['CategoryRacer']['id'],
+					'cancel_date' => $this->__atDate
+				);
+				
+				if (!$this->CategoryRacer->save($cr)) {
 					$this->log('CategoryRacer の cancel_date 設定->保存に失敗', LOG_ERR);
 					$rStatus = Constant::RET_FAILED;
 					// continue
