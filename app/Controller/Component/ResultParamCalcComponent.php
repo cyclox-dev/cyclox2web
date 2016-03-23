@@ -56,8 +56,7 @@ class ResultParamCalcComponent extends Component
 	private $RacerResult;
 	
 	/**
-	 * 出走カテゴリーごとのリザルトを再計算する。Transaction 処理はこのメソッドの外部で行なうこと。
-	 * 古いデータの削除は行わないため、外部でコントロールすること。
+	 * 出走カテゴリーごとのリザルトを再計算する。
 	 * @param array $results リザルト配列。それぞれの要素に EntryRacer, RacerResult の key-value を持つ。
 	 * @param array $ecat 出走カテゴリー。EntryCategory 以下の key-value を持つ。
 	 * @return Constant::RET_xxx 処理ステータス
@@ -182,7 +181,7 @@ class ResultParamCalcComponent extends Component
 	}
 	
 	/**
-	 * リザルトに関するポイントなどを再計算する
+	 * リザルトに関するポイントなどを再計算する。Transaction 処理はこのメソッドの外部で行なうこと。
 	 * @param array $results リザルト
 	 * @param array $ecat 出走カテゴリー
 	 * @return boolean 処理に成功したか
