@@ -7,6 +7,7 @@
 			<th><?php echo $this->Paginator->sort('united', '統合元（削除対象）'); ?></th>
 			<th><?php echo $this->Paginator->sort('unite_to', '統合先'); ?></th>
 			<th><?php echo $this->Paginator->sort('at_date', '処理日'); ?></th>
+			<th><?php echo $this->Paginator->sort('user_by', '処理User'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>
@@ -21,6 +22,7 @@
 			<?php echo $this->Html->link($uniteRacerLog['UniteRacerLog']['unite_to'], array('controller' => 'racers', 'action' => 'view', $uniteRacerLog['UniteRacerLog']['unite_to'])); ?>
 		</td>
 		<td><?php echo h($uniteRacerLog['UniteRacerLog']['at_date']); ?>&nbsp;</td>
+		<td><?php echo h($uniteRacerLog['UniteRacerLog']['by_user']); ?>&nbsp;</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $uniteRacerLog['UniteRacerLog']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $uniteRacerLog['UniteRacerLog']['id'])); ?>

@@ -794,6 +794,7 @@ class OrgUtilController extends ApiBaseController
 		$urLog['UniteRacerLog']['united'] = $united;
 		$urLog['UniteRacerLog']['unite_to'] = $uniteTo;
 		$urLog['UniteRacerLog']['at_date'] = date("Y-m-d H:i:s");
+		$urLog['UniteRacerLog']['by_user'] = $this->Auth->user('username');
 		if (empty($uniteLog)) {
 			$urLog['UniteRacerLog']['log'] = '選手データを除き、この統合処理により変更されたデータはありません。';
 		} else {

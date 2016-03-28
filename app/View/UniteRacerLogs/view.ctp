@@ -26,6 +26,11 @@
 			<?php echo h($uniteRacerLog['UniteRacerLog']['log']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('この処理を行なったユーザー'); ?></dt>
+		<dd>
+			<?php echo h($uniteRacerLog['UniteRacerLog']['by_user']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('データ作成日時'); ?></dt>
 		<dd>
 			<?php echo h($uniteRacerLog['UniteRacerLog']['created']); ?>

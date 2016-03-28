@@ -11,6 +11,7 @@
 			'timeFormat' => '24',
 		));
 		echo $this->Form->input('log');
+		echo $this->Form->input('by_user');
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>

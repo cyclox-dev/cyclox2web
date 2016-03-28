@@ -480,6 +480,7 @@ CREATE TABLE unite_racer_log
 	unite_to varchar(16) BINARY NOT NULL,
 	at_date datetime NOT NULL,
 	log text,
+	user_by varchar(50) BINARY,
 	created datetime,
 	modified datetime,
 	PRIMARY KEY (id),
