@@ -44,6 +44,8 @@
 		<dd><?php 
 			$catStr = '';
 			foreach ($uniteTo['CategoryRacer'] as $cat) {
+				if (!empty($cat['cancel_date']) && $cat['cancel_date'] < date("Y-m-d")) continue;
+				if (!empty($cat['apply_date']) && $cat['apply_date'] > date("Y-m-d")) continue;
 				if (!empty($catStr)) $catStr .= ', ';
 				$catStr .= $cat['category_code'];
 			}

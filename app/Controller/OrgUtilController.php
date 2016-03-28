@@ -614,6 +614,7 @@ class OrgUtilController extends ApiBaseController
 			$united = $this->request->data['racer_code_united'];
 			$uniteTo = $this->request->data['racer_code_unite_to'];
 
+			$this->Racer->CategoryRacer->Behaviors->load('Utils.SoftDelete');
 			$racerUniteTo = $this->Racer->find('first', array('conditions' => array('code' => $uniteTo)));
 
 			if (empty($racerUniteTo)) {
