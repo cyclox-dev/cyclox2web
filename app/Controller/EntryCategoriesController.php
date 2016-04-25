@@ -221,48 +221,23 @@ class EntryCategoriesController extends ApiBaseController
 		return $this->redirect(array('action' => 'index'));
 	}
 	
+	/**
+	 * リザルトの再計算を行なう
+	 * @param int $ecatId 首相カテゴリー ID
+	 * @return boolean
+	 */
 	public function recalc_result($ecatId = null)
 	{
 		$this->request->allowMethod('post');
 		
-		$this->EntryCategory->Behaviors->load('Containable');
+		$ret = $this->ResultParamCalc->reCalcResults($ecatId);
 		
-		$options = array(
-			'conditions' => array('EntryCategory.' . $this->EntryCategory->primaryKey => $ecatId),
-			'contain' => array(
-				'EntryRacer' => array(
-					'RacerResult'
-				)
-			)
-		);
-		$ecat = $this->EntryCategory->find('first', $options);
-		
-		//$this->log('ecat:', LOG_DEBUG);
-		//$this->log($ecat, LOG_DEBUG);
-		
-		if (empty($ecat['EntryRacer'])) {
-			$this->Session->setFlash(__('出走する選手が設定されていません。'));
-		} else {
-			$ers = array();
-			foreach ($ecat['EntryRacer'] as $eracer) {
-				if (!empty($eracer['RacerResult'])) {
-					$er = array();
-					$er['EntryRacer'] = $eracer;
-					$er['RacerResult'] = $eracer['RacerResult'];
-
-					$ers[] = $er;
-				}
-			}
-			
-			$this->log('er count:' . count($ers), LOG_DEBUG);
-			
-			if (count($ers) == 0) {
-				$this->Session->setFlash(__('リザルトが設定されていません。'));
-			} else {
-				$this->ResultParamCalc->reCalcResults($ers, $ecat['EntryCategory']);
-			}
+		if (emptY($ret)|| $ret == Constant::RET_FAILED) {
+			return $this->Session->setFlash('処理に失敗しました。');
+		} else if ($ret == Constant::RET_NO_ACTION) {
+			return $this->Session->setFlash(__('出走する選手もしくはリザルトが設定されていません。'));
 		}
 		
-		return $this->redirect(array('action' => 'view', $ecat['EntryCategory']['id']));
+		return $this->redirect(array('action' => 'view', $ecatId));
 	}
 }

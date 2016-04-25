@@ -447,6 +447,8 @@ class ApiController extends ApiBaseController
 				}
 			}
 			
+			$ress = array();
+			
 			foreach ($this->request->data['body-result'] as $body => $result) {
 				$er = $erMap[$body];
 				
@@ -455,10 +457,13 @@ class ApiController extends ApiBaseController
 				$result['RacerResult']['entry_racer_id'] = $er['EntryRacer']['id'];
 				$result['RacerResult']['as_category']
 						= $this->ResultParamCalc->asCategory($er['EntryRacer']['racer_code'], $ecat, $meet['Meet']['at_date']);
-				if (!$this->RacerResult->saveAssociated($result)) {
+				
+				/*if (!$this->RacerResult->saveAssociated($result)) {
 					$this->TransactionManager->rollback($transaction);
 					return $this->error('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
-				}
+				}//*/
+				$ress[] = $result;
+				
 				$this->log('new result id:' . $this->RacerResult->id, LOG_DEBUG);
 				$result['RacerResult']['id'] = $this->RacerResult->id;
 				
@@ -467,6 +472,14 @@ class ApiController extends ApiBaseController
 				$err['RacerResult'] = $result['RacerResult'];
 				$errs[] = $err;
 			}
+			
+			//$this->log('results is,,,', LOG_DEBUG);
+			//$this->log($ress, LOG_DEBUG);
+			
+			if (!$this->RacerResult->saveAll($ress, array('deep' => true))) {
+				$this->TransactionManager->rollback($transaction);
+				return $this->error('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
+			}//*/
 			
 			//$this->log('end', LOG_DEBUG);
 			$this->TransactionManager->commit($transaction);
@@ -479,7 +492,7 @@ class ApiController extends ApiBaseController
 		if (count($errs) == 0) {
 			$this->log('リザルトが設定されていません。', LOG_DEBUG);
 		} else {
-			$this->ResultParamCalc->reCalcResults($errs, $ecat);
+			$this->ResultParamCalc->reCalcResults($ecat['id']);
 		}
 		
 		return $this->success(array('ok')); // 件数とか？

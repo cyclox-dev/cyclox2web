@@ -13,6 +13,7 @@ App::uses('CategoryReason', 'Cyclox/Const');
 App::uses('PointCalculator', 'Cyclox/Util');
 App::uses('TransactionManager', 'Model');
 App::uses('Racer', 'Model');
+App::uses('EntryCategory', 'Model');
 App::uses('EntryGroup', 'Model');
 App::uses('HoldPoint', 'Model');
 App::uses('CategoryRacer', 'Model');
@@ -47,6 +48,7 @@ class ResultParamCalcComponent extends Component
 	
 	private $TransactionManager;
 	private $Racer;
+	private $EntryCategory;
 	private $EntryGroup;
 	private $HoldPoint;
 	private $CategoryRacer;
@@ -55,13 +57,60 @@ class ResultParamCalcComponent extends Component
 	private $MeetPointSeries;
 	private $RacerResult;
 	
+	public function reCalcResults($ecatId = null)
+	{
+		$this->EntryCategory = new EntryCategory();
+		
+		$this->EntryCategory->Behaviors->load('Containable');
+		
+		$options = array(
+			'conditions' => array('EntryCategory.' . $this->EntryCategory->primaryKey => $ecatId),
+			'contain' => array(
+				'EntryRacer' => array(
+					'RacerResult'
+				)
+			)
+		);
+		$ecat = $this->EntryCategory->find('first', $options);
+		
+		//$this->log('ecat:', LOG_DEBUG);
+		//$this->log($ecat, LOG_DEBUG);
+		
+		if (empty($ecat['EntryRacer'])) {
+			return Constant::RET_NO_ACTION;
+		} else {
+			$ers = array();
+			foreach ($ecat['EntryRacer'] as $eracer) {
+				if (!empty($eracer['RacerResult'])) {
+					$er = array();
+					$er['EntryRacer'] = $eracer;
+					$er['RacerResult'] = $eracer['RacerResult'];
+
+					$ers[] = $er;
+				}
+			}
+			
+			if (count($ers) == 0) {
+				$this->Session->setFlash(__('リザルトが設定されていません。'));
+			} else {
+				$ret = $this->__doReCalcResults($ers, $ecat['EntryCategory']);
+				
+				if ($ret === Constant::RET_ERROR || !$ret) {
+					return Constant::RET_FAILED;
+				}
+			}
+		}
+		
+		return Constant::RET_SUCCEED;
+	}
+	
 	/**
 	 * 出走カテゴリーごとのリザルトを再計算する。
 	 * @param array $results リザルト配列。それぞれの要素に EntryRacer, RacerResult の key-value を持つ。
 	 * @param array $ecat 出走カテゴリー。EntryCategory 以下の key-value を持つ。
 	 * @return Constant::RET_xxx 処理ステータス
 	 */
-	public function reCalcResults($results, $ecat)
+	private function __doReCalcResults($results, $ecat)
 	{
 		if (empty($results) || empty($ecat)) {
 			return Constant::RET_ERROR;
@@ -908,6 +957,8 @@ class ResultParamCalcComponent extends Component
 		$this->Racer->Behaviors->load('Utils.SoftDelete');
 		$this->EntryGroup = new EntryGroup();
 		$this->EntryGroup->Behaviors->load('Utils.SoftDelete');
+		$this->EntryCategory = new EntryGroup();
+		$this->EntryCategory->Behaviors->load('Utils.SoftDelete');
 		$this->CategoryRacer = new CategoryRacer();
 		$this->CategoryRacer ->Behaviors->load('Utils.SoftDelete');
 		$this->RacesCategory = new RacesCategory();
