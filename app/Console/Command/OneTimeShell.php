@@ -323,7 +323,8 @@ class OneTimeShell extends AppShell
 			'limit' => $this->args[1],
 			'conditions' => array(
 				'ajocc_pt' => 0,
-				'NOT' => array('rank' => null)
+				'NOT' => array('rank' => null),
+				'rank <=' => '60'
 			),
 			'contain' => array(
 				'EntryRacer' => array(
@@ -333,6 +334,9 @@ class OneTimeShell extends AppShell
 		);
 		
 		$rrs = $this->RacerResult->find('all', $opt);
+		
+		$list4Save = array();
+		$ids = '';
 		
 		foreach ($rrs as $rr) {
 			if (empty($rr['EntryRacer']['entry_category_id'])) {
@@ -357,22 +361,29 @@ class OneTimeShell extends AppShell
 			
 			if (!$isOpenRacer && isset($rr['RacerResult']['rank'])) {
 				$pt = $this->__resParamCalc->calcAjoccPt($rr['RacerResult']['rank'], $started);
-				$this->out('ecat[id:' . $ecatId . '] 出走人数:' . $started . ' point:' . $pt);
+				$this->out('result:' . $rr['RacerResult']['id'] . '-ecat[id:' . $ecatId . '] 出走人数:' . $started . ' point:' . $pt);
 			}
 			
 			if ($pt !== -1) {
-				$result = array();
-				$result['RacerResult'] = $rr['RacerResult'];
-				$result['RacerResult']['ajocc_pt'] = $pt;
-				
-				if ($this->RacerResult->save($result)) {
-					$this->out('EntryRacer[id:' . $rr['EntryRacer']['id'] . '] について、Result[id:'
-							. $this->RacerResult->id . '] を保存しました。pt:' . $pt);
-				} else {
-					$this->out('EntryRacer[id:' . $rr['EntryRacer']['id'] . '] について、Result の保存に失敗しました。');
-				}
+				$result = array(
+					'id' => $rr['RacerResult']['id'],
+					'ajocc_pt' => $pt,
+				);
+				$list4Save[] = $result;
+				$ids .= $rr['RacerResult']['id'] . '/' . $pt . ',';
 			} else {
 				$this->out('EntryRacer[id:' . $rr['EntryRacer']['id'] . '] について、Ajocc Point の計算に失敗しました。');
+			}
+		}
+		
+		//$this->out('list is');
+		//$this->out(var_export($list4Save));
+		
+		if (!empty($list4Save)) {
+			if ($this->RacerResult->saveMany($list4Save)) {
+				$this->out('Result[' . $ids . '] を保存しました。');
+			} else {
+				$this->out('Result[' . $ids . '] について、保存に失敗しました。');
 			}
 		}
 		
