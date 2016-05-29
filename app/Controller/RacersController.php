@@ -32,7 +32,8 @@ class RacersController extends ApiBaseController
  *
  * @return void
  */
-	public function index() {
+	public function index()
+	{
 		$this->Racer->recursive = 1;
 		$this->Racer->CategoryRacer->Behaviors->load('Utils.SoftDelete');
 		
@@ -44,10 +45,24 @@ class RacersController extends ApiBaseController
             $req = array_merge($req, array("word" => $word));
         }
 		
-		
-		$this->paginate = array('conditions' => $this->Racer->parseCriteria($req));
-		
-		$this->set('racers', $this->paginate());
+		if ($this->_isApiCall()) {
+			$opt = array(
+				'conditions' => $this->Racer->parseCriteria($req),
+				'fields' => array('code', 'first_name', 'family_name', 'first_name_kana', 'family_name_kana'
+					, 'first_name_en', 'family_name_en', 'gender', 'team', 'jcf_number', 'prefecture')
+			);
+			
+			// CatRacer の fileds 指定
+			$this->Racer->hasMany['CategoryRacer']['fields'] = array(
+				'category_code', 'apply_date', 'cancel_date'
+			);
+			
+			$racers = $this->Racer->find('all', $opt);
+			$this->success($racers);
+		} else {
+			$this->paginate = array('conditions' => $this->Racer->parseCriteria($req));
+			$this->set('racers', $this->paginate());
+		}
 	}
 
 /**
