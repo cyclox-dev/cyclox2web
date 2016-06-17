@@ -66,8 +66,8 @@ class RacersController extends ApiBaseController
 			$racers = $this->Racer->find('all', $opt);
 			$this->success($racers);
 		} else {
-			//$this->paginate = array('conditions' => $this->Racer->parseCriteria($req));
-			$this->paginate = array('conditions' => $cdt);
+			$this->paginate = array('conditions' => $this->Racer->parseCriteria($req));
+			//$this->paginate = array('conditions' => $cdt);
 			$this->set('racers', $this->paginate());
 		}
 	}
@@ -87,8 +87,11 @@ class RacersController extends ApiBaseController
 			$andor = $this->request->data['Racer']['andor'];
 		}
 		
-		$cdt = array();
-		$kws = explode(' ', $this->request->data['Racer']['keyword']);
+		$cdt = array(); 
+		// 全角スペース除去
+		$str = trim(mb_convert_kana($this->request->data['Racer']['keyword'], 's', 'UTF-8'));
+		// 半角スペースでの分割
+		$kws = explode(' ', $str);
 		$this->log('kws is,,,', LOG_DEBUG);
 		$this->log($kws, LOG_DEBUG);
 		
