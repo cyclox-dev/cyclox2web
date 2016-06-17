@@ -45,9 +45,15 @@ class RacersController extends ApiBaseController
             $req = array_merge($req, array("word" => $word));
         }
 		
+		// 上記 multipleKeywords は使用しない。自前で and, or の条件文を作る。
+		$cdt = $this->__makeRacerSearchCondition($req);
+		//$this->log('cdt is,,,', LOG_DEBUG);
+		//$this->log($cdt, LOG_DEBUG);
+		
 		if ($this->_isApiCall()) {
 			$opt = array(
-				'conditions' => $this->Racer->parseCriteria($req),
+				//'conditions' => $this->Racer->parseCriteria($req),
+				'conditions' => $cdt,
 				'fields' => array('code', 'first_name', 'family_name', 'first_name_kana', 'family_name_kana'
 					, 'first_name_en', 'family_name_en', 'gender', 'team', 'jcf_number', 'prefecture')
 			);
@@ -60,9 +66,43 @@ class RacersController extends ApiBaseController
 			$racers = $this->Racer->find('all', $opt);
 			$this->success($racers);
 		} else {
-			$this->paginate = array('conditions' => $this->Racer->parseCriteria($req));
+			//$this->paginate = array('conditions' => $this->Racer->parseCriteria($req));
+			$this->paginate = array('conditions' => $cdt);
 			$this->set('racers', $this->paginate());
 		}
+	}
+	
+	/**
+	 * リクエストから選手検索条件を作成する
+	 * @param array $req 'keyword' をキーとする value を持つ。半角スペースにて
+	 */
+	private function __makeRacerSearchCondition($req)
+	{
+		if (empty($this->request->data['Racer']['keyword'])) {
+			return $req;
+		}
+		
+		$andor = 'or';
+		if(!empty($this->request->data['Racer']['andor']) && in_array($this->request->data['Racer']['andor'], array('and', 'or'))) {
+			$andor = $this->request->data['Racer']['andor'];
+		}
+		
+		$cdt = array();
+		$kws = explode(' ', $this->request->data['Racer']['keyword']);
+		$this->log('kws is,,,', LOG_DEBUG);
+		$this->log($kws, LOG_DEBUG);
+		
+		foreach ($kws as $kw) {
+			$orcdt = array();
+			foreach ($this->Racer->filterArgs['word']['field'] as $f) {
+				$orcdt[] = array('' . $f . ' ' . $this->Racer->filterArgs['word']['type'] => '%' . $kw . '%');
+			}
+			
+			$cdt[] = array('OR' => $orcdt);
+		}
+		
+		$ret = array($andor => $cdt);
+		return $ret;
 	}
 
 /**
