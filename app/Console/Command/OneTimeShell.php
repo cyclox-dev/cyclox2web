@@ -490,6 +490,8 @@ class OneTimeShell extends AppShell
 			'CM2' => 0,
 		);
 		
+		$hasError = false;
+
 		foreach ($crs as $cr) {
 			++$index;
 			if (empty($cr['Racer']) || $cr['Racer']['deleted'] == 1) {
@@ -542,7 +544,6 @@ class OneTimeShell extends AppShell
 			// 残留ポイントの集計
 			$pt = 0;
 			$ptLog = '';
-			$hasError = false;
 			
 			foreach ($ers as $er) {
 				if (!empty($er['RacerResult']['HoldPoint'])) {
