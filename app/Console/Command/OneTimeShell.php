@@ -557,7 +557,7 @@ class OneTimeShell extends AppShell
 						if ($hp['category_code'] == $cr['CategoryRacer']['category_code']) {
 							$pt += $hp['point'];
 							$ptLog .= $er['EntryCategory']['EntryGroup']['Meet']['code'] . '/' . $er['EntryCategory']['name']
-									. ':' . $pt . 'pt,';
+									. ':' . $hp['point'] . 'pt,';
 						}
 					}
 				}
