@@ -434,6 +434,8 @@ class OneTimeShell extends AppShell
 	
 	/**
 	 * 2015-16 シーズンのリザルトから降格処理を行なう
+	 * > cd app ディレクトリ
+	 * > Console/cake one_time execCategoryDown1516 0 100
 	 */
 	public function execCategoryDown1516()
 	{
@@ -635,5 +637,268 @@ class OneTimeShell extends AppShell
 			$this->log($skipLog, LOG_DEBUG);
 		}
 		$this->log('Log of execCategoryDown1516 end ---', LOG_DEBUG);
+	}
+	
+	/**
+	 * 名前（姓+名）が重複する選手を抽出し、ログに出力するする。
+	 * > cd app ディレクトリ
+	 * > Console/cake one_time extractNameDuplicatedRacers
+	 */
+	public function extractNameDuplicatedRacers()
+	{
+		$offset = 0;
+		$limit = 500;
+		
+		$this->out('>>> Start extractNameDuplicatedRacers');
+		
+		while (true) {
+			$opt = array(
+				'recursive' => -1,
+				'conditions' => array(
+					'Racer.deleted' => 0,
+				),
+				'offset' => $offset,
+				'limit' => $limit,
+				// category は人間によるチェックとする
+			);
+
+			$racers = $this->Racer->find('all', $opt);
+
+			if (empty($racers)) {
+				$this->log('could not find racers... break.', LOG_DEBUG);
+				break;
+			} else {
+				$index = -1;
+				foreach ($racers as $racer) {
+					++$index;
+					$nameContition = $this->__createSameNameConditions($racer);
+					//$this->log('conditions:', LOG_DEBUG);
+					//$this->log($nameContition, LOG_DEBUG);
+
+					if (empty($nameContition)) {
+						continue;
+					}
+
+					$ropt = array(
+						'recursive' => -1,
+						'conditions' => array(
+							'deleted' => 0,
+							'OR' => $nameContition,
+							'NOT' => array('code' => $racer['Racer']['code'])
+						)
+					);
+					$theIndex = $offset + $index;
+					//$this->log('index:' . $theIndex, LOG_DEBUG);
+					//$this->log($ropt, LOG_DEBUG);
+
+					$rs = $this->Racer->find('all', $ropt);
+					if (empty($rs)) {
+						//$this-log('rs is empty,,,', LOG_DEBUG);
+						continue;
+					}
+
+					// $racer['Racer']['code'} が最も古いコードでなければ skip する。
+					$rcodeNum = $this->__racerCodeNumberValue($racer['Racer']['code']);
+					if ($rcodeNum === false) {
+						$this->log('選手コードナンバーが取得できません:' . $racer['Racer']['code'], LOG_ERR);
+					}
+					$continues = false;
+					foreach ($rs as $r) {
+						$num = $this->__racerCodeNumberValue($r['Racer']['code']);
+						if ($num === false) {
+							$this->log('選手コードナンバーが取得できません' . $r['Racer']['code'], LOG_ERR);
+						}
+						if ($num < $rcodeNum) {
+							$continues = true;
+							break;
+						}
+					}
+					if ($continues) {
+						continue;
+					}
+					unset($r);
+					
+					$birth = $this->__createBirthExpress($racer['Racer']['birth_date']);
+
+					$this->log('<< ORIGINAL >>,' . $theIndex . ',' . $racer['Racer']['code']
+							. ',' . $racer['Racer']['family_name'] . ',' . $racer['Racer']['first_name']
+							. ',' . $racer['Racer']['family_name_kana'] . ',' . $racer['Racer']['first_name_kana']
+							. ',' . $racer['Racer']['family_name_en'] . ',' . $racer['Racer']['first_name_en']
+							. ',Team:' . $racer['Racer']['team'] . ',' . $racer['Racer']['prefecture'] . ',Birth:' . $birth, LOG_DEBUG);
+
+					$smallIndex = 1;
+
+					foreach ($rs as $r) {
+						$bt = $this->__createBirthExpress($r['Racer']['birth_date']);
+
+						$msg = '';
+						if ($racer['Racer']['family_name'] === $r['Racer']['family_name']
+								&& $racer['Racer']['first_name'] === $r['Racer']['first_name']) {
+							$msg .= ',ok';
+						} else {
+							$msg .= ',氏名異なる！';
+						}
+						if ($racer['Racer']['birth_date'] != '---'
+								|| $r['Racer']['birth_date'] != '---') {
+							$msg .= ',---';
+						} else if ($racer['Racer']['birth_date'] === $r['Racer']['birth_date']) {
+							$msg .= ',ok';
+						} else {
+							$msg .= ',誕生日異なる！';
+						}
+						if (empty($racer['Racer']['prefecture']) || empty($r['Racer']['prefecture'])) {
+							$msg .= ',---';
+						} else if ($racer['Racer']['prefecture'] == $r['Racer']['prefecture']) {
+							$msg .= ',ok';
+						} else {
+							$msg .= ', 県異なる！';
+						}
+
+						$this->log(',' . $theIndex . '-' . $smallIndex . ',' .  $r['Racer']['code']
+							. ',' . $r['Racer']['family_name'] . ',' . $r['Racer']['first_name']
+							. ',' . $r['Racer']['family_name_kana'] . ',' . $r['Racer']['first_name_kana']
+							. ',' . $r['Racer']['family_name_en'] . ',' . $r['Racer']['first_name_en']
+							. ',Team:' . $r['Racer']['team'] . ',' . $r['Racer']['prefecture'] . ',Birth:' . $bt . $msg, LOG_DEBUG);
+
+						++$smallIndex;
+					}
+					$this->log('', LOG_DEBUG);
+				}
+			}
+			
+			$offset += $limit;
+		}
+		
+		$this->out('<<< End extractNameDuplicatedRacers');
+	}
+	
+	/**
+	 * @private
+	 * extractNameDuplicatedRacers 用メソッド。名前同一チェック用の条件 array を作成する。
+	 * @param type $racer 選手情報 key:Racer, value:array を持つ。
+	 */
+	private function __createSameNameConditions($racer)
+	{
+		$conditions = array();
+		
+		if (!empty($racer['Racer']['family_name']) && !empty($racer['Racer']['first_name'])) {
+			$conditions[] = array(
+				'AND' => array(
+					'family_name ' => $racer['Racer']['family_name'],
+					'first_name' => $racer['Racer']['first_name'],
+				)
+			);
+		}
+		/*
+		 * カナ, en 名前は対象外とした。
+		if (!empty($racer['Racer']['family_name_kana']) && !empty($racer['Racer']['first_name_kana'])) {
+			$conditions[] = array(
+				'AND' => array(
+					'family_name_kana' => $racer['Racer']['family_name_kana'],
+					'first_name_kana' => $racer['Racer']['first_name_kana'],
+				)
+			);
+		}
+		if (!empty($racer['Racer']['family_name_en']) && !empty($racer['Racer']['first_name_en'])) {
+			$conditions[] = array(
+				'AND' => array(
+					'family_name_en' => $racer['Racer']['family_name_en'],
+					'first_name_en' => $racer['Racer']['first_name_en'],
+				)
+			);
+		}//*/
+		
+		if (empty($conditions)) {
+			return array();
+		}
+		
+		return $conditions;
+	}
+	
+	/**
+	 * extractNameDuplicatedRacers 用メソッド。選手コードのナンバー部分を数値に変換する。例）-156-0023 -> 1,560,023
+	 * @param type $racerCode
+	 */
+	private function __racerCodeNumberValue($racerCode)
+	{
+		if (empty($racerCode)) {
+			return false;
+		}
+		
+		$str1 = substr($racerCode, 4, 3);
+		$str2 = substr($racerCode, 8, 4);
+		
+		if ($str1 === false || $str2 === false) {
+			$this->log('選手コードからのナンバー抽出に失敗しました。' . $racerCode, LOG_DEBUG);
+			return false;
+		}
+		
+		return intval($str1) * 10000 + intval($str2);
+	}
+	
+	/**
+	 * 誕生日表現をかえす。1900年などの場合は '---' をかえす
+	 * @param string $birthStr date(Y-m-d) 形式の文字列
+	 * @return string 誕生日表現
+	 */
+	private function __createBirthExpress($birthStr)
+	{
+		$birth = '---';
+		if (!empty($birthStr)) {
+			$date = DateTime::createFromFormat("Y-m-d", $birthStr);
+			$year = $date->format("Y");
+			if ($year > 1901) {
+				$birth = $birthStr;
+			}
+		}
+		
+		return $birth;
+	}
+	
+	/**
+	 * 名前（姓+名）が重複する選手を抽出し、ログに出力するする。
+	 * > cd app ディレクトリ
+	 * > Console/cake one_time extractEmptyNameRacers 0 100
+	 */
+	public function extractEmptyNameRacers()
+	{
+		if (!isset($this->args[0]) || !isset($this->args[1])) {
+			$this->out('2つの引数（整数／offset 位置, 処理件数）が必要です。');
+			return;
+		}
+		
+		$offset = $this->args[0];
+		$limit = $this->args[1];
+		
+		$this->log('>>> Start extractNameDuplicatedRacers', LOG_DEBUG);
+		
+		$opt = array(
+			'recursive' => -1,
+			'conditions' => array(
+				'deleted' => 0,
+				'OR' => array(
+					'first_name' => '',
+					'family_name' => '',
+					'first_name_kana' => '',
+					'family_name_kana' => '',
+				)
+			),
+			'offset' => $offset,
+			'limit' => $limit,
+			// category は人間によるチェックとする
+		);
+		
+		$racers = $this->Racer->find('all', $opt);
+		
+		$theIndex = 1;
+		foreach ($racers as $racer) {
+			$this->log('<< ORIGINAL >>,' . $theIndex . ',' . $racer['Racer']['code']
+					. ',' . $racer['Racer']['family_name'] . ',' . $racer['Racer']['first_name']
+					. ',' . $racer['Racer']['family_name_kana'] . ',' . $racer['Racer']['first_name_kana']
+					. ',Team:' . $racer['Racer']['team'] . ',' . $racer['Racer']['prefecture'], LOG_DEBUG);
+			++$theIndex;
+		}
+		
+		$this->log('>>> End extractNameDuplicatedRacers', LOG_DEBUG);
 	}
 }
