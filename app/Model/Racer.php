@@ -31,6 +31,7 @@ class Racer extends AppModel {
 				'Racer.first_name',
 				'Racer.first_name_kana',
 				'Racer.first_name_en',
+				'Racer.team',
 			),
 			'connectorAnd' => '+',
 			'connectorOr' => ','
