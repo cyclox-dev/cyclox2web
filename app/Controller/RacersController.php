@@ -88,21 +88,39 @@ class RacersController extends ApiBaseController
 		}
 		
 		$cdt = array(); 
-		// 全角スペース除去
+		// 全角スペース半角スペースに変換
 		$str = trim(mb_convert_kana($this->request->data['Racer']['keyword'], 's', 'UTF-8'));
 		// 半角スペースでの分割
 		$kws = explode(' ', $str);
-		$this->log('kws is,,,', LOG_DEBUG);
-		$this->log($kws, LOG_DEBUG);
+		//$this->log('kws is,,,', LOG_DEBUG);
+		//$this->log($kws, LOG_DEBUG);
 		
 		foreach ($kws as $kw) {
+			$hanKw = mb_convert_kana($kw, 'rn');
+			$zenKw = mb_convert_kana($kw, 'RN');
+			
 			$orcdt = array();
 			foreach ($this->Racer->filterArgs['word']['field'] as $f) {
-				$orcdt[] = array('' . $f . ' ' . $this->Racer->filterArgs['word']['type'] => '%' . $kw . '%');
+				$orcdt[] = array(('' . $f . ' ' . $this->Racer->filterArgs['word']['type']) => ('%' . $kw . '%'));
+				
+				// 全角英数、半角英数を変換して条件を追加する
+				if ($kw != $hanKw) {
+					$orcdt[] = array(('' . $f . ' ' . $this->Racer->filterArgs['word']['type']) => ('%' . $hanKw . '%'));
+				}
+
+				// 全角英数、半角英数を変換して条件を追加する
+				if ($kw != $zenKw) {
+					$orcdt[] = array(('' . $f . ' ' . $this->Racer->filterArgs['word']['type']) => ('%' . $zenKw . '%'));
+				}
+
+				// 大文字小文字は考えない
 			}
 			
 			$cdt[] = array('OR' => $orcdt);
 		}
+		
+		$this->log('cdt is', LOG_DEBUG);
+		$this->log($cdt, LOG_DEBUG);
 		
 		$ret = array($andor => $cdt);
 		return $ret;
