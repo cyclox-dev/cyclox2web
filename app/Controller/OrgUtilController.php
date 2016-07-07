@@ -660,7 +660,7 @@ class OrgUtilController extends ApiBaseController
 
 		$transaction = $this->TransactionManager->begin();
 
-		if ($this->__uniteRacer($united, $uniteTo)) {
+		if ($this->uniteRacer($united, $uniteTo)) {
 
 			/*
 			$this->log('デバッグで rollback します。', LOG_DEBUG);
@@ -683,7 +683,7 @@ class OrgUtilController extends ApiBaseController
 	 * @param string $uniteTo 統合先選手コード
 	 * @return boolean 統合に成功したか
 	 */
-	private function __uniteRacer($united, $uniteTo)
+	public function uniteRacer($united, $uniteTo)
 	{
 		// racer への適用
 		$param = array(
@@ -795,7 +795,8 @@ class OrgUtilController extends ApiBaseController
 		$urLog['UniteRacerLog']['united'] = $united;
 		$urLog['UniteRacerLog']['unite_to'] = $uniteTo;
 		$urLog['UniteRacerLog']['at_date'] = date("Y-m-d H:i:s");
-		$urLog['UniteRacerLog']['by_user'] = $this->Auth->user('username');
+		$userName = (isset($this->Auth)) ? $this->Auth->user('username') : 'Machine(shell)';
+		$urLog['UniteRacerLog']['by_user'] = $userName;
 		if (empty($uniteLog)) {
 			$urLog['UniteRacerLog']['log'] = '選手データを除き、この統合処理により変更されたデータはありません。';
 		} else {

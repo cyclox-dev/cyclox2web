@@ -5,6 +5,7 @@
  */
 
 App::uses('ApiController', 'Controller');
+App::uses('OrgUtilController', 'Controller');
 App::uses('RacerResultStatus', 'Cyclox/Const');
 App::uses('RacerEntryStatus', 'Cyclox/Const');
 App::uses('ResultParamCalcComponent', 'Controller/Component'); 
@@ -856,7 +857,7 @@ class OneTimeShell extends AppShell
 	}
 	
 	/**
-	 * 名前（姓+名）が重複する選手を抽出し、ログに出力するする。
+	 * 姓、名、カナ姓、カナ名のいずれかが空の選手を抽出し、ログに出力するする。
 	 * > cd app ディレクトリ
 	 * > Console/cake one_time extractEmptyNameRacers 0 100
 	 */
@@ -900,5 +901,33 @@ class OneTimeShell extends AppShell
 		}
 		
 		$this->log('>>> End extractNameDuplicatedRacers', LOG_DEBUG);
+	}
+	
+	/**
+	 * 選手統合処理を行なう
+	 * > cd app ディレクトリ
+	 * > Console/cake one_time uniteRacer united uniteTo
+	 */
+	public function uniteRacer()
+	{
+		if (!isset($this->args[0]) || !isset($this->args[1])) {
+			$this->out('2つの引数（整数／offset 位置, 処理件数）が必要です。');
+			return;
+		}
+		
+		$united= $this->args[0];
+		$uniteTo = $this->args[1];
+		
+		$this->log('>>> Start uniteRacer', LOG_DEBUG);
+		
+		$orgUtilController = new OrgUtilController();
+		
+		if ($orgUtilController->uniteRacer($united, $uniteTo)) {
+			$this->log('uniteRacer:' . $united . ' to ' . $uniteTo . ' succeeded.', LOG_INFO);
+		} else {
+			$this->log('uniteRacer:' . $united . ' to ' . $uniteTo . ' failed...', LOG_ERR);
+		}
+		
+		$this->log('>>> End uniteRacer', LOG_DEBUG);
 	}
 }
