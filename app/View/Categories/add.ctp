@@ -10,8 +10,11 @@
 		echo $this->Form->input('rank');
 		echo $this->Form->input('race_min');
 		echo $this->Form->input('gender');
+		echo $this->Form->input('is_aged_category');
 		echo $this->Form->input('age_min');
 		echo $this->Form->input('age_max');
+		echo $this->Form->input('school_year_min');
+		echo $this->Form->input('school_year_max');
 		echo $this->Form->input('description');
 		echo $this->Form->input('needs_jcf');
 		echo $this->Form->input('needs_uci');

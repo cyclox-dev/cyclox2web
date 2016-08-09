@@ -10,9 +10,10 @@
 			<th><?php echo $this->Paginator->sort('rank'); ?></th>
 			<th><?php echo $this->Paginator->sort('race_min'); ?></th>
 			<th><?php echo $this->Paginator->sort('gender'); ?></th>
+			<th><?php echo 'Aged?'; ?></th>
 			<th><?php echo $this->Paginator->sort('age_min'); ?></th>
 			<th><?php echo $this->Paginator->sort('age_max'); ?></th>
-			<th><?php echo $this->Paginator->sort('description'); ?></th>
+			<th><?php echo '学年年齢'; ?></th>
 			<th><?php echo $this->Paginator->sort('needs_jcf'); ?></th>
 			<th><?php echo $this->Paginator->sort('needs_uci'); ?></th>
 			<th><?php echo $this->Paginator->sort('uci_age_limit'); ?></th>
@@ -31,9 +32,16 @@
 		<td><?php echo h($category['Category']['rank']); ?>&nbsp;</td>
 		<td><?php echo h($category['Category']['race_min']); ?>&nbsp;</td>
 		<td><?php echo h($category['Category']['gender']); ?>&nbsp;</td>
+		<td><?php echo h($category['Category']['is_aged_category'] ? 'Yes' : 'No'); ?>&nbsp;</td>
 		<td><?php echo h($category['Category']['age_min']); ?>&nbsp;</td>
 		<td><?php echo h($category['Category']['age_max']); ?>&nbsp;</td>
-		<td><?php echo h($category['Category']['description']); ?>&nbsp;</td>
+		<td><?php
+			if (is_null($category['Category']['school_year_min']) && is_null($category['Category']['school_year_max'])) {
+				echo '---';
+			} else {
+				echo $category['Category']['school_year_min'] . '〜'. $category['Category']['school_year_max'];
+			}
+		?>&nbsp;</td>
 		<td><?php echo h($category['Category']['needs_jcf']); ?>&nbsp;</td>
 		<td><?php echo h($category['Category']['needs_uci']); ?>&nbsp;</td>
 		<td><?php echo h($category['Category']['uci_age_limit']); ?>&nbsp;</td>

@@ -36,6 +36,11 @@
 			<?php echo h($category['Category']['gender']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('Aged Category?'); ?></dt>
+		<dd>
+			<?php echo h($category['Category']['is_aged_category'] == 1 ? 'Yes' : 'No'); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Age Min'); ?></dt>
 		<dd>
 			<?php echo h($category['Category']['age_min']); ?>
@@ -44,6 +49,16 @@
 		<dt><?php echo __('Age Max'); ?></dt>
 		<dd>
 			<?php echo h($category['Category']['age_max']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('学年年齢 Min'); ?></dt>
+		<dd>
+			<?php echo h($category['Category']['school_year_min']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('学年年齢 Max'); ?></dt>
+		<dd>
+			<?php echo h($category['Category']['school_year_max']); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('Description'); ?></dt>

@@ -3,15 +3,18 @@
 	<fieldset>
 		<legend><?php echo __('Edit Category'); ?></legend>
 	<?php
-		echo $this->Form->input('code');
-		echo $this->Form->input('name');
-		echo $this->Form->input('short_name');
+		echo $this->Form->input('code'); // hidden となる
+		echo $this->Form->input('name', array('type' => 'text'));
+		echo $this->Form->input('short_name', array('type' => 'text'));
 		echo $this->Form->input('category_group_id');
 		echo $this->Form->input('rank');
 		echo $this->Form->input('race_min');
 		echo $this->Form->input('gender');
+		echo $this->Form->input('is_aged_category');
 		echo $this->Form->input('age_min');
 		echo $this->Form->input('age_max');
+		echo $this->Form->input('school_year_min');
+		echo $this->Form->input('school_year_max');
 		echo $this->Form->input('description');
 		echo $this->Form->input('needs_jcf');
 		echo $this->Form->input('needs_uci');

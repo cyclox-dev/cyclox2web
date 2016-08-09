@@ -78,6 +78,13 @@ class Category extends AppModel {
 				'message' => '必須項目です。',
 			),
 		),
+		'is_aged_category' => array(
+			'boolean' => array(
+				'rule' => array('boolean'),
+				'allowEmpty' => true,
+				'message' => '正の整数を入力して下さい。',
+			),
+		),
 		'age_min' => array(
 			'naturalNumber' => array(
 				'rule' => array('naturalNumber'),
@@ -89,6 +96,20 @@ class Category extends AppModel {
 			'naturalNumber' => array(
 				'rule' => array('naturalNumber'),
 				'message' => '正の整数を入力して下さい。',
+				'allowEmpty' => true,
+			),
+		),
+		'school_year_min' => array(
+			'naturalNumber' => array(
+				'rule' => array('naturalNumber'),
+				'message' => '学年を4/1の年齢（整数）で指定して下さい。小学1年生が6、中学1年生が12です。',
+				'allowEmpty' => true,
+			),
+		),
+		'school_year_max' => array(
+			'naturalNumber' => array(
+				'rule' => array('naturalNumber'),
+				'message' => '学年を4/1の年齢（整数）で指定して下さい。小学1年生が6、中学1年生が12です。',
 				'allowEmpty' => true,
 			),
 		),
