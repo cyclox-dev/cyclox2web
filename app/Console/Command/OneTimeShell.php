@@ -9,6 +9,7 @@ App::uses('OrgUtilController', 'Controller');
 App::uses('RacerResultStatus', 'Cyclox/Const');
 App::uses('RacerEntryStatus', 'Cyclox/Const');
 App::uses('ResultParamCalcComponent', 'Controller/Component'); 
+App::uses('AgedCategoryComponent', 'Controller/Component'); 
 App::uses('CategoryReason', 'Cyclox/Const');
 
 /**
@@ -24,6 +25,7 @@ class OneTimeShell extends AppShell
 	
 	private $__apiController;
 	private $__resParamCalc;
+	private $__agedCatComp;
 	
 	public function main()
 	{
@@ -37,6 +39,9 @@ class OneTimeShell extends AppShell
 		
 		$collection = new ComponentCollection();
 		$this->__resParamCalc = new ResultParamCalcComponent($collection);
+		$this->__agedCatComp = new AgedCategoryComponent($collection);
+		
+		parent::startup();
 	}
 	
 	/**
@@ -929,5 +934,72 @@ class OneTimeShell extends AppShell
 		}
 		
 		$this->log('>>> End uniteRacer', LOG_DEBUG);
+	}
+	
+	/**
+	 * 選手統合処理を行なう
+	 * > cd app ディレクトリ
+	 * > Console/cake one_time setupAgedCategory 2015/12/31
+	 */
+	public function setupAgedCategory()
+	{
+		$date = date('Y/m/d');
+		
+		if (isset($this->args[0])) {
+			$date = $this->args[0];
+			if (DateTime::createFromFormat('Y-m-d', $date) !== FALSE) {
+				$this->log('1st arg is incorrect date format.');
+				return;
+			}
+		}
+		
+		$this->log('date is:' . $date, LOG_DEBUG);
+		
+		$offset = 0;
+		$limit = 100;
+		$index = 0;
+		
+		$this->log('>>> Start setupAgedCategory', LOG_INFO);
+		
+		// >>> Transaction
+		$transaction = $this->TransactionManager->begin();
+		
+		while (true) {
+			$opt = array(
+				'recursive' => -1,
+				'conditions' => array(
+					'Racer.deleted' => 0,
+				),
+				'offset' => $offset,
+				'limit' => $limit,
+			);
+			
+			$racers = $this->Racer->find('all', $opt);
+			
+			if (empty($racers)) {
+				$this->log('could not find racers... break.', LOG_DEBUG);
+				break;
+			}
+			
+			foreach ($racers as $r) {
+				++$index;
+				$this->log('index:' . $index . '[' . $r['Racer']['code'] . '] '
+						. $r['Racer']['family_name'] . ' ' . $r['Racer']['first_name']
+						. ' ' . $r['Racer']['birth_date'], LOG_DEBUG);
+				
+				if (!$this->__agedCatComp->checkAgedCategory($r['Racer']['code'], $date, false)) {
+					$this->log('code:' . $r['Racer']['code'] . ' の処理に失敗しました。', LOG_ERR);
+					$this->TransactionManager->rollback($transaction);
+					return;
+				}
+			}
+			
+			$offset += $limit;
+		}
+		
+		$this->TransactionManager->commit($transaction);
+		// <<< Transaction
+		
+		$this->log('<<< End setupAgedCategory', LOG_INFO);
 	}
 }
