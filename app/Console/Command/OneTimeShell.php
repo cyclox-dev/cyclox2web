@@ -5,6 +5,7 @@
  */
 
 App::uses('ApiController', 'Controller');
+App::uses('Gender', 'Cyclox/Const');
 App::uses('OrgUtilController', 'Controller');
 App::uses('RacerResultStatus', 'Cyclox/Const');
 App::uses('RacerEntryStatus', 'Cyclox/Const');
@@ -969,6 +970,8 @@ class OneTimeShell extends AppShell
 				'recursive' => -1,
 				'conditions' => array(
 					'Racer.deleted' => 0,
+					array('NOT' => array('birth_date' => null)),
+					array('NOT' => array('gender' => Gender::$UNASSIGNED->val())),
 				),
 				'offset' => $offset,
 				'limit' => $limit,
