@@ -190,7 +190,7 @@ class AgedCategoryComponent  extends Component
 			$dateMin = $year . '-04-01';
 		}
 		if (!empty($agedCat['Category']['school_year_min'])) {
-			$year = $this->__pullYear($birth) + $agedCat['Category']['school_year_min'] + 1;
+			$year = $this->__pullFY($birth) + $agedCat['Category']['school_year_min'] + 1;
 			$dt = $year . '-04-01';
 
 			if ($dateMin == null || $dt > $dateMin) {
@@ -211,7 +211,7 @@ class AgedCategoryComponent  extends Component
 	{
 		$dateMax = null;
 		if (!empty($agedCat['Category']['age_max'])) {
-			$year = $this->__pullFY($birth) + $agedCat['Category']['age_max'];
+			$year = $this->__pullYear($birth) + $agedCat['Category']['age_max'];
 			$dateMax = $year . '-03-31';
 		}
 		if (!empty($agedCat['Category']['school_year_max'])) {
