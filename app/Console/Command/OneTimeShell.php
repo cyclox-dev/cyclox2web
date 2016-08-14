@@ -956,7 +956,7 @@ class OneTimeShell extends AppShell
 		$this->log('date is:' . $date, LOG_DEBUG);
 		
 		$offset = 0;
-		$limit = 100;
+		$limit = 50;
 		$index = 0;
 		
 		$this->log('>>> Start setupAgedCategory', LOG_INFO);
@@ -983,9 +983,9 @@ class OneTimeShell extends AppShell
 			
 			foreach ($racers as $r) {
 				++$index;
-				$this->log('index:' . $index . '[' . $r['Racer']['code'] . '] '
+				$this->log('--- index:' . $index . ' [' . $r['Racer']['code'] . '] '
 						. $r['Racer']['family_name'] . ' ' . $r['Racer']['first_name']
-						. ' ' . $r['Racer']['birth_date'], LOG_DEBUG);
+						. ' ' . $r['Racer']['birth_date'] . ' gen:' . $r['Racer']['gender'], LOG_DEBUG);
 				
 				if (!$this->__agedCatComp->checkAgedCategory($r['Racer']['code'], $date, false)) {
 					$this->log('code:' . $r['Racer']['code'] . ' の処理に失敗しました。', LOG_ERR);

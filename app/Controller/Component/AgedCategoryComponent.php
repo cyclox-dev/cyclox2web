@@ -4,6 +4,7 @@
  *  created at 2016/08/10 by shun
  */
 App::uses('Component', 'Controller');
+App::uses('Gender', 'Cyclox/Const');
 App::uses('CategoryReason', 'Cyclox/Const');
 App::uses('TransactionManager', 'Model');
 App::uses('Racer', 'Model');
@@ -63,6 +64,13 @@ class AgedCategoryComponent  extends Component
 		
 		foreach ($this->agedCats as $agedCat) {
 			
+			$gen = $agedCat['Category']['gender'];
+			if ($gen != Gender::$UNASSIGNED->val()) {
+				if ($racer['Racer']['gender'] != $gen) {
+					continue;
+				}
+			}
+			
 			// 付与基準日から考えてその agedCat を与える必要があるかを判断
 			$applyDate = $this->__getMinAgedDate($agedCat, $birth);
 			$cancelDate = $this->__getMaxAgeDate($agedCat, $birth);
@@ -71,7 +79,7 @@ class AgedCategoryComponent  extends Component
 			
 			if ($cancelDate != null && $cancelDate < $baseDate) {
 				// 付与必要なし
-				if ($putsLog) $this->log('not need(over period)', LOG_DEBUG);
+				//if ($putsLog) $this->log('not need(over period)', LOG_DEBUG);
 				continue;
 			}
 			
@@ -85,14 +93,14 @@ class AgedCategoryComponent  extends Component
 					{
 						if ($cr['apply_date'] == $applyDate && $cr['cancel_date'] == $cancelDate) {
 							if ($findsCr) {
-								if ($putsLog) $this->log('cat:' . $cr['id'] . '/' . $cr['category_code'] . ' will be delete(duplicated).', LOG_DEBUG);
+								if ($putsLog) $this->log('cat:' . $cr['id'] . '/' . $cr['category_code'] . ' will be delete(duplicated).', LOG_INFO);
 								$deleteCrIds[] = $cr['id'];
 							} else {
-								if ($putsLog) $this->log('FINDS cat:' . $cr['id'] . '/' . $cr['category_code'], LOG_DEBUG);
+								if ($putsLog) $this->log('FINDS cat:' . $cr['id'] . '/' . $cr['category_code'], LOG_INFO);
 								$findsCr = true;
 							}
 						} else {
-							if ($putsLog) $this->log('cat:' . $cr['id'] . '/' . $cr['category_code'] . ' will be delete.', LOG_DEBUG);
+							if ($putsLog) $this->log('cat:' . $cr['id'] . '/' . $cr['category_code'] . ' will be delete.', LOG_INFO);
 							$deleteCrIds[] = $cr['id']; // 不適な日にち指定のものは削除してしまう。
 						}
 					}
@@ -100,7 +108,7 @@ class AgedCategoryComponent  extends Component
 			}
 			
 			if (!$findsCr) {
-				if ($putsLog) $this->log('not find and will create.', LOG_DEBUG);
+				if ($putsLog) $this->log('not find and will create.', LOG_INFO);
 				
 				// 新規に付与する必要あり
 				$newCr = array('CategoryRacer' => array(
@@ -178,11 +186,11 @@ class AgedCategoryComponent  extends Component
 	{
 		$dateMin = null;
 		if (!empty($agedCat['Category']['age_min'])) {
-			$year = $this->__pullYear($birth) + $agedCat['Category']['age_min']- 1;
+			$year = $this->__pullYear($birth) + $agedCat['Category']['age_min'] - 1;
 			$dateMin = $year . '-04-01';
 		}
 		if (!empty($agedCat['Category']['school_year_min'])) {
-			$year = $this->__pullYear($birth) + $agedCat['Category']['school_year_min'];
+			$year = $this->__pullYear($birth) + $agedCat['Category']['school_year_min'] + 1;
 			$dt = $year . '-04-01';
 
 			if ($dateMin == null || $dt > $dateMin) {
@@ -203,7 +211,7 @@ class AgedCategoryComponent  extends Component
 	{
 		$dateMax = null;
 		if (!empty($agedCat['Category']['age_max'])) {
-			$year = $this->__pullFY($birth) + $agedCat['Category']['age_max'] + 1;
+			$year = $this->__pullFY($birth) + $agedCat['Category']['age_max'];
 			$dateMax = $year . '-03-31';
 		}
 		if (!empty($agedCat['Category']['school_year_max'])) {
