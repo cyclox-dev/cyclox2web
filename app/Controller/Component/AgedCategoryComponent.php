@@ -161,19 +161,14 @@ class AgedCategoryComponent  extends Component
 			return true;
 		}
 		
-		$or = array();
 		foreach ($deleteIds as $did) {
-			$or[] = array('CategoryRacer.id' => $did);
+			if ($this->Category->delete($did)) { // soft.delete 適用のために deleteAll() は使用しない
+				$this->log('カテゴリー所属[id:' . $did .']の削除に失敗しました。', LOG_ERR);
+				return false;
+			}
 		}
 		
-		$opt = array( 'or' => $or );
-		
-		$ret = $this->CategoryRacer->deleteAll($opt);
-		if (!$ret) {
-			$this->log('カテゴリー所属の削除に失敗しました。', LOG_ERR);
-		}
-		
-		return $ret;
+		return true;
 	}
 	
 	/**
