@@ -166,7 +166,7 @@ class AgedCategoryComponent  extends Component
 			$or[] = array('CategoryRacer.id' => $did);
 		}
 		
-		$opt = array( 'or' => array( $or ) );
+		$opt = array( 'or' => $or );
 		
 		$ret = $this->CategoryRacer->deleteAll($opt);
 		if (!$ret) {
