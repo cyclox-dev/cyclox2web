@@ -2,13 +2,13 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 /* Drop Tables */
 
-DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS category_racers;
+DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
+DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS time_records;
 DROP TABLE IF EXISTS hold_points;
-DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
 DROP TABLE IF EXISTS entry_categories;
@@ -42,8 +42,14 @@ CREATE TABLE categories
 	rank tinyint unsigned,
 	race_min smallint unsigned,
 	gender tinyint NOT NULL,
+	-- 年齢により決定されるカテゴリーであるか
+	is_aged_category tinyint(1) DEFAULT 0 NOT NULL,
 	age_min smallint unsigned DEFAULT 0,
 	age_max smallint unsigned DEFAULT 999,
+	-- 学年開始時の年齢で指定する最小年齢。小1ならば6、中1ならば12となる。
+	school_year_max smallint(5),
+	-- 学年開始時の年齢で指定する最大学年。小1ならば6、中1ならば12となる。
+	school_year_min smallint(5),
 	description text NOT NULL,
 	needs_jcf tinyint NOT NULL,
 	needs_uci tinyint NOT NULL,
