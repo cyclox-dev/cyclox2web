@@ -1042,7 +1042,7 @@ class ResultParamCalcComponent extends Component
 	private function _isSeasonBefore1617()
 	{
 		if (empty($this->__atDate)) {
-			return true; // unlikely... 本メソッドを作成したのが1617なので巻き戻りはなしので true かえす。
+			return false; // unlikely... 本メソッドを作成したのが1617なので巻き戻りはなしので false かえす。
 		}
 		
 		return ($this->__atDate < '2016-04-01');
