@@ -36,6 +36,9 @@ class ResultParamCalcComponent extends Component
 	private $__meetCode;
 	
 	private $__rankUpMap;
+	private $__rule0111 = array(
+		array('racer_count' => 10, 'up' => 1),
+	);
 	private $__rule0123 = array(
 		array('racer_count' => 50, 'up' => 3),
 		array('racer_count' => 20, 'up' => 2),
@@ -117,6 +120,8 @@ class ResultParamCalcComponent extends Component
 		}
 		
 		$this->__setupParams($results);
+		$this->__setupMeetParams($ecat);
+		$this->__setupRankUpRules();
 		
 		// ajocc point の適用
 		foreach ($results as $result) {
@@ -143,8 +148,6 @@ class ResultParamCalcComponent extends Component
 				// not break
 			}
 		}
-		
-		$this->__setupMeetParams($ecat);
 		
 		if (empty($this->__atDate) || empty($this->__meetCode)) {
 			return Constant::RET_ERROR;
@@ -630,9 +633,11 @@ class ResultParamCalcComponent extends Component
 		
 		// 人数と順位についてチェック
 		$rankUpCount = 0;
+		$baseCount = $this->_isSeasonBefore1617() ? $this->__finished : $this->__started;
+		// 2016-17 から出走人数に
 		for ($i = 0; $i < count($rule); $i++) {
 			$racerCount = $rule[$i]['racer_count'];
-			if ($this->__finished >= $racerCount) {
+			if ($baseCount >= $racerCount) {
 				$rankUpCount = $rule[$i]['up'];
 				break;
 			}
@@ -942,20 +947,7 @@ class ResultParamCalcComponent extends Component
 	 * @return boolean ただしく計算できたか
 	 */
 	private function __setupParams($results)
-	{
-		// 文字列で判断する
-		// パラメタから処理したいが、複雑なのでやめておく。
-		// racesCatCode => array('needs' => 必要な所属, 'to' =>昇格先)
-		$this->__rankUpMap = array(
-			'C2' => array('needs' => array('C2'), 'to' => 'C1', 'rule' => $this->__rule0123),
-			'C3' => array('needs' => array('C3'), 'to' => 'C2', 'rule' => $this->__rule0123),
-			'C4' => array('needs' => array('C4'), 'to' => 'C3', 'rule' => $this->__rule0123),
-			'C3+4' => array('needs' => array('C3', 'C4'), 'to' => 'C2', 'rule' => $this->__rule0123),
-			'CM2' => array('needs' => array('CM2'), 'to' => 'CM1', 'rule' => $this->__rule0112),
-			'CM3' => array('needs' => array('CM3'), 'to' => 'CM2', 'rule' => $this->__rule0123),
-			'CM2+3' => array('needs' => array('CM2', 'CM3'), 'to' => 'CM1', 'rule' => $this->__rule0112),
-		);
-		
+	{	
 		$this->TransactionManager = new TransactionManager();
 		
 		$this->Racer = new Racer();
@@ -1016,24 +1008,61 @@ class ResultParamCalcComponent extends Component
 	}
 	
 	/**
+	 * 昇格ルールパラメタを作成する
+	 */
+	private function __setupRankUpRules()
+	{	
+		// BETAG
+		
+		// 文字列で判断する
+		// パラメタから処理したいが、複雑なのでやめておく。
+		// racesCatCode => array('needs' => 必要な所属, 'to' =>昇格先)
+		$this->__rankUpMap = array(
+			'C2' => array('needs' => array('C2'), 'to' => 'C1', 'rule' => $this->__rule0111),
+			'C3' => array('needs' => array('C3'), 'to' => 'C2', 'rule' => $this->__rule0123),
+			'C4' => array('needs' => array('C4'), 'to' => 'C3', 'rule' => $this->__rule0123),
+			'C3+4' => array('needs' => array('C3', 'C4'), 'to' => 'C2', 'rule' => $this->__rule0123),
+			'CM2' => array('needs' => array('CM2'), 'to' => 'CM1', 'rule' => $this->__rule0111),
+			'CM3' => array('needs' => array('CM3'), 'to' => 'CM2', 'rule' => $this->__rule0123),
+			'CM2+3' => array('needs' => array('CM2', 'CM3'), 'to' => 'CM1', 'rule' => $this->__rule0111),
+		);
+		
+		if ($this->_isSeasonBefore1617()) {
+			// 2015-16 シーズンは C2, CM2 ともに昇格人数が1人に制限される前だった
+			$this->__rankUpMap['C2']['rule'] = $this->__rule0123;
+			$this->__rankUpMap['CM2']['rule'] = $this->__rule0112;
+			$this->__rankUpMap['C2+3']['rule'] = $this->__rule0112;
+		}
+	}
+	
+	/**
+	 * 2016-17 シーズンより前のシーズンであるかをかえす
+	 * @return boolean 
+	 */
+	private function _isSeasonBefore1617()
+	{
+		if (empty($this->__atDate)) {
+			return true; // unlikely... 本メソッドを作成したのが1617なので巻き戻りはなしので true かえす。
+		}
+		
+		return ($this->__atDate < '2016-04-01');
+	}
+	
+	/**
 	 * $atDate メンバをセットする
 	 * @param array $ecat 出走カテゴリー情報 key 'EntryCategory' 以下の配列
 	 */
 	private function __setupMeetParams($ecat) {
+		$this->__atDate = null;
+		$this->__meetCode = null;
+
 		if (empty($ecat) || empty($ecat['entry_group_id'])) {
-			$this->__atDate = null;
-			$this->__meetCode = null;
+			return;
 		}
 		
 		$egroup = $this->EntryGroup->find('first', array('conditions' => array('EntryGroup.id' => $ecat['entry_group_id'])));
-		if (empty($egroup)) {
-			$this->__atDate = null;
-			$this->__meetCode = null;
-		} else {
-			if (empty($egroup['Meet']['at_date'])) {
-				$this->__atDate = null;
-				$this->__meetCode = null;
-			} else {
+		if (!empty($egroup)) {
+			if (!empty($egroup['Meet']['at_date'])) {
 				$this->__atDate = $egroup['Meet']['at_date'];
 				$this->__meetCode = $egroup['Meet']['code'];
 			}
