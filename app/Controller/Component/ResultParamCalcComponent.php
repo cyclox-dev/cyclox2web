@@ -271,6 +271,11 @@ class ResultParamCalcComponent extends Component
 					$er = $result['EntryRacer'];
 					$r = $result['RacerResult'];
 
+					$isOpenRacer = ($result['EntryRacer']['entry_status'] == RacerEntryStatus::$OPEN->val());
+					if ($isOpenRacer) {
+						continue;
+					}
+					
 					if (empty($r['rank'])) {
 						continue;
 					}
@@ -309,7 +314,7 @@ class ResultParamCalcComponent extends Component
 						}
 						if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
 							$this->log('昇格適用に失敗しました。');
-							// continue
+							return false;
 						}
 					}
 				}

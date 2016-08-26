@@ -161,7 +161,13 @@
 			<?php foreach ($results as $result): ?>
 				<tr>
 					<td><?php echo $result['RacerResult']['id']; ?></td>
-					<td><?php echo $result['RacerResult']['rank']; ?></td>
+					<td><?php 
+						if (RacerEntryStatus::ofVal($result['EntryRacer']['entry_status']) == RacerEntryStatus::$OPEN) {
+							echo RacerEntryStatus::$OPEN->msg();
+						} else {
+							echo $result['RacerResult']['rank'];
+						}
+					?></td>
 					<td><?php echo RacerResultStatus::ofVal($result['RacerResult']['status'])->code(); ?></td>
 					<td><?php echo $result['EntryRacer']['body_number']; ?></td>
 					<td><?php echo $this->Html->link($result['EntryRacer']['racer_code'], array('controller' => 'racers', 'action' => 'view', $result['EntryRacer']['racer_code'])); ?></td>
