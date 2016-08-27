@@ -682,7 +682,7 @@ class ResultParamCalcComponent extends Component
 			$calc = PointCalculator::getCalculator($ptSetting['PointSeries']['calc_rule']);
 			if (empty($calc)) return;
 			
-			$pt = $calc->calc($result, $ptSetting['MeetPointSeries']['grade'], $this->__topLapCount, $this->__started);
+			$pt = $calc->calc($result, $ptSetting['MeetPointSeries']['grade'], $this->__topLapCount, $this->__started, $this->__atDate);
 			if (!empty($pt)) {
 				$psr = array();
 				$psr['PointSeriesRacer'] = array(

@@ -74,13 +74,14 @@ class PointCalculator extends Object
 	 * @param type $grade
 	 * @param int $raceLapCount レーストップの周回数
 	 * @param int $raceStartedCount レース出走人数
+	 * @param date $meetDate 大会開催日
 	 * @return int 点数配列 array('point' => point, 'bonus' => bonus)。付与するポイントが皆無の場合、null をかえす。
 	 */
-	public function calc($result, $grade, $raceLapCount, $raceStartedCount) {
+	public function calc($result, $grade, $raceLapCount, $raceStartedCount, $meetDate) {
 		$pt = null;
 		switch ($this->val()) {
-			case self::$JCX_156->val(): $pt = $this->__calcJCXElite156($result, $grade, $raceLapCount, $raceStartedCount); break;
-			case self::$KNS_156->val(): $pt = $this->__calcKNS156($result, $grade, $raceLapCount, $raceStartedCount); break;
+			case self::$JCX_156->val(): $pt = $this->__calcJCXElite156($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
+			case self::$KNS_156->val(): $pt = $this->__calcKNS156($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 		}
 		
 		if (empty($pt['point']) && empty($pt['bonus'])) {
@@ -90,7 +91,16 @@ class PointCalculator extends Object
 		return $pt;
 	}
 	
-	private function __calcJCXElite156($result, $grade, $raceLapCount, $raceStartedCount)
+	/**
+	 * 2015-16シーズンに設定された JCX ポイントをかえす。16-17 のボーナスポイント変更(20->10)も適用済み。
+	 * @param type $result 選手ごとリザルト
+	 * @param type $grade グレードはこのポイントテーブルでは関係しない。
+	 * @param type $raceLapCount レーストップの周回数
+	 * @param int $raceStartedCount レース出走人数
+	 * @param date $meetDate 大会開催日
+	 * @return int ポイント。取得ポイントがない場合は null をかえす。
+	 */
+	private function __calcJCXElite156($result, $grade, $raceLapCount, $raceStartedCount, $meetDate)
 	{
 		//$this->log('grade:' . $grade . ' result:', LOG_DEBUG);
 		//$this->log($result, LOG_DEBUG);
@@ -141,7 +151,7 @@ class PointCalculator extends Object
 		
 		// 同一周回ならば +20pt
 		if ($result['lap'] >= $raceLapCount && $result['status'] == RacerResultStatus::$FIN->val()) {
-			$pointMap['bonus'] = 20;
+			$pointMap['bonus'] = $this->_isSeasonBefore1617($meetDate) ? 20 : 10; // 16-17 から 10pt に変更
 		}
 
 		return $pointMap;
@@ -175,9 +185,10 @@ class PointCalculator extends Object
 	 * @param type $grade グレードはこのポイントテーブルでは関係しない。
 	 * @param type $raceLapCount レーストップの周回数
 	 * @param int $raceStartedCount レース出走人数
+	 * @param date $meetDate 大会開催日
 	 * @return int ポイント。取得ポイントがない場合は null をかえす。
 	 */
-	private function __calcKNS156($result, $grade, $raceLapCount, $raceStartedCount) {
+	private function __calcKNS156($result, $grade, $raceLapCount, $raceStartedCount, $meetDate) {
 		
 		//$this->log('grade:' . $grade . ' result:', LOG_DEBUG);
 		//$this->log($result, LOG_DEBUG);
@@ -213,5 +224,20 @@ class PointCalculator extends Object
 		
 		return $pointMap;
 	}
+	
+	/**
+	 * 2016-17 シーズンより前のシーズンであるかをかえす
+	 * @param date $date 日付
+	 * @return boolean 
+	 */
+	private function _isSeasonBefore1617($date)
+	{
+		if (empty($date)) {
+			return false; // unlikely... 本メソッドを作成したのが1617なので巻き戻りはなしので false かえす。
+		}
+		
+		return ($date < '2016-04-01');
+	}
+
 }
 PointCalculator::init();
