@@ -14,7 +14,7 @@
 			<th><?php echo $this->Paginator->sort('short_name', '短縮名'); ?></th>
 			<th><?php echo $this->Paginator->sort('calc_rule', '配点ルール'); ?></th>
 			<th><?php echo $this->Paginator->sort('sum_up_rule', '集計ルール'); ?></th>
-			<th><?php echo $this->Paginator->sort('point_to', 'PointTo'); ?></th>
+			<!--<th><?php echo $this->Paginator->sort('point_to', 'PointTo'); ?></th><!-- -->
 			<th><?php echo $this->Paginator->sort('point_term_rule', '期間ルール'); ?></th>
 			<th><?php echo $this->Paginator->sort('season_id'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
@@ -32,9 +32,9 @@
 		<td><?php
 			echo h(PointSeriesSumUpRule::ruleAt($pointSeries['PointSeries']['sum_up_rule'])->title());
 		?>&nbsp;</td>
-		<td><?php
+		<!--<td><?php
 			echo h(PointSeriesPointTo::pointToAt($pointSeries['PointSeries']['point_to'])->title());
-		?>&nbsp;</td>
+		?>&nbsp;</td><!-- -->
 		<td><?php
 			echo h(PointSeriesTermOfValidityRule::ruleAt($pointSeries['PointSeries']['point_term_rule'])->title());
 		?>&nbsp;</td>

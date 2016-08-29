@@ -3,6 +3,8 @@
 	<fieldset>
 		<legend><?php echo __('Add Point Series'); ?></legend>
 	<?php
+		App::uses('PointSeriesPointTo', 'Cyclox/Const');
+
 		echo $this->Form->input('name', array('label' => 'シリーズタイトル'));
 		echo $this->Form->input('short_name', array('label' => '短縮タイトル'));
 		echo $this->Form->input('description', array('label' => '詳細'));
@@ -23,7 +25,9 @@
 		foreach ($pointTos as $to) {
 			$toRules[$to->val()] = $to->title();
 		}
-		echo $this->Form->input('point_to', array('label' => '付与対象', 'options' => $toRules));
+		// hidden にして値を to team に固定
+		//echo $this->Form->input('point_to', array('label' => '付与対象', 'options' => $toRules));
+		echo $this->Form->hidden('point_to', array('value' => PointSeriesPointTo::$TO_RACER->val()));
 		
 		$termSelects = array();
 		foreach ($termRules as $rule) {
