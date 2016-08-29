@@ -25,7 +25,7 @@ $(document).ready(function(){
 		<legend><?php echo __('ポイントシリーズ - 大会設定の追加'); ?></legend>
 	<?php
 		echo $this->Form->input('point_series_id', array('label' => 'ポイントシリーズ'));
-		echo $this->Form->input('express_in_series', array('label' => 'シリーズ内での名称（例：#2菅生）'));
+		echo $this->Form->input('express_in_series', array('label' => 'シリーズ内での名称（例：#2菅生／ランキング表上での大会タイトルとなる。）'));
 		echo $this->Form->input('meet_code', array('label' => '大会コード'));
 		echo $this->Form->input('entry_category_name', array('label' => '出走カテゴリー名'));
 		echo $this->Form->input('grade', array('label' => 'ポイントテーブルのグレード／詳細は配点設定を確認して下さい。'));
@@ -44,7 +44,7 @@ $(document).ready(function(){
 			'div' => 'point_term_begin'
 		));
 		echo $this->Form->input('point_term_end', array(
-			'label' => 'ポイント有効期間の終了日／終了日はポイント有効／終了日が必要な場合、配点時に自動的に設定されます。',
+			'label' => 'ポイント有効期間の終了日／終了日はポイント有効。シリーズ自体に期限設定がある場合、リザルト計算時に自動的に設定されます。',
 			'dateFormat' => 'YMD',
 			'monthNames' => false,
 			// 以下空の値 (->null) の表示設定
