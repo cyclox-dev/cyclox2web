@@ -46,12 +46,13 @@ class MeetPointSeriesController extends AppController {
  *
  * @return void
  */
-	public function add() {
+	public function add($pointSeriesId = null) {
 		if ($this->request->is('post')) {
 			$this->MeetPointSeries->create();
 			if ($this->MeetPointSeries->save($this->request->data)) {
 				$this->Session->setFlash(__('The meet point series has been saved.'));
-				return $this->redirect(array('action' => 'index'));
+				// シリーズにリダイレクト
+				return $this->redirect('/point_series/view/' . $this->request->data['MeetPointSeries']['point_series_id']);
 			} else {
 				$this->Session->setFlash(__('The meet point series could not be saved. Please, try again.'));
 			}
@@ -59,6 +60,10 @@ class MeetPointSeriesController extends AppController {
 		$pointSeries = $this->MeetPointSeries->PointSeries->find('list');
 		$meets = $this->MeetPointSeries->Meet->find('list');
 		$this->set(compact('pointSeries', 'meets'));
+		
+		if ($pointSeriesId != null) {
+			$this->set('psid', $pointSeriesId);
+		}
 	}
 
 /**

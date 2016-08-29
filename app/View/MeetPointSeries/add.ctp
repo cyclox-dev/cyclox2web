@@ -22,9 +22,19 @@ $(document).ready(function(){
 <div class="meetPointSeries form">
 <?php echo $this->Form->create('MeetPointSeries'); ?>
 	<fieldset>
-		<legend><?php echo __('ポイントシリーズ - 大会設定の追加'); ?></legend>
+		<legend><?php
+			if (isset($psid)) {
+				echo __('ポイントシリーズ [id:%s] への大会設定の追加', $psid);
+			} else {
+				echo __('ポイントシリーズ - 大会設定の追加');
+			}
+		?></legend>
 	<?php
-		echo $this->Form->input('point_series_id', array('label' => 'ポイントシリーズ'));
+		if (isset($psid)) {
+			echo $this->Form->hidden('point_series_id', array('value' => $psid));
+		} else {
+			echo $this->Form->input('point_series_id', array('label' => 'ポイントシリーズ'));
+		}
 		echo $this->Form->input('express_in_series', array('label' => 'シリーズ内での名称（例：#2菅生／ランキング表上での大会タイトルとなる。）'));
 		echo $this->Form->input('meet_code', array('label' => '大会コード'));
 		echo $this->Form->input('entry_category_name', array('label' => '出走カテゴリー名'));

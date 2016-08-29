@@ -102,6 +102,12 @@
 </div>
 <div class="related">
 	<h3><?php echo __('対象レース'); ?></h3>
+	<div class="actions">
+		<ul>
+			<li><?php echo $this->Html->link(__('対象レースを追加')
+				, '/meet_point_series/add/' . $pointSeries['PointSeries']['id']); ?> </li>
+		</ul>
+	</div>
 	<?php if (!empty($pointSeries['MeetPointSeries'])): ?>
 	<table cellpadding = "0" cellspacing = "0">
 	<tr>
@@ -134,10 +140,4 @@
 	<?php endforeach; ?>
 	</table>
 <?php endif; ?>
-
-	<div class="actions">
-		<ul>
-			<li><?php echo $this->Html->link(__('New Meet Point Series'), array('controller' => 'meet_point_series', 'action' => 'add')); ?> </li>
-		</ul>
-	</div>
 </div>
