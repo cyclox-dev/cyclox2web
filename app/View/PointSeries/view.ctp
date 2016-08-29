@@ -58,6 +58,11 @@
 			<?php echo $this->Html->link($pointSeries['Season']['name'], array('controller' => 'seasons', 'action' => 'view', $pointSeries['Season']['id'])); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('ヒント'); ?></dt>
+		<dd>
+			<?php echo h($pointSeries['PointSeries']['hint']); ?>
+			&nbsp;
+		</dd>
 	</dl>
 <p style="height: 1em"></p>
 <h3>Status</h3>

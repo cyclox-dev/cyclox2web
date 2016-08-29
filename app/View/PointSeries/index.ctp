@@ -17,6 +17,7 @@
 			<!--<th><?php echo $this->Paginator->sort('point_to', 'PointTo'); ?></th><!-- -->
 			<th><?php echo $this->Paginator->sort('point_term_rule', '期間ルール'); ?></th>
 			<th><?php echo $this->Paginator->sort('season_id'); ?></th>
+			<th><?php echo $this->Paginator->sort('hint'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>
@@ -42,6 +43,7 @@
 			<?php echo $this->Html->link($pointSeries['Season']['short_name'], array('controller' => 'seasons', 'action' => 'view', $pointSeries['Season']['id'])); ?>
 			&nbsp;
 		</td>
+		<td><?php echo h($pointSeries['PointSeries']['hint']); ?>&nbsp;</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $pointSeries['PointSeries']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $pointSeries['PointSeries']['id'])); ?>

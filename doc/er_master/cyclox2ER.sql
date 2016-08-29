@@ -2,13 +2,13 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 /* Drop Tables */
 
-DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS category_races_categories;
+DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
-DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS time_records;
 DROP TABLE IF EXISTS hold_points;
+DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
 DROP TABLE IF EXISTS entry_categories;
@@ -304,6 +304,8 @@ CREATE TABLE point_series
 	point_to tinyint unsigned NOT NULL,
 	point_term_rule tinyint unsigned DEFAULT 1,
 	season_id int unsigned,
+	-- 集計などのヒント（上位何戦までを比較するか）。基本的には key:value,key:value,,, と記入する。
+	hint varchar(255) BINARY,
 	created datetime,
 	modified datetime,
 	deleted_date datetime,
