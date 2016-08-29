@@ -20,6 +20,10 @@ class RankingPointUnit
  */
 class PointSeriesSumUpRule extends Object
 {
+	const HINT_DIV = ',';
+	const HINT_KVDIV = ':';
+	const KEY_JCX156_SUMUP_RACE_COUNT = 'race_count';
+	
 	public static $JCX_156;
 	public static $KNS_156;
 	
@@ -40,8 +44,6 @@ class PointSeriesSumUpRule extends Object
 			self::$KNS_156,
 		);
 	}
-	
-	//point to をオブジェクト化
 	
 	/**
 	 * 指定値のルールをかえす
@@ -83,9 +85,10 @@ class PointSeriesSumUpRule extends Object
 	 * 集計する
 	 * @param type $racerPointMap 選手コードをキー値として、大会獲得順に並んでいる。
 	 * @param array $hints $racerPointMap の中のインデックスに対応したヒント
+	 * @param string $seriesHint ポイントシリーズに設定されたヒント
 	 * @return ランキングと集計ポイント（メソッド冒頭参照）
 	 */
-	public function calc($racerPointMap = array(), $hints = array())
+	public function calc($racerPointMap = array(), $hints = array(), $seriesHint = "")
 	{
 		/* パラメタ $racerPointMap は以下の様な array
 		array(
@@ -107,9 +110,8 @@ class PointSeriesSumUpRule extends Object
 		
 		$ranking = null;
 		switch ($this->val()) {
-			case self::$JCX_156->val(): $ranking = $this->__calcJCX156($racerPointMap, $hints); break;
-			case self::$KNS_156->val(): $ranking = $this->__calcKNS156($racerPointMap, $hints); break;
-			case self::$TOTAL_UP->val(): $ranking = $this->__calcTotalUp($racerPointMap, $hints); break;
+			case self::$JCX_156->val(): $ranking = $this->__calcJCX156($racerPointMap, $hints, $seriesHint); break;
+			case self::$KNS_156->val(): $ranking = $this->__calcKNS156($racerPointMap, $hints, $seriesHint); break;
 		}
 		
 		return $ranking;
@@ -119,13 +121,16 @@ class PointSeriesSumUpRule extends Object
 	 * JCX2015-16 ランキングを集計する
 	 * @param type $racerPointMap 選手コードをキー値として、大会獲得順に並んでいる。
 	 */
-	public function __calcJCX156($racerPointMap = array(), $hints = array())
+	public function __calcJCX156($racerPointMap = array(), $hints = array(), $seriesHint = "")
 	{
 		$requiredIndices = array();
 		for ($i = 0; $i < count($hints); $i++) {
 			$hint = $hints[$i];
 			$requiredIndices[] = $this->_requiredMeetPS($hint);
 		}
+		
+		$shint = $this->__getSeriesHints($seriesHint);
+		$maxSumupRaceCount = $this->__getJcxMaxRaceCount($shint);
 		
 		$rankPtUits = array();
 		foreach ($racerPointMap as $rcode => $points) {
@@ -157,7 +162,7 @@ class PointSeriesSumUpRule extends Object
 			
 			usort($outReqs, array($this, '__comparePoint'));
 			
-			for ($i = 0; $i < count($outReqs) && $i < 6; $i++) {
+			for ($i = 0; $i < count($outReqs) && $i < $maxSumupRaceCount; $i++) {
 				$point = $outReqs[$i];
 				$pt += $point['pt'] + $point['bonus'];
 				$sq += ($point['pt'] + $point['bonus']) * ($point['pt'] + $point['bonus']);
@@ -185,6 +190,53 @@ class PointSeriesSumUpRule extends Object
 		$rMap['ranking'] = $rankPtUits;
 		
 		return $rMap;
+	}
+	
+	/**
+	 * ヒント文字列からヒント配列を得る
+	 * @param string $str ヒント文字列 key1:value1,key2:value2,,, と並んでいる
+	 * @return $str を配列化したもの
+	 */
+	private function __getSeriesHints($str)
+	{
+		if (empty($str)) {
+			return array();
+		}
+		
+		$list = explode(self::HINT_DIV, $str);
+		$rList = array();
+		
+		foreach ($list as $val) {
+			$vals = explode(self::HINT_KVDIV, $val);
+			if (count($vals) > 1) {
+				$rList[$vals[0]] = $vals[1];
+			} else {
+				$rList[] = $vals[0];
+			}
+		}
+		
+		return $rList;
+	}
+	
+	/**
+	 * series hint から JCX の集計最大レース数（require を除く）をかえす。
+	 * @param array $seriesHint 
+	 * @return int もし最大レース数が見つからない場合、int の最大値をかえす。
+	 */
+	private function __getJcxMaxRaceCount($seriesHint)
+	{
+		$maxCount = PHP_INT_MAX;
+		
+		if (is_array($seriesHint)) {
+			if (array_key_exists(self::KEY_JCX156_SUMUP_RACE_COUNT, $seriesHint)) {
+				$val = $seriesHint[self::KEY_JCX156_SUMUP_RACE_COUNT];
+				if (is_numeric($val)) { // <-- is_int() は使えない
+					$maxCount = intval($val);
+				}
+			}
+		}
+		
+		return $maxCount;
 	}
 	
 	/**
@@ -267,7 +319,7 @@ class PointSeriesSumUpRule extends Object
 	 * 
 	 * @param type $racerPointMap 選手コードをキー値として、大会獲得順に並んでいる。
 	 */
-	public function __calcKNS156($racerPointMap = array(), $hints = array())
+	public function __calcKNS156($racerPointMap = array(), $hints = array(), $seriesHint = "")
 	{
 		// 選手ごと合計値を計算
 		$i = 0;
@@ -317,11 +369,6 @@ class PointSeriesSumUpRule extends Object
 	static function __compareOfKNS156(RankingPointUnit $a, RankingPointUnit $b)
 	{
 		return $b->rankPt[0] - $a->rankPt[0];
-	}
-	
-	public function __calcTotalUp($racerPointMap = array(), $hints = array())
-	{
-		// 2015-1116 に作成した関西の処理で良いかも。
 	}
 }
 PointSeriesSumUpRule::init();

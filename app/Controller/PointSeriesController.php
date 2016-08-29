@@ -250,7 +250,7 @@ class PointSeriesController extends AppController
 		}
 		
 		//$this->log($racerPoints, LOG_DEBUG);
-		$ranking = $sumUpRule->calc($racerPoints, $hints);
+		$ranking = $sumUpRule->calc($racerPoints, $hints, $ps['PointSeries']['hint']);
 		
 		if (empty($ranking)) {
 			throw new InternalErrorException('could not sum up ranking...');
