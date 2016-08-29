@@ -40,7 +40,7 @@ $(document).ready(function(){
 		}
 		
 		if (isset($racerCode)) {
-			echo $this->Form->hidden('racer_code');
+			echo $this->Form->hidden('racer_code', array('value' => $racerCode));
 		} else {
 			echo $this->Form->input('racer_code', array('label' => '選手 Code'));
 		}

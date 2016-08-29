@@ -88,7 +88,7 @@ class CategoryRacersController extends ApiBaseController
 				//$this->log($this->CategoryRacer->getDataSource()->getLog(), LOG_DEBUG);
 				
 				$this->Session->setFlash(__('The category racer has been saved.'));
-				return $this->redirect('/category_racers/view/' . $this->CategoryRacer->id);
+				return $this->redirect('/racers/view/' . $this->request->data['CategoryRacer']['racer_code']);
 			} else {
 				$this->Session->setFlash(__('The category racer could not be saved. Please, try again.'));
 			}
@@ -101,7 +101,6 @@ class CategoryRacersController extends ApiBaseController
 		
 		if ($racerCode != null)  {
 			$this->set('racerCode', $racerCode);
-			$this->request->data['CategoryRacer']['racer_code'] = $racerCode;
 		}
 	}
 	
