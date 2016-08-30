@@ -15,7 +15,7 @@
 			<th><?php echo $this->Paginator->sort('calc_rule', '配点ルール'); ?></th>
 			<th><?php echo $this->Paginator->sort('sum_up_rule', '集計ルール'); ?></th>
 			<!--<th><?php echo $this->Paginator->sort('point_to', 'PointTo'); ?></th><!-- -->
-			<th><?php echo $this->Paginator->sort('point_term_rule', '期間ルール'); ?></th>
+			<th><?php echo $this->Paginator->sort('point_term_rule', 'Pt期間'); ?></th>
 			<th><?php echo $this->Paginator->sort('season_id'); ?></th>
 			<th><?php echo $this->Paginator->sort('hint'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
