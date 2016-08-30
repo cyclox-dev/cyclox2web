@@ -17,6 +17,34 @@ class PointCalculator extends Object
 	public static $JCX_156;
 	public static $KNS_156;
 	
+	public static $TABLE_JCX156_GRADE1 = array(
+		300, 240, 210, 180, 165, 150, 135, 120, 105, 90, 
+		87,  84,  81,  78,  75,  72,  69,  66,  63, 60,
+		58,  56,  54,  52,  50,  48,  46,  44,  42, 40,
+		39,  38,  37,  36,  35,  34,  33,  32,  31, 30,
+		29,  28,  27,  26,  25,  24,  23,  22,  21, 20,
+	);
+	const RUN_PT_JCX156_GRACE1 = 10; // 51位以下のポイント
+	public static $TABLE_JCX156_GRADE2 = array(
+		200, 160, 140, 120, 110, 100, 90,  80,  70,  60,
+		58,  56,  54,  52,  50,  48,  46,  44,  42,  40,
+		39,  38,  37,  36,  35,  34,  33,  32,  31,  30,
+		29,  28,  27,  26,  25,  24,  23,  22,  21,  20,
+		19,  18,  17,  16,  15,  14,  13,  12,  11,  10,
+	);
+	const RUN_PT_JCX156_GRACE2 = 5; // 51位以下のポイント
+	const JCX156_BONUS_TO156 = 20;
+	const JCX156_BONUS_167TO = 10;
+	
+	public static $TABLE_KNS156 = array(
+		200, 160, 140, 120, 110, 100, 90,  80,  70,  60,
+		58,  56,  54,  52,  50,  48,  46,  44,  42,  40,
+		39,  38,  37,  36,  35,  34,  33,  32,  31,  30,
+		29,  28,  27,  26,  25,  24,  23,  22,  21,  20,
+		19,  18,  17,  16,  15,  14,  13,  12,  11,  10,
+	);
+	const RUN_PT_KNS156 = 5;
+	
 	private static $calculators;
 	
 	public static function calculators()
@@ -26,8 +54,48 @@ class PointCalculator extends Object
 	
 	public static function init()
 	{
-		self::$JCX_156 = new PointCalculator(1, 'JCX-156', '2015-16 JCX で使用するポイントテーブル。');
-		self::$KNS_156 = new PointCalculator(2, 'KNS-156', '2015-16 関西クロスで使用するポイントテーブル。配点は JCX ポイントと同じ。完走ボーナスは無し。');
+		$str = '';
+		for ($i = 0; $i < count(self::$TABLE_JCX156_GRADE1); $i++) {
+			$str .= ' ' . self::$TABLE_JCX156_GRADE1[$i] . ',';
+			if (($i + 1) % 10 == 0) {
+				$str .= '</br>';
+			}
+		}
+		$str2 = '';
+		for ($i = 0; $i < count(self::$TABLE_JCX156_GRADE2); $i++) {
+			$str2 .= ' ' . self::$TABLE_JCX156_GRADE2[$i] . ',';
+			if (($i + 1) % 10 == 0) {
+				$str2 .= '</br>';
+			}
+		}
+		$text = '2015-16シーズンの JCX シリーズにて採用されたポイント付与ルール。</br>'
+			. 'シリーズレース設定では必ずグレードを指定すること。グレードは 1 もしくは 2 を指定する。</br>'
+			. '---</br>'
+			. 'Grade1 のポイントテーブルは以下のとおり</br>'
+			. $str
+			. (count(self::$TABLE_JCX156_GRADE1) + 1) . '位以下:' . self::RUN_PT_JCX156_GRACE1 . '</br>'
+			. '---</br>Grade2 のポイントテーブルは以下のとおり</br>'
+			. $str2
+			. (count(self::$TABLE_JCX156_GRADE2) + 1) . '位以下:' . self::RUN_PT_JCX156_GRACE2 . '</br>'
+			. '---</br>'
+			. 'また、レースのトップ選手と同一集会で完走した場合、2015-16シーズンは' . self::JCX156_BONUS_TO156
+			. 'pt、2016-17シーズン以降は' . self::JCX156_BONUS_167TO . 'pt のボーナスポイントが付与される。'
+			;
+		self::$JCX_156 = new PointCalculator(1, 'JCX-156', '2015-16 JCX で使用するポイントテーブル。', $text);
+		
+		$str = '';
+		for ($i = 0; $i < count(self::$TABLE_KNS156); $i++) {
+			$str .= ' ' . self::$TABLE_KNS156[$i] . ',';
+			if (($i + 1) % 10 == 0) {
+				$str .= '</br>';
+			}
+		}
+		$text = '2015-16シーズンの関西クロス C1, CM1, CL1 で採用されたポイント付与ルール。'
+			. '2015-16 JCX シリーズの Grade2 と同じポイントテーブルである。ただし同一周回ボーナスは無し。'
+			. 'Grade の指定は必要ない。</br>'
+			. '---</br>'
+			. 'ポイントテーブル</br>' . $str;
+		self::$KNS_156 = new PointCalculator(2, 'KNS-156', '2015-16 関西クロスで使用するポイントテーブル。配点は JCX ポイントと同じ。完走ボーナスは無し。', $text);
 		
 		self::$calculators = array(
 			self::$JCX_156,
@@ -38,8 +106,9 @@ class PointCalculator extends Object
 	private $val;
 	private $name;
 	private $description;
+	private $text;
 	
-	public function __construct($v, $n, $d)
+	public function __construct($v, $n, $d, $t)
 		// private にしたかったが、Object 継承すると public でなければならない。
 	{
 		parent::__construct();
@@ -47,6 +116,7 @@ class PointCalculator extends Object
 		$this->val = $v;
 		$this->name = $n;
 		$this->description = $d;
+		$this->text = $t;
 	}
 	
 	/** @return int DB 上の記録値 */
@@ -55,6 +125,8 @@ class PointCalculator extends Object
     public function name() { return $this->name; }
     /** @return string 計算方法詳細 */
     public function description() { return $this->description; }
+	/** @return string 内容詳細 */
+    public function text() { return $this->text; }
 	
 	/**
 	 * 計算オブジェクトをかえす。
@@ -112,24 +184,12 @@ class PointCalculator extends Object
 		// grade -> points
 		$set = array();
 		$set[1] = array(
-			'rank_pt' => array(
-				300, 240, 210, 180, 165, 150, 135, 120, 105, 90, 
-				 87,  84,  81,  78,  75,  72,  69,  66,  63, 60,
-				 58,  56,  54,  52,  50,  48,  46,  44,  42, 40,
-				 39,  38,  37,  36,  35,  34,  33,  32,  31, 30,
-				 29,  28,  27,  26,  25,  24,  23,  22,  21, 20,
-			),
-			'run_pt' => 10,
+			'rank_pt' => self::$TABLE_JCX156_GRADE1,
+			'run_pt' => self::RUN_PT_JCX156_GRACE1,
 		);
 		$set[2] = array(
-			'rank_pt' => array(
-				200, 160, 140, 120, 110, 100, 90,  80,  70,  60,
-				58,  56,  54,  52,  50,  48,  46,  44,  42,  40,
-				39,  38,  37,  36,  35,  34,  33,  32,  31,  30,
-				29,  28,  27,  26,  25,  24,  23,  22,  21,  20,
-				19,  18,  17,  16,  15,  14,  13,  12,  11,  10,
-			),
-			'run_pt' => 5,
+			'rank_pt' => self::$TABLE_JCX156_GRADE2,
+			'run_pt' => self::RUN_PT_JCX156_GRACE2,
 		);
 		
 		if (empty($set[$grade])) {
@@ -151,7 +211,8 @@ class PointCalculator extends Object
 		
 		// 同一周回ならば +20pt
 		if ($result['lap'] >= $raceLapCount && $result['status'] == RacerResultStatus::$FIN->val()) {
-			$pointMap['bonus'] = $this->_isSeasonBefore1617($meetDate) ? 20 : 10; // 16-17 から 10pt に変更
+			$pointMap['bonus'] = $this->_isSeasonBefore1617($meetDate) ?
+					self::JCX156_BONUS_TO156 : self::JCX156_BONUS_167TO; // 16-17 から 10pt に変更
 		}
 
 		return $pointMap;
@@ -198,14 +259,8 @@ class PointCalculator extends Object
 		if (empty($result['rank'])) return null;
 		
 		$pointSet = array(
-			'rank_pt' => array(
-				200, 160, 140, 120, 110, 100, 90,  80,  70,  60,
-				58,  56,  54,  52,  50,  48,  46,  44,  42,  40,
-				39,  38,  37,  36,  35,  34,  33,  32,  31,  30,
-				29,  28,  27,  26,  25,  24,  23,  22,  21,  20,
-				19,  18,  17,  16,  15,  14,  13,  12,  11,  10,
-			),
-			'run_pt' => 5, // 順位付いたらもらえるポイント（51位以下）
+			'rank_pt' => self::$TABLE_KNS156,
+			'run_pt' => self::RUN_PT_KNS156, // 順位付いたらもらえるポイント（51位以下）
 		);
 		
 		$rankIndex = $result['rank'] - 1;

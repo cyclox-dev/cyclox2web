@@ -23,6 +23,7 @@ class PointSeriesSumUpRule extends Object
 	const HINT_DIV = ',';
 	const HINT_KVDIV = ':';
 	const KEY_JCX156_SUMUP_RACE_COUNT = 'race_count';
+	const KEY_REQUIRED = 'required';
 	
 	public static $JCX_156;
 	public static $KNS_156;
@@ -36,8 +37,26 @@ class PointSeriesSumUpRule extends Object
 	
 	public static function init()
 	{
-		self::$JCX_156 = new PointSeriesSumUpRule(1, 'JCX-156', 'hint:required とそれ以外の上位6戦のポイントを採用する。合計->自乗和->最近の成績で比較する。');
-		self::$KNS_156 = new PointSeriesSumUpRule(2, '全戦合計のみ', '合計点のみ。全戦の成績を採用する。同点の場合は同順位。');
+		$keyTitle = self::KEY_JCX156_SUMUP_RACE_COUNT;
+		$str = '2015-16シーズンの JCX シリーズにて採用された集計方法。</br>'
+				. 'シリーズレース設定の hint に required が入力されているレースでのポイントは必ず獲得ポイントとなる。</br>'
+				. 'その他の上位x戦のポイントが獲得ポイントとされる。x の値はシリーズ設定の hint において key 値 '
+				. $keyTitle . 'で指定された値である。</br>'
+				. '例）上位3戦ならば ' . $keyTitle . self::HINT_KVDIV . '3 と入力</br>'
+				. '順位付けで同順位は無く、以下の順に判断される。</br>'
+				. '・獲得ポイント</br>'
+				. '・自乗点</br>'
+				. '・出場しポイントを獲得したレースがより最近であるか</br>'
+				. '・最近のポイント獲得レースでの獲得ポイント</br>'
+				. '・最近のポイント獲得レースでの順位';
+		self::$JCX_156 = new PointSeriesSumUpRule(1, 'JCX-156'
+				, 'hint:' . self::KEY_REQUIRED . ' とそれ以外の上位6戦のポイントを採用する。合計->自乗和->最近の成績で比較する。'
+				, $str);
+		
+		$str = '2015-16シーズンに関西クロスで採用された集計方法</br>'
+				. '全ての大会の獲得ポイントを合計する。同点の場合には同じ順位となる。';
+		self::$KNS_156 = new PointSeriesSumUpRule(2, '全戦合計のみ'
+				, '合計点のみ。全戦の成績を採用する。同点の場合は同順位。', $str);
 		
 		self::$rules = array(
 			self::$JCX_156,
@@ -64,14 +83,16 @@ class PointSeriesSumUpRule extends Object
 	private $val;
 	private $title;
 	private $description;
+	private $text;
 	
-	public function __construct($v, $t, $d) 
+	public function __construct($v, $t, $d, $text) 
 	{
 		parent::__construct();
 		
 		$this->val = $v;
 		$this->title = $t;
 		$this->description = $d;
+		$this->text = $text;
 	}
 	
 	/** @return int DB 値 */                                                                           
@@ -80,6 +101,8 @@ class PointSeriesSumUpRule extends Object
     public function title() { return $this->title; }
     /** @return string ルール内容 */                                            
     public function description() { return $this->description; }
+	/** @return string ルール内容詳細 */                                            
+    public function text() { return $this->text; }
 	
 	/**
 	 * 集計する
@@ -253,7 +276,7 @@ class PointSeriesSumUpRule extends Object
 		$strs = explode(',', $hints);
 		
 		foreach ($strs as $s) {
-			if ($s === 'required') {
+			if ($s === self::KEY_REQUIRED) {
 				return true;
 			}
 		}
