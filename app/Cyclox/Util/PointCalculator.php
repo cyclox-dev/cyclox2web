@@ -192,6 +192,8 @@ class PointCalculator extends Object
 			'run_pt' => self::RUN_PT_JCX156_GRACE2,
 		);
 		
+		// TODO: グレード無いなら警告が表示されるように
+		
 		if (empty($set[$grade])) {
 			$this->log('指定グレード[' . $grade . ']のポイント設定がありません。', LOG_ERR);
 			return null;
