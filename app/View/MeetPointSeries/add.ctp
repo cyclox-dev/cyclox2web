@@ -1,4 +1,5 @@
-
+<!--
+add 画面ではポイントの有効期間指定は必要ないはずなのでコメントアウトした@20160830
 <?php echo $this->Html->scriptStart(); ?>
 $(document).ready(function(){
 	var r = $('<button name="new button" type="button">＜ 開始日を無しに設定</button>');
@@ -18,6 +19,7 @@ $(document).ready(function(){
 	$(".point_term_end").append(b);
 });
 <?php echo $this->Html->scriptEnd(); ?>
+<!-- -->
 
 <div class="meetPointSeries form">
 <?php echo $this->Form->create('MeetPointSeries'); ?>
@@ -39,6 +41,7 @@ $(document).ready(function(){
 		echo $this->Form->input('meet_code', array('label' => '大会コード'));
 		echo $this->Form->input('entry_category_name', array('label' => '出走カテゴリー名'));
 		echo $this->Form->input('grade', array('label' => 'ポイントテーブルのグレード／詳細は配点ルールを確認して下さい。'));
+		/*
 		echo $this->Form->input('point_term_begin', array(
 			'label' => 'ポイントの有効期間の開始日／未指定の場合は配点時に大会の翌日が設定されます。',
 			'dateFormat' => 'YMD',
@@ -66,7 +69,7 @@ $(document).ready(function(){
 				'day' => 0
 			),
 			'div' => 'point_term_end',
-		));
+		));//*/
 		echo $this->Form->input('hint', array('label' => '集計時ヒント／詳細は集計ルールを確認して下さい。半角カンマ区切りで複数入力可。'));
 	?>
 	</fieldset>
