@@ -20,144 +20,89 @@
 <h3>配点ルール</h3>
 <?php
 	App::uses('PointCalculator', 'Cyclox/Util');
+	foreach (PointCalculator::calculators() as $pc):
 ?>
 	<dl>
 		<dt><?php echo __('ID'); ?></dt>
 		<dd>
-			<?php echo PointCalculator::$JCX_156->val(); ?>
+			<?php echo $pc->val(); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('タイトル'); ?></dt>
 		<dd>
-			<?php echo PointCalculator::$JCX_156->name(); ?>
+			<?php echo $pc->name(); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('概要'); ?></dt>
 		<dd>
-			<?php echo PointCalculator::$JCX_156->description(); ?>
+			<?php echo $pc->description(); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('説明'); ?></dt>
 		<dd>
-			<?php echo PointCalculator::$JCX_156->text(); ?>
+			<?php echo $pc->text(); ?>
 			&nbsp;
 		</dd>
 	</dl>
 	<p style="height: 1em"></p>
-	<dl>
-		<dt><?php echo __('ID'); ?></dt>
-		<dd>
-			<?php echo PointCalculator::$KNS_156->val(); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('タイトル'); ?></dt>
-		<dd>
-			<?php echo PointCalculator::$KNS_156->name(); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('概要'); ?></dt>
-		<dd>
-			<?php echo PointCalculator::$KNS_156->description(); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('説明'); ?></dt>
-		<dd>
-			<?php echo PointCalculator::$KNS_156->text(); ?>
-			&nbsp;
-		</dd>
-	</dl>
-	<p style="height: 1em"></p>
+<?php
+	endforeach;
+?>
 <h3>集計ルール</h3>
 <?php
 	App::uses('PointSeriesSumUpRule', 'Cyclox/Const');
+	foreach (PointSeriesSumUpRule::rules() as $pss):
 ?>
 	<dl>
 		<dt><?php echo __('ID'); ?></dt>
 		<dd>
-			<?php echo PointSeriesSumUpRule::$JCX_156->val(); ?>
+			<?php echo $pss->val(); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('タイトル'); ?></dt>
 		<dd>
-			<?php echo PointSeriesSumUpRule::$JCX_156->title(); ?>
+			<?php echo $pss->title(); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('概要'); ?></dt>
 		<dd>
-			<?php echo PointSeriesSumUpRule::$JCX_156->description(); ?>
+			<?php echo $pss->description(); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('説明'); ?></dt>
 		<dd>
-			<?php echo PointSeriesSumUpRule::$JCX_156->text(); ?>
+			<?php echo $pss->text(); ?>
 			&nbsp;
 		</dd>
 	</dl>
 	<p style="height: 1em"></p>
-	<dl>
-		<dt><?php echo __('ID'); ?></dt>
-		<dd>
-			<?php echo PointSeriesSumUpRule::$KNS_156->val(); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('タイトル'); ?></dt>
-		<dd>
-			<?php echo PointSeriesSumUpRule::$KNS_156->title(); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('概要'); ?></dt>
-		<dd>
-			<?php echo PointSeriesSumUpRule::$KNS_156->description(); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('説明'); ?></dt>
-		<dd>
-			<?php echo PointSeriesSumUpRule::$KNS_156->text(); ?>
-			&nbsp;
-		</dd>
-	</dl>
-<p style="height: 1em"></p>
+<?php
+	endforeach;
+?>
 <h3>ポイント有効期間ルール</h3>
 <?php
 	App::uses('PointSeriesTermOfValidityRule', 'Cyclox/Const');
+	foreach (PointSeriesTermOfValidityRule::rules() as $rule):
 ?>
 	<dl>
 		<dt><?php echo __('ID'); ?></dt>
 		<dd>
-			<?php echo PointSeriesTermOfValidityRule::$ENDLESS->val(); ?>
+			<?php echo $rule->val(); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('タイトル'); ?></dt>
 		<dd>
-			<?php echo PointSeriesTermOfValidityRule::$ENDLESS->title(); ?>
+			<?php echo $rule->title(); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('概要'); ?></dt>
 		<dd>
-			<?php echo PointSeriesTermOfValidityRule::$ENDLESS->description(); ?>
+			<?php echo $rule->description(); ?>
 			&nbsp;
 		</dd>
 	</dl>
 	<p style="height: 1em"></p>
-	<dl>
-		<dt><?php echo __('ID'); ?></dt>
-		<dd>
-			<?php echo PointSeriesTermOfValidityRule::$ONE_YEAR->val(); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('タイトル'); ?></dt>
-		<dd>
-			<?php echo PointSeriesTermOfValidityRule::$ONE_YEAR->title(); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('概要'); ?></dt>
-		<dd>
-			<?php echo PointSeriesTermOfValidityRule::$ONE_YEAR->description(); ?>
-			&nbsp;
-		</dd>
-	</dl>
-
-
-
+<?php
+	endforeach;
 
 
