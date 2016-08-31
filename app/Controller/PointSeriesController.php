@@ -1,6 +1,7 @@
 <?php
 
-App::uses('AppController', 'Controller');
+App::uses('ApiBaseController', 'Controller');
+
 App::uses('Folder', 'Utility');
 App::uses('File', 'Utility');
 App::uses('PointCalculator', 'Cyclox/Util');
@@ -16,7 +17,7 @@ App::uses('Util', 'Cyclox/Util');
  * @property PaginatorComponent $Paginator
  * @property SessionComponent $Session
  */
-class PointSeriesController extends AppController
+class PointSeriesController extends ApiBaseController
 {
 	public $uses = array('PointSeries', 'MeetPointSeries', 'PointSeriesRacer', 'Season');
 
@@ -405,5 +406,15 @@ class PointSeriesController extends AppController
 		
 		$dir = new Folder();
 		$dir->create(TMP . self::__PATH_RANKING);
+	}
+	
+	/**
+	 * シリーズ一覧の json をかえす
+	 */
+	public function seriesJson()
+	{
+		$seriesList = $this->PointSeries->find('all', array('recursive' => -1));
+		
+		return $this->success(array('series' => $seriesList));
 	}
 }
