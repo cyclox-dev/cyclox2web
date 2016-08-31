@@ -16,6 +16,7 @@ class PointCalculator extends Object
 {
 	public static $JCX_156;
 	public static $KNS_156;
+	public static $IBRK_167;
 	
 	public static $TABLE_JCX156_GRADE1 = array(
 		300, 240, 210, 180, 165, 150, 135, 120, 105, 90, 
@@ -44,6 +45,14 @@ class PointCalculator extends Object
 		19,  18,  17,  16,  15,  14,  13,  12,  11,  10,
 	);
 	const RUN_PT_KNS156 = 5;
+	
+	public static $TABLE_IBRK167 = array(
+		56, 47, 41, 36, 32, 28, 25, 22, 20, 18,
+		16, 14, 13, 12, 11, 10, 9, 9, 8, 8,
+		7, 7, 7, 6, 6, 6, 5, 5, 5, 5,
+		4, 4, 4, 4, 3, 3, 3, 3, 3, 3,
+		2, 2, 2, 2, 2, 2, 2, 1, 1, 1,
+	);
 	
 	private static $calculators;
 	
@@ -97,9 +106,22 @@ class PointCalculator extends Object
 			. 'ポイントテーブル</br>' . $str;
 		self::$KNS_156 = new PointCalculator(2, 'KNS-156', '2015-16 関西クロスで使用するポイントテーブル。配点は JCX ポイントと同じ。完走ボーナスは無し。', $text);
 		
+		$str = '';
+		for ($i = 0; $i < count(self::$TABLE_IBRK167); $i++) {
+			$str .= ' ' . self::$TABLE_IBRK167[$i] . ',';
+			if (($i + 1) % 10 == 0) {
+				$str .= '</br>';
+			}
+		}
+		$text = '2016-17 茨城クロスのシリーズランキングのために作られたポイントテーブル。15-16 AJOCC ポイントの出走41人〜のテーブルと同じである。'
+			. '51位以下はポイント無し。ボーナスなどは無し。Grade の指定は必要ない。</br>---</br>'
+			. 'ポイントテーブル</br>' . $str;
+		self::$IBRK_167 = new PointCalculator(3, 'IBRK-167', '2016-17 茨城クロスのポイントテーブル。AJOCC ポイントの出走41〜と同じ。', $text);
+		
 		self::$calculators = array(
 			self::$JCX_156,
 			self::$KNS_156,
+			self::$IBRK_167,
 		);
 	}
 	
@@ -154,6 +176,7 @@ class PointCalculator extends Object
 		switch ($this->val()) {
 			case self::$JCX_156->val(): $pt = $this->__calcJCXElite156($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$KNS_156->val(): $pt = $this->__calcKNS156($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
+			case self::$IBRK_167->val(): $pt = $this->__calcIBRK167($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 		}
 		
 		if (empty($pt['point']) && empty($pt['bonus'])) {
@@ -295,6 +318,38 @@ class PointCalculator extends Object
 		
 		return ($date < '2016-04-01');
 	}
-
+	
+	/**
+	 * 2016-17シーズンの茨城クロスのポイントをかえす。
+	 * @param type $result 選手ごとリザルト
+	 * @param type $grade グレードはこのポイントテーブルでは関係しない。
+	 * @param type $raceLapCount レーストップの周回数
+	 * @param int $raceStartedCount レース出走人数
+	 * @param date $meetDate 大会開催日
+	 * @return int ポイント。取得ポイントがない場合は null をかえす。
+	 */
+	private function __calcIBRK167($result, $grade, $raceLapCount, $raceStartedCount, $meetDate) {
+		
+		if (empty($result['rank'])) return null;
+		
+		$pointSet = array(
+			'rank_pt' => self::$TABLE_IBRK167,
+		);
+		
+		$rankIndex = $result['rank'] - 1;
+		
+		$point = 0;
+		if (isset($pointSet['rank_pt'][$rankIndex])) {
+			$point = $pointSet['rank_pt'][$rankIndex];
+		}
+		// テーブル外はポイントなし
+		
+		$pointMap = array();
+		$pointMap['point'] = $point;
+		
+		// 完走ボーナスは無し。
+		
+		return $pointMap;
+	}
 }
 PointCalculator::init();
