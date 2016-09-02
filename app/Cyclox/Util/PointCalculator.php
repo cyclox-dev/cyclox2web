@@ -17,8 +17,9 @@ class PointCalculator extends Object
 	public static $JCX_156;
 	public static $KNS_156;
 	public static $IBRK_167;
+	public static $CCM_167;
 	
-	public static $TABLE_JCX156_GRADE1 = array(
+	private static $TABLE_JCX156_GRADE1 = array(
 		300, 240, 210, 180, 165, 150, 135, 120, 105, 90, 
 		87,  84,  81,  78,  75,  72,  69,  66,  63, 60,
 		58,  56,  54,  52,  50,  48,  46,  44,  42, 40,
@@ -26,7 +27,7 @@ class PointCalculator extends Object
 		29,  28,  27,  26,  25,  24,  23,  22,  21, 20,
 	);
 	const RUN_PT_JCX156_GRACE1 = 10; // 51位以下のポイント
-	public static $TABLE_JCX156_GRADE2 = array(
+	private static $TABLE_JCX156_GRADE2 = array(
 		200, 160, 140, 120, 110, 100, 90,  80,  70,  60,
 		58,  56,  54,  52,  50,  48,  46,  44,  42,  40,
 		39,  38,  37,  36,  35,  34,  33,  32,  31,  30,
@@ -37,7 +38,7 @@ class PointCalculator extends Object
 	const JCX156_BONUS_TO156 = 20;
 	const JCX156_BONUS_167TO = 10;
 	
-	public static $TABLE_KNS156 = array(
+	private static $TABLE_KNS156 = array(
 		200, 160, 140, 120, 110, 100, 90,  80,  70,  60,
 		58,  56,  54,  52,  50,  48,  46,  44,  42,  40,
 		39,  38,  37,  36,  35,  34,  33,  32,  31,  30,
@@ -46,13 +47,19 @@ class PointCalculator extends Object
 	);
 	const RUN_PT_KNS156 = 5;
 	
-	public static $TABLE_IBRK167 = array(
+	private static $TABLE_IBRK167 = array(
 		56, 47, 41, 36, 32, 28, 25, 22, 20, 18,
 		16, 14, 13, 12, 11, 10, 9, 9, 8, 8,
 		7, 7, 7, 6, 6, 6, 5, 5, 5, 5,
 		4, 4, 4, 4, 3, 3, 3, 3, 3, 3,
 		2, 2, 2, 2, 2, 2, 2, 1, 1, 1,
 	);
+	
+	// const として
+	const __KEY_STARTED_OVER = 'started_over';
+	const __KEY_TABLE = 'table';
+	
+	private static $TABLE_CCM167; // --> init() で初期化
 	
 	private static $calculators;
 	
@@ -80,10 +87,10 @@ class PointCalculator extends Object
 		$text = '2015-16シーズンの JCX シリーズにて採用されたポイント付与ルール。</br>'
 			. 'シリーズレース設定では必ずグレードを指定すること。グレードは 1 もしくは 2 を指定する。</br>'
 			. '---</br>'
-			. 'Grade1 のポイントテーブルは以下のとおり</br>'
+			. 'グレード1のポイントテーブルは以下のとおり</br>'
 			. $str
 			. (count(self::$TABLE_JCX156_GRADE1) + 1) . '位以下:' . self::RUN_PT_JCX156_GRACE1 . '</br>'
-			. '---</br>Grade2 のポイントテーブルは以下のとおり</br>'
+			. '---</br>グレード2のポイントテーブルは以下のとおり</br>'
 			. $str2
 			. (count(self::$TABLE_JCX156_GRADE2) + 1) . '位以下:' . self::RUN_PT_JCX156_GRACE2 . '</br>'
 			. '---</br>'
@@ -100,8 +107,8 @@ class PointCalculator extends Object
 			}
 		}
 		$text = '2015-16シーズンの関西クロス C1, CM1, CL1 で採用されたポイント付与ルール。'
-			. '2015-16 JCX シリーズの Grade2 と同じポイントテーブルである。ただし同一周回ボーナスは無し。'
-			. 'Grade の指定は必要ない。</br>'
+			. '2015-16 JCX シリーズのグレード2と同じポイントテーブルである。ただし同一周回ボーナスは無し。'
+			. 'グレードの指定は必要ない。</br>'
 			. '---</br>'
 			. 'ポイントテーブル</br>' . $str;
 		self::$KNS_156 = new PointCalculator(2, 'KNS-156', '2015-16 関西クロスで使用するポイントテーブル。配点は JCX ポイントと同じ。完走ボーナスは無し。', $text);
@@ -114,14 +121,61 @@ class PointCalculator extends Object
 			}
 		}
 		$text = '2016-17 茨城クロスのシリーズランキングのために作られたポイントテーブル。15-16 AJOCC ポイントの出走41人〜のテーブルと同じである。'
-			. '51位以下はポイント無し。ボーナスなどは無し。Grade の指定は必要ない。</br>---</br>'
+			. '51位以下はポイント無し。ボーナスなどは無し。グレードの指定は必要ない。</br>---</br>'
 			. 'ポイントテーブル</br>' . $str;
 		self::$IBRK_167 = new PointCalculator(3, 'IBRK-167', '2016-17 茨城クロスのポイントテーブル。AJOCC ポイントの出走41〜と同じ。', $text);
+		
+		// table 初期化
+		self::$TABLE_CCM167 = array(
+			array(
+				self::__KEY_STARTED_OVER => 40, self::__KEY_TABLE => array(
+					56, 47, 41, 36, 32, 28, 25, 22, 20, 18,
+					16, 14, 13, 12, 11, 10,  9,  9,  8,  8,
+					 7,  7,  7,  6,  6,  6,  5,  5,  5,  5,
+					 4,  4,  4,  4,  3,  3,  3,  3,  3,  3,
+					 2,  2,  2,  2,  2,  2,  2,  1,  1,  1,
+					 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+				)
+			),
+			array(
+				self::__KEY_STARTED_OVER => 20, self::__KEY_TABLE => array(
+					42, 34, 28, 24, 21, 18, 15, 13, 11, 10,
+					9,  8,  7,  6,  6,  5,  5,  4,  4,  4,
+					3,  3,  3,  3,  2,  2,  2,  2,  2,  2,
+					2,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+				)
+			),
+			array(
+				self::__KEY_STARTED_OVER => 0, self::__KEY_TABLE => array(
+					28, 20, 15, 12, 10, 8,  6,  5,  4,  3,
+					3,  2,  2,  2,  1,  1,  1,  1,  1,  1,
+				)
+			)
+		);
+		$str = '';
+		for ($i = 0; $i < count(self::$TABLE_CCM167); $i++) {
+			$str .= '---</br>';
+			$pack = self::$TABLE_CCM167[$i];
+			$str .= ($pack[self::__KEY_STARTED_OVER] + 1) . '人以上</br>';
+			for ($j = 0; $j < count($pack[self::__KEY_TABLE]); $j++) {
+				$str .= ' ' . $pack[self::__KEY_TABLE][$j] . ',';
+				if (($j + 1) % 10 == 0) {
+					$str .= '</br>';
+				}
+			}
+		}
+		
+		$text = '2016-17 信州クロスのシリーズランキングのために作られたポイントテーブル。'
+			. '15-16 AJOCC ポイントと同じ配点である。ボーナスなどは無し。グレード 1 or 2 を指定すること。'
+			. 'グレード2の場合には獲得得点が半分となる（小数点以下切り上げ）。'
+			. '</br>ポイントテーブル</br>' . $str;
+		self::$CCM_167 = new PointCalculator(4, 'CCM-167', '2016-17 信州クロスのポイントテーブル。15-16 AJOCC ポイントと同じ。グレード2は得点半分。', $text);
 		
 		self::$calculators = array(
 			self::$JCX_156,
 			self::$KNS_156,
 			self::$IBRK_167,
+			self::$CCM_167,
 		);
 	}
 	
@@ -177,6 +231,7 @@ class PointCalculator extends Object
 			case self::$JCX_156->val(): $pt = $this->__calcJCXElite156($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$KNS_156->val(): $pt = $this->__calcKNS156($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$IBRK_167->val(): $pt = $this->__calcIBRK167($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
+			case self::$CCM_167->val(): $pt = $this->__calcCCM167($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 		}
 		
 		if (empty($pt['point']) && empty($pt['bonus'])) {
@@ -267,12 +322,6 @@ class PointCalculator extends Object
 	
 	/**
 	 * 2015-16シーズンの関西クロスのポイントをかえす。配点は 15-16 の AJOCC ポイントと同じ。
-	 * @param type $result 選手ごとリザルト
-	 * @param type $grade グレードはこのポイントテーブルでは関係しない。
-	 * @param type $raceLapCount レーストップの周回数
-	 * @param int $raceStartedCount レース出走人数
-	 * @param date $meetDate 大会開催日
-	 * @return int ポイント。取得ポイントがない場合は null をかえす。
 	 */
 	private function __calcKNS156($result, $grade, $raceLapCount, $raceStartedCount, $meetDate) {
 		
@@ -321,12 +370,6 @@ class PointCalculator extends Object
 	
 	/**
 	 * 2016-17シーズンの茨城クロスのポイントをかえす。
-	 * @param type $result 選手ごとリザルト
-	 * @param type $grade グレードはこのポイントテーブルでは関係しない。
-	 * @param type $raceLapCount レーストップの周回数
-	 * @param int $raceStartedCount レース出走人数
-	 * @param date $meetDate 大会開催日
-	 * @return int ポイント。取得ポイントがない場合は null をかえす。
 	 */
 	private function __calcIBRK167($result, $grade, $raceLapCount, $raceStartedCount, $meetDate) {
 		
@@ -343,6 +386,37 @@ class PointCalculator extends Object
 			$point = $pointSet['rank_pt'][$rankIndex];
 		}
 		// テーブル外はポイントなし
+		
+		$pointMap = array();
+		$pointMap['point'] = $point;
+		
+		// 完走ボーナスは無し。
+		
+		return $pointMap;
+	}
+	
+	/**
+	 * 2016-17シーズンの信州クロスのポイントをかえす。
+	 */
+	private function __calcCCM167($result, $grade, $raceLapCount, $raceStartedCount, $meetDate)
+	{
+		if (empty($result['rank'])) return null;
+		
+		$rankIndex = $result['rank'] - 1;
+		$point = 0;
+		
+		foreach (self::$TABLE_CCM167 as $ccmTable) {
+			if ($raceStartedCount > $ccmTable[self::__KEY_STARTED_OVER]) {
+				if (isset($ccmTable[self::__KEY_TABLE][$rankIndex])) {
+					$point = $ccmTable[self::__KEY_TABLE][$rankIndex];
+				}
+				break;
+			}
+		}
+		
+		if ($grade == 2) { // grade 2 は得点半分（小数点以下切り上げ 20160903指示あり by Togashi）
+			$point = ceil($point / 2);
+		}
 		
 		$pointMap = array();
 		$pointMap['point'] = $point;
