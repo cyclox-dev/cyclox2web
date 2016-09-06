@@ -26,7 +26,7 @@ class PointSeriesController extends ApiBaseController
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session');
+	public $components = array('Paginator', 'Session', 'RequestHandler');
 	
 	const __PATH_RANKING = 'cyclox2/point_series/rankings';
 	const __RANKING_FILE_PREFIX = 'ranking_';
@@ -135,8 +135,9 @@ class PointSeriesController extends ApiBaseController
 	
 	/**
 	 * ランキングを計算し直し、指定のファイルに保存する
+	 * @param date $date 計算機順日時
 	 */
-	public function calcup()
+	public function calcup($date = null)
 	{
 		$this->request->allowMethod('post');
 		
@@ -146,12 +147,94 @@ class PointSeriesController extends ApiBaseController
 		
 		$id = $this->request->data['point_series_id'];
 		
-		$this->PointSeries->id = $id;
+		$ret = $this->calcUpSeries($id, $date);
+		
+		$ranking = $ret['ranking'];
+		$ps = $ret['ps'];
+		$mpss = $ret['mpss'];
+		$nameMap = $ret['nameMap'];
+		$teamMap = $ret['teamMap'];
+		$racerPoints = $ret['racerPoints'];
+		
+		if (empty($ranking)) {
+			throw new InternalErrorException('could not sum up ranking...');
+		}
+		
+		$this->_mkdir4Ranking();
+		
+		$tmpFile = new File(TMP . self::__PATH_RANKING . '/' . self::__RANKING_FILE_PREFIX . $id . '.csv.tmp');
+		if ($tmpFile->exists()) {
+			$tmpFile->delete();
+		}
+		$tmpFile->create();
+		$tmpFile->append(mb_convert_encoding($ps['PointSeries']['name'] . ' ランキング,更新日:' . date('Y/m/d') ."\n", 'UTF-8', 'auto'));
+		$rowString = '順位,選手 Code,選手名,チーム名';
+		foreach ($mpss as $mps) {
+			$rowString .= ',' . $mps['MeetPointSeries']['express_in_series'];
+			$rowString .= ',' . $mps['MeetPointSeries']['express_in_series'] . 'Bonus';
+		}
+		foreach ($ranking['rank_pt_title'] as $title) {
+			$rowString .= ',' . $title;
+		}
+		$tmpFile->append(mb_convert_encoding($rowString . "\n", 'UTF-8', 'auto'));
+		
+		foreach ($ranking['ranking'] as $rpUnit) {
+			$rowString = $rpUnit->rank . ',' . $rpUnit->code . ','
+				. $this->__dQuoteEscaped($nameMap[$rpUnit->code]) . ',';
+			if (!empty($teamMap[$rpUnit->code])) {
+				$rowString .= $this->__dQuoteEscaped($teamMap[$rpUnit->code]);
+			}
+			
+			for ($i = 0; $i < count($mpss); $i++)
+			{
+				$rowString .= ',';
+				if (!isset($racerPoints[$rpUnit->code][$i])) {
+					$rowString .= ',';
+					continue;
+				}
+				
+				$point = $racerPoints[$rpUnit->code][$i];
+				if (!empty($point['pt'])) {
+					$rowString .= $point['pt'];
+				}
+				$rowString .= ',';
+				if (!empty($point['bonus'])) {
+					$rowString .= $point['bonus'];
+				}
+			}
+			
+			foreach ($rpUnit->rankPt as $pt) {
+				$rowString .= ',' . $pt;
+			}
+			
+			$tmpFile->append(mb_convert_encoding($rowString . "\n", 'UTF-8', 'auto'));
+		}
+		
+		$tmpFile->close();
+		
+		$filename = TMP . self::__PATH_RANKING . '/' . self::__RANKING_FILE_PREFIX . $id . '.csv';
+		$tmpFile->copy($filename, true);
+		
+		$this->Session->setFlash(h($ps['PointSeries']['name'] . 'のランキングファイルを更新しました。'));
+		
+		$this->redirect(array('controller' => 'OrgUtil', 'action' => 'point_series_csv_links'));
+	}
+	
+	/**
+	 * ランキング集計を行なう。
+	 * @param type $seriesId
+	 * @param type $date
+	 * @return array 'ranking', 'ps', 'mpss', 'nameMap', 'teamMap', 'racerPoints' をキーとする配列
+	 * @throws NotFoundException
+	 */
+	public function calcUpSeries($seriesId, $date = null)
+	{
+		$this->PointSeries->id = $seriesId;
 		if (!$this->PointSeries->exists()) {
 			throw new NotFoundException(__('Invalid point series'));
 		}
 		
-		$options = array('conditions' => array('PointSeries.' . $this->PointSeries->primaryKey => $id));
+		$options = array('conditions' => array('PointSeries.' . $this->PointSeries->primaryKey => $seriesId));
 		$ps = $this->PointSeries->find('first', $options);
 		if (empty($ps['PointSeries']['sum_up_rule'])) {
 			throw new NotFoundException(__('Invalid sum-up-rule setting of point series'));
@@ -161,15 +244,16 @@ class PointSeriesController extends ApiBaseController
 			throw new NotFoundException(__('Invalid(empty) sum-up-rule setting of point series'));
 		}
 		
+		$dt = ($date == null) ? date('Y-m-d') : $date;
 		$op = array(
 			'conditions' => array(
-				'point_series_id' => $id,
+				'point_series_id' => $seriesId,
 				array('or' => array(
-					array('point_term_end >=' => date('Y-m-d')),
+					array('point_term_end >=' =>$dt),
 					array('point_term_end' => null),
 				)),
 				array('or' => array(
-					array('point_term_begin <=' => date('Y-m-d')),
+					array('point_term_begin <=' => $dt),
 					array('point_term_begin' => null),
 				)),
 			),
@@ -253,68 +337,14 @@ class PointSeriesController extends ApiBaseController
 		//$this->log($racerPoints, LOG_DEBUG);
 		$ranking = $sumUpRule->calc($racerPoints, $hints, $ps['PointSeries']['hint']);
 		
-		if (empty($ranking)) {
-			throw new InternalErrorException('could not sum up ranking...');
-		}
-		
-		$this->_mkdir4Ranking();
-		
-		$tmpFile = new File(TMP . self::__PATH_RANKING . '/' . self::__RANKING_FILE_PREFIX . $id . '.csv.tmp');
-		if ($tmpFile->exists()) {
-			$tmpFile->delete();
-		}
-		$tmpFile->create();
-		$tmpFile->append(mb_convert_encoding($ps['PointSeries']['name'] . ' ランキング,更新日:' . date('Y/m/d') ."\n", 'UTF-8', 'auto'));
-		$rowString = '順位,選手 Code,選手名,チーム名';
-		foreach ($mpss as $mps) {
-			$rowString .= ',' . $mps['MeetPointSeries']['express_in_series'];
-			$rowString .= ',' . $mps['MeetPointSeries']['express_in_series'] . 'Bonus';
-		}
-		foreach ($ranking['rank_pt_title'] as $title) {
-			$rowString .= ',' . $title;
-		}
-		$tmpFile->append(mb_convert_encoding($rowString . "\n", 'UTF-8', 'auto'));
-		
-		foreach ($ranking['ranking'] as $rpUnit) {
-			$rowString = $rpUnit->rank . ',' . $rpUnit->code . ','
-				. $this->__dQuoteEscaped($nameMap[$rpUnit->code]) . ',';
-			if (!empty($teamMap[$rpUnit->code])) {
-				$rowString .= $this->__dQuoteEscaped($teamMap[$rpUnit->code]);
-			}
-			
-			for ($i = 0; $i < count($mpss); $i++)
-			{
-				$rowString .= ',';
-				if (!isset($racerPoints[$rpUnit->code][$i])) {
-					$rowString .= ',';
-					continue;
-				}
-				
-				$point = $racerPoints[$rpUnit->code][$i];
-				if (!empty($point['pt'])) {
-					$rowString .= $point['pt'];
-				}
-				$rowString .= ',';
-				if (!empty($point['bonus'])) {
-					$rowString .= $point['bonus'];
-				}
-			}
-			
-			foreach ($rpUnit->rankPt as $pt) {
-				$rowString .= ',' . $pt;
-			}
-			
-			$tmpFile->append(mb_convert_encoding($rowString . "\n", 'UTF-8', 'auto'));
-		}
-		
-		$tmpFile->close();
-		
-		$filename = TMP . self::__PATH_RANKING . '/' . self::__RANKING_FILE_PREFIX . $id . '.csv';
-		$tmpFile->copy($filename, true);
-		
-		$this->Session->setFlash(h($ps['PointSeries']['name'] . 'のランキングファイルを更新しました。'));
-		
-		$this->redirect(array('controller' => 'OrgUtil', 'action' => 'point_series_csv_links'));
+		return array(
+			'ranking' => $ranking,
+			'ps' => $ps,
+			'mpss' => $mpss,
+			'nameMap' => $nameMap,
+			'teamMap' => $teamMap,
+			'racerPoints' => $racerPoints,
+		);
 	}
 	
 	/**
@@ -411,7 +441,7 @@ class PointSeriesController extends ApiBaseController
 	/**
 	 * シリーズ一覧の json をかえす
 	 */
-	public function seriesJson()
+	public function series_json()
 	{
 		$seriesList = $this->PointSeries->find('all', array('recursive' => -1));
 		
