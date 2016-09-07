@@ -10,6 +10,8 @@ App::uses('CategoryReason', 'Cyclox/Const');
 App::uses('PointCalculator', 'Cyclox/Util');
 App::uses('PointSeriesTermOfValidityRule', 'Cyclox/Const');
 
+App::uses('PointSeriesController', 'Controller');
+
 /*
  *  created at 2015/06/19 by shun
  */
@@ -947,5 +949,307 @@ class ApiController extends ApiBaseController
 		}
 		
 		return $this->error('Saving category-racers failed.', self::STATUS_CODE_BAD_REQUEST);
+	}
+	/**
+	 * ポイントシリーズのランキングにより並び替えられた結果をかえす。
+	 * post body からポイントシリーズを取得する。
+	 * @throws BadRequestException .json 拡張子無しでのアクセス時
+	 */
+	public function sorted_by_series()
+	{
+		/** リクエスト
+        {
+            "date": "2015-9-8",
+            "series": [
+                { "type":"series", "id": 12 }, <-- シリーズ指定
+                { "type":"ajocc_pt", "season": 4, "category": "CL1"} <-- AjoccPt 指定
+            ],
+            "racer": [
+                "CCM-156-0023", "KNS-000-9822",
+            ]
+        }
+		//*/
+		
+		/* レスポンス
+         * インデックス値はリクエストでのシリーズ指定と一致する
+        {
+            "sorted"; {
+                "KNS-000-2245": [
+                    { "rank":1, "exp":"33pt" }, <-- series
+					114, <-- Ajocc point
+                    { "rank":34, "exp":"8,64pt" },
+                ],
+               "KNS-156-0002": [
+                    { "rank":25, "point":"2pt" },
+					35, <-- Ajocc point
+                    { "rank":2, "point":"55,1167pt" },
+                ],
+            }
+        }
+        //*/
+	
+		if (!$this->_isApiCall()) {
+			throw new BadRequestException('無効なアクセスです。');
+		}
+		
+		if (!$this->request->is('post')) {
+			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
+		}
+		
+		if (!is_array($this->request->data)) {
+			return $this->error('sorted_by_series failed. is bad request...', self::STATUS_CODE_BAD_REQUEST);
+		}
+		
+		if (empty($this->request->data['racer'])) {
+			return $this->error('have not racer!', self::STATUS_CODE_BAD_REQUEST);
+		}
+		if (empty($this->request->data['series'])) {
+			return $this->error('have not series!', self::STATUS_CODE_BAD_REQUEST);
+		}
+		
+		$date = empty($this->request->data['date']) ? date('Y-m-d') : $this->request->data['date'];
+		
+		$racers = $this->request->data['racer'];
+		$series = $this->request->data['series'];
+		//*/
+		/* テスト用
+		$racers = array(
+			'CCH-000-0777',
+			'CCH-000-0507',
+			'CCH-000-0222',
+			'CCH-000-0101',
+			'GPM-000-0845'
+		);
+		$series = array(
+			array(
+				'type' => 'series',
+				'id' => 8
+			),
+			array(
+				'type' => 'ajocc_pt',
+				'category' => 'C2',
+				'season' => 4
+			)
+		);
+		$date = date('Y-m-d');//*/
+		
+		$rankInfos = array();
+		foreach ($racers as $code) {
+			$rankInfos[$code] = array(
+				'code' => $code,
+				'ranks' => array()
+			);
+		}
+		
+		foreach ($series as $ser) {
+			// すでに上位のシリーズでの並びが決定されている場合には下位のポイントは意味ないが、
+			// 情報として表示するので検索する。パフォーマンスが悪い場合には除外することを検討すること。
+			// （ただし同点同順位の選手らの改めての並び替えは必要となる。）
+			
+			if ($ser['type'] === "series") {
+				$rankInfos = $this->__addPointSeriesInfo($rankInfos, $ser['id'], $date);
+			} else if ($ser['type'] === "ajocc_pt") {
+				$rankInfos = $this->__addAjoccRankingInfo($rankInfos, $ser['season'], $ser['category']);
+			}
+		}
+		
+		//$this->log('ranking:', LOG_DEBUG);
+		//$this->log($rankInfos, LOG_DEBUG);
+		
+		usort($rankInfos, array($this, '__compare_series_rankings'));
+		
+		//$this->log('ranking:', LOG_DEBUG);
+		//$this->log($rankInfos, LOG_DEBUG);
+		
+		/* テスト用配列
+		$ranks = array(
+			'CCM-156-0025' => array(
+				'code' => 'CCM-156-0025',
+				'ranks' => array(
+					array('rank' => 1, 'exp' => '224,3352pt'),
+					12,
+				)
+			),
+			'KNS-000-1156' => array(
+				'code' => 'KNS-000-1156',
+				'ranks' => array(
+					array('rank' => 22, 'exp' => '12,144pt'),
+					25,
+				)
+			),
+		);
+		usort($ranks, array($this, '__compare_series_rankings'));
+		
+		$this->log('test ranks:', LOG_DEBUG);
+		$this->log($ranks, LOG_DEBUG);
+		//*/
+		
+		return $this->success(array('sorted' => $rankInfos));
+	}
+	
+	public static function __compare_series_rankings($a, $b)
+	{
+		for ($i = 0; $i < count($a['ranks']); $i++) {
+			$itemA = $a['ranks'][$i];
+			$itemB = $b['ranks'][$i];
+			if (is_array($itemA)) {
+				// compare with series
+				if (is_null($itemA['rank'])) {
+					if (is_null($itemB['rank'])) {
+						continue;
+					}
+					return 1;
+				}
+				if (is_null($itemB['rank'])) {
+					return -1;
+				}
+				
+				if ($itemA['rank'] == $itemB['rank']) {
+					// 同位
+					continue;
+				}
+				
+				return $itemA['rank'] - $itemB['rank'];
+			} else {
+				// compare with ajocc @pt
+				if ($itemA != $itemB) {
+					return $itemB - $itemA;
+				}
+			}
+		}
+		
+		// 判断できず
+		return 0;
+	}
+	
+	/**
+	 * $rankInfos にポイントシリーズによる情報を加える。要素は { "rank":23, "exp":"56,556pt" } である。
+	 * @param type $rankInfos
+	 * @param type $seriesId
+	 * @param date $baseDate ポイント計測器準備
+	 * @param type $racers not null, not empty
+	 */
+	private function __addPointSeriesInfo($rankInfos, $seriesId, $baseDate)
+	{
+		$psController = new PointSeriesController();
+		$calced = $psController->calcUpSeries($seriesId, $baseDate);
+		
+		$ranking = $calced['ranking']['ranking'];
+		
+		foreach ($rankInfos as $code => &$ri) {
+			$rpUnit = null;
+			foreach ($ranking as $unit) {
+				if ($unit->code  == $code) {
+					$rpUnit = $unit;
+					break;
+				}
+			}
+			
+			if (empty($rpUnit)) {
+				// 空配列で順位なしを与える
+				$ri['ranks'][] = array(
+					'rank' => null,
+					'exp' => '',
+				);
+			} else {
+				$str = '';
+				foreach ($rpUnit->rankPt as $pt) {
+					if (strlen($str) > 0) {
+						$str .= ',';
+					}
+				}
+				$str .= $pt . 'pt';
+				
+				$ri['ranks'][] = array(
+					'rank' => $rpUnit->rank,
+					'exp' => $str,
+				);
+			}
+		}
+		
+		return $rankInfos;
+	}
+	
+	/**
+	 * $rankInfos に Ajocc point による情報を加える。ポイントは not null で int である。
+	 * @param type $rankInfos 
+	 * @param type $season シーズン ID
+	 * @param type $category カテゴリーコード
+	 * @param type $racers not null, not empty
+	 */
+	private function __addAjoccRankingInfo($rankInfos, $season, $category)
+	{
+		$this->log('called', LOG_DEBUG);
+		
+		// season とカテゴリー指定でリザルト取得。選手コードも in list。
+		// ajocc point を集計してポイントのみを並べる。
+		
+		$this->EntryRacer->Behaviors->load('Utils.SoftDelete');
+		$this->EntryRacer->Behaviors->load('Containable');
+		
+		$codes = array();
+		$sumUped = array();
+		foreach ($rankInfos as $code => $val) {
+			$codes[] = $code;
+			$sumUped[$code] = 0;
+		}
+		
+		$options = array(
+			'conditions' => array(
+				'EntryRacer.racer_code' => $codes,
+				'RacerResult.deleted' => 0,
+				'RacerResult.ajocc_pt >' => 0,
+				'RacerResult.as_category' => $category,
+				'EntryCategory.deleted' => 0
+				// season.id は検索条件に入れられないので後の for 文内でチェックする
+			),
+			'contain' => array(
+				'RacerResult',
+				'EntryCategory' => array(
+					'fields' => array(),
+					'EntryGroup' => array(
+						'fields' => array(),
+						'Meet' => array(
+							'fields' => array('season_id'),
+						),
+					)
+				)
+			)
+		);
+		
+		// TODO: season_id を調べたいため、かなり重い処理になる。
+		// EntryCategory に season をキャッシュ値で持たせたい。
+		
+		$offset = 0;
+		$limit = 100;
+		
+		while (true) {
+			$options['offset'] = $offset;
+			$options['limit'] = $limit;
+			$ers = $this->EntryRacer->find('all', $options);
+			if (empty($ers)) break;
+
+			//$this->log('ers:', LOG_DEBUG);
+			//$this->log($ers, LOG_DEBUG);
+			
+			foreach ($ers as $er) {
+				if (empty($er['EntryCategory']['EntryGroup']['Meet']['season_id'])
+						|| $er['EntryCategory']['EntryGroup']['Meet']['season_id'] != $season) {
+					continue;
+				}
+				
+				$sumUped[$er['EntryRacer']['racer_code']] += $er['RacerResult']['ajocc_pt'];
+			}
+			
+			$offset += $limit;
+		}
+		
+		foreach ($rankInfos as $code => &$ri) {
+			$ri['ranks'][] = $sumUped[$code];
+		}
+		
+		$this->log('end', LOG_DEBUG);
+		
+		return $rankInfos;
 	}
 }
