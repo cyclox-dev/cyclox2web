@@ -302,7 +302,7 @@ class PointSeriesController extends ApiBaseController
 				if (empty($racerPoints[$racerCode])) {
 					$racerPoints[$racerCode] = array();
 				}
-				$this->log($psr, LOG_DEBUG);
+				//$this->log($psr, LOG_DEBUG);
 				// ゼロも格納する
 				$racerPoints[$racerCode][$meetIndex] = array();
 				$racerPoints[$racerCode][$meetIndex]['pt'] = $psr['PointSeriesRacer']['point']; // not null
@@ -369,8 +369,8 @@ class PointSeriesController extends ApiBaseController
 		$atDate = new DateTime('now');
 		if (!empty($seasonID)) {
 			$season = $this->Season->find('first', array('conditions' => array('id' => $seasonID), 'recurive' => 0));
-			$this->log('season:', LOG_DEBUG);
-			$this->log($season, LOG_DEBUG);
+			//$this->log('season:', LOG_DEBUG);
+			//$this->log($season, LOG_DEBUG);
 			
 			if (!empty($season['Season']['end_date'])) {
 				$atDate = new DateTime($season['Season']['end_date']);
@@ -378,7 +378,7 @@ class PointSeriesController extends ApiBaseController
 		}
 		
 		$uciAge = Util::uciCXAgeAt(new DateTime($birth), $atDate);
-		$this->log('uci age:' . $uciAge, LOG_DEBUG);
+		//$this->log('uci age:' . $uciAge, LOG_DEBUG);
 		
 		return $uciAge < 23;
 	}
