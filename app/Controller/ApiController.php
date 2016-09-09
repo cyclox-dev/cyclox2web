@@ -1157,8 +1157,9 @@ class ApiController extends ApiBaseController
 					if (strlen($str) > 0) {
 						$str .= ',';
 					}
+					$str .= $pt;
 				}
-				$str .= $pt . 'pt';
+				$str .= 'pt';
 				
 				$ri['ranks'][] = array(
 					'rank' => $rpUnit->rank,
