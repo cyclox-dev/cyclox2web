@@ -26,7 +26,8 @@ class ApiController extends ApiBaseController
 	public $uses = array('TransactionManager',
 		'Meet', 'CategoryRacer', 'Racer', 'MeetGroup', 'Season',
 		'EntryGroup', 'EntryCategory', 'EntryRacer', 'RacerResult', 'TimeRecord', 'HoldPoint',
-		'PointSeries', 'MeetPointSeries', 'PointSeriesRacer', 'RacesCategory');
+		'PointSeries', 'MeetPointSeries', 'PointSeriesRacer', 'RacesCategory',
+		'Category', 'CategoryGroup');
 	
 	public $components = array('Session', 'RequestHandler', 'ResultParamCalc', 'UnifiedRacer');
 	
@@ -950,6 +951,103 @@ class ApiController extends ApiBaseController
 		
 		return $this->error('Saving category-racers failed.', self::STATUS_CODE_BAD_REQUEST);
 	}
+	
+	/**
+	 * 基礎データの更新情報を取得する。基準日付に対して更新したデータがあれば全データをかえす。
+	 */
+	public function updated_base_data()
+	{
+		if (!$this->_isApiCall()) { // post は許可
+			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
+		}
+		
+		// category
+		// cateogry_group
+		// meet_group
+		// races_category
+		// season
+		
+		// deleted は拾わない
+		
+		$opt = array('recursive' => -1);
+		
+		if (!empty($this->params->query['date'])) {
+			$dt = $this->__getFindSqlDate($this->params->query['date']);
+			if (!$dt) {
+				return $this->error('日時表現が不正です。', self::STATUS_CODE_BAD_REQUEST);
+			}
+			
+			$opt['conditions'] = array(
+				'modified >' => $dt
+			);
+		}
+		
+		$apiRes = array();
+		
+		$catCount = $this->Category->find('count', $opt);
+		if ($catCount > 0) {
+			$cats = $this->Category->find('all', array('recursive' => -1));
+			if (!empty($cats)) {
+				$apiRes['category'] = $cats;
+			}
+		}
+		
+		$cgCount = $this->CategoryGroup->find('count', $opt);
+		if ($cgCount > 0) {
+			$cgs = $this->CategoryGroup->find('all', array('recursive' => -1));
+			if (!empty($cgs)) {
+				$apiRes['category_group'] = $cgs;
+			}
+		}
+		
+		$mgCount = $this->MeetGroup->find('count', $opt);
+		if ($mgCount > 0) {
+			$mgs = $this->MeetGroup->find('all', array('recursive' => -1));
+			if (!empty($mgs)) {
+				$apiRes['meet_group'] = $mgs;
+			}
+		}
+		
+		$seasonCount = $this->Season->find('count', $opt);
+		if ($seasonCount > 0) {
+			$seasons = $this->Season->find('all', array('recursive' => -1));
+			if (!empty($seasons)) {
+				$apiRes['season'] = $seasons;
+			}
+		}
+		
+		// qualifiedCatCodes を別立てで付加する
+		$rcCount = $this->RacesCategory->find('count', $opt);
+		if ($rcCount > 0) {
+			$this->RacesCategory->unbindModel(array(
+				'hasMany' => array('EntryCategory')
+			));
+			$rcs = $this->RacesCategory->find('all');
+			$racesCats = array();
+			
+			foreach ($rcs as $rc) {
+				if (!empty($rc['CategoryRacesCategory'])) {
+					$rcs['RacesCategory']['qualifiedCatCodes'] = array();
+					foreach ($rc['CategoryRacesCategory'] as $crc) {
+						$rc['RacesCategory']['qualifiedCatCodes'][] = $crc['category_code'];
+					}
+
+					unset($rc['CategoryRacesCategory']);
+				}
+				$racesCats[] = $rc;
+			}
+			
+			$this->log('rcs', LOG_DEBUG);
+			$this->log($racesCats, LOG_DEBUG);
+			
+			if (!empty($racesCats)) {
+				$apiRes['races_category'] = $racesCats;
+			}
+		}
+		
+		return $this->success($apiRes);
+	}
+	
 	/**
 	 * ポイントシリーズのランキングにより並び替えられた結果をかえす。
 	 * post body からポイントシリーズを取得する。
