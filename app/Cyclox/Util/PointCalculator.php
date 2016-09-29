@@ -54,6 +54,7 @@ class PointCalculator extends Object
 		4, 4, 4, 4, 3, 3, 3, 3, 3, 3,
 		2, 2, 2, 2, 2, 2, 2, 1, 1, 1,
 	);
+	const RUN_PT_IBRK167 = 1;
 	
 	// const として
 	const __KEY_STARTED_OVER = 'started_over';
@@ -371,21 +372,32 @@ class PointCalculator extends Object
 	/**
 	 * 2016-17シーズンの茨城クロスのポイントをかえす。
 	 */
-	private function __calcIBRK167($result, $grade, $raceLapCount, $raceStartedCount, $meetDate) {
-		
-		if (empty($result['rank'])) return null;
-		
+	private function __calcIBRK167($result, $grade, $raceLapCount, $raceStartedCount, $meetDate)
+	{
 		$pointSet = array(
 			'rank_pt' => self::$TABLE_IBRK167,
 		);
 		
-		$rankIndex = $result['rank'] - 1;
-		
 		$point = 0;
-		if (isset($pointSet['rank_pt'][$rankIndex])) {
-			$point = $pointSet['rank_pt'][$rankIndex];
+		if (!empty($result['rank']))
+		{
+			$point = self::RUN_PT_IBRK167;
+			$rankIndex = $result['rank'] - 1;
+
+			if (isset($pointSet['rank_pt'][$rankIndex])) {
+				$point = $pointSet['rank_pt'][$rankIndex];
+			}
+		} else {
+			// 順位なしということは DNS, DNF, DNQ, LapOut, 80%Out
+			// order_index で決定する
+			if ($result['status'] != RacerResultStatus::$DNQ->val()) {
+				$point = self::RUN_PT_IBRK167;
+				$rankIndex = $result['order_index'] - 1;
+				if (isset($pointSet['rank_pt'][$rankIndex])) {
+					$point = $pointSet['rank_pt'][$rankIndex];
+				}
+			}
 		}
-		// テーブル外はポイントなし
 		
 		$pointMap = array();
 		$pointMap['point'] = $point;
