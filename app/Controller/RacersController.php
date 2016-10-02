@@ -19,7 +19,7 @@ class RacersController extends ApiBaseController
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session', 'RequestHandler', 'Search.Prg');
+	public $components = array('Paginator', 'Session', 'RequestHandler', 'Search.Prg', 'AgedCategory');
 	
 	// Search プラグイン設定
     public $presetVars = array(
@@ -311,6 +311,12 @@ class RacersController extends ApiBaseController
 			
 			if ($this->Racer->save($this->request->data)) {
 				$this->Session->setFlash(__('新規選手データ [code:' . $code . '] を保存しました。'));
+				
+				if (!$this->AgedCategory->checkAgedCategory($code, date('Y-m-d'), true)) {
+					$this->log('Aged Category の保存に失敗しました。', LOG_ERR);
+					// not return false
+				}
+				
 				return $this->redirect('/racers/view/' . $code);
 			} else {
 				$this->Session->setFlash(__('The racer could not be saved. Please, try again.'));
@@ -358,6 +364,11 @@ class RacersController extends ApiBaseController
 			}
 			
 			if ($this->Racer->save($this->request->data)) {
+				if (!$this->AgedCategory->checkAgedCategory($code, date('Y-m-d'), true)) {
+					$this->log('Aged Category の保存に失敗しました。', LOG_ERR);
+					// not return false
+				}
+				
 				return $this->success(array());
 			} else {
 				return $this->error('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
@@ -394,6 +405,12 @@ class RacersController extends ApiBaseController
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->Racer->save($this->request->data)) {
+				
+				if (!$this->AgedCategory->checkAgedCategory($code, date('Y-m-d'), true)) {
+					$this->log('Aged Category の保存に失敗しました。', LOG_ERR);
+					// not return false
+				}
+				
 				$this->Session->setFlash(__('The racer has been saved.'));
 				return $this->redirect('/racers/view/' . $code);
 			} else {
@@ -433,6 +450,12 @@ class RacersController extends ApiBaseController
 			//$this->log($this->request->data['Racer'], LOG_DEBUG);
 			
 			if ($this->Racer->save($this->request->data)) {
+				
+				if (!$this->AgedCategory->checkAgedCategory($code, date('Y-m-d'), true)) {
+					$this->log('Aged Category の保存に失敗しました。', LOG_ERR);
+					// not return false
+				}
+				
 				return $this->success(array());
 			} else {
 				return $this->error('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST);

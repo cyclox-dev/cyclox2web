@@ -29,10 +29,7 @@ class ApiController extends ApiBaseController
 		'PointSeries', 'MeetPointSeries', 'PointSeriesRacer', 'RacesCategory',
 		'Category', 'CategoryGroup');
 	
-	public $components = array('Session', 'RequestHandler', 'ResultParamCalc', 'UnifiedRacer');
-	
-	// 昇格処理用
-	private $_offsetRankup;
+	public $components = array('Session', 'RequestHandler', 'ResultParamCalc', 'UnifiedRacer', 'AgedCategory');
 	
 	/**
 	 * 更新すべき大会情報についての code リストを取得する
@@ -816,7 +813,7 @@ class ApiController extends ApiBaseController
 		// deleted な選手の更新の場合は変更適用し、deleted でなくする
 		
 		if (is_array($this->request->data)) {
-			$saveRacers = array(); // 保存対象のみ格納する（deleted は除外）
+			$this->Racer->Behaviors->unload('Utils.SoftDelete');
 			
 			foreach ($this->request->data as $racerMap)	{
 				if (empty($racerMap['Racer'])) {
@@ -836,39 +833,23 @@ class ApiController extends ApiBaseController
 				//$this->log('racer:', LOG_DEBUG);
 				//$this->log($racerMap['Racer'], LOG_DEBUG);
 			
-				$this->Racer->Behaviors->load('Utils.SoftDelete');
-				
-				if ($this->Racer->exists($r['code'])) {
-					$saveRacers[] = $racerMap;
-					//$this->log('code:' . $r['code'] . ' is exists(not del', LOG_DEBUG);
-				} else {
-					$this->Racer->Behaviors->unload('Utils.SoftDelete');
-					if ($this->Racer->exists($r['code'])) {
-						// deleted => not deleted に設定し、変更も適用。
-						//$this->log('code:' . $r['code'] . ' is exists(deleted)', LOG_DEBUG);
-						$racerMap['Racer']['deleted'] = 0;
-						$racerMap['Racer']['deleted_date'] = null;
-						
-						
-						if (!$this->Racer->save($racerMap)) {
-							return $this->error('Saving (deleted)racers failed.', self::STATUS_CODE_BAD_REQUEST);
-						}
-						
-					} else {
-						// 新規選手登録
-						$saveRacers[] = $racerMap;
-						//$this->log('code:' . $r['code'] . ' is new racer', LOG_DEBUG);
-					}
+				// deleted => not deleted に設定し、変更も適用。
+				//$this->log('code:' . $r['code'] . ' is exists(deleted)', LOG_DEBUG);
+				$racerMap['Racer']['deleted'] = 0;
+				$racerMap['Racer']['deleted_date'] = null;
+
+				if (!$this->Racer->save($racerMap)) {
+					return $this->error('Saving (deleted)racers failed.', self::STATUS_CODE_BAD_REQUEST);
+				}
+
+				// aged category の保存
+				if (!$this->AgedCategory->checkAgedCategory($r['code'], date('Y-m-d'), true)) {
+					$this->log('Aged Category の保存に失敗しました。', LOG_ERR);
+					// not return false
 				}
 			}
 			
-			if (empty($saveRacers)) {
-				return $this->success('ok');
-			}
-			
-			if ($this->Racer->saveMany($saveRacers)) {
-				return $this->success('ok');
-			}
+			return $this->success('ok');
 		}
 		
 		return $this->error('Saving racers failed.', self::STATUS_CODE_BAD_REQUEST);
