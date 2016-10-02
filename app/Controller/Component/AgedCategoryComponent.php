@@ -126,8 +126,6 @@ class AgedCategoryComponent  extends Component
 					$this->log('カテゴリー所属の保存に失敗しました。', LOG_ERR);
 					return false;
 				}
-				
-				$deleteCrIds[] = $this->Category->id;
 			}
 		}
 		
