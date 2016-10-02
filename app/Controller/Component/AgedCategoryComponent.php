@@ -44,7 +44,7 @@ class AgedCategoryComponent  extends Component
 		
 		$baseDate = (empty($date)) ? date('Y-m-d') : $date;
 		
-		$racer = $this->Racer->find('first', array('conditions' => array('code' => $racerCode)));
+		$racer = $this->Racer->find('first', array('conditions' => array('code' => $racerCode), 'recursive' => 2));
 		if (empty($racer)) {
 			$this->log('選手 code=' . $racerCode . ' の選手が見つかりません');
 			return false;
@@ -64,6 +64,11 @@ class AgedCategoryComponent  extends Component
 		}
 		
 		$deleteCrIds = array();
+		foreach ($racer['CategoryRacer'] as $cr) {
+			if (!empty($cr['Category']['is_aged_category'])) {
+				$deleteCrIds[] = $cr['id'];
+			}
+		}
 		
 		foreach ($this->agedCats as $agedCat) {
 			
@@ -97,14 +102,25 @@ class AgedCategoryComponent  extends Component
 						if ($cr['apply_date'] == $applyDate && $cr['cancel_date'] == $cancelDate) {
 							if ($findsCr) {
 								if ($putsLog) $this->log('cat:' . $cr['id'] . '/' . $cr['category_code'] . ' will be delete(duplicated).', LOG_INFO);
-								$deleteCrIds[] = $cr['id'];
 							} else {
 								if ($putsLog) $this->log('FINDS cat:' . $cr['id'] . '/' . $cr['category_code'], LOG_INFO);
 								$findsCr = true;
+								
+								// 削除 Cr.id リスト($deleteCrIds) から除外する
+								$delIndex = -1;
+								$index = 0;
+								foreach ($deleteCrIds as $crid) {
+									if ($crid == $cr['id']) {
+										$delIndex = $index;
+										break;
+									}
+									++$index;
+								}
+								array_splice($deleteCrIds, $delIndex, 1);
 							}
 						} else {
 							if ($putsLog) $this->log('cat:' . $cr['id'] . '/' . $cr['category_code'] . ' will be delete.', LOG_INFO);
-							$deleteCrIds[] = $cr['id']; // 不適な日にち指定のものは削除してしまう。
+							// 不適な日にち指定のものは削除してしまう。
 						}
 					}
 				}
