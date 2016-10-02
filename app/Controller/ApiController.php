@@ -971,8 +971,8 @@ class ApiController extends ApiBaseController
 		
 		$opt = array('recursive' => -1);
 		
-		if (!empty($this->params->query['date'])) {
-			$dt = $this->__getFindSqlDate($this->params->query['date']);
+		if (!empty($this->request->query['date'])) {
+			$dt = $this->__getFindSqlDate($this->request->query['date']);
 			if (!$dt) {
 				return $this->error('日時表現が不正です。', self::STATUS_CODE_BAD_REQUEST);
 			}
@@ -1037,8 +1037,8 @@ class ApiController extends ApiBaseController
 				$racesCats[] = $rc;
 			}
 			
-			$this->log('rcs', LOG_DEBUG);
-			$this->log($racesCats, LOG_DEBUG);
+			//$this->log('rcs', LOG_DEBUG);
+			//$this->log($racesCats, LOG_DEBUG);
 			
 			if (!empty($racesCats)) {
 				$apiRes['races_category'] = $racesCats;
