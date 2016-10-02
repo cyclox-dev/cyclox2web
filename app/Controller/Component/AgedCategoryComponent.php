@@ -47,7 +47,7 @@ class AgedCategoryComponent  extends Component
 		$racer = $this->Racer->find('first', array('conditions' => array('code' => $racerCode)));
 		if (empty($racer)) {
 			$this->log('選手 code=' . $racerCode . ' の選手が見つかりません');
-			return;
+			return false;
 		}
 		
 		$birth = $racer['Racer']['birth_date'];
@@ -58,7 +58,10 @@ class AgedCategoryComponent  extends Component
 		}
 		
 		// >>> Transaction
-		if ($usesTransaction) $transaction = $this->TransactionManager->begin();
+		if ($usesTransaction) {
+			$TransactionManager = new TransactionManager();
+			$transaction = $TransactionManager->begin();
+		}
 		
 		$deleteCrIds = array();
 		
@@ -122,7 +125,7 @@ class AgedCategoryComponent  extends Component
 				
 				$this->CategoryRacer->create();
 				if (!$this->CategoryRacer->save($newCr)) {
-					if ($usesTransaction) $this->TransactionManager->rollback($transaction);
+					if ($usesTransaction) $TransactionManager->rollback($transaction);
 					$this->log('カテゴリー所属の保存に失敗しました。', LOG_ERR);
 					return false;
 				}
@@ -132,10 +135,10 @@ class AgedCategoryComponent  extends Component
 		// 不要なカテゴリー所属を削除
 		$ret = $this->__deleteCategories($deleteCrIds);
 		if (!$ret) {
-			if ($usesTransaction) $this->TransactionManager->rollback($transaction);
+			if ($usesTransaction) $TransactionManager->rollback($transaction);
 			$this->log('カテゴリー所属のチェックと修正に失敗しました。', LOG_ERR);
 		} else {
-			if ($usesTransaction) $this->TransactionManager->commit($transaction);
+			if ($usesTransaction) $TransactionManager->commit($transaction);
 		}
 		// <<< Transaction
 		
@@ -282,8 +285,8 @@ class AgedCategoryComponent  extends Component
 			
 			$this->agedCats = $this->Category->find('all', $opt);
 			
-			$this->log('aged cat:', LOG_DEBUG);
-			$this->log($this->agedCats, LOG_DEBUG);
+			//$this->log('aged cat:', LOG_DEBUG);
+			//$this->log($this->agedCats, LOG_DEBUG);
 		}
 	}
 }
