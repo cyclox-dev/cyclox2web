@@ -294,6 +294,85 @@ class ResultParamCalcComponent extends Component
 					$this->__applyRankUp2CM($er['racer_code'], 'CM2', $r);
 				}
 			}
+		} else if ($this->__started >= 6 && ($racesCat == 'CL2' || $racesCat == 'CL2+3')) {
+			// シリーズ少人数（5-9人）2勝で昇格
+			foreach ($results as $result) {
+				$r = $result['RacerResult'];
+
+				if ($r['rank'] != 1) continue;
+
+				// 年齢チェック
+				if (!$this->__isProperAgeForCat($result['EntryRacer']['racer_code'], $racesCat)) {
+					break; // 1位は見つけているので処理終了
+				}
+
+				// そのシーズン、での成績を取得 -> 1位があるかチェック
+
+				$mt = $this->__getMeetInfoOfEcat($ecat['id']);
+				if ($mt == null) {
+					$this->log('少人数昇格のための大会情報の取得に失敗しました。', LOG_ERR);
+					break;
+				}
+
+				$ecatIds = $this->__getEcatIDsOfSameMeet($mt, array('CL2', 'CL2+3'), false);
+				if ($ecatIds == null) {
+					$this->log('少人数昇格のための出走カテゴリー ID 配列の取得に失敗しました。', LOG_ERR);
+					break;
+				}
+
+				$opt = array('conditions' => array(
+					'EntryCategory.id' => $ecatIds,
+					'EntryRacer.racer_code' => $result['EntryRacer']['racer_code'],
+					'RacerResult.deleted' => 0,
+					'Racer.deleted' => 0,
+					'EntryCategory.deleted' => 0,
+				));
+
+				$ers = $this->EntryRacer->find('all', $opt);
+				//$this->log('ers:', LOG_DEBUG);
+				//$this->log($ers, LOG_DEBUG);
+
+				$rankUps = false;
+				foreach ($ers as $entryRacer) {
+					
+					$this->log('races cat:', LOG_DEBUG);
+					$this->log($entryRacer['EntryCategory']['races_category_code'], LOG_DEBUG);
+					
+					if (!empty($entryRacer['RacerResult']['rank']) && $entryRacer['RacerResult']['rank'] == 1) {
+						// ただしその出走人数が6人以上であること
+						$opt = array('conditions' => array(
+							'entry_category_id' => $entryRacer['EntryCategory']['id']
+						), 'recursive' => -1); // 'recursive' => -1 を書かないとカウントが異常値になる <-- er hasMany results だからっぽい。
+						$erCount = $this->EntryRacer->find('count', $opt);
+						//$this->log('er count:' . $erCount . ' id:' . $entryRacer['EntryCategory']['id'], LOG_DEBUG);
+						//$this->log($erCount, LOG_DEBUG);
+
+						if ($erCount >= 6) {
+							$rankUps = true;
+							break;
+						}
+					}
+				}
+
+				if ($rankUps) {
+					$ret = $this->__execApplyRankUp($result['EntryRacer']['racer_code'], $racesCat, $r, 'シーズン2勝', 'CL1', false);
+
+					if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
+						$this->log('昇格適用に失敗しました。', LOG_ERR);
+						return false;
+					}
+
+					if ($ret == Constant::RET_SUCCEED) {
+						$ret = $this->__setupCatRacerCancel($result['EntryRacer']['racer_code'], array('CL2'));
+						if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
+							$this->log('選手[coce:' . $result['EntryRacer']['racer_code'] . '] のカテゴリー所属の cancel_date 設定に失敗しました。', LOG_ERR);
+							// not return false
+						}
+					}
+				}
+
+				break;
+			}
 		} else {
 			// 昇格する人数の決定
 			$rankUpCount = $this->__rankUpRacerCount($racesCat);
@@ -351,7 +430,7 @@ class ResultParamCalcComponent extends Component
 						break;
 					}
 
-					$ecatIds = $this->__getEcatIDsOfMeet($mt);
+					$ecatIds = $this->__getEcatIDsOfSameMeet($mt);
 					if ($ecatIds == null) {
 						$this->log('少人数昇格のための出走カテゴリー ID 配列の取得に失敗しました。', LOG_ERR);
 						break;
@@ -413,18 +492,19 @@ class ResultParamCalcComponent extends Component
 	}
 	
 	/**
-	 * 
-	 * @param type $meet
-	 * @return type
+	 * 指定大会とシーズン、同じ大会グループである大会の出走カテゴリー ID の配列をかえす。
+	 * @param type $meet 大会データ
+	 * @param array $racesCats 抽出する対象のレースカテゴリーの配列
+	 * @param boolean $limitsSameMtGroup 同じ大会グループに限定するか
+	 * @return type エラーの場合 null をかえす
 	 */
-	private function __getEcatIDsOfMeet($meet)
+	private function __getEcatIDsOfSameMeet($meet, $racesCats, $limitsSameMtGroup = true)
 	{
 		if (empty($meet)) return null;
 		
 		$this->Meet->Behaviors->load('Containable');
 							
 		$opt = array('conditions' => array(
-			'meet_group_code' => $meet['meet_group_code'],
 			'season_id' => $meet['season_id'],
 			'NOT' => array('Meet.code' => $meet['code']), // 本大会を除外
 			'at_date <' => $meet['at_date']
@@ -433,11 +513,15 @@ class ResultParamCalcComponent extends Component
 				'EntryGroup' => array(
 					'fields' => array(),
 					'EntryCategory' => array(
-						'fields' => array('id'),
+						'fields' => array('id', 'races_category_code'),
 					)
 				)
 			)
 		);
+		
+		if ($limitsSameMtGroup) {
+			$opt['conditions']['meet_group_code'] = $meet['meet_group_code'];
+		}
 
 		$mts = $this->Meet->find('all', $opt);
 
@@ -445,7 +529,9 @@ class ResultParamCalcComponent extends Component
 		foreach ($mts as $meet) {
 			foreach ($meet['EntryGroup'] as $eg) {
 				foreach ($eg['EntryCategory'] as $ecat) {
-					$ecatIds[] = $ecat['id'];
+					if (in_array($ecat['races_category_code'], $racesCats)) {
+						$ecatIds[] = $ecat['id'];
+					}
 				}
 			}
 		}
@@ -637,9 +723,11 @@ class ResultParamCalcComponent extends Component
 	 * @param string $racesCat レースカテゴリー
 	 * @param array $result リザルト
 	 * @param string $reasonNote 昇格理由 Note
+	 * @param string $categoryTo 昇格先カテゴリーコード
+	 * @param boolean $savesHoldPoints 昇格による残留ポイントを付加するか
 	 * @return Constant.RET_xxx 処理ステータス
 	 */
-	private function __execApplyRankUp($racerCode, $racesCat, $result, $reasonNote)
+	private function __execApplyRankUp($racerCode, $racesCat, $result, $reasonNote, $categoryTo = null, $savesHoldPoints = true)
 	{
 		// 新しいカテゴリー所属の保存
 		// 現在所属しているかは見ない。不整合の場合は手動での修正とする。
@@ -647,10 +735,12 @@ class ResultParamCalcComponent extends Component
 		// 過去の Result_up の昇格は削除する
 		$applyDate = date('Y/m/d', strtotime($this->__atDate . ' +1 day'));
 		
+		$toCat = ($categoryTo == null) ? $this->__rankUpMap[$racesCat]['to'] : $categoryTo;
+		
 		$conditions = array(
 			'racer_code' => $racerCode,
 			'meet_code' => $this->__meetCode,
-			'category_code' => $this->__rankUpMap[$racesCat]['to'],
+			'category_code' => $toCat,
 			'apply_date' => $applyDate,
 			'reason_id' => CategoryReason::$RESULT_UP->ID(),
 		);
@@ -659,7 +749,7 @@ class ResultParamCalcComponent extends Component
 		$cr = array();
 		$cr['CategoryRacer'] = array();
 		$cr['CategoryRacer']['racer_code'] = $racerCode;
-		$cr['CategoryRacer']['category_code'] = $this->__rankUpMap[$racesCat]['to'];
+		$cr['CategoryRacer']['category_code'] = $toCat;
 		$cr['CategoryRacer']['apply_date'] = $applyDate;
 		$cr['CategoryRacer']['reason_id'] = CategoryReason::$RESULT_UP->ID();
 		$cr['CategoryRacer']['reason_note'] = $reasonNote;
@@ -676,17 +766,19 @@ class ResultParamCalcComponent extends Component
 		$this->log('Racer[code:' . $racerCode . '] にカテゴリー:' . $cr['CategoryRacer']['category_code']
 				. 'を適用 cr.id:' . $this->CategoryRacer->id, LOG_DEBUG);
 
-		//$this->log('(with rank-up) will give give hold point to:' . $map[$rcatCode]['to'], LOG_DEBUG);
-		$hp = array();
-		$hp['HoldPoint'] = array();
-		$hp['HoldPoint']['racer_result_id'] = $result['id'];
-		$hp['HoldPoint']['point'] = 3;
-		$hp['HoldPoint']['category_code'] = $this->__rankUpMap[$racesCat]['to'];
-		
-		$this->HoldPoint->create();
-		if (!$this->HoldPoint->save($hp)) {
-			$this->log('新カテゴリーに対する残留ポイントの保存に失敗しました。', LOG_ERR);
-			return Constant::RET_FAILED;
+		if ($savesHoldPoints) {
+			//$this->log('(with rank-up) will give give hold point to:' . $map[$rcatCode]['to'], LOG_DEBUG);
+			$hp = array();
+			$hp['HoldPoint'] = array();
+			$hp['HoldPoint']['racer_result_id'] = $result['id'];
+			$hp['HoldPoint']['point'] = 3;
+			$hp['HoldPoint']['category_code'] = $toCat;
+
+			$this->HoldPoint->create();
+			if (!$this->HoldPoint->save($hp)) {
+				$this->log('新カテゴリーに対する残留ポイントの保存に失敗しました。', LOG_ERR);
+				return Constant::RET_FAILED;
+			}
 		}
 		
 		return Constant::RET_SUCCEED;
@@ -715,7 +807,6 @@ class ResultParamCalcComponent extends Component
 				// uci cx age をチェック
 				$meetDate = new DateTime($this->__atDate);
 				$uciCxAge = Util::uciCXAgeAt(new DateTime($birth), $meetDate);
-				//$this->log('uciCxAge:' . $uciCxAge, LOG_DEBUG);
 				
 				$isBadAge = false;
 				$catTo = $this->__rankUpMap[$racesCat]['to'];
@@ -733,14 +824,26 @@ class ResultParamCalcComponent extends Component
 				// TODO: カテゴリーの設定から引き出すように。（DB 上データを修正してから）
 				
 				if ($isBadAge) {
-					$this->log('選手:' . $racerCode . 'について、対象年齢外です。', LOG_NOTICE);
-					$this->log('$uciCxAge:' . $uciCxAge, LOG_DEBUG);
-					
+					$this->log('選手:' . $racerCode . 'について、対象年齢外です (CxAge:' . $uciCxAge . ')', LOG_NOTICE);
 					return false;
 				}
 			} else {
 				$this->log('昇格処理において選手の生年月日が不明でした。選手コード:' . $racerCode
 					. ' --> 昇格は適用しますが、チェックが必要です。', LOG_WARNING);
+			}
+		} else if ($racesCat == 'CL2') {
+			$conditions = array('code' => $racerCode);
+			$racer = $this->Racer->find('first', array('conditions' => $conditions, 'recursive' => -1));
+			
+			if (!empty($racer['Racer']['birth_date'])) {
+				$birth = $racer['Racer']['birth_date'];
+				$meetDate = new DateTime($this->__atDate);
+				$uciCxAge = Util::uciCXAgeAt(new DateTime($birth), $meetDate);
+				
+				if ($uciCxAge < 16) { // age16 is for CL1
+					$this->log('選手:' . $racerCode . 'について、対象年齢外です (CxAge:' . $uciCxAge . ')', LOG_NOTICE);
+					return false;
+				}
 			}
 		}
 		
