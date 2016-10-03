@@ -292,32 +292,37 @@ class ResultParamCalcComponent extends Component
 			} else {
 				// 昇格する人数の決定
 				$rankUpCount = $this->__rankUpRacerCount($racesCat);
-				$count = $rankUpCount;
+				
+				if ($rankUpCount > 0) {
+					$count = $rankUpCount;
 
-				// ループで先頭から順に昇格を与える。昇格年齢制限があった場合は繰り上げ。
-				foreach ($results as $result) {
-					$isOpenRacer = ($result['EntryRacer']['entry_status'] == RacerEntryStatus::$OPEN->val());
-					if ($isOpenRacer) {
-						// リザルトに基づく昇格は削除する(↑)
-						continue;
-					}
-
-					$r = $result['RacerResult'];
-					
-					if ($count > 0) {
-						$ret = $this->__setupCatRacerCancel($result['EntryRacer']['racer_code'], $this->__rankUpMap[$racesCat]['needs']);
-						if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
-							$this->log('選手[coce:' . $result['EntryRacer']['racer_code'] . '] のカテゴリー所属の cancel_date 設定に失敗しました。', LOG_ERR);
-							// continue
+					// ループで先頭から順に昇格を与える。昇格年齢制限があった場合は繰り上げ。
+					foreach ($results as $result) {
+						$isOpenRacer = ($result['EntryRacer']['entry_status'] == RacerEntryStatus::$OPEN->val());
+						if ($isOpenRacer) {
+							// リザルトに基づく昇格は削除する(↑)
+							continue;
 						}
 
-						$ret = $this->__applyRankUp($result['EntryRacer']['racer_code'], $racesCat, $r, $rankUpCount);
-						if ($ret != Constant::RET_NO_ACTION) {
-							--$count; // failed, error でも繰り上げしない
-						}
-						if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
-							$this->log('昇格適用に失敗しました。');
-							return false;
+						$r = $result['RacerResult'];
+
+						if ($count > 0) {
+							$ret = $this->__applyRankUp($result['EntryRacer']['racer_code'], $racesCat, $r, $rankUpCount);
+							if ($ret != Constant::RET_NO_ACTION) {
+								--$count; // failed, error でも繰り上げしない
+							}
+							if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
+								$this->log('昇格適用に失敗しました。');
+								return false;
+							}
+							
+							if ($ret == Constant::RET_SUCCEED) {
+								$ret = $this->__setupCatRacerCancel($result['EntryRacer']['racer_code'], $this->__rankUpMap[$racesCat]['needs']);
+								if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
+									$this->log('選手[coce:' . $result['EntryRacer']['racer_code'] . '] のカテゴリー所属の cancel_date 設定に失敗しました。', LOG_ERR);
+									// continue
+								}
+							}
 						}
 					}
 				}
