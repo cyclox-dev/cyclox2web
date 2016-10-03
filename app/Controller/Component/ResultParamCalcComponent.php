@@ -959,7 +959,7 @@ class ResultParamCalcComponent extends Component
 		$this->Racer->Behaviors->load('Utils.SoftDelete');
 		$this->EntryGroup = new EntryGroup();
 		$this->EntryGroup->Behaviors->load('Utils.SoftDelete');
-		$this->EntryCategory = new EntryGroup();
+		$this->EntryCategory = new EntryCategory();
 		$this->EntryCategory->Behaviors->load('Utils.SoftDelete');
 		$this->CategoryRacer = new CategoryRacer();
 		$this->CategoryRacer ->Behaviors->load('Utils.SoftDelete');
