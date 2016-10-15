@@ -77,7 +77,8 @@
 	Configure::write('Exception', array(
 		'handler' => 'ErrorHandler::handleException',
 		'renderer' => 'ExceptionRenderer',
-		'log' => true
+		'log' => true,
+		'skipLog' => array('UnauthorizedException')
 	));
 
 /**
