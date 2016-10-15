@@ -430,7 +430,28 @@ class ResultParamCalcComponent extends Component
 						break;
 					}
 
-					$ecatIds = $this->__getEcatIDsOfSameMeet($mt);
+					$needRacesCat = array($racesCat);
+					if ($racesCat == 'C3' || $racesCat == 'C4') {
+						// C3 レースで以前に C3+4 で勝っているなら昇格 to C2
+						// C4 レースでも以前に C3+4 で勝っているなら昇格 to C3
+						$needRacesCat[] = 'C3+4';
+					} else if ($racesCat == 'C3+4') {
+						$needRacesCat[] = 'C3';
+						$needRacesCat[] = 'C4';
+						/*
+						// C3 所属しているなら以前の C3(orC3+4) レースがあるかチェックで C2 へ昇格
+						// C3 所属していないなら C4(orC3+4) レースがあるかチェックで C3 へ昇格
+						if ($this->__hasC3Cat($result['EntryRacer']['racer_code'])) {
+							$catTo = 'C2';
+							$needRacesCat[] = 'C3';
+						} else {
+							$catTo = 'C3';
+							$needRacesCat[] = 'C4';
+							$cancelCats = array('C4'); //C3 はキャンセルしない
+						}//*/
+					}
+					
+					$ecatIds = $this->__getEcatIDsOfSameMeet($mt, $needRacesCat);
 					if ($ecatIds == null) {
 						$this->log('少人数昇格のための出走カテゴリー ID 配列の取得に失敗しました。', LOG_ERR);
 						break;
@@ -448,6 +469,9 @@ class ResultParamCalcComponent extends Component
 					//$this->log('ers:', LOG_DEBUG);
 					//$this->log($ers, LOG_DEBUG);
 
+					$catTo = null;
+					$cancelCats = $this->__rankUpMap[$racesCat]['needs'];
+					
 					$rankUps = false;
 					foreach ($ers as $entryRacer) {
 						if (!empty($entryRacer['RacerResult']['rank']) && $entryRacer['RacerResult']['rank'] == 1) {
@@ -461,13 +485,29 @@ class ResultParamCalcComponent extends Component
 
 							if ($erCount >= 5 && $erCount <= 9) {
 								$rankUps = true;
-								break;
+								if ($racesCat == 'C3+4') { // 特殊処理
+									if ($entryRacer['EntryCategory']['races_category_code'] == 'C3'
+											|| $entryRacer['EntryCategory']['races_category_code'] == 'C3+4') {
+										// 過去に C3 or C3+4 で少人数勝利しているなら C2 に昇格
+										$catTo = 'C2';
+										$cancelCats = array('C3', 'C4');
+									} else if ($entryRacer['EntryCategory']['races_category_code'] == 'C4') {
+										// 過去に C4 で少人数勝利しているなら C3 に昇格
+										if ($catTo != 'C2') {
+											$catTo = 'C3';
+											$cancelCats = array('C4'); // C3 はキャンセルしない
+										}
+									}
+									// not break
+								} else {
+									break;
+								}
 							}
 						}
 					}
 
 					if ($rankUps) {
-						$ret = $this->__execApplyRankUp($result['EntryRacer']['racer_code'], $racesCat, $r, '少人数シーズン2勝');
+						$ret = $this->__execApplyRankUp($result['EntryRacer']['racer_code'], $racesCat, $r, '少人数シーズン2勝', $catTo);
 						
 						if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
 							$this->log('昇格適用に失敗しました。', LOG_ERR);
@@ -475,7 +515,7 @@ class ResultParamCalcComponent extends Component
 						}
 
 						if ($ret == Constant::RET_SUCCEED) {
-							$ret = $this->__setupCatRacerCancel($result['EntryRacer']['racer_code'], $this->__rankUpMap[$racesCat]['needs']);
+							$ret = $this->__setupCatRacerCancel($result['EntryRacer']['racer_code'], $cancelCats);
 							if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
 								$this->log('選手[coce:' . $result['EntryRacer']['racer_code'] . '] のカテゴリー所属の cancel_date 設定に失敗しました。', LOG_ERR);
 								// not return false
