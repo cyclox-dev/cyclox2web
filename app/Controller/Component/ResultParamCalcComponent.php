@@ -1312,7 +1312,7 @@ class ResultParamCalcComponent extends Component
 			// 2015-16 シーズンは C2, CM2 ともに昇格人数が1人に制限される前だった
 			$this->__rankUpMap['C2']['rule'] = $this->__rule0123;
 			$this->__rankUpMap['CM2']['rule'] = $this->__rule0112;
-			$this->__rankUpMap['C2+3']['rule'] = $this->__rule0112;
+			$this->__rankUpMap['CM2+3']['rule'] = $this->__rule0112;
 		}
 	}
 	
