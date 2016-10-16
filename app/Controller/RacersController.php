@@ -119,8 +119,8 @@ class RacersController extends ApiBaseController
 			$cdt[] = array('OR' => $orcdt);
 		}
 		
-		$this->log('cdt is', LOG_DEBUG);
-		$this->log($cdt, LOG_DEBUG);
+		//$this->log('cdt is', LOG_DEBUG);
+		//$this->log($cdt, LOG_DEBUG);
 		
 		$ret = array($andor => $cdt);
 		return $ret;
