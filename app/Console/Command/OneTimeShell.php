@@ -1005,4 +1005,116 @@ class OneTimeShell extends AppShell
 		
 		$this->log('<<< End setupAgedCategory', LOG_INFO);
 	}
+	
+	/**
+	 * カテゴリー所属から性別を設定する
+	 * > cd app ディレクトリ
+	 * > Console/cake one_time setupGenderFromCats
+	 */
+	public function setupGenderFromCats()
+	{
+		// Women 系統持っているなら Lady
+		// そうでく、Elite, Masters, CJ, U15, U17 持っているなら Men
+		
+		$ladyCats = array('CL1', 'CL2', 'CL3');
+		$menCats = array('C1', 'C2', 'C3', 'C4', 'CM1', 'CM2', 'CM3', 'CM4', 'CJ', 'U15', 'U17');
+		
+		$opt = array(
+			'recursive' => -1,
+			'conditions' => array(
+				'Racer.deleted' => 0,
+				array('gender' => Gender::$UNASSIGNED->val()),
+			)
+		);
+		
+		$count = $this->Racer->find('count', $opt);
+		if ($count <= 0) {
+			$this->log('処理なし', LOG_INFO);
+			return;
+		}
+		
+		$offset = $count - 50; // 逆順でやっていく
+		if ($offset < 0) $offset = 0;
+		$limit = 50;
+		
+		$opt['recursive'] = 1;
+		
+		$this->log('>>> Start setupGenderFromCats', LOG_INFO);
+		
+		// >>> Transaction
+		$transaction = $this->TransactionManager->begin();
+		
+		$index = 0;
+		while (true) {
+			$opt['offset'] = $offset;
+			$opt['limit'] = $limit;
+			
+			$racers = $this->Racer->find('all', $opt);
+			
+			if (empty($racers)) {
+				$this->log('could not find racers... break.', LOG_DEBUG);
+				break;
+			}
+			
+			foreach ($racers as $r) {
+				++$index;
+				if (empty($r['CategoryRacer'])) continue;
+				
+				$ladiesCat = null;
+				foreach ($r['CategoryRacer'] as $cr) {
+					if (in_array($cr['category_code'], $ladyCats)) {
+						$ladiesCat = $cr['category_code'];
+						break;
+					}
+				}
+				
+				if (!empty($ladiesCat)) {
+					$this->log('[' . $index . '] Racer:' . $r['Racer']['code'] . ' gender:Lady from cat:' . $ladiesCat, LOG_DEBUG);
+					$param = array(
+						'code' => $r['Racer']['code'],
+						'gender' => Gender::$FEMALE->val()
+					);
+					$this->Racer->create();
+					if (!$this->Racer->save($param)) {
+						$this->log('code:' . $r['Racer']['code'] . ' の処理に失敗しました。', LOG_ERR);
+						$this->TransactionManager->rollback($transaction);
+					}
+					continue;
+				}
+				
+				$isMenCat = null;
+				foreach ($r['CategoryRacer'] as $cr) {
+					if (in_array($cr['category_code'], $menCats)) {
+						$isMenCat = $cr['category_code'];
+						break;
+					}
+				}
+				
+				if (empty($isMenCat)) continue;
+				
+				$this->log('[' . $index . '] Racer:' . $r['Racer']['code'] . ' gender:Men from cat:' . $isMenCat, LOG_DEBUG);
+				$param = array(
+					'code' => $r['Racer']['code'],
+					'gender' => Gender::$MALE->val()
+				);
+				$this->Racer->create();
+				if (!$this->Racer->save($param)) {
+					$this->log('code:' . $r['Racer']['code'] . ' の処理に失敗しました。', LOG_ERR);
+					$this->TransactionManager->rollback($transaction);
+				}
+			}
+			
+			if ($offset == 0) break;
+			
+			$offset -= $limit;
+			if ($offset < 0) {
+				$offset = 0;
+			}
+		}
+		
+		$this->TransactionManager->commit($transaction);
+		// <<< Transaction
+		
+		$this->log('<<< End setupGenderFromCats', LOG_INFO);
+	}
 }
