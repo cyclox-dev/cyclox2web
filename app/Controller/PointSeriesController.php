@@ -146,8 +146,20 @@ class PointSeriesController extends ApiBaseController
 		}
 		
 		$id = $this->request->data['point_series_id'];
+		$date = $this->request->data['date'];
 		
-		$ret = $this->calcUpSeries($id, $date);
+		$dt = null;
+		if (is_array($date)) {
+			if (!empty($date['year']) && !empty($date['month']) && !empty($date['day'])) {
+				$dt = $date['year'] . '-' . $date['month'] . '-' . $date['day'];
+			}
+		} else if (is_string($date)) {
+			if (Util::is_date($date)) {
+				$dt = $date;
+			}
+		}
+		
+		$ret = $this->calcUpSeries($id, $dt);
 		
 		$ranking = $ret['ranking'];
 		$ps = $ret['ps'];
@@ -167,7 +179,8 @@ class PointSeriesController extends ApiBaseController
 			$tmpFile->delete();
 		}
 		$tmpFile->create();
-		$tmpFile->append(mb_convert_encoding($ps['PointSeries']['name'] . ' ランキング,更新日:' . date('Y/m/d') ."\n", 'UTF-8', 'auto'));
+		$tmpFile->append(mb_convert_encoding($ps['PointSeries']['name'] . ' ランキング,更新日:' . date('Y-m-d')
+				. ',計算基準日:' . $dt . "\n", 'UTF-8', 'auto'));
 		$rowString = '順位,選手 Code,選手名,チーム名';
 		foreach ($mpss as $mps) {
 			$rowString .= ',' . $mps['MeetPointSeries']['express_in_series'];
@@ -245,11 +258,12 @@ class PointSeriesController extends ApiBaseController
 		}
 		
 		$dt = ($date == null) ? date('Y-m-d') : $date;
+		
 		$op = array(
 			'conditions' => array(
 				'point_series_id' => $seriesId,
 				array('or' => array(
-					array('point_term_end >=' =>$dt),
+					array('point_term_end >=' => $dt),
 					array('point_term_end' => null),
 				)),
 				array('or' => array(
