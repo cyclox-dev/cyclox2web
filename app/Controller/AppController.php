@@ -79,7 +79,8 @@ class AppController extends Controller
 			Configure::write('Exception', array(
 				'handler' => 'ErrorHandler::handleException',
 				'renderer' => 'AppExceptionRenderer',
-				'log' => true
+				'log' => true,
+				'skipLog' => array('UnauthorizedException')
 			));
 			App::import('Lib', 'Error/ApiException');
 			App::import('Lib', 'Error/AppExceptionRenderer');
