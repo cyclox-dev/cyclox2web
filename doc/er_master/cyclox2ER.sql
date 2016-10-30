@@ -365,6 +365,7 @@ CREATE TABLE racers
 	prefecture varchar(255) BINARY,
 	address varchar(255) BINARY,
 	note text BINARY,
+	cat_limit varchar(255) BINARY,
 	created datetime,
 	modified datetime,
 	deleted_date datetime,
