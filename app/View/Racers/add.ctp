@@ -58,6 +58,8 @@
 		echo $this->Form->input('prefecture', array('type' => 'text', 'label' => '都道府県 (Prefecture)'));
 		echo $this->Form->input('address', array('type' => 'text'));
 		echo $this->Form->input('note');
+		echo $this->Form->input('cat_limit', array('label' => 'エントリーに関するカテゴリー制限（2015-16〜シーズンごと／e:Elite, m:Masters, n:none'
+			. '／自動で設定されるので手動設定は普通必要ない。）'));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>

@@ -83,6 +83,11 @@
 			<?php echo h($racer['Racer']['note']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('エントリー制限'); ?></dt>
+		<dd>
+			<?php echo h($racer['Racer']['cat_limit']); ?>
+			&nbsp;
+		</dd>
 	</dl>
 <p style="height: 1em"></p>
 <h3>連絡先</h3>
