@@ -40,7 +40,7 @@ class CatLimitShell extends AppShell
 		// 引数による選手指定、日時指定などはとりあえず無しで。
 		// cron 前提で作成している @20161031
 		
-		$this->out('>>> Start setupCatLimit');
+		$this->log('>>> Start setupCatLimit', LOG_DEBUG);
 		
 		// 最後に parm vars に設定する日時を取得
 		$nextUpdateDate = date("Y-m-d H:i:s");
@@ -235,7 +235,7 @@ class CatLimitShell extends AppShell
 			return;
 		}
 		
-		$this->out('>>> End setupCatLimit');
+		$this->log('>>> End setupCatLimit', LOG_DEBUG);
 	}
 	
 	/**
