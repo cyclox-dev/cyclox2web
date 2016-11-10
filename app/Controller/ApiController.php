@@ -5,6 +5,7 @@ App::uses('ApiBaseController', 'Controller');
 App::uses('Util', 'Cyclox/Util');
 App::uses('RacerResultStatus', 'Cyclox/Const');
 App::uses('RacerEntryStatus', 'Cyclox/Const');
+App::uses('Gender', 'Cyclox/Const');
 App::uses('Constant', 'Cyclox/Const');
 App::uses('CategoryReason', 'Cyclox/Const');
 App::uses('PointCalculator', 'Cyclox/Util');
@@ -832,7 +833,22 @@ class ApiController extends ApiBaseController
 				}
 				//$this->log('racer:', LOG_DEBUG);
 				//$this->log($racerMap['Racer'], LOG_DEBUG);
-			
+				
+				$this->log('code:' . $r['code'] . 'について処理', LOG_INFO);
+				
+				if (!$this->Racer->exists($r['code'])) {
+					$this->log('not exists', LOG_INFO);
+					if (empty($r['family_name'])) $racerMap['Racer']['family_name'] = '_姓が未入力です';
+					if (empty($r['first_name'])) $racerMap['Racer']['first_name'] = '_名前が未入力です';
+
+					if (empty($r['family_name_kana'])) $racerMap['Racer']['family_name_kana'] = '';
+					if (empty($r['family_name_en'])) $racerMap['Racer']['family_name_en'] = '';
+					if (empty($r['first_name_kana'])) $racerMap['Racer']['first_name_kana'] = '';
+					if (empty($r['first_name_en'])) $racerMap['Racer']['first_name_en'] = '';
+					
+					if (empty($r['gender'])) $racerMap['Racer']['gender'] = Gender::$UNASSIGNED->val();
+				}
+				
 				// deleted => not deleted に設定し、変更も適用。
 				//$this->log('code:' . $r['code'] . ' is exists(deleted)', LOG_DEBUG);
 				$racerMap['Racer']['deleted'] = 0;
