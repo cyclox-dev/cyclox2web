@@ -1143,6 +1143,7 @@ class ResultParamCalcComponent extends Component
 		//$this->log($opt, LOG_DEBUG);
 		$cats = $this->CategoryRacer->find('all', $opt);
 		
+		$this->RacesCategory->unbindModel(array('hasMany' => array('EntryCategory')), true);
 		$opt = array(
 			'conditions' => array('code' => $ecat['races_category_code']),
 			'recursive' => 2

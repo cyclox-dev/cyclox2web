@@ -465,7 +465,7 @@ class ApiController extends ApiBaseController
 				}//*/
 				$ress[] = $result;
 				
-				$this->log('new result id:' . $this->RacerResult->id, LOG_DEBUG);
+				//$this->log('new result id:' . $this->RacerResult->id, LOG_DEBUG);
 				$result['RacerResult']['id'] = $this->RacerResult->id;
 				
 				$err = array();
