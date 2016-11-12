@@ -335,8 +335,8 @@ class ResultParamCalcComponent extends Component
 				$rankUps = false;
 				foreach ($ers as $entryRacer) {
 					
-					$this->log('races cat:', LOG_DEBUG);
-					$this->log($entryRacer['EntryCategory']['races_category_code'], LOG_DEBUG);
+					//$this->log('races cat:', LOG_DEBUG);
+					//$this->log($entryRacer['EntryCategory']['races_category_code'], LOG_DEBUG);
 					
 					if (!empty($entryRacer['RacerResult']['rank']) && $entryRacer['RacerResult']['rank'] == 1) {
 						// ただしその出走人数が6人以上であること

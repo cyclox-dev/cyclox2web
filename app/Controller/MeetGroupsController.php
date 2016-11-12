@@ -54,8 +54,8 @@ class MeetGroupsController extends ApiBaseController
 			$options = array('conditions' => array('meet_group_code' => $id));
 			$meets = $this->Meet->find('all', $options);
 			$meetGroup['meets'] = $meets;
-			$this->log('Meet:', LOG_DEBUG);
-			$this->log($meets, LOG_DEBUG);
+			//$this->log('Meet:', LOG_DEBUG);
+			//$this->log($meets, LOG_DEBUG);
 			$this->set('meetGroup', $meetGroup);
 		}
 	}

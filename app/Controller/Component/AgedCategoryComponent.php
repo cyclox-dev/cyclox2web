@@ -35,7 +35,7 @@ class AgedCategoryComponent  extends Component
 	{
 		$this->__setupParams();
 		
-		$putsLog = true;
+		$putsLog = false;
 		
 		if (empty($racerCode)) {
 			$this->log('選手コードを指定して下さい。', LOG_ERR);
