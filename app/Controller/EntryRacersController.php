@@ -25,6 +25,10 @@ class EntryRacersController extends ApiBaseController {
  */
 	public function index() {
 		$this->EntryRacer->recursive = 0;
+		
+		// recursive = 0 にしたので、同じ entry_racer が複数行になるのを防止。
+		$this->EntryRacer->RacerResult->Behaviors->load('Utils.SoftDelete');
+		
 		$this->set('entryRacers', $this->Paginator->paginate());
 	}
 
