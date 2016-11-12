@@ -645,7 +645,14 @@ class ResultParamCalcComponent extends Component
 			'apply_date' => $applyDate,
 			'reason_id' => CategoryReason::$RESULT_UP->ID(),
 		);
-		$this->CategoryRacer->deleteAll($conditions);
+		//$this->CategoryRacer->deleteAll($conditions);
+		$crs = $this->CategoryRacer->find('all', array('conditions' => $conditions, 'recursive' => -1));
+		foreach ($crs as $key => $val) {
+			if (!$this->CategoryRacer->delete($val['CategoryRacer']['id'])) {
+				$this->log('選手カテゴリー所属の削除に失敗しました。', LOG_ERR);
+				return Constant::RET_FAILED;
+			}
+		}
 		
 		// 昇格元カテゴリーへの cancel date の設定
 		
@@ -784,7 +791,14 @@ class ResultParamCalcComponent extends Component
 			'apply_date' => $applyDate,
 			'reason_id' => CategoryReason::$RESULT_UP->ID(),
 		);
-		$this->CategoryRacer->deleteAll($conditions);
+		//$this->CategoryRacer->deleteAll($conditions);
+		$crs = $this->CategoryRacer->find('all', array('conditions' => $conditions, 'recursive' => -1));
+		foreach ($crs as $key => $val) {
+			if (!$this->CategoryRacer->delete($val['CategoryRacer']['id'])) {
+				$this->log('選手カテゴリー所属の削除に失敗しました。', LOG_ERR);
+				return Constant::RET_FAILED;
+			}
+		}
 		
 		$cr = array();
 		$cr['CategoryRacer'] = array();
