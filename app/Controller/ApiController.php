@@ -2,6 +2,7 @@
 
 App::uses('ApiBaseController', 'Controller');
 
+App::uses('Validation', 'Utility');
 App::uses('Util', 'Cyclox/Util');
 App::uses('RacerResultStatus', 'Cyclox/Const');
 App::uses('RacerEntryStatus', 'Cyclox/Const');
@@ -828,6 +829,9 @@ class ApiController extends ApiBaseController
 				// team の空入力での書換えは無しとする（Cyclox2 App ver1.10 のバグ対策）
 				if (isset($racerMap['Racer']['team'])) {
 					if ($racerMap['Racer']['team'] === '') {
+						unset($racerMap['Racer']['team']);
+					} else if (Validation::email($racerMap['Racer']['team'])) {
+						$this->log('チーム名:' . $racerMap['Racer']['team'] . 'を空に設定します', LOG_INFO);
 						unset($racerMap['Racer']['team']);
 					}
 				}
