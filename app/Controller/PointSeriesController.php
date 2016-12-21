@@ -2,6 +2,7 @@
 
 App::uses('ApiBaseController', 'Controller');
 
+App::uses('Validation', 'Utility');
 App::uses('Folder', 'Utility');
 App::uses('File', 'Utility');
 App::uses('PointCalculator', 'Cyclox/Util');
@@ -312,6 +313,11 @@ class PointSeriesController extends ApiBaseController
 			//$this->log('psrs is...' . count($psrs), LOG_DEBUG);
 			
 			foreach ($psrs as $psr) {
+				
+				// result.deleted, entry_racer.deleted など拾おうと思ったが、外部レースの集計を考えると入れておきたい
+				// ただし deleted の連鎖がきちんと動いていないと不正になる可能性がある。
+				// TODO: 再考慮スべし
+				
 				$racerCode = $psr['PointSeriesRacer']['racer_code'];
 				if (empty($racerPoints[$racerCode])) {
 					$racerPoints[$racerCode] = array();
@@ -337,11 +343,15 @@ class PointSeriesController extends ApiBaseController
 				// $psr['Racer']['team'] は現在のチーム名とは異なる可能性もあるので、格納しない（出走チーム名無しの場合）。
 				
 				// それぞれのシリーズ内の選手名、チーム名を表示するため、result->entryRacer から取得。
-				if (!emptY($psr['RacerResult']['EntryRacer']['name_at_race'])) {
+				if (!empty($psr['RacerResult']['EntryRacer']['name_at_race'])) {
 					$nameMap[$racerCode] = $psr['RacerResult']['EntryRacer']['name_at_race'];
 				}
-				if (!emptY($psr['RacerResult']['EntryRacer']['team_name'])) {
-					$teamMap[$racerCode] = $psr['RacerResult']['EntryRacer']['team_name'];
+				if (!empty($psr['RacerResult']['EntryRacer']['team_name'])) {
+					if (!Validation::email($psr['RacerResult']['EntryRacer']['team_name'])) {
+						$teamMap[$racerCode] = $psr['RacerResult']['EntryRacer']['team_name'];
+					} else {
+						$this->log($psr['RacerResult']['EntryRacer']['team_name'] . 'がmail 形式のため、設定せず。', LOG_WARNING);
+					}
 				}
 			}
 			
