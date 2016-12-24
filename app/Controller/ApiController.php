@@ -827,10 +827,10 @@ class ApiController extends ApiBaseController
 				}
 				
 				// team の空入力での書換えは無しとする（Cyclox2 App ver1.10 のバグ対策）
+				// --> @ver1.20 時間が経過したので上記対策をキャンセルとする。@20161224
+				//		逆にチーム名を empty にできないため、不都合となった。
 				if (isset($racerMap['Racer']['team'])) {
-					if ($racerMap['Racer']['team'] === '') {
-						unset($racerMap['Racer']['team']);
-					} else if (Validation::email($racerMap['Racer']['team'])) {
+					if (Validation::email($racerMap['Racer']['team'])) {
 						$this->log('チーム名:' . $racerMap['Racer']['team'] . 'を空に設定します', LOG_INFO);
 						unset($racerMap['Racer']['team']);
 					}
