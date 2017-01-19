@@ -24,6 +24,7 @@
 		echo $this->Form->input('family_name_en', array('type' => 'text', 'label' => 'Family Name'));
 		echo $this->Form->input('first_name_en', array('type' => 'text', 'label' => 'First Name'));
 		echo $this->Form->input('team', array('label' => 'チーム名'));
+		echo $this->Form->input('team_en', array('label' => 'Team name(en)'));
 		echo $this->Form->input('gender', array('options'=> $genderArr, 'label' => '性別'));
 		echo $this->Form->input('birth_date', array(
 			'label' => '生年月日',

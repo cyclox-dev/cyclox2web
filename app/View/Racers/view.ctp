@@ -45,6 +45,11 @@
 			<?php echo h($racer['Racer']['team']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('Team name(en)'); ?></dt>
+		<dd>
+			<?php echo h($racer['Racer']['team_en']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('性別'); ?></dt>
 		<dd>
 			<?php

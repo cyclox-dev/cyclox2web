@@ -2,8 +2,8 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 /* Drop Tables */
 
-DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS category_racers;
+DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
 DROP TABLE IF EXISTS time_records;
@@ -346,6 +346,7 @@ CREATE TABLE racers
 	first_name_kana varchar(255) BINARY NOT NULL,
 	first_name_en varchar(255) BINARY NOT NULL,
 	team varchar(255) BINARY,
+	team_en varchar(255) BINARY,
 	gender tinyint NOT NULL,
 	birth_date date,
 	-- JPN など
