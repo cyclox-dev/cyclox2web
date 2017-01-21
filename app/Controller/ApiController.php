@@ -850,7 +850,7 @@ class ApiController extends ApiBaseController
 					if (empty($r['first_name_kana'])) $racerMap['Racer']['first_name_kana'] = '';
 					if (empty($r['first_name_en'])) $racerMap['Racer']['first_name_en'] = '';
 					
-					if (empty($r['gender'])) $racerMap['Racer']['gender'] = Gender::$UNASSIGNED->val();
+					if (!isset($r['gender'])) $racerMap['Racer']['gender'] = Gender::$UNASSIGNED->val();
 				}
 				
 				// deleted => not deleted に設定し、変更も適用。
