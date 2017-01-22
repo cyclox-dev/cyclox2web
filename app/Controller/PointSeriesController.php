@@ -235,9 +235,10 @@ class PointSeriesController extends ApiBaseController
 	}
 	
 	/**
-	 * ランキング集計を行なう。
+	 * ランキング集計を行なう。point series の設定で、hint に cat_limit:C1/C2 などとすると、
+	 * 計算日でのカテゴリー所属がチェックされる。上記例だと C1 or C2 に所属していることが条件となる。
 	 * @param type $seriesId
-	 * @param type $date
+	 * @param type $date 計算基準日
 	 * @return array 'ranking', 'ps', 'mpss', 'nameMap', 'teamMap', 'racerPoints' をキーとする配列
 	 * @throws NotFoundException
 	 */
@@ -257,6 +258,19 @@ class PointSeriesController extends ApiBaseController
 		if (empty($sumUpRule)) {
 			throw new NotFoundException(__('Invalid(empty) sum-up-rule setting of point series'));
 		}
+		
+		$catLimit = array();
+		if (isset($ps['PointSeries']['hint'])) {
+			$seriesHints = PointSeriesSumUpRule::getSeriesHints($ps['PointSeries']['hint']);
+			foreach ($seriesHints as $key => $val) {
+				if ($key == 'cat_limit') {
+					$catLimit = explode("/", $val);
+					break;
+				}
+			}
+		}
+		$this->log('cat limit:', LOG_DEBUG);
+		$this->log($catLimit, LOG_DEBUG);
 		
 		$dt = ($date == null) ? date('Y-m-d') : $date;
 		
@@ -305,6 +319,10 @@ class PointSeriesController extends ApiBaseController
 				)
 			);
 			
+			if (!empty($catLimit)) {
+				$contains['Racer'][] = 'CategoryRacer';
+			}
+			
 			$op = array(
 				'conditions' => array('meet_point_series_id' => $mps['MeetPointSeries']['id']),
 				'contain' => $contains
@@ -313,6 +331,25 @@ class PointSeriesController extends ApiBaseController
 			//$this->log('psrs is...' . count($psrs), LOG_DEBUG);
 			
 			foreach ($psrs as $psr) {
+				
+				if (!empty($catLimit)) {
+					// カテゴリー所属制限をチェック
+					$hasCat = false;
+					foreach ($psr['Racer']['CategoryRacer'] as $cr) {
+						if ($cr['deleted'] == 1 || $cr['apply_date'] > $dt
+								|| (!empty($cr['cancel_date']) && $cr['cancel_date'] < $dt)) {
+							continue;
+						}
+						
+						if (in_array($cr['category_code'], $catLimit)) {
+							$hasCat = true;
+							break;
+						}
+					}
+					
+					//$this->log('hasCat:' . $hasCat . ' racer:' . $psr['PointSeriesRacer']['racer_code'], LOG_DEBUG);
+					if (!$hasCat) continue;
+				}
 				
 				// result.deleted, entry_racer.deleted など拾おうと思ったが、外部レースの集計を考えると入れておきたい
 				// ただし deleted の連鎖がきちんと動いていないと不正になる可能性がある。
