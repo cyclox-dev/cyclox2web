@@ -152,7 +152,7 @@ class PointSeriesSumUpRule extends Object
 			$requiredIndices[] = $this->_requiredMeetPS($hint);
 		}
 		
-		$shint = $this->__getSeriesHints($seriesHint);
+		$shint = self::getSeriesHints($seriesHint);
 		$maxSumupRaceCount = $this->__getJcxMaxRaceCount($shint);
 		
 		$rankPtUits = array();
@@ -220,7 +220,7 @@ class PointSeriesSumUpRule extends Object
 	 * @param string $str ヒント文字列 key1:value1,key2:value2,,, と並んでいる
 	 * @return $str を配列化したもの
 	 */
-	private function __getSeriesHints($str)
+	public static function getSeriesHints($str)
 	{
 		if (empty($str)) {
 			return array();
