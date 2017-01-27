@@ -835,6 +835,12 @@ class ApiController extends ApiBaseController
 						unset($racerMap['Racer']['team']);
 					}
 				}
+				if (isset($racerMap['Racer']['team_en'])) {
+					if (Validation::email($racerMap['Racer']['team_en'])) {
+						$this->log('team(em):' . $racerMap['Racer']['team_en'] . 'を空に設定します', LOG_INFO);
+						unset($racerMap['Racer']['team_en']);
+					}
+				}
 				//$this->log('racer:', LOG_DEBUG);
 				//$this->log($racerMap['Racer'], LOG_DEBUG);
 				
