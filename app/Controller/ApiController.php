@@ -882,6 +882,140 @@ class ApiController extends ApiBaseController
 	}
 	
 	/**
+	 * 選手データまとめて upload API
+	 * @throws BadRequestException .json 拡張子無しでのアクセス時
+	 */
+	public function upload_racers_2()
+	{
+		if (!$this->_isApiCall()) {
+			throw new BadRequestException('無効なアクセスです。');
+		}
+		if (!$this->request->is('post')) {
+			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
+		}
+		if (!is_array($this->request->data)) {
+			return $this->error('Saving racers failed.', self::STATUS_CODE_BAD_REQUEST);
+		}
+		
+		//$this->log($this->request->data, LOG_DEBUG);
+		
+		$this->Racer->Behaviors->unload('Utils.SoftDelete');
+		
+		foreach ($this->request->data as $code => $diffs) {
+			$isNewRacer = false;
+			$originalRacer = null;
+			$newDiff = array('Racer' => array());
+			
+			//$this->log('diff map is,,,', LOG_DEBUG);
+			//$this->log($diffs, LOG_DEBUG);
+			foreach ($diffs as $diffMap) {
+				if (empty($diffMap['created']) || empty($diffMap['diff'])) {
+					return $this->error('key:diff/created not found.', self::STATUS_CODE_BAD_REQUEST);
+				}
+				
+				if (!empty($diffMap['is_new_racer'])) {
+					$isNewRacer = true;
+				}
+
+				if ($isNewRacer) {
+					// 全ての項目をそのまま書き込み
+					foreach ($diffMap['diff']['Racer'] as $key => $val) {
+						$newDiff['Racer'][$key] = $val;
+					}
+				} else {
+					// データ更新日時が古いものは元データで空の箇所だけ書込
+					if (empty($originalRacer)) {
+						$opt = array(
+							'conditions' => array('code' => $code),
+							'recursive' => -1
+						);
+						$originalRacer = $this->Racer->find('first', $opt);
+						if (empty($originalRacer)) {
+							return $this->error('Racer:' . $code . ' is not new racer.', self::STATUS_CODE_BAD_REQUEST);
+						}
+						
+						//$this->log('original:', LOG_DEBUG);
+						//$this->log($originalRacer, LOG_DEBUG);
+					}
+					
+					if ($diffMap['created'] < $originalRacer['Racer']['modified']) {
+						// 古いデータのため、空値埋めだけにする。
+						foreach ($diffMap['diff']['Racer'] as $key => $val) {
+							if ($key == 'gender') { // gender の場合のみ 0=male があるので特別処理
+								$g = $originalRacer['Racer']['gender'];
+								if ($g == null || $g == Gender::$UNASSIGNED->val()) {
+									$newDiff['Racer'][$key] = $val;
+								}
+							} else if (empty($originalRacer['Racer'][$key])
+									&& $originalRacer['Racer'][$key] !== '0') { // '0' という値は許可
+								$newDiff['Racer'][$key] = $val;
+							}
+						}
+					} else {
+						foreach ($diffMap['diff']['Racer'] as $key => $val) {
+							//$this->log('key:' . $key . ' val:' . $val, LOG_DEBUG);
+							$newDiff['Racer'][$key] = $val;
+						}
+					}
+				}
+				
+				// team 名が mail 形式の場合に空にする
+				if (isset($newDiff['Racer']['team'])) {
+					if (Validation::email($newDiff['Racer']['team'])) {
+						$this->log('チーム名:' . $newDiff['Racer']['team'] . 'を空に設定します', LOG_INFO);
+						unset($newDiff['Racer']['team']);
+					}
+				}
+				if (isset($newDiff['Racer']['team_en'])) {
+					if (Validation::email($newDiff['Racer']['team_en'])) {
+						$this->log('team(en):' . $newDiff['Racer']['team_en'] . 'を空に設定します', LOG_INFO);
+						unset($newDiff['Racer']['team_en']);
+					}
+				}
+				
+				if (!$this->Racer->exists($code)) {
+					$this->log('not exists', LOG_INFO);
+					$r = $newDiff['Racer'];
+					
+					if (empty($r['family_name'])) $newDiff['Racer']['family_name'] = '_姓が未入力です';
+					if (empty($r['first_name'])) $newDiff['Racer']['first_name'] = '_名前が未入力です';
+
+					if (empty($r['family_name_kana'])) $newDiff['Racer']['family_name_kana'] = '';
+					if (empty($r['family_name_en'])) $newDiff['Racer']['family_name_en'] = '';
+					if (empty($r['first_name_kana'])) $newDiff['Racer']['first_name_kana'] = '';
+					if (empty($r['first_name_en'])) $newDiff['Racer']['first_name_en'] = '';
+
+					if (!isset($r['gender'])) $newDiff['Racer']['gender'] = Gender::$UNASSIGNED->val();
+				}
+			}
+			
+			if (empty($newDiff['Racer'])) continue;
+			
+			$newDiff['Racer']['code'] = $code;
+			
+			//$this->log('code:' . $code . 'について処理', LOG_INFO);
+			//$this->log($newDiff, LOG_DEBUG);
+
+			// deleted => not deleted に設定し、変更も適用。
+			//$this->log('code:' . $r['code'] . ' is exists(deleted)', LOG_DEBUG);
+			$newDiff['Racer']['deleted'] = 0;
+			$newDiff['Racer']['deleted_date'] = null;
+
+			if (!$this->Racer->save($newDiff)) {
+				return $this->error('Saving (deleted)racers failed.', self::STATUS_CODE_BAD_REQUEST);
+			}
+
+			// aged category の保存
+			if (!$this->AgedCategory->checkAgedCategory($code, date('Y-m-d'), true)) {
+				$this->log('Aged Category の保存に失敗しました。', LOG_ERR);
+				// not return false
+			}
+		}
+
+		return $this->success('ok');
+	}
+	
+	/**
 	 * カテゴリー所属をまとめて upload API。
 	 * post body により CategoryRacer を更新する。レスポンスはリクエストの配列位置に対応する
 	 * ID (on svr) が格納される。
