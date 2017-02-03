@@ -6,6 +6,7 @@
 
 App::uses('Constant', 'Cyclox/Const');
 App::uses('EntryCatLimit', 'Cyclox/Const');
+App::uses('Util', 'Cyclox/Const');
 
 /**
  * Description of CatLimitShell
@@ -254,7 +255,7 @@ class CatLimitShell extends AppShell
 			return false;
 		}
 		
-		$sindex = $this->__seasonIndex($date);
+		$sindex = Util::cxSeasonIndex($date);
 		
 		if ($sindex === false) {
 			$this->log('2015-16 より前のシーズンは想定していません。', LOG_ERR);
@@ -294,26 +295,6 @@ class CatLimitShell extends AppShell
 		}
 		
 		return $ret;
-	}
-	
-	/**
-	 * 2015-16 シーズンをゼロとするシーズンインデックスをかえす
-	 * @param date $date 日付 not null
-	 * @return boolean 2015-16 シーズンより前の場合 false をかえす
-	 */
-	private function __seasonIndex($date)
-	{
-		$datetime = new DateTime($date);
-		
-		$y = $datetime->format('Y');
-		if ($datetime->format('m') < 4) {
-			--$y;
-		}
-		
-		$index = $y - 2015;
-		if ($index < 0) return false;
-		
-		return $index;
 	}
 	
 	/**

@@ -149,4 +149,24 @@ class Util
 		
 		return $year - $birth->format('Y');
 	}
+	
+	/**
+	 * 2015-16 シーズンをゼロとするシーズンインデックスをかえす
+	 * @param date $date 日付 not null
+	 * @return boolean 2015-16 シーズンより前の場合 false をかえす
+	 */
+	public static function cxSeasonIndex($date)
+	{
+		$datetime = new DateTime($date);
+		
+		$y = $datetime->format('Y');
+		if ($datetime->format('m') < 4) {
+			--$y;
+		}
+		
+		$index = $y - 2015;
+		if ($index < 0) return false;
+		
+		return $index;
+	}
 }
