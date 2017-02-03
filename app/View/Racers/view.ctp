@@ -90,7 +90,29 @@
 		</dd>
 		<dt><?php echo __('エントリー制限'); ?></dt>
 		<dd>
-			<?php echo h($racer['Racer']['cat_limit']); ?>
+			<?php
+				App::uses('Util', 'Cyclox/Util');
+				App::uses('EntryCatLimit', 'Cyclox/Const');
+				
+				if (empty($racer['Racer']['cat_limit'])) {
+					echo h('無し');
+				} else {
+					$exp = '';
+					$ignoreNone = true;
+					$n = strlen($racer['Racer']['cat_limit']);
+					for ($i = 0; $i < $n; $i++) {
+						$c = $racer['Racer']['cat_limit'][$i];
+						if ($c != EntryCatLimit::$NONE->charVal()) {
+							$exp = Util::cxSeasonExp($i) . ':' . EntryCatLimit::catLimitAt($c)->name() . ", " . $exp;
+						}
+					}
+					
+					if (empty($exp)) {
+						$exp = '無し';
+					}
+					echo $exp;
+				}
+			?>
 			&nbsp;
 		</dd>
 	</dl>

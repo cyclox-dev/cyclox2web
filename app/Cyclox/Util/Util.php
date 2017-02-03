@@ -169,4 +169,14 @@ class Util
 		
 		return $index;
 	}
+	
+	/**
+	 * 2015-16 シーズンをゼロとするシーズンインデックスからシーズン表現をかえす
+	 * @param int $seasonIndex シーズンインデックス
+	 * @return string 2015-16 シーズンならば '2015-16' をかえす
+	 */
+	public static function cxSeasonExp($seasonIndex)
+	{
+		return '20' . (15 + $seasonIndex) . '-' . (16 + $seasonIndex);
+	}
 }
