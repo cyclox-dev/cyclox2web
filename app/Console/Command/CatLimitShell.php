@@ -63,7 +63,7 @@ class CatLimitShell extends AppShell
 		$this->EntryRacer->Behaviors->unload('Utils.SoftDelete'); // deleted の modified も検知させる
 		$this->EntryRacer->Behaviors->load('Containable');
 		
-		$opt = array('conditions' => array());
+		$opt = array('conditions' => array(), 'order' => 'EntryRacer.modified ASC');
 		if (!empty($lastUpdateDate)) {
 			$opt['conditions']['EntryRacer.modified >'] = $lastUpdateDate;
 		}
@@ -90,10 +90,10 @@ class CatLimitShell extends AppShell
 		$limit = 50;
 		$theIndex = 0;
 		
-		// >>> Transaction
-		$transaction = $this->TransactionManager->begin();
-		
 		while (true) {
+			// >>> Transaction
+			$transaction = $this->TransactionManager->begin();
+
 			$opt['offset'] = $offset;
 			$opt['limit'] = $limit;
 			
@@ -108,8 +108,13 @@ class CatLimitShell extends AppShell
 				break;
 			}
 			
+			//$this->log("ers:", LOG_DEBUG);
+			//$this->log($ers, LOG_DEBUG);
+			
 			foreach ($ers as $er) {
 				++$theIndex;
+				
+				//$this->log('mod:' . $er['EntryRacer']['modified'], LOG_DEBUG);
 				
 				if ($putsDebugLogs) $this->log('--- ' . $theIndex . '/EntryRacer:' . $er['EntryRacer']['id'] . ' '
 						. $er['EntryRacer']['racer_code'] . ' ofRace:' . $er['EntryCategory']['races_category_code'], LOG_DEBUG);
@@ -210,6 +215,15 @@ class CatLimitShell extends AppShell
 					return;
 				}
 			}
+
+			$this->TransactionManager->commit($transaction);
+			// <<< Transaction
+			
+			// メモリエラー対策のため、ここで保存する。
+			if (!empty($ers)) {
+				$n = count($ers) - 1;
+				$this->__saveCatLimitUpdateDate($ers[$n]['EntryRacer']['modified'], $pv);
+			}
 			
 			if (count($ers) % $limit != 0) {
 				$this->log('処理する EntryRacer の件数から判断し、終了します。', LOG_INFO);
@@ -219,13 +233,25 @@ class CatLimitShell extends AppShell
 			$offset += $limit;
 		}
 		
-		$this->TransactionManager->commit($transaction);
-		// <<< Transaction
-		
 		// 最終更新日時の記録
+		$this->__saveCatLimitUpdateDate($nextUpdateDate, $pv);
+		
+		$this->log('>>> End setupCatLimit', LOG_DEBUG);
+	}
+	
+	/**
+	 * カテゴリー制限の最終更新日時を保存する
+	 * @param type $date 指定日時
+	 * @param type $pv 元の parm var 保存情報
+	 * @return 保存に成功したか
+	 */
+	private function __saveCatLimitUpdateDate($date, $pv)
+	{
+		$this->log('date is ' . $date, LOG_DEBUG);
+		
 		$obj = array(
 			'pkey' => Constant::PKEY_CATLIMIT_LAST_UPDATE_DATE,
-			'value' => $nextUpdateDate,
+			'value' => $date,
 		);
 		if (!empty($pv)) {
 			$obj['id'] = $pv['ParmVar']['id'];
@@ -233,10 +259,10 @@ class CatLimitShell extends AppShell
 		
 		if (!$this->ParmVar->save($obj)) {
 			$this->log('ParmVar:' . Constant::PKEY_CATLIMIT_LAST_UPDATE_DATE . ' の保存に失敗しました。', LOG_ERR);
-			return;
+			return false;
 		}
 		
-		$this->log('>>> End setupCatLimit', LOG_DEBUG);
+		return true;
 	}
 	
 	/**
