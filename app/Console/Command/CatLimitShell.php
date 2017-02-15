@@ -6,7 +6,7 @@
 
 App::uses('Constant', 'Cyclox/Const');
 App::uses('EntryCatLimit', 'Cyclox/Const');
-App::uses('Util', 'Cyclox/Const');
+App::uses('Util', 'Cyclox/Util');
 
 /**
  * Description of CatLimitShell
