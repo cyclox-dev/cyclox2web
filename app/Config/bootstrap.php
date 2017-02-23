@@ -230,3 +230,5 @@ Configure :: write('acl.gui.roles_permissions.ajax', true);
 Configure :: write('acl.gui.users_permissions.ajax', true);
 
 //<<< Acl Plugin
+
+App::uses('AppErrorHandler', 'Lib/Error');

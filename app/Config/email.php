@@ -55,6 +55,14 @@ class EmailConfig {
         'tls' => true
 		 //*/
 	);
+	
+	public $sys_reporter = array(
+		'host' => 'ssl://smtp.lolipop.jp',
+		'port' => 465,
+		'username' => 'sys-cxjp@ginuuk.net',
+		'password' => 'reKid92wq',
+		'transport' => 'Smtp',
+	);
 
 	public $smtp = array(
 		'transport' => 'Smtp',

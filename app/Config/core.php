@@ -75,10 +75,9 @@
  * @see ErrorHandler for more information on exception handling and configuration.
  */
 	Configure::write('Exception', array(
-		'handler' => 'ErrorHandler::handleException',
+		'handler' => 'AppErrorHandler::handleException',
 		'renderer' => 'ExceptionRenderer',
 		'log' => true,
-		'skipLog' => array('UnauthorizedException')
 	));
 
 /**
@@ -388,3 +387,14 @@ Cache::config('_cake_model_', array(
 
 /* add @ 20150610 */
 Configure::write('debug', 2);
+
+/* add @ 20170223 */
+// メールリポートするか否かの設定値
+Configure::write('mail_reports', 1);
+Configure::write('mail_report_from', 'sys-cxjp@ginuuk.net');
+Configure::write('mail_report_to', 'sys-cxjp@ginuuk.net');
+Configure::write('mail_report_cc', array(
+	//'info@ginuuk.net',
+	//'cxdev@ginuuk.net'
+));
+

@@ -74,19 +74,14 @@ class AppController extends Controller
 		// URL から判定して認証設定を決める。
 		
 		if ($this->_isApiCall()) {
+			//$this->log('is api call', LOG_DEBUG);
 			//$this->log($this->request->data);
 			
-			Configure::write('Exception', array(
-				'handler' => 'ErrorHandler::handleException',
-				'renderer' => 'AppExceptionRenderer',
-				'log' => true,
-				'skipLog' => array('UnauthorizedException')
-			));
-			App::import('Lib', 'Error/ApiException');
-			App::import('Lib', 'Error/AppExceptionRenderer');
-
-			//*
-			AuthComponent::$sessionKey = false;// TODO: reload で再度要求されてない？
+			App::uses('ApiException', 'Lib/Error');
+			App::uses('AppExceptionRenderer', 'Lib/Error');
+			Configure::write('Exception.renderer', 'AppExceptionRenderer');
+			
+			AuthComponent::$sessionKey = false;// ブラウザ側に basic 認証の情報が保存されてしまうのでほぼ意味ないみたい
 			
 			$this->Auth->authenticate = array(
 				'Basic' => array(

@@ -43,12 +43,6 @@ class AppExceptionRenderer extends ExceptionRenderer
 			'_serialize' => array('meta', 'error', 'error_exception')
 		);
 
-		if (get_class($error) != 'UnauthorizedException')
-		{
-			$this->controller->log('API Exception!', LOG_ERR);
-			$this->controller->log($obj, LOG_ERR);
-		}
-
 		$this->controller->set($obj);
 		
         $this->_outputMessage('errorApi'); 
