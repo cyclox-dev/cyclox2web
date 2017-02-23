@@ -66,7 +66,14 @@ class AppController extends Controller
 	function beforeFilter()
 	{
 		$this->set('auth', $this->Auth->user());
-		$this->log('here is ' . $this->request->here(), LOG_DEBUG);
+		
+		$msg = 'here is ' . $this->request->here();
+		$udat = $this->Auth->user();
+		$this->log($udat, LOG_DEBUG);
+		if (!is_null($udat)) {
+			$msg .= ' user[' . $udat['username'] . ']';
+		}
+		$this->log($msg, LOG_DEBUG);
 		
 		//$this->Auth->allow();
 		
