@@ -98,7 +98,6 @@
 					echo h('無し');
 				} else {
 					$exp = '';
-					$ignoreNone = true;
 					$n = strlen($racer['Racer']['cat_limit']);
 					for ($i = 0; $i < $n; $i++) {
 						$c = $racer['Racer']['cat_limit'][$i];
@@ -277,14 +276,15 @@
 							|| empty($b['EntryCategory']['EntryGroup']['Meet']['at_date'])) {
 						return 0;
 					}
-					return ($a['EntryCategory']['EntryGroup']['Meet']['at_date'] < $b['EntryCategory']['EntryGroup']['Meet']['at_date']) ? 1 : -1;
+					return ($a['EntryCategory']['EntryGroup']['Meet']['at_date'] > $b['EntryCategory']['EntryGroup']['Meet']['at_date']) ? 1 : -1;
 				}
 				$sorted = usort($entries, 'compareResultDate');
 				
 				$RESULT_MAX = 10;
 				$resultCount = 0;
 			?>
-			<?php foreach ($entries as $entry): ?>
+			<?php for ($i = count($entries) - 1; $i >= 0; $i--): ?>
+				<?php $entry = $entries[$i] ?>
 				<tr>
 					<td><?php
 						echo $this->Html->link(
@@ -336,7 +336,7 @@
 					++$resultCount;
 					if ($resultCount >= $RESULT_MAX) break;
 				?>
-			<?php endforeach; ?>
+			<?php endfor; ?>
 		</table>
 	<?php
 		if ($entryCount > $resultCount) {

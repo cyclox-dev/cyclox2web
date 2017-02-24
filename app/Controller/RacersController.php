@@ -164,7 +164,7 @@ class RacersController extends ApiBaseController
 			
 			// order by Meet.at_date では find できないので、
 			// 最新更新の20件を find して地道に at_date ソートで最新10件程度を表示する。
-			$opt['order'] = array('EntryRacer.modified' => 'asc');
+			$opt['order'] = array('EntryRacer.modified' => 'desc');
 			$opt['limit'] = 20; // 最新更新の20件取得しておいて10件の最新を配置
 			// TODO: 改善できるなら改善
 			
