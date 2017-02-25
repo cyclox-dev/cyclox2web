@@ -48,7 +48,7 @@
 					<?php if (!empty($entry['RacerResult']['id'])): ?>
 						<td><?php
 							if (empty($entry['RacerResult']['rank'])) {
-								echo RacerResultStatus::ofVal($entry['RacerResult']['rank'])->code();
+								echo RacerResultStatus::ofVal($entry['RacerResult']['status'])->code();
 							} else {
 								echo $entry['RacerResult']['rank'];
 							}
