@@ -69,11 +69,14 @@ class AppController extends Controller
 		
 		$msg = 'here is ' . $this->request->here();
 		$udat = $this->Auth->user();
-		$this->log($udat, LOG_DEBUG);
+		//$this->log($udat, LOG_DEBUG);
 		if (!is_null($udat)) {
-			$msg .= ' user[' . $udat['username'] . ']';
+			$user = $udat['username'];
+		} else {
+			$user = env('PHP_AUTH_USER');
+			if (empty($user)) $user = 'unknown';
 		}
-		$this->log($msg, LOG_DEBUG);
+		$this->log($msg . ' user[' . $user . ']', LOG_DEBUG);
 		
 		//$this->Auth->allow();
 		
