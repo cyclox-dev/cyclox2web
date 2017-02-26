@@ -70,7 +70,7 @@ class AppController extends Controller
 		$msg = 'here is ' . $this->request->here();
 		$udat = $this->Auth->user();
 		//$this->log($udat, LOG_DEBUG);
-		if (!is_null($udat)) {
+		if (!empty($udat['username'])) {
 			$user = $udat['username'];
 		} else {
 			$user = env('PHP_AUTH_USER');
