@@ -15,7 +15,19 @@ class NameChangeLog extends AppModel {
 	public $displayField = 'racer_code';
 	
 	public $order = 'NameChangeLog.created desc';
-
+	
+	// saveMany で insert した id の配列を取得する
+	public $insertedIds = array();
+ 
+    function afterSave($created, $options = array())
+    {
+        if($created)
+        {
+            $this->insertedIds[] = $this->getInsertID();
+        }
+        return parent::afterSave($created, $options);
+    }
+	
 /**
  * Validation rules
  *

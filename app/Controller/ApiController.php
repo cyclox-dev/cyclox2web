@@ -4,6 +4,7 @@ App::uses('ApiBaseController', 'Controller');
 
 App::uses('Validation', 'Utility');
 App::uses('Util', 'Cyclox/Util');
+App::uses('MailReporter', 'Cyclox/Util');
 App::uses('RacerResultStatus', 'Cyclox/Const');
 App::uses('RacerEntryStatus', 'Cyclox/Const');
 App::uses('Gender', 'Cyclox/Const');
@@ -1079,11 +1080,30 @@ class ApiController extends ApiBaseController
 		//$this->log('$nameChanges is', LOG_DEBUG);
 		//$this->log($nameChanges, LOG_DEBUG);
 		
-		if (!empty($nameChanges) && !$this->NameChangeLog->saveMany($nameChanges)) {
-			$this->log('選手名変更ログの保存に失敗しました。内容は以下の通り。', LOG_ERR);
-			$this->log($nameChanges, LOG_ERR);
-		}
+		if (!empty($nameChanges)) {
+			if (!$this->NameChangeLog->saveMany($nameChanges)) {
+				$this->log('選手名変更ログの保存に失敗しました。内容は以下の通り。', LOG_ERR);
+				$this->log($nameChanges, LOG_ERR);
+			}
+			
+			//$this->log('id list is ', LOG_DEBUG);
+			//$this->log($this->NameChangeLog->insertedIds, LOG_DEBUG);
+			
+			$request = Router::getRequest();
 
+			$msg = "Cyclox2 Server[" . $request->host() . "]にて選手名の変更が検出されました。 at " . date('Y-m-d H:i:s') ."\n";
+			$msg .= "（結婚などの例外を除き、一般には名前の変更がなされることはありません。）\n\n";
+			$msg .= 'この処理を行なった Cyclox2 ユーザ:[' . (is_null(env('PHP_AUTH_USER')) ? '未ログイン' : env('PHP_AUTH_USER'))
+					. '] at client ip addr[' . $request->clientIp() . "]\n\n";
+			$msg .= "変更の詳細については以下のアドレスに記録されています。\n";
+			
+			foreach ($this->NameChangeLog->insertedIds as $nclId) {
+				$msg .= Router::url(array('controller' => 'name_change_logs', 'action' => 'view', $nclId), array('full' => true)) . "\n";
+			}
+
+			MailReporter::report('Cyclox2 Report [' . $request->host() . ']', $msg);
+		}
+		
 		return $this->success('ok');
 	}
 	
