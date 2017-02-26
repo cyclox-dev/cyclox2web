@@ -816,7 +816,7 @@ class ApiController extends ApiBaseController
 		
 		if (is_array($this->request->data)) {
 			$this->Racer->Behaviors->unload('Utils.SoftDelete');
-			
+
 			foreach ($this->request->data as $racerMap)	{
 				if (empty($racerMap['Racer'])) {
 					return $this->error('key:Racer not found.', self::STATUS_CODE_BAD_REQUEST);
@@ -825,7 +825,7 @@ class ApiController extends ApiBaseController
 				if (empty($r['code'])) {
 					return $this->error('key:Racer.code not found.', self::STATUS_CODE_BAD_REQUEST);
 				}
-				
+
 				// team の空入力での書換えは無しとする（Cyclox2 App ver1.10 のバグ対策）
 				// --> @ver1.20 時間が経過したので上記対策をキャンセルとする。@20161224
 				//		逆にチーム名を empty にできないため、不都合となった。
@@ -843,11 +843,11 @@ class ApiController extends ApiBaseController
 				}
 				//$this->log('racer:', LOG_DEBUG);
 				//$this->log($racerMap['Racer'], LOG_DEBUG);
-				
-				$this->log('code:' . $r['code'] . 'について処理', LOG_INFO);
-				
+
+				//$this->log('code:' . $r['code'] . 'について処理', LOG_INFO);
+
 				if (!$this->Racer->exists($r['code'])) {
-					$this->log('not exists', LOG_INFO);
+					//$this->log('not exists', LOG_INFO);
 					if (empty($r['family_name'])) $racerMap['Racer']['family_name'] = '_姓が未入力です';
 					if (empty($r['first_name'])) $racerMap['Racer']['first_name'] = '_名前が未入力です';
 
@@ -855,10 +855,10 @@ class ApiController extends ApiBaseController
 					if (empty($r['family_name_en'])) $racerMap['Racer']['family_name_en'] = '';
 					if (empty($r['first_name_kana'])) $racerMap['Racer']['first_name_kana'] = '';
 					if (empty($r['first_name_en'])) $racerMap['Racer']['first_name_en'] = '';
-					
+
 					if (!isset($r['gender'])) $racerMap['Racer']['gender'] = Gender::$UNASSIGNED->val();
 				}
-				
+
 				// deleted => not deleted に設定し、変更も適用。
 				//$this->log('code:' . $r['code'] . ' is exists(deleted)', LOG_DEBUG);
 				$racerMap['Racer']['deleted'] = 0;
@@ -874,7 +874,7 @@ class ApiController extends ApiBaseController
 					// not return false
 				}
 			}
-			
+
 			return $this->success('ok');
 		}
 		
