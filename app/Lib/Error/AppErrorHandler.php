@@ -133,5 +133,53 @@ class AppErrorHandler extends ErrorHandler
 				&& strpos($haystack, $needle, $temp) !== false
 		);
 	}
+	
+	// @Override
+	public static function handleError($code, $description, $file = null, $line = null, $context = null) {
+		
+		// 処理の中身は ErrorHandler そのまま。自前のhandleFatalErro() を呼びたいだけ。
+		
+		if (error_reporting() === 0) {
+			return false;
+		}
+		$errorConfig = Configure::read('Error');
+		list($error, $log) = self::mapErrorCode($code);
+		if ($log === LOG_ERR) {
+			return self::handleFatalError($code, $description, $file, $line);
+		}
 
+		$debug = Configure::read('debug');
+		if ($debug) {
+			$data = array(
+				'level' => $log,
+				'code' => $code,
+				'error' => $error,
+				'description' => $description,
+				'file' => $file,
+				'line' => $line,
+				'context' => $context,
+				'start' => 2,
+				'path' => Debugger::trimPath($file)
+			);
+			return Debugger::getInstance()->outputError($data);
+		}
+		$message = $error . ' (' . $code . '): ' . $description . ' in [' . $file . ', line ' . $line . ']';
+		if (!empty($errorConfig['trace'])) {
+			$trace = Debugger::trace(array('start' => 1, 'format' => 'log'));
+			$message .= "\nTrace:\n" . $trace . "\n";
+		}
+		return CakeLog::write($log, $message);
+	}
+
+	// @Override
+	public static function handleFatalError($code, $description, $file, $line)
+	{	
+		// メール報告
+		$logMessage = 'Fatal Error (' . $code . '): ' . $description . ' in [' . $file . ', line ' . $line . ']';
+		$msg = "Fatal Error が発生しました。\nプログラムが間違っている可能性があります。"
+				. "エラー内容詳細は以下の通りです。\n" . $logMessage;
+		MailReporter::report($msg, 'FatalErr');
+		
+		return parent::handleFatalError($code, $description, $file, $line);
+	}
 }
