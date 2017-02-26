@@ -63,15 +63,11 @@ class AppErrorHandler extends ErrorHandler
 	 */
 	private static function __report($exception)
 	{
-		$request = Router::getRequest();
-		
-		$msg = "Cyclox2 Server[" . $request->host() . "]にて Exception が発生しました at " . date('Y-m-d H:i:s') ."\n\n";
-		$msg .= "エラー内容詳細は以下の通り\n" . self::_getMessage($exception) . "\n\n";
-		$msg .= '現在のログインユーザ:[' . (is_null(env('PHP_AUTH_USER')) ? '未ログイン' : env('PHP_AUTH_USER'))
-				. '] at client ip addr[' . $request->clientIp() . "]\n";
+		$msg = "Exception が発生しました。エラー内容詳細は以下の通りです。\n"
+				. self::_getMessage($exception) . "\n\n";
 		$msg .= "Exception ごと詳細:" . self::__exceptionDetail($exception);
 		
-		MailReporter::report('Cyclox2 ErrReport [' . $request->host() . ']', $msg);
+		MailReporter::report($msg, 'Err');
 	}
 	
 	/**

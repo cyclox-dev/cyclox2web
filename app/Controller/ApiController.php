@@ -1089,19 +1089,15 @@ class ApiController extends ApiBaseController
 			//$this->log('id list is ', LOG_DEBUG);
 			//$this->log($this->NameChangeLog->insertedIds, LOG_DEBUG);
 			
-			$request = Router::getRequest();
-
-			$msg = "Cyclox2 Server[" . $request->host() . "]にて選手名の変更が検出されました。 at " . date('Y-m-d H:i:s') ."\n";
+			$msg = "選手名の変更が検出されました。\n";
 			$msg .= "（結婚などの例外を除き、一般には名前の変更がなされることはありません。）\n\n";
-			$msg .= 'この処理を行なった Cyclox2 ユーザ:[' . (is_null(env('PHP_AUTH_USER')) ? '未ログイン' : env('PHP_AUTH_USER'))
-					. '] at client ip addr[' . $request->clientIp() . "]\n\n";
 			$msg .= "変更の詳細については以下のアドレスに記録されています。\n";
 			
 			foreach ($this->NameChangeLog->insertedIds as $nclId) {
 				$msg .= Router::url(array('controller' => 'name_change_logs', 'action' => 'view', $nclId), array('full' => true)) . "\n";
 			}
 
-			MailReporter::report('Cyclox2 Report [' . $request->host() . ']', $msg);
+			MailReporter::report($msg);
 		}
 		
 		return $this->success('ok');

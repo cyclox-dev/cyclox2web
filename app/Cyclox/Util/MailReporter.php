@@ -13,10 +13,22 @@ App::uses('CakeEmail', 'Network/Email');
  */
 class MailReporter
 {
-	public static function report($title, $msg)
+	public static function report($msg, $titleSub = '')
 	{
 		if (Configure::read('mail_reports')) {
-			$text = $msg . "\n\n※本メールは Cyclox2 Server から自動的に送信されたものです。"
+			$user = Authcomponent::user('username');
+			if (empty($user)) {
+				$user = env('PHP_AUTH_USER');
+				if (empty($user)) $user = '[NotLogin or Guest]';
+			}
+			
+			$request = Router::getRequest();
+			
+			$text = "Cyclox2 Server[" . $request->host() . "]からの報告 at " . date('Y-m-d H:i:s') ."\n\n"
+					. '内容:'. $msg . "\n\n"
+					. 'この処理を行なった Cyclox2 ユーザ:[' . $user
+					. '] at client ip addr[' . $request->clientIp() . "]";
+					"\n\n※本メールは Cyclox2 Server から自動的に送信されたものです。"
 					. "返信してもリアクションはありません。";
 			
 			$to = Configure::read('mail_report_to');
@@ -38,7 +50,7 @@ class MailReporter
 				}
 			}
 
-			$Email->subject($title)->send($text);
+			$Email->subject('Cyclox2 ' . $titleSub .'Report [' . $request->host() . ']')->send($text);
 		}
 	}
 }
