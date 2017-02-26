@@ -29,7 +29,7 @@ class ApiController extends ApiBaseController
 		'Meet', 'CategoryRacer', 'Racer', 'MeetGroup', 'Season',
 		'EntryGroup', 'EntryCategory', 'EntryRacer', 'RacerResult', 'TimeRecord', 'HoldPoint',
 		'PointSeries', 'MeetPointSeries', 'PointSeriesRacer', 'RacesCategory',
-		'Category', 'CategoryGroup');
+		'Category', 'CategoryGroup', 'NameChangeLog');
 	
 	public $components = array('Session', 'RequestHandler', 'ResultParamCalc', 'UnifiedRacer', 'AgedCategory');
 	
@@ -882,6 +882,38 @@ class ApiController extends ApiBaseController
 	}
 	
 	/**
+	 * 選手コードをキーとし、value を {"fam": "姓", "fir": "名前"} とするマップをかえす
+	 * @param array $codes 選手コードの配列
+	 * @return array
+	 */
+	private function __racerNameMap($codes)
+	{
+		$opt = array(
+			'conditions' => array('code' => $codes),
+			//'fields'=> array('code', 'family_name', 'first_name'),
+			'recursive' => -1
+		);
+		$racers = $this->Racer->find('all', $opt);
+		
+		$nameMap = array();
+		foreach ($racers as $r)
+		{
+			$r['Racer']['gender'] = Gender::genderAt($r['Racer']['gender'])->express();
+			
+			$nameMap[$r['Racer']['code']] = array(
+				'fam' => $r['Racer']['family_name'],
+				'fir' => $r['Racer']['first_name'],
+				'json' => json_encode($r['Racer'], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
+			);
+			
+			//$this->log('json is,,,', LOG_DEBUG);
+			//$this->log($nameMap[$r['Racer']['code']]['json'], LOG_DEBUG);
+		}
+		
+		return $nameMap;
+	}
+	
+	/**
 	 * 選手データまとめて upload API
 	 * @throws BadRequestException .json 拡張子無しでのアクセス時
 	 */
@@ -900,6 +932,14 @@ class ApiController extends ApiBaseController
 		//$this->log($this->request->data, LOG_DEBUG);
 		
 		$this->Racer->Behaviors->unload('Utils.SoftDelete');
+
+		// 選手コード配列の作成
+		$codes = array();
+		foreach ($this->request->data as $code => $diffs) {
+			$codes[] = $code;
+		}
+		$nameMap = $this->__racerNameMap($codes);
+		$nameChanges = array();
 		
 		foreach ($this->request->data as $code => $diffs) {
 			$isNewRacer = false;
@@ -974,7 +1014,7 @@ class ApiController extends ApiBaseController
 				}
 				
 				if (!$this->Racer->exists($code)) {
-					$this->log('not exists', LOG_INFO);
+					//$this->log('not exists', LOG_INFO);
 					$r = $newDiff['Racer'];
 					
 					if (empty($r['family_name'])) $newDiff['Racer']['family_name'] = '_姓が未入力です';
@@ -1010,6 +1050,38 @@ class ApiController extends ApiBaseController
 				$this->log('Aged Category の保存に失敗しました。', LOG_ERR);
 				// not return false
 			}
+			
+			if (empty($nameMap[$code])) continue;
+			
+			// 名前の変更チェック
+			$newFam = isset($newDiff['Racer']['family_name']) ? $newDiff['Racer']['family_name'] : null;
+			$newFir = isset($newDiff['Racer']['first_name']) ? $newDiff['Racer']['first_name'] : null;
+			
+			//$this->log('compare old:' . $nameMap[$code]['fam'] . '_'. $nameMap[$code]['fir']
+			//		. ' vs ' . (is_null($newFam) ? '[変更なし]' : $newFam) . '_' . (is_null($newFir) ? '[変更なし]' : $newFir), LOG_DEBUG);
+			
+			if ((!is_null($newFam) && $newFam != $nameMap[$code]['fam'])
+					|| (!is_null($newFir) && $newFir != $nameMap[$code]['fir']))
+			{
+				$user = env('PHP_AUTH_USER');
+				if (empty($user)) $user = 'unknown';
+				
+				$nameChanges[] = array('NameChangeLog' => array(
+					'racer_code' => $code,
+					'new_fam' => (is_null($newFam) ? '[変更なし]' : $newFam),
+					'new_fir' => (is_null($newFir) ? '[変更なし]' : $newFir),
+					'old_data' => $nameMap[$code]['json'],
+					'by_user' => $user,
+				));
+			}
+		}
+		
+		//$this->log('$nameChanges is', LOG_DEBUG);
+		//$this->log($nameChanges, LOG_DEBUG);
+		
+		if (!empty($nameChanges) && !$this->NameChangeLog->saveMany($nameChanges)) {
+			$this->log('選手名変更ログの保存に失敗しました。内容は以下の通り。', LOG_ERR);
+			$this->log($nameChanges, LOG_ERR);
 		}
 
 		return $this->success('ok');
