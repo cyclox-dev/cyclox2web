@@ -8,7 +8,7 @@ App::uses('ExceptionRenderer', 'Error');
 //App::uses('ApiException', 'Error');
 
 /**
- * Description of AppExceptionRenderer
+ * 主に .json 形式でのエラーを表示するための renderer
  *
  * @author shun
  */
@@ -27,7 +27,9 @@ class AppExceptionRenderer extends ExceptionRenderer
 	{
         $message = $error->getMessage();
 		
-		$this->controller->response->statusCode($error->getCode());
+		// 500 を返すと通信自体が失敗となり、エラー内容が表示できないので常に 200 をかえす。
+		//$this->controller->response->statusCode($error->getCode());
+		$this->controller->response->statusCode(200);
 		
 		$meta = array(
 			'url' => $this->controller->request->here,

@@ -87,6 +87,8 @@ class AppController extends Controller
 			//$this->log('is api call', LOG_DEBUG);
 			//$this->log($this->request->data);
 			
+			$this->Components->unload('DebugKit.Toolbar');
+			
 			App::uses('ApiException', 'Lib/Error');
 			App::uses('AppExceptionRenderer', 'Lib/Error');
 			Configure::write('Exception.renderer', 'AppExceptionRenderer');
