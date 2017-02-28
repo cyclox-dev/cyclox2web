@@ -103,7 +103,9 @@ class AppErrorHandler extends ErrorHandler
 		{
 			$noReactions = array(
 				'admin/config.php',
-				'recordings/'
+				'recordings/',
+				'a2billing/admin/Public/index.php',
+				'a2billing/',
 				// ここに例外ログを防ぎたいアドレスを
 			);
 			
