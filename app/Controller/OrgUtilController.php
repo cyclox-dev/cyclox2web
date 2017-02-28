@@ -613,6 +613,7 @@ class OrgUtilController extends ApiBaseController
 
 			$united = $this->request->data['racer_code_united'];
 			$uniteTo = $this->request->data['racer_code_unite_to'];
+			$note = $this->request->data['note'];
 
 			$this->Racer->CategoryRacer->Behaviors->load('Utils.SoftDelete');
 			$racerUniteTo = $this->Racer->find('first', array('conditions' => array('code' => $uniteTo)));
@@ -636,6 +637,7 @@ class OrgUtilController extends ApiBaseController
 
 			$this->set('uniteTo', $racerUniteTo);
 			$this->set('united', $racerUnited);
+			$this->set('note', $note);
 			$this->render('unite_racer_confirm');
 		}
 	}
@@ -657,10 +659,11 @@ class OrgUtilController extends ApiBaseController
 
 		$united = $this->request->data['racer_code_united'];
 		$uniteTo = $this->request->data['racer_code_unite_to'];
-
+		$note = $this->request->data['note'];
+		
 		$transaction = $this->TransactionManager->begin();
 
-		if ($this->uniteRacer($united, $uniteTo)) {
+		if ($this->uniteRacer($united, $uniteTo, $note)) {
 
 			/*
 			$this->log('デバッグで rollback します。', LOG_DEBUG);
@@ -682,9 +685,10 @@ class OrgUtilController extends ApiBaseController
 	 * 選手データの統合処理を行なう
 	 * @param string $united 統合される選手コード
 	 * @param string $uniteTo 統合先選手コード
+	 * @param string $userNote 統合処理に関するユーザ入力メモ
 	 * @return boolean 統合に成功したか
 	 */
-	public function uniteRacer($united, $uniteTo)
+	public function uniteRacer($united, $uniteTo, $userNote = '')
 	{
 		// racer への適用
 		$param = array(
@@ -805,9 +809,11 @@ class OrgUtilController extends ApiBaseController
 		$userName = (isset($this->Auth)) ? $this->Auth->user('username') : 'Machine(shell)';
 		$urLog['UniteRacerLog']['by_user'] = $userName;
 		if (empty($uniteLog)) {
-			$urLog['UniteRacerLog']['log'] = '選手データを除き、この統合処理により変更されたデータはありません。';
+			$urLog['UniteRacerLog']['log'] = $userNote . "／"
+					.'選手データを除き、この統合処理により変更されたデータはありません。';
 		} else {
-			$urLog['UniteRacerLog']['log'] = "選手データ統合により変更されたデータ:\n" . $uniteLog;
+			$urLog['UniteRacerLog']['log'] = $userNote . "／"
+					."選手データ統合により変更されたデータ:\n" . $uniteLog;
 		}
 		
 		if (!$this->UniteRacerLog->save($urLog)) {

@@ -928,7 +928,7 @@ class OneTimeShell extends AppShell
 		
 		$orgUtilController = new OrgUtilController();
 		
-		if ($orgUtilController->uniteRacer($united, $uniteTo)) {
+		if ($orgUtilController->uniteRacer($united, $uniteTo, 'shell による処理です。')) {
 			$this->log('uniteRacer:' . $united . ' to ' . $uniteTo . ' succeeded.', LOG_INFO);
 		} else {
 			$this->log('uniteRacer:' . $united . ' to ' . $uniteTo . ' failed...', LOG_ERR);
