@@ -5,6 +5,7 @@
  */
 
 App::uses('CakeEmail', 'Network/Email');
+App::uses('AuthComponent' , 'Controller/Component');
 
 /**
  * 外部へのメール送信を行なうクラス
@@ -16,7 +17,7 @@ class MailReporter
 	public static function report($msg, $titleSub = '')
 	{
 		if (Configure::read('mail_reports')) {
-			$user = Authcomponent::user('username');
+			$user = AuthComponent::user('username');
 			if (empty($user)) {
 				$user = env('PHP_AUTH_USER');
 				if (empty($user)) $user = '[NotLogin or Guest]';
