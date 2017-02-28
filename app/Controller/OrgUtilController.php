@@ -666,7 +666,8 @@ class OrgUtilController extends ApiBaseController
 			$this->log('デバッグで rollback します。', LOG_DEBUG);
 			$this->TransactionManager->rollback($transaction);/*/
 			$this->TransactionManager->commit($transaction);//*/
-
+			
+			$this->Session->setFlash(__('選手統合完了。カテゴリー所属をチェックし、不要なものは削除して下さい。'));
 			
 			$this->redirect(array('controller' => 'racers' ,'action' => 'view', $uniteTo));
 		} else {
@@ -703,6 +704,8 @@ class OrgUtilController extends ApiBaseController
 		}
 		
 		$uniteLog = '';
+		
+		$racer = $this->Racer->find('first', array('conditions' => array('code' => $uniteTo)));
 		
 		// category racer 書換え
 		$param = array(
@@ -746,7 +749,11 @@ class OrgUtilController extends ApiBaseController
 			foreach ($eracers as $er) {
 				$param[] = array(
 					'id' => $er['EntryRacer']['id'],
-					'racer_code' => $uniteTo
+					'racer_code' => $uniteTo,
+					'name_at_race' => $racer['Racer']['family_name'] . ' ' . $racer['Racer']['first_name'],
+					'name_kana_at_race' => $racer['Racer']['family_name_kana'] . ' ' . $racer['Racer']['first_name_kana'],
+					'name_en_at_race' => $racer['Racer']['family_name_en'] . ' ' . $racer['Racer']['first_name_en'],
+					'team_name' => $racer['Racer']['team'],
 				);
 
 				$ids .= $er['EntryRacer']['id'] . ',';
