@@ -6,9 +6,9 @@ DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
+DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS time_records;
 DROP TABLE IF EXISTS hold_points;
-DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
 DROP TABLE IF EXISTS entry_categories;
@@ -19,6 +19,7 @@ DROP TABLE IF EXISTS groups;
 DROP TABLE IF EXISTS meet_point_series;
 DROP TABLE IF EXISTS meets;
 DROP TABLE IF EXISTS meet_groups;
+DROP TABLE IF EXISTS name_change_logs;
 DROP TABLE IF EXISTS parm_vars;
 DROP TABLE IF EXISTS point_series;
 DROP TABLE IF EXISTS unite_racer_log;
@@ -274,6 +275,23 @@ CREATE TABLE meet_point_series
 	deleted tinyint(1) DEFAULT 0 NOT NULL,
 	-- カンマ区切りでそれぞれの集計に関するヒントを提供する
 	hint varchar(255) BINARY,
+	PRIMARY KEY (id)
+);
+
+
+CREATE TABLE name_change_logs
+(
+	id int unsigned NOT NULL AUTO_INCREMENT,
+	-- 例）THK-134-0002
+	-- 標準では12文字になるが、最後が4桁を超える可能性ありとして長さ16文字としている。
+	racer_code varchar(16) BINARY NOT NULL,
+	new_fam varchar(255) BINARY,
+	new_fir varchar(255) BINARY,
+	old_data blob,
+	by_user varchar(50) BINARY,
+	note blob,
+	created datetime,
+	modified datetime,
 	PRIMARY KEY (id)
 );
 
