@@ -941,6 +941,7 @@ class ApiController extends ApiBaseController
 		}
 		$nameMap = $this->__racerNameMap($codes);
 		$nameChanges = array();
+		$restoredCodeDeleted = array();
 		
 		foreach ($this->request->data as $code => $diffs) {
 			$isNewRacer = false;
@@ -977,6 +978,11 @@ class ApiController extends ApiBaseController
 						
 						//$this->log('original:', LOG_DEBUG);
 						//$this->log($originalRacer, LOG_DEBUG);
+						
+						if ($originalRacer['Racer']['deleted'] == 1) {
+							// メソッド後半で復活させるのでここでアラートメールを送ってしまう
+							$restoredCodeDeleted[] = $originalRacer['Racer']['code'];
+						}
 					}
 					
 					if ($diffMap['created'] < $originalRacer['Racer']['modified']) {
@@ -1098,6 +1104,16 @@ class ApiController extends ApiBaseController
 			}
 
 			MailReporter::report($msg);
+		}
+		
+		if (!empty($restoredCodeDeleted)) {
+			$codes = array();
+			foreach ($restoredCodeDeleted as $cd) {
+				$codes .= $cd . ', ';
+			}
+			MailReporter::report("以下の選手について、\n" . $codes
+				. "\ndeleted でしたが、api/upload_racers_2 へのアップロードにより復活します。\n"
+				. 'この処理が正しいかを確認して下さい。');
 		}
 		
 		return $this->success('ok');
