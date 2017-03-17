@@ -287,9 +287,9 @@ CREATE TABLE name_change_logs
 	racer_code varchar(16) BINARY NOT NULL,
 	new_fam varchar(255) BINARY,
 	new_fir varchar(255) BINARY,
-	old_data blob,
+	old_data text BINARY,
 	by_user varchar(50) BINARY,
-	note blob,
+	note text BINARY,
 	created datetime,
 	modified datetime,
 	PRIMARY KEY (id)
