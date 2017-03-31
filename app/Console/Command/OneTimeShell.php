@@ -1007,6 +1007,34 @@ class OneTimeShell extends AppShell
 	}
 	
 	/**
+	 * 選手コード指定でカテゴリー所属
+	 * > cd app ディレクトリ
+	 * > Console/cake one_time checkAgedCategory KNS-156-0023 2016-04-01
+	 */
+	public function checkAgedCategory()
+	{
+		if (!isset($this->args[1])) {
+			$this->log('2 arg needs.', LOG_ERR);
+			return;
+		}
+		$date = $this->args[1];
+		$this->log('date is', LOG_DEBUG);
+		$this->log($date, LOG_DEBUG);
+		
+		if (DateTime::createFromFormat('Y-m-d', $date) !== FALSE) {
+			$this->log('2nd arg is incorrect date format.', LOG_ERR);
+			return;
+		}
+		
+		$code = $this->args[0];
+		
+		if (!$this->__agedCatComp->checkAgedCategory($code, $date, false)) {
+			$this->log('code:' . $code . ' の処理に失敗しました。', LOG_ERR);
+		}
+		$this->log('end,,,', LOG_DEBUG);
+	}
+	
+	/**
 	 * カテゴリー所属から性別を設定する
 	 * > cd app ディレクトリ
 	 * > Console/cake one_time setupGenderFromCats
