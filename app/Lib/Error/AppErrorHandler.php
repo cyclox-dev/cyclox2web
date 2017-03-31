@@ -108,7 +108,7 @@ class AppErrorHandler extends ErrorHandler
 				'a2billing/',
 				'admin/i18n/readme.txt',
 				'struts2-showcase/',
-				'current_config/passw'
+				'current_config/passwd'
 				// ここに例外ログを防ぎたいアドレスを
 			);
 			
