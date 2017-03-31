@@ -650,6 +650,8 @@ class OneTimeShell extends AppShell
 	 * 2016-17 シーズンのリザルトから降格処理を行なう
 	 * > cd app ディレクトリ
 	 * > Console/cake one_time execCategoryDown1617 0 100
+	 * > Console/cake one_time execCategoryDown1617 0 100 logonly
+	 * logonly オプションでは Transaction をコミットせず、ログのみ出力する。
 	 */
 	public function execCategoryDown1617()
 	{
@@ -661,216 +663,10 @@ class OneTimeShell extends AppShell
 		$offset = $this->args[0];
 		$limit = $this->args[1];
 		
-		$this->out('>>> Start execCategoryDown');
-		
-		$this->CategoryRacer->Behaviors->load('Containable');
-		$this->EntryRacer->Behaviors->load('Containable');
-		
-		// 現在有効な catRacer を取得（降格処理を行なうカテゴリーのみ）
-		$opt = array(
-			'recursive' => -1,
-			'conditions' => array(
-				'CategoryRacer.deleted' => 0,
-				'OR' => array(
-					array('category_code' => 'C1'),
-					array('category_code' => 'C2'),
-					array('category_code' => 'C3'),
-					array('category_code' => 'CM1'),
-					array('category_code' => 'CM2'),
-				)
-			),
-			'offset' => $offset,
-			'limit' => $limit,
-			'contain' => array(
-				'Racer',
-			),
-		);
-		
-		$crs = $this->CategoryRacer->find('all', $opt);
-		
-		//$this->out('crs is,,,');
-		//$this->out(print_r($crs));
-		
-		$this->log('Log of execCategoryDown1617 start ---', LOG_DEBUG);
-		$transaction = $this->TransactionManager->begin();
-		
-		$skipCanceled = 0;
-		$skipNewApplied = 0;
-		$skipDeleted = 0;
-		$index = 0;
-		$downCatCount = array(
-			'C1' => 0,
-			'C2' => 0,
-			'C3' => 0,
-			'CM1' => 0,
-			'CM2' => 0,
-		);
-		
-		$hasError = false;
-
-		foreach ($crs as $cr) {
-			++$index;
-			if (empty($cr['Racer']) || $cr['Racer']['deleted'] == 1) {
-				++$skipDeleted;
-				continue;
-			}
-			
-			if (!empty($cr['CategoryRacer']['cancel_date'])) {
-				++$skipCanceled;
-				continue; // offset 値をキープしたいので、find の条件文には入れていない
-			}
-			
-			if (!empty($cr['CategoryRacer']['apply_date']) && $cr['CategoryRacer']['apply_date'] > '2017-03-31') {
-				++$skipNewApplied;
-				continue; // offset 値をキープしたいので、find の条件文には入れていない
-			}
-			
-			// 関連するリザルトと紐づく残留ポイントを取得
-			
-			$this->out('cr racer_code:' . $cr['CategoryRacer']['racer_code'] . ' cat:' . $cr['CategoryRacer']['category_code']);
-			$erOpt = array(
-				'recursive' => -1,
-				'conditions' => array(
-					'EntryRacer.deleted' => 0,
-					'RacerResult.deleted' => 0,
-					'racer_code' => $cr['CategoryRacer']['racer_code'],
-					//'HoldPoint.category_code' => $cr['CategoryRacer']['category_code'] <- これはできず
-				),
-				'contain' => array(
-					'RacerResult' => array(
-						'HoldPoint',
-					),
-					'EntryCategory' => array(
-						'fields' => array('name', 'deleted'),
-						'EntryGroup' => array(
-							'fields' => array('deleted'),
-							'Meet'
-						)
-					)
-				)
-			);
-			
-			$ers = $this->EntryRacer->find('all', $erOpt);
-			
-			/*if (!empty($ers)) {
-				$this->out('er is,,,');
-				$this->out(print_r($ers));
-			}//*/
-			
-			// 残留ポイントの集計
-			$pt = 0;
-			$ptLog = '';
-			
-			foreach ($ers as $er) {
-				if (!empty($er['RacerResult']['HoldPoint'])) {
-					
-					if (empty($er['EntryCategory']['EntryGroup']['Meet'])
-						|| $er['EntryCategory']['EntryGroup']['Meet']['deleted'] == 1
-						|| $er['EntryCategory']['EntryGroup']['deleted'] == 1
-						|| $er['EntryCategory']['deleted'] == 1) {
-						continue;
-					}
-					foreach ($er['RacerResult']['HoldPoint'] as $hp) {
-						if ($hp['category_code'] == $cr['CategoryRacer']['category_code']) {
-							$pt += $hp['point'];
-							$ptLog .= $er['EntryCategory']['EntryGroup']['Meet']['code'] . '/' . $er['EntryCategory']['name']
-									. ':' . $hp['point'] . 'pt,';
-						}
-					}
-				}
-			}
-			
-			$ptLog = 'crid:' . $cr['CategoryRacer']['id'] . ',' . $cr['Racer']['code'] . ','
-					. $cr['Racer']['family_name']. ',' . $cr['Racer']['first_name']
-					. ',' . $cr['CategoryRacer']['category_code'] . ',残留pt:' . $pt . ',log:' . $ptLog;
-			
-			// 降格処理
-			if ($pt < 3) {
-				// 降格処理
-				$catToList = array(
-					'C1' => 'C2',
-					'C2' => 'C3',
-					'C3' => 'C4',
-					'CM1' => 'CM2',
-					'CM2' => 'CM3',
-				);
-				
-				$catTo = $catToList[$cr['CategoryRacer']['category_code']];
-				if (empty($catTo)) {
-					$this->log('降格先カテゴリーが見つかりません。' . $ptLog, LOG_ERR);
-					$hasError = true;
-					break;
-				}
-				
-				 // 現在のカテゴリー所属に cancel_date を設定
-				$categoryRacer = array(
-					'id' => $cr['CategoryRacer']['id'],
-					'cancel_date' => '2017-03-31',
-					// reason_note は無し
-				);
-				
-				if (!$this->CategoryRacer->save($categoryRacer)) {
-					$this->log('カテゴリー所属の cancel_date 設定に失敗。' . $ptLog, LOG_ERR);
-					$hasError = true;
-					break;
-				}
-				
-				$categoryRacer = array(
-					'racer_code' => $cr['Racer']['code'],
-					'category_code' => $catTo,
-					'apply_date' => '2017-04-01',
-					'reason_id'=> CategoryReason::$SEASON_DOWN->ID(),
-					'reason_note' => '2016-17シーズン成績の降格処理による'
-				);
-				$this->CategoryRacer->create(); // id をリセットしておく
-				if (!$this->CategoryRacer->save($categoryRacer)) {
-					$this->log('カテゴリー所属の新規作成に失敗。' . $ptLog, LOG_DEBUG);
-					$this->TransactionManager->rollback($transaction);
-					break;
-				}
-				
-				$downCatCount[$cr['CategoryRacer']['category_code']] = $downCatCount[$cr['CategoryRacer']['category_code']] + 1;
-				$ptLog = '降格,' . $cr['CategoryRacer']['category_code'] . '→' . $catTo . ',' . $ptLog;
-			} else {
-				$ptLog = 'KEEP,---,' . $ptLog;
-			}
-
-			$this->log($index . ',' . $ptLog, LOG_DEBUG);
-		} // end foreach $crs
-		
-		if ($hasError) {
-			$this->TransactionManager->rollback($transaction);
-		} else {
-			//*
-			$this->TransactionManager->rollback($transaction);
-			$this->log(' ROLLBACK for test', LOG_DEBUG);
-			/*/
-			$this->TransactionManager->commit($transaction);
-			$skipLog = 'skip(canceled):' . $skipCanceled . ', skip(new):' . $skipNewApplied
-					. ', deleted:' . $skipDeleted . ',降格:';
-			foreach ($downCatCount as $k => $v) {
-				$skipLog .= ',' . $k . ':' . $v;
-			}
-			$this->log($skipLog, LOG_DEBUG);
-			//*/
+		$commits = true;
+		if (isset($this->args[2]) && $this->args[2] == 'logonly') {
+			$commits = false;
 		}
-		$this->log('Log of execCategoryDown1617 end ---', LOG_DEBUG);
-	}
-	
-	/**
-	 * 2016-17 シーズンのリザルトから降格処理を行なう
-	 * > cd app ディレクトリ
-	 * > Console/cake one_time execCategoryDown1617test 0 100
-	 */
-	public function execCategoryDown1617test()
-	{
-		if (!isset($this->args[0]) || !isset($this->args[1])) {
-			$this->out('2つの引数（整数／offset 位置, 処理件数）が必要です。');
-			return;
-		}
-		
-		$offset = $this->args[0];
-		$limit = $this->args[1];
 		
 		$this->out('>>> Start execCategoryDown');
 		
@@ -939,27 +735,6 @@ class OneTimeShell extends AppShell
 			// 関連するリザルトと紐づく残留ポイントを取得
 			
 			//$this->out('cr racer_code:' . $cr['CategoryRacer']['racer_code'] . ' cat:' . $cr['CategoryRacer']['category_code']);
-			$erOpt = array(
-				'recursive' => -1,
-				'conditions' => array(
-					'EntryRacer.deleted' => 0,
-					'RacerResult.deleted' => 0,
-					'racer_code' => $cr['CategoryRacer']['racer_code'],
-					//'HoldPoint.category_code' => $cr['CategoryRacer']['category_code'] <- これはできず
-				),
-				'contain' => array(
-					'RacerResult' => array(
-						'HoldPoint',
-					),
-					'EntryCategory' => array(
-						'fields' => array('name', 'deleted'),
-						'EntryGroup' => array(
-							'fields' => array('deleted'),
-							'Meet'
-						)
-					)
-				)
-			);
 			
 			$query = 'select * from entry_racers'
 					. ' inner join entry_categories on entry_racers.entry_category_id = entry_categories.id'
@@ -1069,18 +844,19 @@ class OneTimeShell extends AppShell
 		if ($hasError) {
 			$this->TransactionManager->rollback($transaction);
 		} else {
-			//*
-			$this->TransactionManager->rollback($transaction);
-			$this->log(' ROLLBACK for test', LOG_DEBUG);
-			/*/
-			$this->TransactionManager->commit($transaction);
+			if ($commits) {
+				$this->TransactionManager->commit($transaction);
+			} else {
+				$this->TransactionManager->rollback($transaction);
+				$this->log(' ROLLBACK for test', LOG_DEBUG);
+			}
+			
 			$skipLog = 'skip(canceled):' . $skipCanceled . ', skip(new):' . $skipNewApplied
 					. ', deleted:' . $skipDeleted . ',降格:';
 			foreach ($downCatCount as $k => $v) {
 				$skipLog .= ',' . $k . ':' . $v;
 			}
 			$this->log($skipLog, LOG_DEBUG);
-			//*/
 		}
 		$this->log('Log of execCategoryDown1617 end ---', LOG_DEBUG);
 	}
