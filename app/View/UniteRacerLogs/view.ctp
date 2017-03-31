@@ -26,6 +26,15 @@
 			<?php echo h($uniteRacerLog['UniteRacerLog']['log']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('処理ステータス'); ?></dt>
+		<dd>
+			<?php
+				App::uses('UniteRacerStatus', 'Cyclox/Const');
+				$st = UniteRacerStatus::statusAt($uniteRacerLog['UniteRacerLog']['status']);
+				echo h($st->description());
+			?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('この処理を行なったユーザー'); ?></dt>
 		<dd>
 			<?php echo h($uniteRacerLog['UniteRacerLog']['by_user']); ?>

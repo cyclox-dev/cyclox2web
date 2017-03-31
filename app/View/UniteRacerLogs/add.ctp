@@ -11,6 +11,14 @@
 			'timeFormat' => '24',
 		));
 		echo $this->Form->input('log');
+		
+		App::uses('UniteRacerStatus', 'Cyclox/Const');
+		$statusArray = array();
+		foreach (UniteRacerStatus::statuses() as $s) {
+			$statusArray[$s->ID()] = $s->description();
+		}
+		echo $this->Form->input('status', array('options' => $statusArray, 'label' => '処理ステータス', 'value' => 1));
+		
 		echo $this->Form->input('by_user');
 	?>
 	</fieldset>

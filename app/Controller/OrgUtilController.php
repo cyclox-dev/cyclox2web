@@ -4,6 +4,8 @@ App::uses('ApiBaseController', 'Controller');
 App::uses('Folder', 'Utility');
 App::uses('File', 'Utility');
 App::uses('Gender', 'Cyclox/Const');
+App::uses('UniteRacerStatus', 'Cyclox/Const');
+
 /*
  *  created at 2015/10/04 by shun
  */
@@ -815,6 +817,7 @@ class OrgUtilController extends ApiBaseController
 			$urLog['UniteRacerLog']['log'] = $userNote . "／"
 					."選手データ統合により変更されたデータ:\n" . $uniteLog;
 		}
+		$urLog['UniteRacerLog']['status'] = UniteRacerStatus::$DONE->ID();
 		
 		if (!$this->UniteRacerLog->save($urLog)) {
 			$this->log('選手データ統合処理のログ保存に失敗しました。' . $united . '→' . $uniteTo, LOG_ERR);
