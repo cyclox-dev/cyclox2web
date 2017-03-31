@@ -745,8 +745,8 @@ class OneTimeShell extends AppShell
 						} else {
 							$msg .= ',氏名異なる！';
 						}
-						if ($racer['Racer']['birth_date'] != '---'
-								|| $r['Racer']['birth_date'] != '---') {
+						if ($racer['Racer']['birth_date'] == '---'
+								|| $r['Racer']['birth_date'] == '---') {
 							$msg .= ',---';
 						} else if ($racer['Racer']['birth_date'] === $r['Racer']['birth_date']) {
 							$msg .= ',ok';
