@@ -139,7 +139,7 @@ class Nation
 			new Nation('SGP', 'シンガポール', 'Singapore', '東南アジア'),
 			new Nation('SXM', 'シント・マールテン（オランダ領）', 'Sint Maarten (Dutch part)', '中央アメリカ'),
 			new Nation('ZWE', 'ジンバブエ', 'Zimbabwe', '南アフリカ'),
-			new Nation('CHE', 'スイス', 'Switzerland', '西ヨーロッパ'),
+			new Nation('SUI', 'スイス', 'Switzerland', '西ヨーロッパ'), // 20170404 国コードを CHE から SUI に変更
 			new Nation('SWE', 'スウェーデン', 'Sweden', '北ヨーロッパ'),
 			new Nation('SDN', 'スーダン', 'Sudan', '東アフリカ'),
 			new Nation('SJM', 'スヴァールバル諸島およびヤンマイエン島', 'Svalbard and Jan Mayen', '北ヨーロッパ'),
