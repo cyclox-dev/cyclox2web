@@ -41,6 +41,11 @@
 			<?php echo h($entryRacer['EntryRacer']['entry_status']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('Checks In'); ?></dt>
+		<dd>
+			<?php echo h($entryRacer['EntryRacer']['checks_in'] ? 'Yes' : 'Not'); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Team Name'); ?></dt>
 		<dd>
 			<?php echo h($entryRacer['EntryRacer']['team_name']); ?>
