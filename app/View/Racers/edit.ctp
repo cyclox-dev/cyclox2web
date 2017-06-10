@@ -48,6 +48,7 @@
 		echo $this->Form->input('jcf_number', array('type' => 'text', 'label' => 'JCF Number'));
 		echo $this->Form->input('uci_number', array('type' => 'text', 'label' => 'UCI Number'));
 		echo $this->Form->input('uci_code', array('type' => 'text', 'label' => 'UCI Code'));
+		echo $this->Form->input('uci_id', array('type' => 'text', 'label' => 'UCI ID'));
 		echo $this->Form->input('phone', array('type' => 'text'));
 		echo $this->Form->input('mail', array('type' => 'text'));
 		echo $this->Form->input('country_code', array(

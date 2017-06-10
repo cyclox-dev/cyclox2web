@@ -83,6 +83,11 @@
 			<?php echo h($racer['Racer']['uci_code']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('UCI ID'); ?></dt>
+		<dd>
+			<?php echo h($racer['Racer']['uci_id']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('備考 (Note)'); ?></dt>
 		<dd>
 			<?php echo h($racer['Racer']['note']); ?>
