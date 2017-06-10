@@ -48,7 +48,7 @@ class AjoccUtil
 		$pkeySeason = Constant::PKEY_MEET_SEASON_EXP_PREFIX . $meetGroupCode;
 		$seasonNo = '000';
 		$seasonNoObj = $pv->find('first', array('conditions' => array('ParmVar.pkey' => $pkeySeason)));
-		debug($seasonNoObj);
+		//debug($seasonNoObj);
 		if ($seasonNoObj) {
 			$seasonNo = $seasonNoObj['ParmVar']['value'];
 		}
@@ -57,7 +57,7 @@ class AjoccUtil
 		$pkeyNo = Constant::PKEY_MEET_MASTER_NUMBER_PREFIX . $meetGroupCode;
 		$number = 0;
 		$numberObj = $pvn->find('first', array('conditions' => array('ParmVar.pkey' => $pkeyNo)));
-		debug($numberObj);
+		//debug($numberObj);
 		if ($numberObj) {
 			$number = $numberObj['ParmVar']['value'];
 		}
@@ -65,7 +65,7 @@ class AjoccUtil
 		$currSeasonNo = self::seasonExp();
 		
 		if (!$seasonNoObj || $currSeasonNo !== $seasonNo) {
-			debug('1st route');
+			//debug('1st route');
 			$seasonNo = $currSeasonNo;
 			$data = array(
 				'pkey' => $pkeySeason,
@@ -86,7 +86,7 @@ class AjoccUtil
 			$number++;
 		}
 		
-		debug($number);
+		//debug($number);
 		
 		$data = array(
 			'pkey' => $pkeyNo,
@@ -115,7 +115,7 @@ class AjoccUtil
 		$pkeySeason = Constant::PKEY_RACER_SEASON_EXP;
 		$seasonNo = null;
 		$seasonNoObj = $pv->find('first', array('conditions' => array('ParmVar.pkey' => $pkeySeason)));
-		debug($seasonNoObj);
+		//debug($seasonNoObj);
 		if ($seasonNoObj) {
 			$seasonNo = $seasonNoObj['ParmVar']['value'];
 		}
@@ -124,7 +124,7 @@ class AjoccUtil
 		$pkeyNo = Constant::PKEY_RACER_MASTER_NUMBER;
 		$number = 0;
 		$numberObj = $pvn->find('first', array('conditions' => array('ParmVar.pkey' => $pkeyNo)));
-		debug($numberObj);
+		//debug($numberObj);
 		if ($numberObj) {
 			$number = $numberObj['ParmVar']['value'];
 		}
@@ -132,7 +132,7 @@ class AjoccUtil
 		$currSeasonNo = self::seasonExp();
 		
 		if (!$seasonNoObj || $currSeasonNo !== $seasonNo) {
-			debug('1st route');
+			//debug('1st route');
 			$seasonNo = $currSeasonNo;
 			$data = array(
 				'pkey' => $pkeySeason,
@@ -153,7 +153,7 @@ class AjoccUtil
 			$number++;
 		}
 		
-		debug($number);
+		//debug($number);
 		
 		$data = array(
 			'pkey' => $pkeyNo,
