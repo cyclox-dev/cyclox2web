@@ -6,9 +6,9 @@ DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
+DROP TABLE IF EXISTS time_records;
 DROP TABLE IF EXISTS hold_points;
 DROP TABLE IF EXISTS point_series_racers;
-DROP TABLE IF EXISTS time_records;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
 DROP TABLE IF EXISTS entry_categories;
@@ -178,6 +178,7 @@ CREATE TABLE entry_racers
 	name_kana_at_race varchar(255) BINARY,
 	name_en_at_race varchar(255) BINARY,
 	entry_status tinyint NOT NULL,
+	checks_in tinyint(1) DEFAULT 1 NOT NULL,
 	team_name varchar(255) BINARY,
 	note text,
 	created datetime,
@@ -375,6 +376,7 @@ CREATE TABLE racers
 	uci_number varchar(255) BINARY,
 	-- UCI 登録の固有番号
 	uci_code varchar(255) BINARY,
+	uci_id varchar(255) BINARY,
 	-- 国外、ハイフン付与を考慮して text で処理する。
 	phone varchar(255),
 	mail varchar(255) BINARY,
