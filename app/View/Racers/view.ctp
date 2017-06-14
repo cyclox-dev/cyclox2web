@@ -88,6 +88,11 @@
 			<?php echo h($racer['Racer']['uci_id']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('UCI 登録国コード'); ?></dt>
+		<dd>
+			<?php echo h($racer['Racer']['uci_nation_code']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('備考 (Note)'); ?></dt>
 		<dd>
 			<?php echo h($racer['Racer']['note']); ?>

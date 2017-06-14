@@ -377,6 +377,7 @@ CREATE TABLE racers
 	-- UCI 登録の固有番号
 	uci_code varchar(255) BINARY,
 	uci_id varchar(255) BINARY,
+	uci_nation_code varchar(3) BINARY,
 	-- 国外、ハイフン付与を考慮して text で処理する。
 	phone varchar(255),
 	mail varchar(255) BINARY,
