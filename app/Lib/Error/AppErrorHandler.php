@@ -108,7 +108,21 @@ class AppErrorHandler extends ErrorHandler
 				'a2billing/',
 				'admin/i18n/readme.txt',
 				'struts2-showcase/',
-				'current_config/passwd'
+				'current_config/passwd',
+				'current_config/Account1',
+				'rest/api/2/configuration',
+				'admin/modules/framework/',
+				'plugins/weathermap/editor.php',
+				'loginback.jpg',
+				'script',
+				'a2billing/common/javascript/misc.js',
+				'cas/login.action',
+				'admin/images/tango.png',
+				'/recordings/index.php',
+				'a2billing/admin/Public/templates/default/profiler.tpl',
+				'recordings/index.php',
+				'recordings/misc/audio.php',
+				'HNAP1/',
 				// ここに例外ログを防ぎたいアドレスを
 			);
 			
