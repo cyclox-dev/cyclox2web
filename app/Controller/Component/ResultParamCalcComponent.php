@@ -295,7 +295,7 @@ class ResultParamCalcComponent extends Component
 				}
 			}
 		} else if ($this->__started >= 6 && ($racesCat == 'CL2' || $racesCat == 'CL2+3')) {
-			// シリーズ少人数（5-9人）2勝で昇格
+			// シリーズ2勝で昇格
 			foreach ($results as $result) {
 				$r = $result['RacerResult'];
 
@@ -341,13 +341,22 @@ class ResultParamCalcComponent extends Component
 					if (!empty($entryRacer['RacerResult']['rank']) && $entryRacer['RacerResult']['rank'] == 1) {
 						// ただしその出走人数が6人以上であること
 						$opt = array('conditions' => array(
-							'entry_category_id' => $entryRacer['EntryCategory']['id']
-						), 'recursive' => -1); // 'recursive' => -1 を書かないとカウントが異常値になる <-- er hasMany results だからっぽい。
-						$erCount = $this->EntryRacer->find('count', $opt);
-						//$this->log('er count:' . $erCount . ' id:' . $entryRacer['EntryCategory']['id'], LOG_DEBUG);
-						//$this->log($erCount, LOG_DEBUG);
+							'entry_category_id' => $entryRacer['EntryCategory']['id'],
+							'RacerResult.deleted' => 0,
+						));
+						$erInfos = $this->EntryRacer->find('all', $opt);
+						//$this->log($erInfos, LOG_DEBUG);
+						
+						// 出走人数をカウント
+						$startCount = 0;
+						foreach ($erInfos as $erInfo) {
+							if ($erInfo['RacerResult']['status'] != RacerResultStatus::$DNS->val()) {
+								++$startCount;
+							}
+						}
+						//$this->log('started:' . $startCount, LOG_DEBUG);
 
-						if ($erCount >= 6) {
+						if ($startCount >= 6) {
 							$rankUps = true;
 							break;
 						}
