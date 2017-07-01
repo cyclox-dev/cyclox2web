@@ -18,6 +18,7 @@ class PointCalculator extends Object
 	public static $KNS_156;
 	public static $IBRK_167;
 	public static $CCM_167;
+	public static $TKI_178;
 	
 	private static $TABLE_JCX156_GRADE1 = array(
 		300, 240, 210, 180, 165, 150, 135, 120, 105, 90, 
@@ -55,6 +56,15 @@ class PointCalculator extends Object
 		2, 2, 2, 2, 2, 2, 2, 1, 1, 1,
 	);
 	const RUN_PT_IBRK167 = 1;
+	
+	private static $TABLE_TKI178 = array(
+		56, 47, 41, 36, 32, 28, 25, 22, 20, 18,
+		16, 14, 13, 12, 11, 10, 9, 9, 8, 8,
+		7, 7, 7, 6, 6, 6, 5, 5, 5, 5,
+		4, 4, 4, 4, 3, 3, 3, 3, 3, 3,
+		2, 2, 2, 2, 2, 2, 2, 1, 1, 1,
+	);
+	const RUN_PT_TKI178 = 1;
 	
 	// const として
 	const __KEY_STARTED_OVER = 'started_over';
@@ -122,7 +132,8 @@ class PointCalculator extends Object
 			}
 		}
 		$text = '2016-17 茨城クロスのシリーズランキングのために作られたポイントテーブル。15-16 AJOCC ポイントの出走41人〜のテーブルと同じである。'
-			. '51位以下はポイント無し。ボーナスなどは無し。グレードの指定は必要ない。</br>---</br>'
+			. '51位以下は' . self::RUN_PT_IBRK167 . 'ポイント。ボーナスなどは無し。グレードの指定は必要ない。'
+			. 'DNS,DNF にもポイントが付与される（リザルトがゼッケン順に並んでいることを前提としている）。</br>---</br>'
 			. 'ポイントテーブル</br>' . $str;
 		self::$IBRK_167 = new PointCalculator(3, 'IBRK-167', '2016-17 茨城クロスのポイントテーブル。AJOCC ポイントの出走41〜と同じ。', $text);
 		
@@ -172,11 +183,25 @@ class PointCalculator extends Object
 			. '</br>ポイントテーブル</br>' . $str;
 		self::$CCM_167 = new PointCalculator(4, 'CCM-167', '2016-17 信州クロスのポイントテーブル。15-16 AJOCC ポイントと同じ。グレード2は得点半分。', $text);
 		
+		$str = '';
+		for ($i = 0; $i < count(self::$TABLE_TKI178); $i++) {
+			$str .= ' ' . self::$TABLE_TKI178[$i] . ',';
+			if (($i + 1) % 10 == 0) {
+				$str .= '</br>';
+			}
+		}
+		$text = '2017-18 東海クロスのシリーズランキングのために作られたポイントテーブル。（ただしスタート順決定のため、16-17のリザルトに対しても利用する、とのこと。）'
+			. 'IBRK_167 と同じ配点、51位以下は' . self::RUN_PT_TKI178 . 'ポイント。順位があるリザルトに対してのみポイントが付与される（DNS,DNF に対してポイントは無し）。'
+			. 'グレードの指定は必要ない。</br>---</br>'
+			. 'ポイントテーブル</br>' . $str;
+		self::$TKI_178 = new PointCalculator(5, 'TKI-178', '201-18 東海クロスのポイントテーブル。$IBRK_167 ポイントと同じテーブルだが、ポイント対象は順位ありリザルトのみ。', $text);
+		
 		self::$calculators = array(
 			self::$JCX_156,
 			self::$KNS_156,
 			self::$IBRK_167,
 			self::$CCM_167,
+			self::$TKI_178,
 		);
 	}
 	
@@ -233,6 +258,7 @@ class PointCalculator extends Object
 			case self::$KNS_156->val(): $pt = $this->__calcKNS156($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$IBRK_167->val(): $pt = $this->__calcIBRK167($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$CCM_167->val(): $pt = $this->__calcCCM167($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
+			case self::$TKI_178->val(): $pt = $this->__calcTKI167($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 		}
 		
 		if (empty($pt['point']) && empty($pt['bonus'])) {
@@ -428,6 +454,34 @@ class PointCalculator extends Object
 		
 		if ($grade == 2) { // grade 2 は得点半分（小数点以下切り上げ 20160903指示あり by Togashi）
 			$point = ceil($point / 2);
+		}
+		
+		$pointMap = array();
+		$pointMap['point'] = $point;
+		
+		// 完走ボーナスは無し。
+		
+		return $pointMap;
+	}
+	
+	/**
+	 * 2017-18シーズンの東海クロスのポイントをかえす。
+	 */
+	private function __calcTKI167($result, $grade, $raceLapCount, $raceStartedCount, $meetDate)
+	{
+		$pointSet = array(
+			'rank_pt' => self::$TABLE_TKI178,
+		);
+		
+		$point = 0;
+		if (!empty($result['rank']))
+		{
+			$point = self::RUN_PT_TKI178;
+			$rankIndex = $result['rank'] - 1;
+
+			if (isset($pointSet['rank_pt'][$rankIndex])) {
+				$point = $pointSet['rank_pt'][$rankIndex];
+			}
 		}
 		
 		$pointMap = array();
