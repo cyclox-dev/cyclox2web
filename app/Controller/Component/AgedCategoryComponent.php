@@ -202,7 +202,7 @@ class AgedCategoryComponent  extends Component
 			$dateMin = $year . '-04-01';
 		}
 		if (!empty($agedCat['Category']['school_year_min'])) {
-			$year = $this->__pullFY($birth) + $agedCat['Category']['school_year_min'] + 1;
+			$year = $this->__pullSchoolFY($birth) + $agedCat['Category']['school_year_min'] + 1;
 			$dt = $year . '-04-01';
 
 			if ($dateMin == null || $dt > $dateMin) {
@@ -227,7 +227,7 @@ class AgedCategoryComponent  extends Component
 			$dateMax = $year . '-03-31';
 		}
 		if (!empty($agedCat['Category']['school_year_max'])) {
-			$year = $this->__pullFY($birth) + $agedCat['Category']['school_year_max'] + 2;
+			$year = $this->__pullSchoolFY($birth) + $agedCat['Category']['school_year_max'] + 2;
 			$dt = $year . '-03-31';
 
 			if ($dateMax == null || $dt < $dateMax) {
@@ -253,16 +253,21 @@ class AgedCategoryComponent  extends Component
 	}
 	
 	/**
-	 * 年度の数をかえす。2015-1-6 ならば 2014 をかえす。
+	 * 学校方に準じた年度をかえす。2015-1-6 ならば 2014 をかえす。4/1のみ特殊で、2015-4-1 は 2014 になることに注意。
 	 * @param date $date 日付
 	 */
-	private function __pullFY($date)
+	private function __pullSchoolFY($date)
 	{
-		$m = date('m', strtotime($date));
+		$m = date('n', strtotime($date));
 		
 		$year = $this->__pullYear($date);
 		if ($m < 4) {
 			--$year;
+		} else if ($m == 4) {
+			$d = date('j', strtotime($date));
+			if ($d == 1) {
+				--$year;
+			}
 		}
 		
 		return $year;
