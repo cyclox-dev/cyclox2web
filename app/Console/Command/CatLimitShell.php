@@ -236,7 +236,7 @@ class CatLimitShell extends AppShell
 		// 最終更新日時の記録
 		$this->__saveCatLimitUpdateDate($nextUpdateDate, $pv);
 		
-		$this->log('>>> End setupCatLimit', LOG_DEBUG);
+		$this->log('<<< End setupCatLimit', LOG_DEBUG);
 	}
 	
 	/**
