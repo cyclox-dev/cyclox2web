@@ -453,7 +453,7 @@ class OrgUtilController extends ApiBaseController
 				if (!empty($r['birth_date'])) {
 					$dt = new DateTime($r['birth_date']);
 					$year = $dt->format('Y');
-					$this->log('$year:' . $year, LOG_DEBUG);
+					//$this->log('$year:' . $year, LOG_DEBUG);
 					if ($year > 1905) {
 						$birthExp = $r['birth_date'];
 					}
