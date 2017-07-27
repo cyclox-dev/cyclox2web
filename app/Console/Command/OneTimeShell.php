@@ -1177,10 +1177,10 @@ class OneTimeShell extends AppShell
 		
 		$this->log('>>> Start setupAgedCategory', LOG_INFO);
 		
-		// >>> Transaction
-		$transaction = $this->TransactionManager->begin();
-		
 		while (true) {
+			// >>> Transaction
+			$transaction = $this->TransactionManager->begin();
+
 			$opt = array(
 				'recursive' => -1,
 				'conditions' => array(
@@ -1212,11 +1212,11 @@ class OneTimeShell extends AppShell
 				}
 			}
 			
+			$this->TransactionManager->commit($transaction);
+			// <<< Transaction
+
 			$offset += $limit;
 		}
-		
-		$this->TransactionManager->commit($transaction);
-		// <<< Transaction
 		
 		$this->log('<<< End setupAgedCategory', LOG_INFO);
 	}
