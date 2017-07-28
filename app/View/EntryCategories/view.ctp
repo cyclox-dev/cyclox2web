@@ -30,23 +30,23 @@
 		<dd>
 			<?php 
 				App::uses('LapOutRule', 'Cyclox/Const');
-				echo LapOutRule::ofVal($entryCategory['EntryCategory']['lapout_rule'])->expressJp();
+				echo h(LapOutRule::ofVal($entryCategory['EntryCategory']['lapout_rule'])->expressJp());
 			?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('残留ポイント'); ?></dt>
 		<dd>
-			<?php echo ($entryCategory['EntryCategory']['applies_hold_pt'] ? '付与する' : '付与しない'); ?>
+			<?php echo h($entryCategory['EntryCategory']['applies_hold_pt'] ? '付与する' : '付与しない'); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('リザルトによる昇格'); ?></dt>
 		<dd>
-			<?php echo ($entryCategory['EntryCategory']['applies_rank_up'] ? 'あり' : '無し'); ?>
+			<?php echo h($entryCategory['EntryCategory']['applies_rank_up'] ? 'あり' : '無し'); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('AJOCC ポイント'); ?></dt>
 		<dd>
-			<?php echo ($entryCategory['EntryCategory']['applies_ajocc_pt'] ? '付与する' : '付与しない'); ?>
+			<?php echo h($entryCategory['EntryCategory']['applies_ajocc_pt'] ? '付与する' : '付与しない'); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('Note'); ?></dt>
@@ -111,14 +111,14 @@
 			</tr>
 			<?php foreach ($entryCategory['EntryRacer'] as $entryRacer): ?>
 				<tr>
-					<td><?php echo $entryRacer['EntryRacer']['id']; ?></td>
-					<td><?php echo $entryRacer['EntryRacer']['body_number']; ?></td>
+					<td><?php echo h($entryRacer['EntryRacer']['id']); ?></td>
+					<td><?php echo h($entryRacer['EntryRacer']['body_number']); ?></td>
 					<td><?php echo $this->Html->link($entryRacer['EntryRacer']['racer_code'], array('controller' => 'racers', 'action' => 'view', $entryRacer['EntryRacer']['racer_code'])); ?></td>
-					<td><?php echo $entryRacer['EntryRacer']['name_at_race']; ?></td>
-					<td><?php echo $entryRacer['EntryRacer']['name_kana_at_race']; ?></td>
-					<td><?php echo $entryRacer['EntryRacer']['name_en_at_race']; ?></td>
-					<td><?php echo RacerEntryStatus::ofVal($entryRacer['EntryRacer']['entry_status'])->msg(); ?></td>
-					<td><?php echo $entryRacer['EntryRacer']['team_name']; ?></td>
+					<td><?php echo h($entryRacer['EntryRacer']['name_at_race']); ?></td>
+					<td><?php echo h($entryRacer['EntryRacer']['name_kana_at_race']); ?></td>
+					<td><?php echo h($entryRacer['EntryRacer']['name_en_at_race']); ?></td>
+					<td><?php echo h(RacerEntryStatus::ofVal($entryRacer['EntryRacer']['entry_status'])->msg()); ?></td>
+					<td><?php echo h($entryRacer['EntryRacer']['team_name']); ?></td>
 					<td class="actions">
 						<?php echo $this->Html->link('詳細', array('controller' => 'entry_racers', 'action' => 'view', $entryRacer['EntryRacer']['id'])); ?>
 						<?php /*echo $this->Html->link(__('Edit'), array('controller' => 'entry_racers', 'action' => 'edit', $entryRacer['EntryRacer']['id']));//*/ ?>
@@ -160,31 +160,31 @@
 			</tr>
 			<?php foreach ($results as $result): ?>
 				<tr>
-					<td><?php echo $result['RacerResult']['id']; ?></td>
+					<td><?php echo h($result['RacerResult']['id']); ?></td>
 					<td><?php 
 						if (RacerEntryStatus::ofVal($result['EntryRacer']['entry_status']) == RacerEntryStatus::$OPEN) {
-							echo RacerEntryStatus::$OPEN->msg();
+							echo h(RacerEntryStatus::$OPEN->msg());
 						} else {
-							echo $result['RacerResult']['rank'];
+							echo h($result['RacerResult']['rank']);
 						}
 					?></td>
-					<td><?php echo RacerResultStatus::ofVal($result['RacerResult']['status'])->code(); ?></td>
-					<td><?php echo $result['EntryRacer']['body_number']; ?></td>
+					<td><?php echo h(RacerResultStatus::ofVal($result['RacerResult']['status'])->code()); ?></td>
+					<td><?php echo h($result['EntryRacer']['body_number']); ?></td>
 					<td><?php echo $this->Html->link($result['EntryRacer']['racer_code'], array('controller' => 'racers', 'action' => 'view', $result['EntryRacer']['racer_code'])); ?></td>
-					<td><?php echo $result['EntryRacer']['name_at_race']; ?></td>
+					<td><?php echo h($result['EntryRacer']['name_at_race']); ?></td>
 					<td><?php
 						$isDns = RacerResultStatus::ofVal($result['RacerResult']['status'])->val() === RacerResultStatus::$DNS->val();
-						echo $isDns ? '' : $result['RacerResult']['lap']; ?>
+						echo h($isDns ? '' : $result['RacerResult']['lap']); ?>
 					</td>
 					<td><?php 
 						if (empty($result['RacerResult']['goal_milli_sec'])) {
 							echo '---';
 						} else {
-							echo Util::milli2Time($result['RacerResult']['goal_milli_sec']);
+							echo h(Util::milli2Time($result['RacerResult']['goal_milli_sec']));
 						}
 					?></td>
-					<td><?php echo is_null($result['RacerResult']['rank_per']) ? '--' : $result['RacerResult']['rank_per'] . '%'; ?></td>
-					<td><?php echo is_null($result['RacerResult']['run_per']) ? '--' : (1 * $result['RacerResult']['run_per']) . '%'; ?></td>
+					<td><?php echo is_null($result['RacerResult']['rank_per']) ? '--' : h($result['RacerResult']['rank_per'] . '%'); ?></td>
+					<td><?php echo is_null($result['RacerResult']['run_per']) ? '--' : h((1 * $result['RacerResult']['run_per']) . '%'); ?></td>
 					<?php for ($i = 0; $i < count($psTitles); $i++): ?>
 						<td><?php
 							if (empty($result['RacerResult']['points'][$i])) {
@@ -194,7 +194,7 @@
 								if (!empty($result['RacerResult']['points'][$i]['bonus'])) {
 									$pointStr .= '+' . (1 * $result['RacerResult']['points'][$i]['bonus']);
 								}
-								echo $pointStr . 'pt';
+								echo h($pointStr . 'pt');
 							}
 						?></td>
 					<?php endfor; ?>
@@ -206,7 +206,7 @@
 							if (!empty($result['RacerResult']['as_category'])) {
 								$ptStr .= '/' . $result['RacerResult']['as_category'];
 							}
-							echo $ptStr;
+							echo h($ptStr);
 						}
 					?></td>
 					<?php if ($holdPointCount > 0): ?>
@@ -220,7 +220,7 @@
 									$str .= $hpt['point'] . 'pt/' . $hpt['category_code'];
 								}
 							}
-							echo $str;
+							echo h($str);
 						?></td>
 					<?php endif; ?>
 				<td class="actions">

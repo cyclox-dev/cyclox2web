@@ -71,39 +71,39 @@
 		<dl>
 			<dt><?php echo __('Id'); ?></dt>
 		<dd>
-	<?php echo $entryGroup['TimeRecordInfo']['id']; ?>
+	<?php echo h($entryGroup['TimeRecordInfo']['id']); ?>
 &nbsp;</dd>
 		<dt><?php echo __('Entry Group Id'); ?></dt>
 		<dd>
-	<?php echo $entryGroup['TimeRecordInfo']['entry_group_id']; ?>
+	<?php echo h($entryGroup['TimeRecordInfo']['entry_group_id']); ?>
 &nbsp;</dd>
 		<dt><?php echo __('Time Start Datetime'); ?></dt>
 		<dd>
-	<?php echo $entryGroup['TimeRecordInfo']['time_start_datetime']; ?>
+	<?php echo h($entryGroup['TimeRecordInfo']['time_start_datetime']); ?>
 &nbsp;</dd>
 		<dt><?php echo __('Skip Lap Count'); ?></dt>
 		<dd>
-	<?php echo $entryGroup['TimeRecordInfo']['skip_lap_count']; ?>
+	<?php echo h($entryGroup['TimeRecordInfo']['skip_lap_count']); ?>
 &nbsp;</dd>
 		<dt><?php echo __('Distance'); ?></dt>
 		<dd>
-	<?php echo $entryGroup['TimeRecordInfo']['distance']; ?>
+	<?php echo h($entryGroup['TimeRecordInfo']['distance']); ?>
 &nbsp;</dd>
 		<dt><?php echo __('Accuracy'); ?></dt>
 		<dd>
-	<?php echo $entryGroup['TimeRecordInfo']['accuracy']; ?>
+	<?php echo h($entryGroup['TimeRecordInfo']['accuracy']); ?>
 &nbsp;</dd>
 		<dt><?php echo __('Macine'); ?></dt>
 		<dd>
-	<?php echo $entryGroup['TimeRecordInfo']['macine']; ?>
+	<?php echo h($entryGroup['TimeRecordInfo']['macine']); ?>
 &nbsp;</dd>
 		<dt><?php echo __('Operator'); ?></dt>
 		<dd>
-	<?php echo $entryGroup['TimeRecordInfo']['operator']; ?>
+	<?php echo h($entryGroup['TimeRecordInfo']['operator']); ?>
 &nbsp;</dd>
 		<dt><?php echo __('Note'); ?></dt>
 		<dd>
-	<?php echo $entryGroup['TimeRecordInfo']['note']; ?>
+	<?php echo h($entryGroup['TimeRecordInfo']['note']); ?>
 &nbsp;</dd>
 		</dl>
 	<?php endif; ?>
@@ -129,13 +129,13 @@
 	</tr>
 	<?php foreach ($entryGroup['EntryCategory'] as $entryCategory): ?>
 		<tr>
-			<td><?php echo $entryCategory['id']; ?></td>
-			<td><?php echo $entryCategory['entry_group_id']; ?></td>
-			<td><?php echo $entryCategory['races_category_code']; ?></td>
-			<td><?php echo $entryCategory['name']; ?></td>
-			<td><?php echo $entryCategory['start_delay_sec']; ?></td>
-			<td><?php echo $entryCategory['lapout_rule']; ?></td>
-			<td><?php echo $entryCategory['note']; ?></td>
+			<td><?php echo h($entryCategory['id']); ?></td>
+			<td><?php echo h($entryCategory['entry_group_id']); ?></td>
+			<td><?php echo h($entryCategory['races_category_code']); ?></td>
+			<td><?php echo h($entryCategory['name']); ?></td>
+			<td><?php echo h($entryCategory['start_delay_sec']); ?></td>
+			<td><?php echo h($entryCategory['lapout_rule']); ?></td>
+			<td><?php echo h($entryCategory['note']); ?></td>
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'entry_categories', 'action' => 'view', $entryCategory['id'])); ?>
 				<?php echo $this->Html->link(__('Edit'), array('controller' => 'entry_categories', 'action' => 'edit', $entryCategory['id'])); ?>

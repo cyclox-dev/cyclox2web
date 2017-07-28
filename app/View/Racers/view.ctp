@@ -119,7 +119,7 @@
 					if (empty($exp)) {
 						$exp = '無し';
 					}
-					echo $exp;
+					echo h($exp);
 				}
 			?>
 			&nbsp;
@@ -233,17 +233,17 @@
 			foreach ($racer['CategoryRacer'] as $categoryRacer):
 		?>
 			<tr>
-				<td><?php echo $categoryRacer['id']; ?></td>
-				<td><?php echo $categoryRacer['racer_code']; ?></td>
-				<td><?php echo $categoryRacer['category_code']; ?></td>
-				<td><?php echo $categoryRacer['apply_date']; ?></td>
-				<td><?php echo $categoryRacer['cancel_date']; ?></td>
+				<td><?php echo h($categoryRacer['id']); ?></td>
+				<td><?php echo h($categoryRacer['racer_code']); ?></td>
+				<td><?php echo h($categoryRacer['category_code']); ?></td>
+				<td><?php echo h($categoryRacer['apply_date']); ?></td>
+				<td><?php echo h($categoryRacer['cancel_date']); ?></td>
 				<td><?php
 					App::uses('CategoryReason', 'Cyclox/Const');
-					echo CategoryReason::reasonAt($categoryRacer['reason_id'])->name();
+					echo h(CategoryReason::reasonAt($categoryRacer['reason_id'])->name());
 				?></td>
-				<td><?php echo $categoryRacer['racer_result_id']; ?></td>
-				<td><?php echo $categoryRacer['meet_code']; ?></td>
+				<td><?php echo h($categoryRacer['racer_result_id']); ?></td>
+				<td><?php echo h($categoryRacer['meet_code']); ?></td>
 				<td class="actions">
 					<?php echo $this->Html->link(__('View'), array('controller' => 'category_racers', 'action' => 'view', $categoryRacer['id'])); ?>
 					<?php echo $this->Html->link(__('Edit'), array('controller' => 'category_racers', 'action' => 'edit', $categoryRacer['id'])); ?>
@@ -302,32 +302,32 @@
 								, array('controller' => 'meets', 'action' => 'view', $entry['EntryCategory']['EntryGroup']['Meet']['code'])
 						);
 					?></td>
-					<td><?php echo $entry['EntryCategory']['EntryGroup']['Meet']['at_date']; ?></td>
+					<td><?php echo h($entry['EntryCategory']['EntryGroup']['Meet']['at_date']); ?></td>
 					<td><?php
 						echo $this->Html->link(
 								$entry['EntryCategory']['name']
 								, array('controller' => 'entry_categories', 'action' => 'view', $entry['EntryCategory']['id'])
 						); ?>
 					</td>
-					<td><?php echo RacerEntryStatus::ofVal($entry['EntryRacer']['entry_status'])->msg(); ?></td>
+					<td><?php echo h(RacerEntryStatus::ofVal($entry['EntryRacer']['entry_status'])->msg()); ?></td>
 					<?php if (!empty($entry['RacerResult']['id'])): ?>
 						<td><?php
 							if (empty($entry['RacerResult']['rank'])) {
-								echo RacerResultStatus::ofVal($entry['RacerResult']['rank'])->code();
+								echo h(RacerResultStatus::ofVal($entry['RacerResult']['rank'])->code());
 							} else {
-								echo $entry['RacerResult']['rank'];
+								echo h($entry['RacerResult']['rank']);
 							}
 						?></td>
-						<td><?php echo $entry['RacerResult']['lap']; ?></td>
+						<td><?php echo h($entry['RacerResult']['lap']); ?></td>
 						<td><?php
 							if (empty($entry['RacerResult']['goal_milli_sec'])) {
 								echo '---';
 							} else {
-								echo Util::milli2Time($entry['RacerResult']['goal_milli_sec']);
+								echo h(Util::milli2Time($entry['RacerResult']['goal_milli_sec']));
 							}
 						?></td>
-						<td><?php echo $entry['RacerResult']['rank_per']; ?></td>
-						<td><?php echo $entry['RacerResult']['ajocc_pt']; ?></td>
+						<td><?php echo h($entry['RacerResult']['rank_per']); ?></td>
+						<td><?php echo h($entry['RacerResult']['ajocc_pt']); ?></td>
 						<td><?php 
 							$str = '';
 							foreach ($entry['RacerResult']['HoldPoint'] as $hpt) {
@@ -338,7 +338,7 @@
 									$str .= $hpt['point'] . 'pt/' . $hpt['category_code'];
 								}
 							}
-							echo $str;
+							echo h($str);
 						?></td>
 					<?php endif; ?>
 				</tr>

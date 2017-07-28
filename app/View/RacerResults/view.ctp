@@ -98,9 +98,9 @@
 		</tr>
 	<?php foreach ($racerResult['TimeRecord'] as $timeRecord): ?>
 		<tr>
-			<td><?php echo $timeRecord['id']; ?></td>
-			<td><?php echo $timeRecord['racer_result_id']; ?></td>
-			<td><?php echo $timeRecord['time_milli']; ?></td>
+			<td><?php echo h($timeRecord['id']); ?></td>
+			<td><?php echo h($timeRecord['racer_result_id']); ?></td>
+			<td><?php echo h($timeRecord['time_milli']); ?></td>
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'time_records', 'action' => 'view', $timeRecord['id'])); ?>
 				<?php echo $this->Html->link(__('Edit'), array('controller' => 'time_records', 'action' => 'edit', $timeRecord['id'])); ?>

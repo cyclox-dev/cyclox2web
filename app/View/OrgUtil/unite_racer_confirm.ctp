@@ -22,7 +22,7 @@
 				if (!empty($catStr)) $catStr .= ', ';
 				$catStr .= $cat['category_code'];
 			}
-			echo $catStr; 
+			echo h($catStr); 
 		?> &nbsp; </dd>
 	</dl>
 	<p style="height: 1em"></p>
@@ -49,7 +49,7 @@
 				if (!empty($catStr)) $catStr .= ', ';
 				$catStr .= $cat['category_code'];
 			}
-			echo $catStr; 
+			echo h($catStr); 
 		?> &nbsp; </dd>
 	</dl>
 	<p style="height: 1em"></p>

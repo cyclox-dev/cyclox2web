@@ -30,7 +30,7 @@ App::uses('CategoryReason', 'Cyclox/Const');
 		<td><?php echo h($categoryRacer['CategoryRacer']['apply_date']); ?>&nbsp;</td>
 		<td><?php echo h($categoryRacer['CategoryRacer']['cancel_date']); ?>&nbsp;</td>
 		<td><?php
-			echo CategoryReason::reasonAt($categoryRacer['CategoryRacer']['reason_id'])->name();
+			echo h(CategoryReason::reasonAt($categoryRacer['CategoryRacer']['reason_id'])->name());
 		?></td>
 		<td><?php echo h($categoryRacer['CategoryRacer']['racer_result_id']); ?>&nbsp;</td>
 		<td><?php echo h($categoryRacer['CategoryRacer']['meet_code']); ?>&nbsp;</td>

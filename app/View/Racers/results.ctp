@@ -4,7 +4,7 @@
 		App::uses('RacerEntryStatus', 'Cyclox/Const');
 		App::uses('RacerResultStatus', 'Cyclox/Const');
 	?>
-	<h2><?php echo __($racer['Racer']['family_name'] . ' ' . $racer['Racer']['first_name'] . ' [' . $racer['Racer']['code'] . '] のエントリー／リザルト'); ?></h2>
+	<h2><?php echo h($racer['Racer']['family_name'] . ' ' . $racer['Racer']['first_name'] . ' [' . $racer['Racer']['code'] . '] のエントリー／リザルト'); ?></h2>
 		<table cellpadding = "0" cellspacing = "0">
 			<tr>
 				<th><?php echo __('大会'); ?></th>
@@ -37,32 +37,32 @@
 								, array('controller' => 'meets', 'action' => 'view', $entry['EntryCategory']['EntryGroup']['Meet']['code'])
 						);
 					?></td>
-					<td><?php echo $entry['EntryCategory']['EntryGroup']['Meet']['at_date']; ?></td>
+					<td><?php echo h($entry['EntryCategory']['EntryGroup']['Meet']['at_date']); ?></td>
 					<td><?php
 						echo $this->Html->link(
 								$entry['EntryCategory']['name']
 								, array('controller' => 'entry_categories', 'action' => 'view', $entry['EntryCategory']['id'])
 						); ?>
 					</td>
-					<td><?php echo RacerEntryStatus::ofVal($entry['EntryRacer']['entry_status'])->msg(); ?></td>
+					<td><?php echo h(RacerEntryStatus::ofVal($entry['EntryRacer']['entry_status'])->msg()); ?></td>
 					<?php if (!empty($entry['RacerResult']['id'])): ?>
 						<td><?php
 							if (empty($entry['RacerResult']['rank'])) {
-								echo RacerResultStatus::ofVal($entry['RacerResult']['status'])->code();
+								echo h(RacerResultStatus::ofVal($entry['RacerResult']['status'])->code());
 							} else {
-								echo $entry['RacerResult']['rank'];
+								echo h($entry['RacerResult']['rank']);
 							}
 						?></td>
-						<td><?php echo $entry['RacerResult']['lap']; ?></td>
+						<td><?php echo h($entry['RacerResult']['lap']); ?></td>
 						<td><?php
 							if (empty($entry['RacerResult']['goal_milli_sec'])) {
 								echo '---';
 							} else {
-								echo Util::milli2Time($entry['RacerResult']['goal_milli_sec']);
+								echo h(Util::milli2Time($entry['RacerResult']['goal_milli_sec']));
 							}
 						?></td>
-						<td><?php echo $entry['RacerResult']['rank_per']; ?></td>
-						<td><?php echo $entry['RacerResult']['ajocc_pt']; ?></td>
+						<td><?php echo h($entry['RacerResult']['rank_per']); ?></td>
+						<td><?php echo h($entry['RacerResult']['ajocc_pt']); ?></td>
 						<td><?php 
 							$str = '';
 							foreach ($entry['RacerResult']['HoldPoint'] as $hpt) {
@@ -73,7 +73,7 @@
 									$str .= $hpt['point'] . 'pt/' . $hpt['category_code'];
 								}
 							}
-							echo $str;
+							echo h($str);
 						?></td>
 					<?php endif; ?>
 				</tr>

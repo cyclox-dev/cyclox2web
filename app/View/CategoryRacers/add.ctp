@@ -16,7 +16,7 @@ $(document).ready(function(){
 	<fieldset>
 		<legend><?php
 			if (isset($racerCode)) {
-				echo __('選手 [%s] へのカテゴリー所属の追加', $racerCode);
+				echo __('選手 [%s] へのカテゴリー所属の追加', h($racerCode));
 			} else {
 				echo __('カテゴリー所属の追加');
 			}

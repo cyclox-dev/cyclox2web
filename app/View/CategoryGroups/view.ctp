@@ -56,19 +56,19 @@
 	</tr>
 	<?php foreach ($categoryGroup['Category'] as $category): ?>
 		<tr>
-			<td><?php echo $category['code']; ?></td>
-			<td><?php echo $category['name']; ?></td>
-			<td><?php echo $category['short_name']; ?></td>
-			<td><?php echo $category['category_group_id']; ?></td>
-			<td><?php echo $category['rank']; ?></td>
-			<td><?php echo $category['race_min']; ?></td>
-			<td><?php echo $category['gender']; ?></td>
-			<td><?php echo $category['age_min']; ?></td>
-			<td><?php echo $category['age_max']; ?></td>
-			<td><?php echo $category['description']; ?></td>
-			<td><?php echo $category['needs_jcf']; ?></td>
-			<td><?php echo $category['needs_uci']; ?></td>
-			<td><?php echo $category['uci_age_limit']; ?></td>
+			<td><?php echo h($category['code']); ?></td>
+			<td><?php echo h($category['name']); ?></td>
+			<td><?php echo h($category['short_name']); ?></td>
+			<td><?php echo h($category['category_group_id']); ?></td>
+			<td><?php echo h($category['rank']); ?></td>
+			<td><?php echo h($category['race_min']); ?></td>
+			<td><?php echo h($category['gender']); ?></td>
+			<td><?php echo h($category['age_min']); ?></td>
+			<td><?php echo h($category['age_max']); ?></td>
+			<td><?php echo h($category['description']); ?></td>
+			<td><?php echo h($category['needs_jcf']); ?></td>
+			<td><?php echo h($category['needs_uci']); ?></td>
+			<td><?php echo h($category['uci_age_limit']); ?></td>
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'categories', 'action' => 'view', $category['code'])); ?>
 				<?php echo $this->Html->link(__('Edit'), array('controller' => 'categories', 'action' => 'edit', $category['code'])); ?>

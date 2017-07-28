@@ -78,9 +78,9 @@
 	</tr>
 	<?php foreach ($racesCategory['CategoryRacesCategory'] as $categoryRacesCategory): ?>
 		<tr>
-			<td><?php echo $categoryRacesCategory['id']; ?></td>
-			<td><?php echo $categoryRacesCategory['category_code']; ?></td>
-			<td><?php echo $categoryRacesCategory['races_category_code']; ?></td>
+			<td><?php echo h($categoryRacesCategory['id']); ?></td>
+			<td><?php echo h($categoryRacesCategory['category_code']); ?></td>
+			<td><?php echo h($categoryRacesCategory['races_category_code']); ?></td>
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'category_races_categories', 'action' => 'view', $categoryRacesCategory['id'])); ?>
 				<?php echo $this->Html->link(__('Edit'), array('controller' => 'category_races_categories', 'action' => 'edit', $categoryRacesCategory['id'])); ?>
@@ -113,13 +113,13 @@
 	</tr>
 	<?php foreach ($racesCategory['EntryCategory'] as $entryCategory): ?>
 		<tr>
-			<td><?php echo $entryCategory['id']; ?></td>
-			<td><?php echo $entryCategory['entry_group_id']; ?></td>
-			<td><?php echo $entryCategory['races_category_code']; ?></td>
-			<td><?php echo $entryCategory['name']; ?></td>
-			<td><?php echo $entryCategory['start_delay_sec']; ?></td>
-			<td><?php echo $entryCategory['lapout_rule']; ?></td>
-			<td><?php echo $entryCategory['note']; ?></td>
+			<td><?php echo h($entryCategory['id']); ?></td>
+			<td><?php echo h($entryCategory['entry_group_id']); ?></td>
+			<td><?php echo h($entryCategory['races_category_code']); ?></td>
+			<td><?php echo h($entryCategory['name']); ?></td>
+			<td><?php echo h($entryCategory['start_delay_sec']); ?></td>
+			<td><?php echo h($entryCategory['lapout_rule']); ?></td>
+			<td><?php echo h($entryCategory['note']); ?></td>
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'entry_categories', 'action' => 'view', $entryCategory['id'])); ?>
 				<?php echo $this->Html->link(__('Edit'), array('controller' => 'entry_categories', 'action' => 'edit', $entryCategory['id'])); ?>

@@ -1,7 +1,7 @@
 <div class="racers form">
 <?php echo $this->Form->create('Racer'); ?>
 	<fieldset>
-		<legend><?php echo __('選手データ [' . $rcode . '] の編集'); ?></legend>
+		<legend><?php echo h('選手データ [' . $rcode . '] の編集'); ?></legend>
 	<?php
 		App::uses('Gender', 'Cyclox/Const');
 		App::uses('Nation', 'Cyclox/Const');

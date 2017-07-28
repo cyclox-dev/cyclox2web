@@ -113,12 +113,12 @@
 			</tr>
 		<?php foreach ($meet['EntryCategory'] as $entryCategory): ?>
 			<tr>
-				<td><?php echo $entryCategory['name']; ?></td>
-				<td><?php echo $entryCategory['races_category_code']; ?></td>
-				<td><?php echo $entryCategory['start_delay_sec']; ?></td>
-				<td><?php echo LapOutRule::ofVal($entryCategory['lapout_rule'])->expressJp(); ?></td>
-				<td><?php echo $entryCategory['entry_group_id']; ?></td>
-				<td><?php echo $entryCategory['modified']; ?></td>
+				<td><?php echo h($entryCategory['name']); ?></td>
+				<td><?php echo h($entryCategory['races_category_code']); ?></td>
+				<td><?php echo h($entryCategory['start_delay_sec']); ?></td>
+				<td><?php echo h(LapOutRule::ofVal($entryCategory['lapout_rule'])->expressJp()); ?></td>
+				<td><?php echo h($entryCategory['entry_group_id']); ?></td>
+				<td><?php echo h($entryCategory['modified']); ?></td>
 				<td class="actions">
 					<?php echo $this->Html->link(__('View'), array('controller' => 'entry_categories', 'action' => 'view', $entryCategory['id'])); ?>
 					<?php echo $this->Html->link(__('Edit'), array('controller' => 'entry_categories', 'action' => 'edit', $entryCategory['id'])); ?>
@@ -146,13 +146,13 @@
 			</tr>
 			<?php foreach ($meet['EntryGroup'] as $entryGroup): ?>
 			<tr>
-				<td><?php echo $entryGroup['id']; ?></td>
-				<td><?php echo $entryGroup['name']; ?></td>
-				<td><?php echo $entryGroup['start_clock']; ?></td>
-				<td><?php echo $entryGroup['start_frac_distance']; ?></td>
-				<td><?php echo $entryGroup['lap_distance']; ?></td>
-				<td><?php echo $entryGroup['skip_lap_count']; ?></td>
-				<td><?php echo $entryGroup['modified']; ?></td>
+				<td><?php echo h($entryGroup['id']); ?></td>
+				<td><?php echo h($entryGroup['name']); ?></td>
+				<td><?php echo h($entryGroup['start_clock']); ?></td>
+				<td><?php echo h($entryGroup['start_frac_distance']); ?></td>
+				<td><?php echo h($entryGroup['lap_distance']); ?></td>
+				<td><?php echo h($entryGroup['skip_lap_count']); ?></td>
+				<td><?php echo h($entryGroup['modified']); ?></td>
 				<td class="actions">
 						<?php echo $this->Html->link(__('View'), array('controller' => 'entry_groups', 'action' => 'view', $entryGroup['id'])); ?>
 						<?php echo $this->Html->link(__('Edit'), array('controller' => 'entry_groups', 'action' => 'edit', $entryGroup['id'])); ?>
@@ -177,10 +177,10 @@
 		</tr>
 		<?php foreach ($results as $result): ?>
 			<tr>
-				<td><?php echo $result['CategoryRacer']['id']; ?></td>
+				<td><?php echo h($result['CategoryRacer']['id']); ?></td>
 				<td><?php echo $this->Html->link($result['CategoryRacer']['racer_code'], array('controller' => 'racers', 'action' => 'view', $result['CategoryRacer']['racer_code'])); ?></td>
-				<td><?php echo $result['Racer']['family_name'] . ' ' . $result['Racer']['first_name']; ?></td>
-				<td><?php echo $result['Category']['name']; ?></td>
+				<td><?php echo h($result['Racer']['family_name'] . ' ' . $result['Racer']['first_name']); ?></td>
+				<td><?php echo h($result['Category']['name']); ?></td>
 				<td class="actions">
 					<?php echo $this->Html->link(__('View'), array('controller' => 'category_racers', 'action' => 'view', $result['CategoryRacer']['id'])); ?>
 					<?php echo $this->Html->link(__('Edit'), array('controller' => 'category_racers', 'action' => 'edit', $result['CategoryRacer']['id'])); ?>

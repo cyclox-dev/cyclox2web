@@ -53,7 +53,6 @@
 		<th><?php echo __('Username'); ?></th>
 		<th><?php echo __('Password'); ?></th>
 		<th><?php echo __('Group Id'); ?></th>
-		<th><?php echo __('Role'); ?></th>
 		<th><?php echo __('Email'); ?></th>
 		<th><?php echo __('Active'); ?></th>
 		<th><?php echo __('Created'); ?></th>
@@ -64,17 +63,16 @@
 	</tr>
 	<?php foreach ($group['User'] as $user): ?>
 		<tr>
-			<td><?php echo $user['id']; ?></td>
-			<td><?php echo $user['username']; ?></td>
-			<td><?php echo $user['password']; ?></td>
-			<td><?php echo $user['group_id']; ?></td>
-			<td><?php echo $user['role']; ?></td>
-			<td><?php echo $user['email']; ?></td>
-			<td><?php echo $user['active']; ?></td>
-			<td><?php echo $user['created']; ?></td>
-			<td><?php echo $user['modified']; ?></td>
-			<td><?php echo $user['deleted_date']; ?></td>
-			<td><?php echo $user['deleted']; ?></td>
+			<td><?php echo h($user['id']); ?></td>
+			<td><?php echo h($user['username']); ?></td>
+			<td><?php echo h($user['password']); ?></td>
+			<td><?php echo h($user['group_id']); ?></td>
+			<td><?php echo h($user['email']); ?></td>
+			<td><?php echo h($user['active']); ?></td>
+			<td><?php echo h($user['created']); ?></td>
+			<td><?php echo h($user['modified']); ?></td>
+			<td><?php echo h($user['deleted_date']); ?></td>
+			<td><?php echo h($user['deleted']); ?></td>
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'users', 'action' => 'view', $user['id'])); ?>
 				<?php echo $this->Html->link(__('Edit'), array('controller' => 'users', 'action' => 'edit', $user['id'])); ?>

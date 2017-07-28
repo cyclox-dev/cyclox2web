@@ -91,20 +91,20 @@
 	</tr>
 	<?php foreach ($season['Meet'] as $meet): ?>
 		<tr>
-			<td><?php echo $meet['code']; ?></td>
-			<td><?php echo $meet['meet_group_code']; ?></td>
-			<td><?php echo $meet['season_id']; ?></td>
-			<td><?php echo $meet['at_date']; ?></td>
-			<td><?php echo $meet['name']; ?></td>
-			<td><?php echo $meet['short_name']; ?></td>
-			<td><?php echo $meet['location']; ?></td>
-			<td><?php echo $meet['organized_by']; ?></td>
-			<td><?php echo $meet['homepage']; ?></td>
-			<td><?php echo $meet['start_frac_distance']; ?></td>
-			<td><?php echo $meet['lap_distance']; ?></td>
-			<td><?php echo $meet['created']; ?></td>
-			<td><?php echo $meet['modified']; ?></td>
-			<td><?php echo $meet['deleted']; ?></td>
+			<td><?php echo h($meet['code']); ?></td>
+			<td><?php echo h($meet['meet_group_code']); ?></td>
+			<td><?php echo h($meet['season_id']); ?></td>
+			<td><?php echo h($meet['at_date']); ?></td>
+			<td><?php echo h($meet['name']); ?></td>
+			<td><?php echo h($meet['short_name']); ?></td>
+			<td><?php echo h($meet['location']); ?></td>
+			<td><?php echo h($meet['organized_by']); ?></td>
+			<td><?php echo h($meet['homepage']); ?></td>
+			<td><?php echo h($meet['start_frac_distance']); ?></td>
+			<td><?php echo h($meet['lap_distance']); ?></td>
+			<td><?php echo h($meet['created']); ?></td>
+			<td><?php echo h($meet['modified']); ?></td>
+			<td><?php echo h($meet['deleted']); ?></td>
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'meets', 'action' => 'view', $meet['code'])); ?>
 				<?php echo $this->Html->link(__('Edit'), array('controller' => 'meets', 'action' => 'edit', $meet['code'])); ?>

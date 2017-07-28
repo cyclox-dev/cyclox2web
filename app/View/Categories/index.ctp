@@ -39,7 +39,7 @@
 			if (is_null($category['Category']['school_year_min']) && is_null($category['Category']['school_year_max'])) {
 				echo '---';
 			} else {
-				echo $category['Category']['school_year_min'] . '〜'. $category['Category']['school_year_max'];
+				echo h($category['Category']['school_year_min']) . '〜'. h($category['Category']['school_year_max']);
 			}
 		?>&nbsp;</td>
 		<td><?php echo h($category['Category']['needs_jcf']); ?>&nbsp;</td>

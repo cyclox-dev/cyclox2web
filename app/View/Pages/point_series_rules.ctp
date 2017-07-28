@@ -36,22 +36,22 @@
 	<dl>
 		<dt><?php echo __('ID'); ?></dt>
 		<dd>
-			<?php echo $pc->val(); ?>
+			<?php echo h($pc->val()); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('タイトル'); ?></dt>
 		<dd>
-			<?php echo $pc->name(); ?>
+			<?php echo h($pc->name()); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('概要'); ?></dt>
 		<dd>
-			<?php echo $pc->description(); ?>
+			<?php echo h($pc->description()); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('説明'); ?></dt>
 		<dd>
-			<?php echo $pc->text(); ?>
+			<?php echo h($pc->text()); ?>
 			&nbsp;
 		</dd>
 	</dl>
@@ -67,22 +67,22 @@
 	<dl>
 		<dt><?php echo __('ID'); ?></dt>
 		<dd>
-			<?php echo $pss->val(); ?>
+			<?php echo h($pss->val()); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('タイトル'); ?></dt>
 		<dd>
-			<?php echo $pss->title(); ?>
+			<?php echo h($pss->title()); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('概要'); ?></dt>
 		<dd>
-			<?php echo $pss->description(); ?>
+			<?php echo h($pss->description()); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('説明'); ?></dt>
 		<dd>
-			<?php echo $pss->text(); ?>
+			<?php echo h($pss->text()); ?>
 			&nbsp;
 		</dd>
 	</dl>
@@ -98,17 +98,17 @@
 	<dl>
 		<dt><?php echo __('ID'); ?></dt>
 		<dd>
-			<?php echo $rule->val(); ?>
+			<?php echo h($rule->val()); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('タイトル'); ?></dt>
 		<dd>
-			<?php echo $rule->title(); ?>
+			<?php echo h($rule->title()); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('概要'); ?></dt>
 		<dd>
-			<?php echo $rule->description(); ?>
+			<?php echo h($rule->description()); ?>
 			&nbsp;
 		</dd>
 	</dl>

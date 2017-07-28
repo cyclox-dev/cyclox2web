@@ -109,8 +109,8 @@
 	</tr>
 	<?php foreach ($category['CategoryRacesCategory'] as $categoryRacesCategory): ?>
 		<tr>
-			<td><?php echo $categoryRacesCategory['category_code']; ?></td>
-			<td><?php echo $categoryRacesCategory['races_category_code']; ?></td>
+			<td><?php echo h($categoryRacesCategory['category_code']); ?></td>
+			<td><?php echo h($categoryRacesCategory['races_category_code']); ?></td>
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'category_races_categories', 'action' => 'view', $categoryRacesCategory['id'])); ?>
 				<?php echo $this->Html->link(__('Edit'), array('controller' => 'category_races_categories', 'action' => 'edit', $categoryRacesCategory['id'])); ?>

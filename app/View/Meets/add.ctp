@@ -4,7 +4,7 @@
 		<legend>
 			<?php 
 				if (isset($meetGroupCode)) {
-					echo __('大会グループ [%s] への大会の追加', $meetGroupCode);
+					echo __('大会グループ [%s] への大会の追加', h($meetGroupCode));
 				} else {
 					echo __('新規大会データの追加');
 				}

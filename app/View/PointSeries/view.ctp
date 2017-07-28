@@ -123,14 +123,14 @@
 	</tr>
 	<?php foreach ($pointSeries['MeetPointSeries'] as $meetPointSeries): ?>
 		<tr>
-			<td><?php echo $meetPointSeries['id']; ?></td>
-			<td><?php echo $meetPointSeries['express_in_series']; ?></td>
-			<td><?php echo $meetPointSeries['meet_code']; ?></td>
-			<td><?php echo $meetPointSeries['entry_category_name']; ?></td>
-			<td><?php echo $meetPointSeries['grade']; ?></td>
-			<td><?php echo $meetPointSeries['point_term_begin']; ?></td>
-			<td><?php echo $meetPointSeries['point_term_end']; ?></td>
-			<td><?php echo $meetPointSeries['hint']; ?></td>
+			<td><?php echo h($meetPointSeries['id']); ?></td>
+			<td><?php echo h($meetPointSeries['express_in_series']); ?></td>
+			<td><?php echo h($meetPointSeries['meet_code']); ?></td>
+			<td><?php echo h($meetPointSeries['entry_category_name']); ?></td>
+			<td><?php echo h($meetPointSeries['grade']); ?></td>
+			<td><?php echo h($meetPointSeries['point_term_begin']); ?></td>
+			<td><?php echo h($meetPointSeries['point_term_end']); ?></td>
+			<td><?php echo h($meetPointSeries['hint']); ?></td>
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'meet_point_series', 'action' => 'view', $meetPointSeries['id'])); ?>
 				<?php echo $this->Html->link(__('Edit'), array('controller' => 'meet_point_series', 'action' => 'edit', $meetPointSeries['id'])); ?>
