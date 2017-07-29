@@ -1163,7 +1163,7 @@ class OneTimeShell extends AppShell
 		
 		if (isset($this->args[0])) {
 			$date = $this->args[0];
-			if (DateTime::createFromFormat('Y-m-d', $date) !== FALSE) {
+			if (DateTime::createFromFormat('Y-m-d', $date) === FALSE) {
 				$this->log('1st arg is incorrect date format.');
 				return;
 			}
@@ -1186,7 +1186,7 @@ class OneTimeShell extends AppShell
 				'conditions' => array(
 					'Racer.deleted' => 0,
 					array('NOT' => array('birth_date' => null)),
-					array('NOT' => array('gender' => Gender::$UNASSIGNED->val())),
+					//array('NOT' => array('gender' => Gender::$UNASSIGNED->val())),
 				),
 				'offset' => $offset,
 				'limit' => $limit,
