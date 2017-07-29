@@ -1236,7 +1236,7 @@ class OneTimeShell extends AppShell
 		$this->log('date is', LOG_DEBUG);
 		$this->log($date, LOG_DEBUG);
 		
-		if (DateTime::createFromFormat('Y-m-d', $date) !== FALSE) {
+		if (DateTime::createFromFormat('Y-m-d', $date) === FALSE) {
 			$this->log('2nd arg is incorrect date format.', LOG_ERR);
 			return;
 		}
