@@ -50,7 +50,7 @@ class Racer extends AppModel {
  */
 	public $validate = array(
 		'code' => array(
-			'rule' => array('notEmpty'),
+			'rule' => array('notBlank'),
 			'message' => '必須項目です。',
 		),
 		'gender' => array(

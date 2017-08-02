@@ -26,11 +26,11 @@ class CategoryRacer extends AppModel {
  */
 	public $validate = array(
 		'racer_code' => array(
-			'rule' => array('notEmpty'),
+			'rule' => array('notBlank'),
 			'message' => '必須項目です。',
 		),
 		'category_code' => array(
-			'rule' => array('notEmpty'),
+			'rule' => array('notBlank'),
 			'message' => '必須項目です。',
 		),
 		'apply_date' => array(

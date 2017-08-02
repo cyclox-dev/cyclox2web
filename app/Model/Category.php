@@ -32,8 +32,8 @@ class Category extends AppModel {
  */
 	public $validate = array(
 		'code' => array(
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
+			'notBlank' => array(
+				'rule' => array('notBlank'),
 				'message' => '必須項目です。',
 			),
 			/*
@@ -41,20 +41,20 @@ class Category extends AppModel {
 			 */
 		),
 		'name' => array(
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
+			'notBlank' => array(
+				'rule' => array('notBlank'),
 				'message' => '必須項目です。',
 			),
 		),
 		'short_name' => array(
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
+			'notBlank' => array(
+				'rule' => array('notBlank'),
 				'message' => '必須項目です。',
 			),
 		),
 		'category_group_id' => array(
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
+			'notBlank' => array(
+				'rule' => array('notBlank'),
 				'message' => '必須項目です。',
 			),
 		),
@@ -73,8 +73,8 @@ class Category extends AppModel {
 			)
 		),
 		'gender' => array(
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
+			'notBlank' => array(
+				'rule' => array('notBlank'),
 				'message' => '必須項目です。',
 			),
 		),

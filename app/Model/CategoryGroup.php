@@ -23,8 +23,8 @@ class CategoryGroup extends AppModel {
  */
 	public $validate = array(
 		'name' => array(
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
+			'notBlank' => array(
+				'rule' => array('notBlank'),
 				'message' => '必須項目です。',
 			),
 			'isUnique' => array(
@@ -33,7 +33,7 @@ class CategoryGroup extends AppModel {
 			)
 		),
 		'description' => array(
-			'rule' => array('notEmpty'),
+			'rule' => array('notBlank'),
 			'message' => '必須項目です。',
 		),
 	);

@@ -19,11 +19,11 @@ class CategoryRacesCategory extends AppModel
  */
 	public $validate = array(
 		'category_code' => array(
-			'rule' => array('notEmpty'),
+			'rule' => array('notBlank'),
 			'message' => '必須項目です。',
 		),
 		'races_category_code' => array(
-			'rule' => array('notEmpty'),
+			'rule' => array('notBlank'),
 			'message' => '必須項目です。',
 		),
 	);
