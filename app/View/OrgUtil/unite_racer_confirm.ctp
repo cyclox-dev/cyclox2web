@@ -57,7 +57,7 @@
 	<p><?php echo h($note) ?></p>
 	<p style="height: 1em"></p>
 	<?php
-		echo $this->Form->create(false, array('type' => 'post' , 'action' => 'do_unite_racer'
+		echo $this->Form->create(false, array('type' => 'post' , 'url' => 'do_unite_racer'
 				, 'onsubmit' => 'return confirm("統合してよろしいですか？（この処理は元に戻せません。）")'));
 		echo $this->Form->hidden('racer_code_united', array('value' => $united['Racer']['code']));
 		echo $this->Form->hidden('racer_code_unite_to', array('value' => $uniteTo['Racer']['code']));

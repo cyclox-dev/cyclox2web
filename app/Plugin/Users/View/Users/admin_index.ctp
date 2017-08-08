@@ -15,7 +15,7 @@
 	<?php
 		if (CakePlugin::loaded('Search')) {
 			echo '<h3>' . __d('users', 'Filter') . '</h3>';
-			echo $this->Form->create($model, array('action' => 'index'));
+			echo $this->Form->create($model, array('url' => 'index'));
 				echo $this->Form->input('username', array('label' => __d('users', 'Username')));
 				echo $this->Form->input('email', array('label' => __d('users', 'Email')));
 			echo $this->Form->end(__d('users', 'Search'));

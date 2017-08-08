@@ -119,7 +119,7 @@ function nameOrKana($name, $kana)
 <div class="actions">
 	<h3><?php echo __('Actions'); ?></h3>
 	<div>
-		<?php echo $this->Form->create('Racer', array('action'=>'index')); ?>
+		<?php echo $this->Form->create('Racer', array('url'=>'index')); ?>
 		<fieldset style="margin-bottom: 0em; padding: 0em 0em">
 			<legend>検索</legend>
 			<?php echo $this->Form->input('keyword', array(
