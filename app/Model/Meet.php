@@ -34,11 +34,11 @@ class Meet extends AppModel
  */
 	public $validate = array(
 		'code' => array(
-			'rule' => array('notEmpty'),
+			'rule' => array('notBlank'),
 			'message' => '必須項目です。',
 		),
 		'meet_group_code' => array(
-			'rule' => array('notEmpty'),
+			'rule' => array('notBlank'),
 			'message' => '必須項目です。',
 		),
 		'season_id' => array(
@@ -54,11 +54,11 @@ class Meet extends AppModel
 			),
 		),
 		'name' => array(
-			'rule' => array('notEmpty'),
+			'rule' => array('notBlank'),
 			'message' => '必須項目です。',
 		),
 		'short_name' => array(
-			'rule' => array('notEmpty'),
+			'rule' => array('notBlank'),
 			'message' => '必須項目です。',
 		),
 		'homepage' => array(

@@ -30,11 +30,11 @@ class Season extends AppModel
 			),
 		),
 		'name' => array(
-			'rule' => array('notEmpty'),
+			'rule' => array('notBlank'),
 			'message' => '必須項目です。',
 		),
 		'short_name' => array(
-			'rule' => array('notEmpty'),
+			'rule' => array('notBlank'),
 			'message' => '必須項目です。',
 		),
 		'start_date' => array(

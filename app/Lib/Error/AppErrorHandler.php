@@ -22,7 +22,7 @@ class AppErrorHandler extends ErrorHandler
 	 * @return void
 	 * @see http://php.net/manual/en/function.set-exception-handler.php
 	 */
-	public static function handleException(Exception $exception) {
+	public static function handleException($exception) {
 		//CakeLog::write(LOG_DEBUG, 'called with user: [' . env('PHP_AUTH_USER')
 		//		. ' and ' . env('PHP_AUTH_PW') . '] by ex:' . $exception);
 		//CakeLog::write(LOG_DEBUG, 'code:' . $exception->getCode());

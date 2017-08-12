@@ -35,8 +35,8 @@ class NameChangeLog extends AppModel {
  */
 	public $validate = array(
 		'racer_code' => array(
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
+			'notBlank' => array(
+				'rule' => array('notBlank'),
 				//'message' => 'Your custom message here',
 				//'allowEmpty' => false,
 				//'required' => false,

@@ -32,7 +32,7 @@ class EntryRacer extends AppModel
 			),
 		),
 		'racer_code' => array(
-			'rule' => array('notEmpty'),
+			'rule' => array('notBlank'),
 			'message' => '必須項目です。',
 		),
 		'entry_status' => array(

@@ -41,15 +41,11 @@ class MeetGroup extends AppModel
 			),
 		),
 		'name' => array(
-			'rule' => array('notEmpty'),
+			'rule' => array('notBlank'),
 			'message' => '必須項目です。',
 		),
 		'short_name' => array(
-			'rule' => array('notEmpty'),
-			'message' => '必須項目です。',
-		),
-		'notEmpty' => array(
-			'rule' => array('notEmpty'),
+			'rule' => array('notBlank'),
 			'message' => '必須項目です。',
 		),
 		'homepage' => array(

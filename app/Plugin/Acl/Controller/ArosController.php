@@ -228,7 +228,7 @@ class ArosController extends AclAppController
 	    $methods = array();
 		foreach($actions as $k => $full_action)
     	{
-	    	$arr = String::tokenize($full_action, '/');
+	    	$arr = CakeText::tokenize($full_action, '/');
 	    	
 			if (count($arr) == 2)
 			{
@@ -282,7 +282,7 @@ class ArosController extends AclAppController
 	    
 	    foreach($actions as $full_action)
     	{
-	    	$arr = String::tokenize($full_action, '/');
+	    	$arr = CakeText::tokenize($full_action, '/');
 	    	
 			if (count($arr) == 2)
 			{
@@ -400,7 +400,7 @@ class ArosController extends AclAppController
         		
 	            foreach($actions as $full_action)
 		    	{
-			    	$arr = String::tokenize($full_action, '/');
+			    	$arr = CakeText::tokenize($full_action, '/');
 			    	
 					if (count($arr) == 2)
 					{

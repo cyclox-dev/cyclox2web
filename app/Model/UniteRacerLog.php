@@ -31,8 +31,8 @@ class UniteRacerLog extends AppModel {
  */
 	public $validate = array(
 		'united' => array(
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
+			'notBlank' => array(
+				'rule' => array('notBlank'),
 				//'message' => 'Your custom message here',
 				//'allowEmpty' => false,
 				//'required' => false,
@@ -41,8 +41,8 @@ class UniteRacerLog extends AppModel {
 			),
 		),
 		'unite_to' => array(
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
+			'notBlank' => array(
+				'rule' => array('notBlank'),
 				//'message' => 'Your custom message here',
 				//'allowEmpty' => false,
 				//'required' => false,

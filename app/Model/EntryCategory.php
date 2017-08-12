@@ -28,7 +28,7 @@ class EntryCategory extends AppModel
  */
 	public $validate = array(
 		'races_category_code' => array(
-			'rule' => array('notEmpty'),
+			'rule' => array('notBlank'),
 			'message' => '必須項目です。',
 		),
 		'start_delay_sec' => array(
