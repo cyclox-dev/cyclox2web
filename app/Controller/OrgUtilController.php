@@ -21,7 +21,7 @@ class OrgUtilController extends ApiBaseController
 		 'Meet', 'Category', 'EntryGroup', 'EntryRacer', 'CategoryRacer', 'Racer'
 			, 'PointSeries', 'PointSeriesRacer', 'UniteRacerLog');
 	 
-	 public $components = array('Session', 'RequestHandler');
+	 public $components = array('Flash', 'RequestHandler');
 	 
 	 const __PATH_RACERS = 'cyclox2/org_util/racers';
 	 const __RACERS_FILE_PREFIX = 'racers_';
@@ -387,7 +387,7 @@ class OrgUtilController extends ApiBaseController
 		
 		if (!$file->exists())
 		{
-			$this->Session->setFlash($catCode . __('用の選手リストのファイルがありません。ファイルの更新が必要です。'));
+			$this->Flash->set($catCode . __('用の選手リストのファイルがありません。ファイルの更新が必要です。'));
 			return $this->redirect(array('action' => 'racer_list_csv_links'));
 		}
 		
@@ -531,7 +531,7 @@ class OrgUtilController extends ApiBaseController
 		
 		// TODO: Category ごとリスト実装
 		
-		$this->Session->setFlash(h('選手リストを更新しました。'));
+		$this->Flash->set(h('選手リストを更新しました。'));
 		$this->redirect(array('action' => 'racer_list_csv_links'));
 	}
 	
@@ -571,12 +571,12 @@ class OrgUtilController extends ApiBaseController
 	private function __confirm_unite_racer()
 	{
 		if (empty($this->request->data['racer_code_united']) || empty($this->request->data['racer_code_unite_to'])) {
-			$this->Session->setFlash(__('選手コードが未入力です。'));
+			$this->Flash->set(__('選手コードが未入力です。'));
 			return false;
 		}
 
 		if ($this->request->data['racer_code_united'] === $this->request->data['racer_code_unite_to']) {
-			$this->Session->setFlash(__('異なる選手コードを入力して下さい。'));
+			$this->Flash->set(__('異なる選手コードを入力して下さい。'));
 			return false;
 		}
 
@@ -584,18 +584,18 @@ class OrgUtilController extends ApiBaseController
 		$uniteTo = $this->request->data['racer_code_unite_to'];
 
 		if (!$this->Racer->existsOnDB($united)) {
-			$this->Session->setFlash(__('統合される選手コードを持つ選手が存在しません。'));
+			$this->Flash->set(__('統合される選手コードを持つ選手が存在しません。'));
 			return false;
 		} else if (!$this->Racer->exists($united)) {
-			$this->Session->setFlash(__('統合元の選手データは削除済みです。'));
+			$this->Flash->set(__('統合元の選手データは削除済みです。'));
 			return false;
 		}
 
 		if (!$this->Racer->existsOnDB($uniteTo)) {
-			$this->Session->setFlash(__('統合先の選手コードを持つ選手が存在しません。'));
+			$this->Flash->set(__('統合先の選手コードを持つ選手が存在しません。'));
 			return false;
 		} else if (!$this->Racer->exists($uniteTo)) {
-			$this->Session->setFlash(__('統合先の選手データは削除済みです。'));
+			$this->Flash->set(__('統合先の選手データは削除済みです。'));
 			return false;
 		}
 		
@@ -622,18 +622,18 @@ class OrgUtilController extends ApiBaseController
 			$racerUniteTo = $this->Racer->find('first', array('conditions' => array('code' => $uniteTo)));
 
 			if (empty($racerUniteTo)) {
-				$this->Session->setFlash(__('想定しないエラーです。'));
+				$this->Flash->set(__('想定しないエラーです。'));
 				$this->redirect(array('action' => 'unite_racer'));
 				return;
 			} else if (!empty($racerUniteTo['Racer']['united_to'])) {
-				$this->Session->setFlash(__('統合先の選手データは' . $racerUniteTo['Racer']['united_to'] .  'の選手に統合済みです。'));
+				$this->Flash->set(__('統合先の選手データは' . $racerUniteTo['Racer']['united_to'] .  'の選手に統合済みです。'));
 				$this->redirect(array('action' => 'unite_racer'));
 				return;
 			}
 
 			$racerUnited = $this->Racer->find('first', array('conditions' => array('code' => $united)));
 			if (empty($racerUnited)) {
-				$this->Session->setFlash(__('想定しないエラーです。'));
+				$this->Flash->set(__('想定しないエラーです。'));
 				$this->redirect(array('action' => 'unite_racer'));
 				return;
 			}
@@ -655,7 +655,7 @@ class OrgUtilController extends ApiBaseController
 		$this->request->allowMethod('post');
 		
 		if (!$this->__confirm_unite_racer()) {
-			$this->Session->setFlash('選手データ不正のため、統合に失敗しました。');
+			$this->Flash->set('選手データ不正のため、統合に失敗しました。');
 			$this->redirect('unite_racer');
 			return false;
 		}
@@ -673,11 +673,11 @@ class OrgUtilController extends ApiBaseController
 			$this->TransactionManager->rollback($transaction);/*/
 			$this->TransactionManager->commit($transaction);//*/
 			
-			$this->Session->setFlash(__('選手統合完了。カテゴリー所属をチェックし、不要なものは削除して下さい。'));
+			$this->Flash->set(__('選手統合完了。カテゴリー所属をチェックし、不要なものは削除して下さい。'));
 			
 			$this->redirect(array('controller' => 'racers' ,'action' => 'view', $uniteTo));
 		} else {
-			$this->Session->setFlash(__('選手データの統合に失敗しました'));
+			$this->Flash->set(__('選手データの統合に失敗しました'));
 			$this->TransactionManager->rollback($transaction);
 			
 			$this->redirect('unite_racer');

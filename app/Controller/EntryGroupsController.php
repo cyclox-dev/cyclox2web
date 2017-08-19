@@ -7,7 +7,7 @@ App::uses('ApiBaseController', 'Controller');
  *
  * @property EntryGroup $EntryGroup
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class EntryGroupsController extends ApiBaseController {
 
@@ -16,7 +16,7 @@ class EntryGroupsController extends ApiBaseController {
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session', 'RequestHandler');
+	public $components = array('Paginator', 'Flash', 'RequestHandler');
 
 /**
  * index method
@@ -66,10 +66,10 @@ class EntryGroupsController extends ApiBaseController {
 		if ($this->request->is('post')) {
 			$this->EntryGroup->create();
 			if ($this->EntryGroup->save($this->request->data)) {
-				$this->Session->setFlash(__('The entry group has been saved.'));
+				$this->Flash->set(__('The entry group has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The entry group could not be saved. Please, try again.'));
+				$this->Flash->set(__('The entry group could not be saved. Please, try again.'));
 			}
 		}
 		$meets = $this->EntryGroup->Meet->find('list');
@@ -109,10 +109,10 @@ class EntryGroupsController extends ApiBaseController {
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->EntryGroup->save($this->request->data)) {
-				$this->Session->setFlash(__('The entry group has been saved.'));
+				$this->Flash->set(__('The entry group has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The entry group could not be saved. Please, try again.'));
+				$this->Flash->set(__('The entry group could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('EntryGroup.' . $this->EntryGroup->primaryKey => $id));
@@ -136,9 +136,9 @@ class EntryGroupsController extends ApiBaseController {
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->EntryGroup->delete()) {
-			$this->Session->setFlash(__('The entry group has been deleted.'));
+			$this->Flash->set(__('The entry group has been deleted.'));
 		} else {
-			$this->Session->setFlash(__('The entry group could not be deleted. Please, try again.'));
+			$this->Flash->set(__('The entry group could not be deleted. Please, try again.'));
 		}
 		return $this->redirect(array('action' => 'index'));
 	}

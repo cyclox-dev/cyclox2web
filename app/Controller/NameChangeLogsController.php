@@ -5,7 +5,7 @@ App::uses('AppController', 'Controller');
  *
  * @property NameChangeLog $NameChangeLog
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class NameChangeLogsController extends AppController {
 
@@ -14,7 +14,7 @@ class NameChangeLogsController extends AppController {
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session');
+	public $components = array('Paginator', 'Flash');
 
 /**
  * index method
@@ -50,10 +50,10 @@ class NameChangeLogsController extends AppController {
 		if ($this->request->is('post')) {
 			$this->NameChangeLog->create();
 			if ($this->NameChangeLog->save($this->request->data)) {
-				$this->Session->setFlash(__('The name change log has been saved.'));
+				$this->Flash->set(__('The name change log has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The name change log could not be saved. Please, try again.'));
+				$this->Flash->set(__('The name change log could not be saved. Please, try again.'));
 			}
 		}
 		$racers = $this->NameChangeLog->Racer->find('list');
@@ -73,10 +73,10 @@ class NameChangeLogsController extends AppController {
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->NameChangeLog->save($this->request->data)) {
-				$this->Session->setFlash(__('The name change log has been saved.'));
+				$this->Flash->set(__('The name change log has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The name change log could not be saved. Please, try again.'));
+				$this->Flash->set(__('The name change log could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('NameChangeLog.' . $this->NameChangeLog->primaryKey => $id));
@@ -100,9 +100,9 @@ class NameChangeLogsController extends AppController {
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->NameChangeLog->delete()) {
-			$this->Session->setFlash(__('The name change log has been deleted.'));
+			$this->Flash->set(__('The name change log has been deleted.'));
 		} else {
-			$this->Session->setFlash(__('The name change log could not be deleted. Please, try again.'));
+			$this->Flash->set(__('The name change log could not be deleted. Please, try again.'));
 		}
 		return $this->redirect(array('action' => 'index'));
 	}

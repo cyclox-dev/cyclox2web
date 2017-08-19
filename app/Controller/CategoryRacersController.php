@@ -7,7 +7,7 @@ App::uses('ApiBaseController', 'Controller');
  *
  * @property CategoryRacer $CategoryRacer
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class CategoryRacersController extends ApiBaseController
 {
@@ -17,7 +17,7 @@ class CategoryRacersController extends ApiBaseController
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session', 'RequestHandler');
+	public $components = array('Paginator', 'Flash', 'RequestHandler');
 
 	public $uses = array('CategoryRacer', 'Meet');
 	
@@ -87,10 +87,10 @@ class CategoryRacersController extends ApiBaseController
 			if ($this->CategoryRacer->save($this->request->data)) {
 				//$this->log($this->CategoryRacer->getDataSource()->getLog(), LOG_DEBUG);
 				
-				$this->Session->setFlash(__('The category racer has been saved.'));
+				$this->Flash->set(__('The category racer has been saved.'));
 				return $this->redirect('/racers/view/' . $this->request->data['CategoryRacer']['racer_code']);
 			} else {
-				$this->Session->setFlash(__('The category racer could not be saved. Please, try again.'));
+				$this->Flash->set(__('The category racer could not be saved. Please, try again.'));
 			}
 		}
 		
@@ -149,10 +149,10 @@ class CategoryRacersController extends ApiBaseController
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->CategoryRacer->save($this->request->data)) {
-				$this->Session->setFlash(__('The category racer has been saved.'));
+				$this->Flash->set(__('The category racer has been saved.'));
 				return $this->redirect(array('controller' => 'Racers', 'action' => 'view', $this->request->data['CategoryRacer']['racer_code']));
 			} else {
-				$this->Session->setFlash(__('The category racer could not be saved. Please, try again.'));
+				$this->Flash->set(__('The category racer could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('CategoryRacer.' . $this->CategoryRacer->primaryKey => $id));
@@ -217,9 +217,9 @@ class CategoryRacersController extends ApiBaseController
 		
 		$this->CategoryRacer->Behaviors->load('Utils.SoftDelete');
 		if ($this->CategoryRacer->delete()) {
-			$this->Session->setFlash(__('選手のカテゴリー所属情報 [ID:' . $id . '] を削除しました（削除日時の適用）。'));
+			$this->Flash->set(__('選手のカテゴリー所属情報 [ID:' . $id . '] を削除しました（削除日時の適用）。'));
 		} else {
-			$this->Session->setFlash(__('選手のカテゴリー所属情報削除に失敗しました。'));
+			$this->Flash->set(__('選手のカテゴリー所属情報削除に失敗しました。'));
 		}
 		
 		return $this->redirect(array('controller' => 'Racers', 'action' => 'view', $cr['CategoryRacer']['racer_code']));

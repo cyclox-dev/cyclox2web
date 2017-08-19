@@ -5,7 +5,7 @@ App::uses('AppController', 'Controller');
  *
  * @property User $User
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class UsersController extends AppController
 {
@@ -15,7 +15,7 @@ class UsersController extends AppController
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session', 'Auth', 'Permission');
+	public $components = array('Paginator', 'Flash', 'Auth', 'Permission');
 
 	public function beforeFilter()
 	{
@@ -62,10 +62,10 @@ class UsersController extends AppController
 		if ($this->request->is('post')) {
 			$this->User->create();
 			if ($this->User->save($this->request->data)) {
-				$this->Session->setFlash(__('The user has been saved.'));
+				$this->Flash->set(__('The user has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The user could not be saved. Please, try again.'));
+				$this->Flash->set(__('The user could not be saved. Please, try again.'));
 			}
 		}
 		
@@ -86,10 +86,10 @@ class UsersController extends AppController
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->User->save($this->request->data)) {
-				$this->Session->setFlash(__('The user has been saved.'));
+				$this->Flash->set(__('The user has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The user could not be saved. Please, try again.'));
+				$this->Flash->set(__('The user could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('User.' . $this->User->primaryKey => $id));
@@ -115,9 +115,9 @@ class UsersController extends AppController
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->User->delete()) {
-			$this->Session->setFlash(__('The user has been deleted.'));
+			$this->Flash->set(__('The user has been deleted.'));
 		} else {
-			$this->Session->setFlash(__('The user could not be deleted. Please, try again.'));
+			$this->Flash->set(__('The user could not be deleted. Please, try again.'));
 		}
 		return $this->redirect(array('action' => 'index'));
 	}
@@ -156,10 +156,10 @@ class UsersController extends AppController
 		if ($this->request->is('post')) {
 			$this->User->create();
 			if ($this->User->save($this->request->data)) {
-				$this->Session->setFlash(__('The user has been saved.'));
+				$this->Flash->set(__('The user has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The user could not be saved. Please, try again.'));
+				$this->Flash->set(__('The user could not be saved. Please, try again.'));
 			}
 		}
 	}
@@ -177,10 +177,10 @@ class UsersController extends AppController
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->User->save($this->request->data)) {
-				$this->Session->setFlash(__('The user has been saved.'));
+				$this->Flash->set(__('The user has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The user could not be saved. Please, try again.'));
+				$this->Flash->set(__('The user could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('User.' . $this->User->primaryKey => $id));
@@ -203,9 +203,9 @@ class UsersController extends AppController
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->User->delete()) {
-			$this->Session->setFlash(__('The user has been deleted.'));
+			$this->Flash->set(__('The user has been deleted.'));
 		} else {
-			$this->Session->setFlash(__('The user could not be deleted. Please, try again.'));
+			$this->Flash->set(__('The user could not be deleted. Please, try again.'));
 		}
 		return $this->redirect(array('action' => 'index'));
 	}
@@ -217,7 +217,7 @@ class UsersController extends AppController
 				$this->Permission->init();
 				$this->redirect($this->Auth->redirect());
 			} else {
-				$this->Session->setFlash(__('Invalid username or password, try again'));
+				$this->Flash->set(__('Invalid username or password, try again'));
 			}
 		}
 	}
@@ -228,7 +228,7 @@ class UsersController extends AppController
 			if ($this->Auth->login()) {
 				$this->redirect($this->Auth->redirect());
 			} else {
-				$this->Session->setFlash(__('Invalid username or password, try again'));
+				$this->Flash->set(__('Invalid username or password, try again'));
 			}
 		}
 	}

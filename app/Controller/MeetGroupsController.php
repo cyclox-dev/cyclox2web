@@ -7,7 +7,7 @@ App::uses('ApiBaseController', 'Controller');
  *
  * @property MeetGroup $MeetGroup
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class MeetGroupsController extends ApiBaseController
 {
@@ -18,7 +18,7 @@ class MeetGroupsController extends ApiBaseController
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session', 'RequestHandler');
+	public $components = array('Paginator', 'Flash', 'RequestHandler');
 
 /**
  * index method
@@ -74,10 +74,10 @@ class MeetGroupsController extends ApiBaseController
 				$this->MeetGroup->create();
 				$ret = $this->MeetGroup->save($this->request->data);
 				if (is_array($ret)) {
-					$this->Session->setFlash(__('The meet group has been saved.'));
+					$this->Flash->set(__('The meet group has been saved.'));
 					return $this->redirect(array('action' => 'index'));
 				} else {
-					$this->Session->setFlash(__('The meet group could not be saved. Please, try again.'));
+					$this->Flash->set(__('The meet group could not be saved. Please, try again.'));
 				}
 			}
 		}
@@ -97,10 +97,10 @@ class MeetGroupsController extends ApiBaseController
 		if ($this->request->is(array('post', 'put'))) {
 			$this->MeetGroup->id = $id; // id 指定で update にする
 			if ($this->MeetGroup->save($this->request->data)) {
-				$this->Session->setFlash(__('The meet group has been saved.'));
+				$this->Flash->set(__('The meet group has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The meet group could not be saved. Please, try again.'));
+				$this->Flash->set(__('The meet group could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('MeetGroup.' . $this->MeetGroup->primaryKey => $id));
@@ -123,9 +123,9 @@ class MeetGroupsController extends ApiBaseController
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->MeetGroup->delete()) {
-			$this->Session->setFlash(__('大会グループ [code:' . $code . '] を削除しました（削除日時を適用）。'));
+			$this->Flash->set(__('大会グループ [code:' . $code . '] を削除しました（削除日時を適用）。'));
 		} else {
-			$this->Session->setFlash(__('大会グループの削除に失敗しました。'));
+			$this->Flash->set(__('大会グループの削除に失敗しました。'));
 		}
 		
 		return $this->redirect(array('action' => 'index'));

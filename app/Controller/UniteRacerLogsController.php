@@ -5,7 +5,7 @@ App::uses('AppController', 'Controller');
  *
  * @property UniteRacerLog $UniteRacerLog
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class UniteRacerLogsController extends AppController {
 
@@ -14,7 +14,7 @@ class UniteRacerLogsController extends AppController {
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session');
+	public $components = array('Paginator', 'Flash');
 
 /**
  * index method
@@ -50,10 +50,10 @@ class UniteRacerLogsController extends AppController {
 		if ($this->request->is('post')) {
 			$this->UniteRacerLog->create();
 			if ($this->UniteRacerLog->save($this->request->data)) {
-				$this->Session->setFlash(__('The unite racer log has been saved.'));
+				$this->Flash->set(__('The unite racer log has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The unite racer log could not be saved. Please, try again.'));
+				$this->Flash->set(__('The unite racer log could not be saved. Please, try again.'));
 			}
 		}
 		//$racers = $this->UniteRacerLog->Racer->find('list');
@@ -73,10 +73,10 @@ class UniteRacerLogsController extends AppController {
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->UniteRacerLog->save($this->request->data)) {
-				$this->Session->setFlash(__('The unite racer log has been saved.'));
+				$this->Flash->set(__('The unite racer log has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The unite racer log could not be saved. Please, try again.'));
+				$this->Flash->set(__('The unite racer log could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('UniteRacerLog.' . $this->UniteRacerLog->primaryKey => $id));
@@ -100,9 +100,9 @@ class UniteRacerLogsController extends AppController {
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->UniteRacerLog->delete()) {
-			$this->Session->setFlash(__('The unite racer log has been deleted.'));
+			$this->Flash->set(__('The unite racer log has been deleted.'));
 		} else {
-			$this->Session->setFlash(__('The unite racer log could not be deleted. Please, try again.'));
+			$this->Flash->set(__('The unite racer log could not be deleted. Please, try again.'));
 		}
 		return $this->redirect(array('action' => 'index'));
 	}

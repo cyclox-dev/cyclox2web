@@ -5,7 +5,7 @@ App::uses('AppController', 'Controller');
  *
  * @property PointSeriesRacer $PointSeriesRacer
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class PointSeriesRacersController extends AppController {
 
@@ -14,7 +14,7 @@ class PointSeriesRacersController extends AppController {
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session');
+	public $components = array('Paginator', 'Flash');
 
 /**
  * index method
@@ -50,10 +50,10 @@ class PointSeriesRacersController extends AppController {
 		if ($this->request->is('post')) {
 			$this->PointSeriesRacer->create();
 			if ($this->PointSeriesRacer->save($this->request->data)) {
-				$this->Session->setFlash(__('The point series racer has been saved.'));
+				$this->Flash->set(__('The point series racer has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The point series racer could not be saved. Please, try again.'));
+				$this->Flash->set(__('The point series racer could not be saved. Please, try again.'));
 			}
 		}
 		$pointSeries = $this->PointSeriesRacer->PointSeries->find('list');
@@ -74,10 +74,10 @@ class PointSeriesRacersController extends AppController {
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->PointSeriesRacer->save($this->request->data)) {
-				$this->Session->setFlash(__('The point series racer has been saved.'));
+				$this->Flash->set(__('The point series racer has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The point series racer could not be saved. Please, try again.'));
+				$this->Flash->set(__('The point series racer could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('PointSeriesRacer.' . $this->PointSeriesRacer->primaryKey => $id));
@@ -102,9 +102,9 @@ class PointSeriesRacersController extends AppController {
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->PointSeriesRacer->delete()) {
-			$this->Session->setFlash(__('The point series racer has been deleted.'));
+			$this->Flash->set(__('The point series racer has been deleted.'));
 		} else {
-			$this->Session->setFlash(__('The point series racer could not be deleted. Please, try again.'));
+			$this->Flash->set(__('The point series racer could not be deleted. Please, try again.'));
 		}
 		return $this->redirect(array('action' => 'index'));
 	}

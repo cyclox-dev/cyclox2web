@@ -5,7 +5,7 @@ App::uses('AppController', 'Controller');
  *
  * @property CategoryRacesCategory $CategoryRacesCategory
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class CategoryRacesCategoriesController extends AppController {
 
@@ -14,7 +14,7 @@ class CategoryRacesCategoriesController extends AppController {
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session');
+	public $components = array('Paginator', 'Flash');
 
 	public $actsAs = array('Utils.SoftDelete');
 	
@@ -55,10 +55,10 @@ class CategoryRacesCategoriesController extends AppController {
 		if ($this->request->is('post')) {
 			$this->CategoryRacesCategory->create();
 			if ($this->CategoryRacesCategory->save($this->request->data)) {
-				$this->Session->setFlash(__('The category races category has been saved.'));
+				$this->Flash->set(__('The category races category has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The category races category could not be saved. Please, try again.'));
+				$this->Flash->set(__('The category races category could not be saved. Please, try again.'));
 			}
 		}
 		$racesCategories = $this->CategoryRacesCategory->RacesCategory->find('list');
@@ -80,10 +80,10 @@ class CategoryRacesCategoriesController extends AppController {
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->CategoryRacesCategory->save($this->request->data)) {
-				$this->Session->setFlash(__('The category races category has been saved.'));
+				$this->Flash->set(__('The category races category has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The category races category could not be saved. Please, try again.'));
+				$this->Flash->set(__('The category races category could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('CategoryRacesCategory.' . $this->CategoryRacesCategory->primaryKey => $id));
@@ -109,9 +109,9 @@ class CategoryRacesCategoriesController extends AppController {
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->CategoryRacesCategory->delete()) {
-			$this->Session->setFlash(__('レースカテゴリーへのカテゴリー配属 [ID:' . $id . '] を削除しました（削除日時を適用）。'));
+			$this->Flash->set(__('レースカテゴリーへのカテゴリー配属 [ID:' . $id . '] を削除しました（削除日時を適用）。'));
 		} else {
-			$this->Session->setFlash(__('レースカテゴリーへのカテゴリー配属の削除に失敗しました。'));
+			$this->Flash->set(__('レースカテゴリーへのカテゴリー配属の削除に失敗しました。'));
 		}
 		
 		return $this->redirect(array('action' => 'index'));

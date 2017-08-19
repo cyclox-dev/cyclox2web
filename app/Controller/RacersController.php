@@ -8,7 +8,7 @@ App::uses('AjoccUtil', 'Cyclox/Util');
  *
  * @property Racer $Racer
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class RacersController extends ApiBaseController
 {
@@ -19,7 +19,7 @@ class RacersController extends ApiBaseController
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session', 'RequestHandler', 'Search.Prg', 'AgedCategory');
+	public $components = array('Paginator', 'Flash', 'RequestHandler', 'Search.Prg', 'AgedCategory');
 	
 	// Search プラグイン設定
     public $presetVars = array(
@@ -313,7 +313,7 @@ class RacersController extends ApiBaseController
 			$this->request->data['Racer']['code'] = $code;
 			
 			if ($this->Racer->save($this->request->data)) {
-				$this->Session->setFlash(__('新規選手データ [code:' . $code . '] を保存しました。'));
+				$this->Flash->set(__('新規選手データ [code:' . $code . '] を保存しました。'));
 				
 				if (!$this->AgedCategory->checkAgedCategory($code, date('Y-m-d'), true)) {
 					$this->log('Aged Category の保存に失敗しました。', LOG_ERR);
@@ -322,7 +322,7 @@ class RacersController extends ApiBaseController
 				
 				return $this->redirect('/racers/view/' . $code);
 			} else {
-				$this->Session->setFlash(__('The racer could not be saved. Please, try again.'));
+				$this->Flash->set(__('The racer could not be saved. Please, try again.'));
 			}
 		}
 	}
@@ -414,10 +414,10 @@ class RacersController extends ApiBaseController
 					// not return false
 				}
 				
-				$this->Session->setFlash(__('The racer has been saved.'));
+				$this->Flash->set(__('The racer has been saved.'));
 				return $this->redirect('/racers/view/' . $code);
 			} else {
-				$this->Session->setFlash(__('The racer could not be saved. Please, try again.'));
+				$this->Flash->set(__('The racer could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('Racer.' . $this->Racer->primaryKey => $code));
@@ -487,9 +487,9 @@ class RacersController extends ApiBaseController
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->Racer->delete()) {
-			$this->Session->setFlash(__('選手 [code:' . $code . '] を削除しました（削除日時を適用）。'));
+			$this->Flash->set(__('選手 [code:' . $code . '] を削除しました（削除日時を適用）。'));
 		} else {
-            $this->Session->setFlash(__('選手の削除に失敗しました。'));
+            $this->Flash->set(__('選手の削除に失敗しました。'));
 		}
 		
 		return $this->redirect(array('action' => 'index'));

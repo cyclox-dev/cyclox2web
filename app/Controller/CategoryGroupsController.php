@@ -5,7 +5,7 @@ App::uses('AppController', 'Controller');
  *
  * @property CategoryGroup $CategoryGroup
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class CategoryGroupsController extends AppController {
 
@@ -14,7 +14,7 @@ class CategoryGroupsController extends AppController {
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session');
+	public $components = array('Paginator', 'Flash');
 
 	public $actsAs = array('Utils.SoftDelete');
 	
@@ -52,10 +52,10 @@ class CategoryGroupsController extends AppController {
 		if ($this->request->is('post')) {
 			$this->CategoryGroup->create();
 			if ($this->CategoryGroup->save($this->request->data)) {
-				$this->Session->setFlash(__('The category group has been saved.'));
+				$this->Flash->set(__('The category group has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The category group could not be saved. Please, try again.'));
+				$this->Flash->set(__('The category group could not be saved. Please, try again.'));
 			}
 		}
 	}
@@ -73,10 +73,10 @@ class CategoryGroupsController extends AppController {
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->CategoryGroup->save($this->request->data)) {
-				$this->Session->setFlash(__('The category group has been saved.'));
+				$this->Flash->set(__('The category group has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The category group could not be saved. Please, try again.'));
+				$this->Flash->set(__('The category group could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('CategoryGroup.' . $this->CategoryGroup->primaryKey => $code));
@@ -99,9 +99,9 @@ class CategoryGroupsController extends AppController {
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->CategoryGroup->delete()) {
-			$this->Session->setFlash(__('カテゴリーグループ [ID:' . $code . '] を削除しました（削除日時を適用）。'));
+			$this->Flash->set(__('カテゴリーグループ [ID:' . $code . '] を削除しました（削除日時を適用）。'));
 		} else {
-			$this->Session->setFlash(__('カテゴリーグループの削除に失敗しました。'));
+			$this->Flash->set(__('カテゴリーグループの削除に失敗しました。'));
 		}
 		
 		return $this->redirect(array('action' => 'index'));

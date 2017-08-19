@@ -16,7 +16,7 @@ App::uses('Util', 'Cyclox/Util');
  *
  * @property PointSeries $PointSeries
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class PointSeriesController extends ApiBaseController
 {
@@ -27,7 +27,7 @@ class PointSeriesController extends ApiBaseController
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session', 'RequestHandler');
+	public $components = array('Paginator', 'Flash', 'RequestHandler');
 	
 	const __PATH_RANKING = 'cyclox2/point_series/rankings';
 	const __RANKING_FILE_PREFIX = 'ranking_';
@@ -67,10 +67,10 @@ class PointSeriesController extends ApiBaseController
 		if ($this->request->is('post')) {
 			$this->PointSeries->create();
 			if ($this->PointSeries->save($this->request->data)) {
-				$this->Session->setFlash(__('The point series has been saved.'));
+				$this->Flash->set(__('The point series has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The point series could not be saved. Please, try again.'));
+				$this->Flash->set(__('The point series could not be saved. Please, try again.'));
 			}
 		}
 		$seasons = $this->PointSeries->Season->find('list');
@@ -95,10 +95,10 @@ class PointSeriesController extends ApiBaseController
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->PointSeries->save($this->request->data)) {
-				$this->Session->setFlash(__('The point series has been saved.'));
+				$this->Flash->set(__('The point series has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The point series could not be saved. Please, try again.'));
+				$this->Flash->set(__('The point series could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('PointSeries.' . $this->PointSeries->primaryKey => $id));
@@ -127,9 +127,9 @@ class PointSeriesController extends ApiBaseController
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->PointSeries->delete()) {
-			$this->Session->setFlash(__('The point series has been deleted.'));
+			$this->Flash->set(__('The point series has been deleted.'));
 		} else {
-			$this->Session->setFlash(__('The point series could not be deleted. Please, try again.'));
+			$this->Flash->set(__('The point series could not be deleted. Please, try again.'));
 		}
 		return $this->redirect(array('action' => 'index'));
 	}
@@ -229,7 +229,7 @@ class PointSeriesController extends ApiBaseController
 		$filename = TMP . self::__PATH_RANKING . '/' . self::__RANKING_FILE_PREFIX . $id . '.csv';
 		$tmpFile->copy($filename, true);
 		
-		$this->Session->setFlash(h($ps['PointSeries']['name'] . 'のランキングファイルを更新しました。'));
+		$this->Flash->set(h($ps['PointSeries']['name'] . 'のランキングファイルを更新しました。'));
 		
 		$this->redirect(array('controller' => 'OrgUtil', 'action' => 'point_series_csv_links'));
 	}
@@ -471,7 +471,7 @@ class PointSeriesController extends ApiBaseController
 		
 		if (!$file->exists())
 		{
-			$this->Session->setFlash(__('ランキングのファイルがありません。ファイルの更新が必要です。'));
+			$this->Flash->set(__('ランキングのファイルがありません。ファイルの更新が必要です。'));
 			return $this->redirect(array('controller' => 'OrgUtil', 'action' => 'point_series_csv_links'));
 		}
 		

@@ -23,7 +23,7 @@ class FormPreserverComponent extends Object {
  *
  * @var array $components
  */
-	public $components = array('Session', 'Auth');
+	public $components = array('Flash', 'Auth');
 
 /**
  * Actions used to fetch the post data
@@ -106,7 +106,7 @@ class FormPreserverComponent extends Object {
 				if (empty($this->loginAction) && !empty($Controller->Auth->loginAction)) {
 					$this->loginAction = $Controller->Auth->loginAction;
 					if (!empty($this->redirectMessage)) {
-						$Controller->Session->setFlash($this->redirectMessage);
+						$Controller->Flash->set($this->redirectMessage);
 					}
 
 					// Code from AuthComponent to store the redirect url so the user get redirected 

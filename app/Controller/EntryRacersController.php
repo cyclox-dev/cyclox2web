@@ -7,7 +7,7 @@ App::uses('ApiBaseController', 'Controller');
  *
  * @property EntryRacer $EntryRacer
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class EntryRacersController extends ApiBaseController {
 
@@ -16,7 +16,7 @@ class EntryRacersController extends ApiBaseController {
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session', 'RequestHandler');
+	public $components = array('Paginator', 'Flash', 'RequestHandler');
 
 /**
  * index method
@@ -70,10 +70,10 @@ class EntryRacersController extends ApiBaseController {
 		if ($this->request->is('post')) {
 			$this->EntryRacer->create();
 			if ($this->EntryRacer->save($this->request->data)) {
-				$this->Session->setFlash(__('The entry racer has been saved.'));
+				$this->Flash->set(__('The entry racer has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The entry racer could not be saved. Please, try again.'));
+				$this->Flash->set(__('The entry racer could not be saved. Please, try again.'));
 			}
 		}
 		$this->set(compact('entryCategories', 'racers'));
@@ -112,10 +112,10 @@ class EntryRacersController extends ApiBaseController {
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->EntryRacer->save($this->request->data)) {
-				$this->Session->setFlash(__('The entry racer has been saved.'));
+				$this->Flash->set(__('The entry racer has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The entry racer could not be saved. Please, try again.'));
+				$this->Flash->set(__('The entry racer could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('EntryRacer.' . $this->EntryRacer->primaryKey => $id));
@@ -138,9 +138,9 @@ class EntryRacersController extends ApiBaseController {
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->EntryRacer->delete()) {
-			$this->Session->setFlash(__('The entry racer has been deleted.'));
+			$this->Flash->set(__('The entry racer has been deleted.'));
 		} else {
-			$this->Session->setFlash(__('The entry racer could not be deleted. Please, try again.'));
+			$this->Flash->set(__('The entry racer could not be deleted. Please, try again.'));
 		}
 		return $this->redirect(array('action' => 'index'));
 	}

@@ -5,7 +5,7 @@ App::uses('AppController', 'Controller');
  *
  * @property RacerResult $RacerResult
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class RacerResultsController extends AppController
 {
@@ -16,7 +16,7 @@ class RacerResultsController extends AppController
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session');
+	public $components = array('Paginator', 'Flash');
 
 /**
  * index method
@@ -52,10 +52,10 @@ class RacerResultsController extends AppController
 		if ($this->request->is('post')) {
 			$this->RacerResult->create();
 			if ($this->RacerResult->save($this->request->data)) {
-				$this->Session->setFlash(__('The racer result has been saved.'));
+				$this->Flash->set(__('The racer result has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The racer result could not be saved. Please, try again.'));
+				$this->Flash->set(__('The racer result could not be saved. Please, try again.'));
 			}
 		}
 		$categories = $this->Category->find('list', array('fields' => array('Category.code', 'Category.name')));
@@ -75,10 +75,10 @@ class RacerResultsController extends AppController
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->RacerResult->save($this->request->data)) {
-				$this->Session->setFlash(__('The racer result has been saved.'));
+				$this->Flash->set(__('The racer result has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The racer result could not be saved. Please, try again.'));
+				$this->Flash->set(__('The racer result could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('RacerResult.' . $this->RacerResult->primaryKey => $id));
@@ -102,9 +102,9 @@ class RacerResultsController extends AppController
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->RacerResult->delete()) {
-			$this->Session->setFlash(__('The racer result has been deleted.'));
+			$this->Flash->set(__('The racer result has been deleted.'));
 		} else {
-			$this->Session->setFlash(__('The racer result could not be deleted. Please, try again.'));
+			$this->Flash->set(__('The racer result could not be deleted. Please, try again.'));
 		}
 		return $this->redirect(array('action' => 'index'));
 	}

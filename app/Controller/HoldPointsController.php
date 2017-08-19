@@ -5,7 +5,7 @@ App::uses('AppController', 'Controller');
  *
  * @property HoldPoint $HoldPoint
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class HoldPointsController extends AppController {
 
@@ -14,7 +14,7 @@ class HoldPointsController extends AppController {
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session');
+	public $components = array('Paginator', 'Flash');
 
 /**
  * index method
@@ -50,10 +50,10 @@ class HoldPointsController extends AppController {
 		if ($this->request->is('post')) {
 			$this->HoldPoint->create();
 			if ($this->HoldPoint->save($this->request->data)) {
-				$this->Session->setFlash(__('The hold point has been saved.'));
+				$this->Flash->set(__('The hold point has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The hold point could not be saved. Please, try again.'));
+				$this->Flash->set(__('The hold point could not be saved. Please, try again.'));
 			}
 		}
 		$this->set(compact('racerResults'));
@@ -72,10 +72,10 @@ class HoldPointsController extends AppController {
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->HoldPoint->save($this->request->data)) {
-				$this->Session->setFlash(__('The hold point has been saved.'));
+				$this->Flash->set(__('The hold point has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The hold point could not be saved. Please, try again.'));
+				$this->Flash->set(__('The hold point could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('HoldPoint.' . $this->HoldPoint->primaryKey => $id));
@@ -98,9 +98,9 @@ class HoldPointsController extends AppController {
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->HoldPoint->delete()) {
-			$this->Session->setFlash(__('The hold point has been deleted.'));
+			$this->Flash->set(__('The hold point has been deleted.'));
 		} else {
-			$this->Session->setFlash(__('The hold point could not be deleted. Please, try again.'));
+			$this->Flash->set(__('The hold point could not be deleted. Please, try again.'));
 		}
 		return $this->redirect(array('action' => 'index'));
 	}

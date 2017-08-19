@@ -5,7 +5,7 @@ App::uses('AppController', 'Controller');
  *
  * @property MeetPointSeries $MeetPointSeries
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class MeetPointSeriesController extends AppController {
 
@@ -14,7 +14,7 @@ class MeetPointSeriesController extends AppController {
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session');
+	public $components = array('Paginator', 'Flash');
 
 /**
  * index method
@@ -50,11 +50,11 @@ class MeetPointSeriesController extends AppController {
 		if ($this->request->is('post')) {
 			$this->MeetPointSeries->create();
 			if ($this->MeetPointSeries->save($this->request->data)) {
-				$this->Session->setFlash(__('The meet point series has been saved.'));
+				$this->Flash->set(__('The meet point series has been saved.'));
 				// シリーズにリダイレクト
 				return $this->redirect('/point_series/view/' . $this->request->data['MeetPointSeries']['point_series_id']);
 			} else {
-				$this->Session->setFlash(__('The meet point series could not be saved. Please, try again.'));
+				$this->Flash->set(__('The meet point series could not be saved. Please, try again.'));
 			}
 		}
 		$pointSeries = $this->MeetPointSeries->PointSeries->find('list');
@@ -79,10 +79,10 @@ class MeetPointSeriesController extends AppController {
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->MeetPointSeries->save($this->request->data)) {
-				$this->Session->setFlash(__('The meet point series has been saved.'));
+				$this->Flash->set(__('The meet point series has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The meet point series could not be saved. Please, try again.'));
+				$this->Flash->set(__('The meet point series could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('MeetPointSeries.' . $this->MeetPointSeries->primaryKey => $id));
@@ -107,9 +107,9 @@ class MeetPointSeriesController extends AppController {
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->MeetPointSeries->delete()) {
-			$this->Session->setFlash(__('The meet point series has been deleted.'));
+			$this->Flash->set(__('The meet point series has been deleted.'));
 		} else {
-			$this->Session->setFlash(__('The meet point series could not be deleted. Please, try again.'));
+			$this->Flash->set(__('The meet point series could not be deleted. Please, try again.'));
 		}
 		return $this->redirect(array('action' => 'index'));
 	}

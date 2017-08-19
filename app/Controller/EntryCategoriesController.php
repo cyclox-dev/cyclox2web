@@ -7,7 +7,7 @@ App::uses('ApiBaseController', 'Controller');
  *
  * @property EntryCategory $EntryCategory
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class EntryCategoriesController extends ApiBaseController
 {
@@ -18,7 +18,7 @@ class EntryCategoriesController extends ApiBaseController
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session', 'RequestHandler', 'ResultParamCalc');
+	public $components = array('Paginator', 'Flash', 'RequestHandler', 'ResultParamCalc');
 
 /**
  * index method
@@ -144,10 +144,10 @@ class EntryCategoriesController extends ApiBaseController
 		if ($this->request->is('post')) {
 			$this->EntryCategory->create();
 			if ($this->EntryCategory->save($this->request->data)) {
-				$this->Session->setFlash(__('The entry category has been saved.'));
+				$this->Flash->set(__('The entry category has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The entry category could not be saved. Please, try again.'));
+				$this->Flash->set(__('The entry category could not be saved. Please, try again.'));
 			}
 		}
 		$racesCategories = $this->EntryCategory->RacesCategory->find('list');
@@ -187,10 +187,10 @@ class EntryCategoriesController extends ApiBaseController
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->EntryCategory->save($this->request->data)) {
-				$this->Session->setFlash(__('The entry category has been saved.'));
+				$this->Flash->set(__('The entry category has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The entry category could not be saved. Please, try again.'));
+				$this->Flash->set(__('The entry category could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('EntryCategory.' . $this->EntryCategory->primaryKey => $id));
@@ -214,9 +214,9 @@ class EntryCategoriesController extends ApiBaseController
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->EntryCategory->delete()) {
-			$this->Session->setFlash(__('The entry category has been deleted.'));
+			$this->Flash->set(__('The entry category has been deleted.'));
 		} else {
-			$this->Session->setFlash(__('The entry category could not be deleted. Please, try again.'));
+			$this->Flash->set(__('The entry category could not be deleted. Please, try again.'));
 		}
 		return $this->redirect(array('action' => 'index'));
 	}
@@ -233,9 +233,9 @@ class EntryCategoriesController extends ApiBaseController
 		$ret = $this->ResultParamCalc->reCalcResults($ecatId);
 		
 		if (emptY($ret)|| $ret == Constant::RET_FAILED) {
-			return $this->Session->setFlash('処理に失敗しました。');
+			return $this->Flash->set('処理に失敗しました。');
 		} else if ($ret == Constant::RET_NO_ACTION) {
-			return $this->Session->setFlash(__('出走する選手もしくはリザルトが設定されていません。'));
+			return $this->Flash->set(__('出走する選手もしくはリザルトが設定されていません。'));
 		}
 		
 		return $this->redirect(array('action' => 'view', $ecatId));

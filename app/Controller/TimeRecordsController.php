@@ -5,7 +5,7 @@ App::uses('AppController', 'Controller');
  *
  * @property TimeRecord $TimeRecord
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class TimeRecordsController extends AppController {
 
@@ -14,7 +14,7 @@ class TimeRecordsController extends AppController {
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session');
+	public $components = array('Paginator', 'Flash');
 
 /**
  * index method
@@ -50,10 +50,10 @@ class TimeRecordsController extends AppController {
 		if ($this->request->is('post')) {
 			$this->TimeRecord->create();
 			if ($this->TimeRecord->save($this->request->data)) {
-				$this->Session->setFlash(__('The time record has been saved.'));
+				$this->Flash->set(__('The time record has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The time record could not be saved. Please, try again.'));
+				$this->Flash->set(__('The time record could not be saved. Please, try again.'));
 			}
 		}
 		$this->set(compact('racerResults'));
@@ -72,10 +72,10 @@ class TimeRecordsController extends AppController {
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->TimeRecord->save($this->request->data)) {
-				$this->Session->setFlash(__('The time record has been saved.'));
+				$this->Flash->set(__('The time record has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The time record could not be saved. Please, try again.'));
+				$this->Flash->set(__('The time record could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('TimeRecord.' . $this->TimeRecord->primaryKey => $id));
@@ -98,9 +98,9 @@ class TimeRecordsController extends AppController {
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->TimeRecord->delete()) {
-			$this->Session->setFlash(__('The time record has been deleted.'));
+			$this->Flash->set(__('The time record has been deleted.'));
 		} else {
-			$this->Session->setFlash(__('The time record could not be deleted. Please, try again.'));
+			$this->Flash->set(__('The time record could not be deleted. Please, try again.'));
 		}
 		return $this->redirect(array('action' => 'index'));
 	}

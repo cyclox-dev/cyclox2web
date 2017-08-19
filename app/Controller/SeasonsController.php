@@ -7,7 +7,7 @@ App::uses('ApiBaseController', 'Controller');
  *
  * @property Season $Season
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class SeasonsController extends ApiBaseController {
 
@@ -16,7 +16,7 @@ class SeasonsController extends ApiBaseController {
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session', 'RequestHandler');
+	public $components = array('Paginator', 'Flash', 'RequestHandler');
 
 /**
  * index method
@@ -64,10 +64,10 @@ class SeasonsController extends ApiBaseController {
 		if ($this->request->is('post')) {
 			$this->Season->create();
 			if ($this->Season->save($this->request->data)) {
-				$this->Session->setFlash(__('The season has been saved.'));
+				$this->Flash->set(__('The season has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The season could not be saved. Please, try again.'));
+				$this->Flash->set(__('The season could not be saved. Please, try again.'));
 			}
 		}
 	}
@@ -85,10 +85,10 @@ class SeasonsController extends ApiBaseController {
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->Season->save($this->request->data)) {
-				$this->Session->setFlash(__('The season has been saved.'));
+				$this->Flash->set(__('The season has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The season could not be saved. Please, try again.'));
+				$this->Flash->set(__('The season could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('Season.' . $this->Season->primaryKey => $id));
@@ -111,9 +111,9 @@ class SeasonsController extends ApiBaseController {
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->MeetGroup->delete()) {
-			$this->Session->setFlash(__('シーズン [ID:' . $id . '] を削除しました（削除日時を適用）。'));
+			$this->Flash->set(__('シーズン [ID:' . $id . '] を削除しました（削除日時を適用）。'));
 		} else {
-			$this->Session->setFlash(__('シーズンの削除に失敗しました。'));
+			$this->Flash->set(__('シーズンの削除に失敗しました。'));
 		}
 		
 		return $this->redirect(array('action' => 'index'));

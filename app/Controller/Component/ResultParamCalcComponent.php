@@ -96,7 +96,7 @@ class ResultParamCalcComponent extends Component
 			}
 			
 			if (count($ers) == 0) {
-				$this->Session->setFlash(__('リザルトが設定されていません。'));
+				$this->Flash->set(__('リザルトが設定されていません。'));
 			} else {
 				$ret = $this->__doReCalcResults($ers, $ecat['EntryCategory']);
 				

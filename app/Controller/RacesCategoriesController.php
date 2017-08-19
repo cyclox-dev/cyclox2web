@@ -5,7 +5,7 @@ App::uses('AppController', 'Controller');
  *
  * @property RacesCategory $RacesCategory
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class RacesCategoriesController extends AppController {
 
@@ -14,7 +14,7 @@ class RacesCategoriesController extends AppController {
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session');
+	public $components = array('Paginator', 'Flash');
 
 /**
  * index method
@@ -66,10 +66,10 @@ class RacesCategoriesController extends AppController {
 				if ($this->RacesCategory->save($this->request->data)) {
 					$this->log($this->RacesCategory->getDataSource()->getLog(), LOG_DEBUG);
 
-					$this->Session->setFlash(__('The races category has been saved.'));
+					$this->Flash->set(__('The races category has been saved.'));
 					return $this->redirect(array('action' => 'index'));
 				} else {
-					$this->Session->setFlash(__('The races category could not be saved. Please, try again.'));
+					$this->Flash->set(__('The races category could not be saved. Please, try again.'));
 				}
 			}
 		}
@@ -88,10 +88,10 @@ class RacesCategoriesController extends AppController {
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->RacesCategory->save($this->request->data)) {
-				$this->Session->setFlash(__('The races category has been saved.'));
+				$this->Flash->set(__('The races category has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The races category could not be saved. Please, try again.'));
+				$this->Flash->set(__('The races category could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('RacesCategory.' . $this->RacesCategory->primaryKey => $code));
@@ -113,9 +113,9 @@ class RacesCategoriesController extends AppController {
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->RacesCategory->delete()) {
-			$this->Session->setFlash(__('レースカテゴリー [code:' . $code . '] を削除しました（削除日時を適用）。'));
+			$this->Flash->set(__('レースカテゴリー [code:' . $code . '] を削除しました（削除日時を適用）。'));
 		} else {
-			$this->Session->setFlash(__('レースカテゴリーの削除に失敗しました。'));
+			$this->Flash->set(__('レースカテゴリーの削除に失敗しました。'));
 		}
 		
 		return $this->redirect(array('action' => 'index'));

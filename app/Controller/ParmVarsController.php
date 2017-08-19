@@ -7,7 +7,7 @@ App::uses('AppController', 'Controller');
  *
  * @property ParmVar $ParmVar
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class ParmVarsController extends AppController {
 
@@ -16,7 +16,7 @@ class ParmVarsController extends AppController {
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session',
+	public $components = array('Paginator', 'Flash',
 		'Auth' => array(
 			'authorize' => array('Controller'),
 		),
@@ -56,10 +56,10 @@ class ParmVarsController extends AppController {
 		if ($this->request->is('post')) {
 			$this->ParmVar->create();
 			if ($this->ParmVar->save($this->request->data)) {
-				$this->Session->setFlash(__('The parm var has been saved.'));
+				$this->Flash->set(__('The parm var has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The parm var could not be saved. Please, try again.'));
+				$this->Flash->set(__('The parm var could not be saved. Please, try again.'));
 			}
 		}
 	}
@@ -77,10 +77,10 @@ class ParmVarsController extends AppController {
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->ParmVar->save($this->request->data)) {
-				$this->Session->setFlash(__('The parm var has been saved.'));
+				$this->Flash->set(__('The parm var has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The parm var could not be saved. Please, try again.'));
+				$this->Flash->set(__('The parm var could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('ParmVar.' . $this->ParmVar->primaryKey => $id));
@@ -102,9 +102,9 @@ class ParmVarsController extends AppController {
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->ParmVar->delete()) {
-			$this->Session->setFlash(__('The parm var has been deleted.'));
+			$this->Flash->set(__('The parm var has been deleted.'));
 		} else {
-			$this->Session->setFlash(__('The parm var could not be deleted. Please, try again.'));
+			$this->Flash->set(__('The parm var could not be deleted. Please, try again.'));
 		}
 		return $this->redirect(array('action' => 'index'));
 	}

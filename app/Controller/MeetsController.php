@@ -9,7 +9,7 @@ App::uses('CategoryReason', 'Cyclox/Const');
  *
  * @property Meet $Meet
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class MeetsController extends ApiBaseController
 {
@@ -20,7 +20,7 @@ class MeetsController extends ApiBaseController
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session', 'RequestHandler');
+	public $components = array('Paginator', 'Flash', 'Flash', 'RequestHandler');
 
 /**
  * index method
@@ -108,10 +108,10 @@ class MeetsController extends ApiBaseController
 			$this->request->data['Meet']['code'] = $code;
 
 			if ($this->Meet->save($this->request->data)) {
-				$this->Session->setFlash(__('新規大会 [code:' . $code . '] を保存しました。'));
+				$this->Flash->set(__('新規大会 [code:' . $code . '] を保存しました。'));
 				return $this->redirect('/meets/view/' . $this->Meet->id);
 			} else {
-				$this->Session->setFlash(__('The meet could not be saved. Please, try again.'));
+				$this->Flash->set(__('The meet could not be saved. Please, try again.'));
 			}
 		}
 		$seasons = $this->Meet->Season->find('list');
@@ -137,10 +137,10 @@ class MeetsController extends ApiBaseController
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->Meet->save($this->request->data)) {
-				$this->Session->setFlash(__('The meet has been saved.'));
+				$this->Flash->set(__('The meet has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The meet could not be saved. Please, try again.'));
+				$this->Flash->set(__('The meet could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('Meet.' . $this->Meet->primaryKey => $code));
@@ -167,9 +167,9 @@ class MeetsController extends ApiBaseController
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->Meet->delete()) {
-			$this->Session->setFlash(__('大会 [code:' . $code . '] を削除しました（削除日時を適用）。'));
+			$this->Flash->set(__('大会 [code:' . $code . '] を削除しました（削除日時を適用）。'));
 		} else {
-			$this->Session->setFlash(__('大会の削除に失敗しました。'));
+			$this->Flash->set(__('大会の削除に失敗しました。'));
 		}
 		
 		return $this->redirect(array('action' => 'index'));

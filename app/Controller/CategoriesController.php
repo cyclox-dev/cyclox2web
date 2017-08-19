@@ -5,7 +5,7 @@ App::uses('AppController', 'Controller');
  *
  * @property Category $Category
  * @property PaginatorComponent $Paginator
- * @property SessionComponent $Session
+ * @property FlashComponent $Flash
  */
 class CategoriesController extends AppController {
 
@@ -14,7 +14,7 @@ class CategoriesController extends AppController {
  *
  * @var array
  */
-	public $components = array('Paginator', 'Session');
+	public $components = array('Paginator', 'Flash');
 
 	public $actsAs = array('Utils.SoftDelete');
 	
@@ -57,10 +57,10 @@ class CategoriesController extends AppController {
 			} else {
 				$this->Category->create();
 				if ($this->Category->save($this->request->data)) {
-					$this->Session->setFlash(__('The category has been saved.'));
+					$this->Flash->set(__('The category has been saved.'));
 					return $this->redirect(array('action' => 'index'));
 				} else {
-					$this->Session->setFlash(__('The category could not be saved. Please, try again.'));
+					$this->Flash->set(__('The category could not be saved. Please, try again.'));
 				}
 			}
 		}
@@ -81,10 +81,10 @@ class CategoriesController extends AppController {
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->Category->save($this->request->data)) {
-				$this->Session->setFlash(__('The category has been saved.'));
+				$this->Flash->set(__('The category has been saved.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The category could not be saved. Please, try again.'));
+				$this->Flash->set(__('The category could not be saved. Please, try again.'));
 			}
 		} else {
 			$options = array('conditions' => array('Category.' . $this->Category->primaryKey => $code));
@@ -108,9 +108,9 @@ class CategoriesController extends AppController {
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->Category->delete()) {
-			$this->Session->setFlash(__('カテゴリー [code:' . $code . ']を削除しました（削除日時を適用）。'));
+			$this->Flash->set(__('カテゴリー [code:' . $code . ']を削除しました（削除日時を適用）。'));
 		} else {
-			$this->Session->setFlash(__('カテゴリーの削除に失敗しました。'));
+			$this->Flash->set(__('カテゴリーの削除に失敗しました。'));
 		}
 		
 		return $this->redirect(array('action' => 'index'));

@@ -423,7 +423,7 @@ class PrgComponent extends Component {
 
 				$this->controller->redirect($params);
 			} else {
-				$this->controller->Session->setFlash(__d('search', 'Please correct the errors below.'));
+				$this->controller->Flash->set(__d('search', 'Please correct the errors below.'));
 			}
 		} elseif (($paramType === 'named' && !empty($this->controller->passedArgs)) ||
 				($paramType === 'querystring' && !empty($this->controller->request->query))
