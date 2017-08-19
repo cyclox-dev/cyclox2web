@@ -36,6 +36,7 @@ class AppController extends Controller
 		'DebugKit.Toolbar',
 		'PageTitle',
 		'Session',
+		'Flash',
 		'Acl',
 		'Auth' => array(
 			'authorize' => array('Actions' => array('actionPath' => 'controllers'), 'Controller')
@@ -59,7 +60,8 @@ class AppController extends Controller
 
 	public $helpers = array(
         'Session',
-        'Html' => array('className' => 'PermHtml'),
+        'Flash',
+		'Html' => array('className' => 'PermHtml'),
         'Form' => array('className' => 'PermForm'),
     );//*/
 	
