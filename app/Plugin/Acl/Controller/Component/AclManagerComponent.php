@@ -4,7 +4,7 @@
  */
 class AclManagerComponent extends Component
 {
-    var $components = array('Auth', 'Acl', 'Acl.AclReflector', 'Session');
+    var $components = array('Auth', 'Acl', 'Acl.AclReflector', 'Session', 'Flash');
     
     /**
      * @var AclAppController
@@ -38,7 +38,7 @@ class AclManagerComponent extends Component
 	    }
 	    else
 	    {
-	        $this->Session->setFlash(sprintf(__d('acl', 'the %s directory is not writable'), dirname($this->controllers_hash_file)), 'flash_error', null, 'plugin_acl');
+	        $this->Flash->set(sprintf(__d('acl', 'the %s directory is not writable'), dirname($this->controllers_hash_file)), 'flash_error', null, 'plugin_acl');
 	        return false;
 	    }
 	}

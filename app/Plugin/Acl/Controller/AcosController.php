@@ -35,11 +35,11 @@ class AcosController extends AclAppController {
         	    {
         	        $this->set('actions_exist', false);
         	        
-        	        $this->Session->setFlash(__d('acl', 'The actions in the ACO table have been deleted'), 'flash_message', null, 'plugin_acl');
+        	        $this->Flash->set(__d('acl', 'The actions in the ACO table have been deleted'), 'flash_message', null, 'plugin_acl');
         	    }
         	    else
         	    {
-        	        $this->Session->setFlash(__d('acl', 'The actions in the ACO table could not be deleted'), 'flash_error', null, 'plugin_acl');
+        	        $this->Flash->set(__d('acl', 'The actions in the ACO table could not be deleted'), 'flash_error', null, 'plugin_acl');
         	    }
 	        
         	    $this->set('run', true);
