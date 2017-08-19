@@ -134,7 +134,7 @@ class ResultParamCalcComponent extends Component
 			if ($ecat['applies_ajocc_pt']) {
 				$isOpenRacer = ($result['EntryRacer']['entry_status'] == RacerEntryStatus::$OPEN->val());
 				if (!$isOpenRacer && isset($r['rank'])) {
-					$ajoccPt = $this->calcAjoccPt($r['rank'], $this->__started);
+					$ajoccPt = $this->calcAjoccPt($r['rank'], $this->__started, $this->__atDate);
 					//$this->log('ajocc pt:' . $ajoccPt, LOG_DEBUG);
 					if ($ajoccPt == -1) {
 						$this->log('AjoccPoint が計算できません。rank:' . $r['rank'] . ' --> ptゼロに設定します。', LOG_ERR);
@@ -178,9 +178,10 @@ class ResultParamCalcComponent extends Component
 	 * AJOCC Point を計算する
 	 * @param type $rank リザルト順位
 	 * @param type $startedCount 出走人数
+	 * @param dateString $meetDate 大会日付
 	 * @return int ポイント。エラーの場合 -1 をかえす。
 	 */
-	public function calcAjoccPt($rank, $startedCount)
+	public function calcAjoccPt($rank, $startedCount, $meetDate)
 	{
 		if ($startedCount <= 0) {
 			return -1;
@@ -190,32 +191,68 @@ class ResultParamCalcComponent extends Component
 			return 0;
 		}
 		
-		$map = array(
-			array(
-				'started_over' => 40, 'points' => array(
-					56, 47, 41, 36, 32, 28, 25, 22, 20, 18,
-					16, 14, 13, 12, 11, 10,  9,  9,  8,  8,
-					 7,  7,  7,  6,  6,  6,  5,  5,  5,  5,
-					 4,  4,  4,  4,  3,  3,  3,  3,  3,  3,
-					 2,  2,  2,  2,  2,  2,  2,  1,  1,  1,
-					 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+		$mtDate = new DateTime($meetDate);
+		$divDate = new DateTime('2017-04-01');
+		$this->log('meet date is before 2016-17 ? :' . ($mtDate < $divDate) , LOG_DEBUG);
+		
+		// 2017-18 に若干変更
+		if ($mtDate < $divDate) {
+			$this->log('is season before 17-18', LOG_DEBUG);
+			$map = array(
+				array(
+					'started_over' => 40, 'points' => array(
+						56, 47, 41, 36, 32, 28, 25, 22, 20, 18,
+						16, 14, 13, 12, 11, 10,  9,  9,  8,  8,
+						 7,  7,  7,  6,  6,  6,  5,  5,  5,  5,
+						 4,  4,  4,  4,  3,  3,  3,  3,  3,  3,
+						 2,  2,  2,  2,  2,  2,  2,  1,  1,  1,
+						 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+					)
+				),
+				array(
+					'started_over' => 20, 'points' => array(
+						42, 34, 28, 24, 21, 18, 15, 13, 11, 10,
+						9,  8,  7,  6,  6,  5,  5,  4,  4,  4,
+						3,  3,  3,  3,  2,  2,  2,  2,  2,  2,
+						2,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+					)
+				),
+				array(
+					'started_over' => 0, 'points' => array(
+						28, 20, 15, 12, 10, 8,  6,  5,  4,  3,
+						3,  2,  2,  2,  1,  1,  1,  1,  1,  1,
+					)
 				)
-			),
-			array(
-				'started_over' => 20, 'points' => array(
-					42, 34, 28, 24, 21, 18, 15, 13, 11, 10,
-					9,  8,  7,  6,  6,  5,  5,  4,  4,  4,
-					3,  3,  3,  3,  2,  2,  2,  2,  2,  2,
-					2,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+			);
+		} else {
+			$this->log('is season aftereq 17-18', LOG_DEBUG);
+			$map = array(
+				array(
+					'started_over' => 39, 'points' => array(
+						56, 47, 41, 36, 32, 28, 25, 22, 20, 18,
+						16, 14, 13, 12, 11, 10,  9,  9,  8,  8,
+						 7,  7,  7,  6,  6,  6,  5,  5,  5,  5,
+						 4,  4,  4,  4,  3,  3,  3,  3,  3,  3,
+						 2,  2,  2,  2,  2,  2,  2,  1,  1,  1,
+						 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+					)
+				),
+				array(
+					'started_over' => 19, 'points' => array(
+						42, 34, 28, 24, 21, 18, 15, 13, 11, 10,
+						9,  8,  7,  6,  6,  5,  5,  4,  4,  4,
+						3,  3,  3,  3,  2,  2,  2,  2,  2,  2,
+						2,  1,  1,  1,  1,  1,  1,  1,  1,
+					)
+				),
+				array(
+					'started_over' => 0, 'points' => array(
+						28, 20, 15, 12, 10, 8,  6,  5,  4,  3,
+						3,  2,  2,  2,  1,  1,  1,  1,  1,
+					)
 				)
-			),
-			array(
-				'started_over' => 0, 'points' => array(
-					28, 20, 15, 12, 10, 8,  6,  5,  4,  3,
-					3,  2,  2,  2,  1,  1,  1,  1,  1,  1,
-				)
-			)
-		);
+			);
+		}
 		
 		// ポイントの決定
 		$point = 0;
