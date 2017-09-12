@@ -74,7 +74,7 @@ class RacerResultStatus
 	/** @return int DB 値 */                                                                           
     public function val() { return $this->val; }
     /** @return string 文字列表現 */                                                                    
-    public function express() { return $this->express; }
+    public function express() { return $this->msg; }
     /** @return string コード */
     public function code() { return $this->code; }
     /** @return int ステータス自体の順位 */
