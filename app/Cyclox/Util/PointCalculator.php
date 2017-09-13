@@ -19,6 +19,7 @@ class PointCalculator extends Object
 	public static $IBRK_167;
 	public static $CCM_167;
 	public static $TKI_178;
+	public static $KNT_178;
 	
 	private static $TABLE_JCX156_GRADE1 = array(
 		300, 240, 210, 180, 165, 150, 135, 120, 105, 90, 
@@ -71,6 +72,7 @@ class PointCalculator extends Object
 	const __KEY_TABLE = 'table';
 	
 	private static $TABLE_CCM167; // --> init() で初期化
+	private static $TABLE_KNT178; // --> init() で初期化
 	
 	private static $calculators;
 	
@@ -196,12 +198,60 @@ class PointCalculator extends Object
 			. 'ポイントテーブル</br>' . $str;
 		self::$TKI_178 = new PointCalculator(5, 'TKI-178', '201-18 東海クロスのポイントテーブル。$IBRK_167 ポイントと同じテーブルだが、ポイント対象は順位ありリザルトのみ。', $text);
 		
+		self::$TABLE_KNT178 = array(
+			array(
+				self::__KEY_STARTED_OVER => 39, self::__KEY_TABLE => array(
+					56, 47, 41, 36, 32, 28, 25, 22, 20, 18,
+					16, 14, 13, 12, 11, 10,  9,  9,  8,  8,
+					 7,  7,  7,  6,  6,  6,  5,  5,  5,  5,
+					 4,  4,  4,  4,  3,  3,  3,  3,  3,  3,
+					 2,  2,  2,  2,  2,  2,  2,  1,  1,  1,
+					 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+				)
+			),
+			array(
+				self::__KEY_STARTED_OVER => 19, self::__KEY_TABLE => array(
+					42, 34, 28, 24, 21, 18, 15, 13, 11, 10,
+					9,  8,  7,  6,  6,  5,  5,  4,  4,  4,
+					3,  3,  3,  3,  2,  2,  2,  2,  2,  2,
+					2,  1,  1,  1,  1,  1,  1,  1,  1,
+				)
+			),
+			array(
+				self::__KEY_STARTED_OVER => 0,self::__KEY_TABLE => array(
+					28, 20, 15, 12, 10, 8,  6,  5,  4,  3,
+					3,  2,  2,  2,  1,  1,  1,  1,  1,
+				)
+			)
+		);
+		
+		
+		$str = '';
+		for ($i = 0; $i < count(self::$TABLE_KNT178); $i++) {
+			$str .= '---</br>';
+			$pack = self::$TABLE_KNT178[$i];
+			$str .= ($pack[self::__KEY_STARTED_OVER] + 1) . '人以上</br>';
+			$n = count($pack[self::__KEY_TABLE]);
+			for ($j = 0; $j < $n; $j++) {
+				$str .= ' ' . $pack[self::__KEY_TABLE][$j] . ',';
+				if (($j + 1) % 10 == 0 || $j == $n-1) {
+					$str .= '</br>';
+				}
+			}
+		}
+		
+		$text = '2017-18 関東地域のシリーズランキングのために作られたポイントテーブル。'
+			. '17-18 AJOCC ポイントと同じ配点である。ボーナスなどは無し。グレード分けは無し。'
+			. '</br>ポイントテーブル</br>' . $str;
+		self::$KNT_178 = new PointCalculator(6, 'KNT-178', '2017-18 関東地方のポイントテーブル。17-18 AJOCC ポイントと同じ。グレード指定なし。', $text);
+		
 		self::$calculators = array(
 			self::$JCX_156,
 			self::$KNS_156,
 			self::$IBRK_167,
 			self::$CCM_167,
 			self::$TKI_178,
+			self::$KNT_178,
 		);
 	}
 	
@@ -259,6 +309,7 @@ class PointCalculator extends Object
 			case self::$IBRK_167->val(): $pt = $this->__calcIBRK167($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$CCM_167->val(): $pt = $this->__calcCCM167($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$TKI_178->val(): $pt = $this->__calcTKI167($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
+			case self::$KNT_178->val(): $pt = $this->__calcKNT178($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 		}
 		
 		if (empty($pt['point']) && empty($pt['bonus'])) {
@@ -481,6 +532,33 @@ class PointCalculator extends Object
 
 			if (isset($pointSet['rank_pt'][$rankIndex])) {
 				$point = $pointSet['rank_pt'][$rankIndex];
+			}
+		}
+		
+		$pointMap = array();
+		$pointMap['point'] = $point;
+		
+		// 完走ボーナスは無し。
+		
+		return $pointMap;
+	}
+	
+	/**
+	 * 2017-18シーズンの関東地域のポイントをかえす。
+	 */
+	private function __calcKNT178($result, $grade, $raceLapCount, $raceStartedCount, $meetDate)
+	{
+		if (empty($result['rank'])) return null;
+		
+		$rankIndex = $result['rank'] - 1;
+		$point = 0;
+		
+		foreach (self::$TABLE_KNT178 as $ptTable) {
+			if ($raceStartedCount > $ptTable[self::__KEY_STARTED_OVER]) {
+				if (isset($ptTable[self::__KEY_TABLE][$rankIndex])) {
+					$point = $ptTable[self::__KEY_TABLE][$rankIndex];
+				}
+				break;
 			}
 		}
 		
