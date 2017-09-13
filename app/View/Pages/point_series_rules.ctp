@@ -51,7 +51,7 @@
 		</dd>
 		<dt><?php echo __('説明'); ?></dt>
 		<dd>
-			<?php echo h($pc->text()); ?>
+			<?php echo $pc->text(); ?>
 			&nbsp;
 		</dd>
 	</dl>
@@ -82,7 +82,7 @@
 		</dd>
 		<dt><?php echo __('説明'); ?></dt>
 		<dd>
-			<?php echo h($pss->text()); ?>
+			<?php echo $pss->text(); ?>
 			&nbsp;
 		</dd>
 	</dl>
