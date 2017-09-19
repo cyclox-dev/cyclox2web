@@ -58,7 +58,14 @@ class MeetPointSeriesController extends AppController {
 			}
 		}
 		$pointSeries = $this->MeetPointSeries->PointSeries->find('list');
-		$meets = $this->MeetPointSeries->Meet->find('list');
+		
+		$mts = $this->MeetPointSeries->Meet->find('list');
+		$meets = array();
+		foreach (array_keys($mts) as $key)
+		{
+			$meets[$key] = $key . ':' . $mts[$key];
+		}
+		
 		$this->set(compact('pointSeries', 'meets'));
 		
 		if ($pointSeriesId != null) {
@@ -89,7 +96,14 @@ class MeetPointSeriesController extends AppController {
 			$this->request->data = $this->MeetPointSeries->find('first', $options);
 		}
 		$pointSeries = $this->MeetPointSeries->PointSeries->find('list');
-		$meets = $this->MeetPointSeries->Meet->find('list');
+		
+		$mts = $this->MeetPointSeries->Meet->find('list');
+		$meets = array();
+		foreach (array_keys($mts) as $key)
+		{
+			$meets[$key] = $key . ':' . $mts[$key];
+		}
+		
 		$this->set(compact('pointSeries', 'meets'));
 	}
 
