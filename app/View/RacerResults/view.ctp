@@ -93,6 +93,7 @@
 		<tr>
 			<th><?php echo __('Id'); ?></th>
 			<th><?php echo __('Racer Result Id'); ?></th>
+			<th><?php echo __('Lap'); ?></th>
 			<th><?php echo __('Time Milli'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 		</tr>
@@ -100,6 +101,7 @@
 		<tr>
 			<td><?php echo h($timeRecord['id']); ?></td>
 			<td><?php echo h($timeRecord['racer_result_id']); ?></td>
+			<td><?php echo h($timeRecord['lap']); ?></td>
 			<td><?php echo h($timeRecord['time_milli']); ?></td>
 			<td class="actions">
 				<?php echo $this->Html->link(__('View'), array('controller' => 'time_records', 'action' => 'view', $timeRecord['id'])); ?>
