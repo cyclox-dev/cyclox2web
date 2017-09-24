@@ -368,12 +368,13 @@ class ApiController extends ApiBaseController
 		foreach ($egroups as $egroup) {
 			foreach ($egroup['EntryCategory'] as $ec) {
 				if ($ec['deleted'] == 0 && $ec['name'] === $ecatName) { // ecat.deleted は出てこない
+					$ec['entry_group'] = $egroup['EntryGroup'];
 					$ecats[] = $ec;
 				}
 			}
 		}
 		unset($ec);
-
+		
 		if (empty($ecats)) {
 			return $this->error("出走カテゴリーが見つかりません。", self::STATUS_CODE_BAD_REQUEST);
 		}
@@ -419,6 +420,32 @@ class ApiController extends ApiBaseController
 		$meet = $this->Meet->find('first', $opt);
 		
 		// メイン処理
+		
+		// ver1.23 以前ではラップタイムデータの周回数にバグがあるため、これを修正する。
+		
+		//////$this->log('before++++++++++++++++++++++++++++++++++++++++', LOG_DEBUG);
+		//$this->log($this->request->data['body-result'], LOG_DEBUG);
+		if (empty($this->request->data['app_version']) || $this->request->data['app_version'] < 1.24) {
+			// EntryGroup or Meet に StartLoop 設定があるのならラップ値を -1 else +1
+			
+			$sfDist = $this->__pullStartFracDist($ecat['entry_group']['start_frac_distance']
+					, $meet['Meet']['start_frac_distance']);
+			//$this->log('sf dist: ' . $sfDist, LOG_DEBUG);
+			
+			$corrVal = ($sfDist == 0) ? +1 : -1;
+			
+			foreach ($this->request->data['body-result'] as $body => &$result) {
+				if (empty($result['TimeRecord'])) continue;
+				
+				foreach ($result['TimeRecord'] as &$tr)
+				{
+					$tr['lap'] = $tr['lap'] + $corrVal;
+				}
+			}
+			unset($result);
+		}
+		//$this->log('after++++++++++++++++++++++++++++++++++++++++', LOG_DEBUG);
+		//$this->log($this->request->data['body-result'], LOG_DEBUG);
 		
 		$errs = array(); // 保存処理後の result param 計算&設定用
 		
@@ -499,6 +526,26 @@ class ApiController extends ApiBaseController
 		}
 		
 		return $this->success(array('ok')); // 件数とか？
+	}
+	
+	/**
+	 * スタート端数距離をかえす
+	 * @param type $egSf 出走グループのスタート端数距離設定値
+	 * @param type $mtSf 大会のスタート端数距離設定値
+	 */
+	private function __pullStartFracDist($egSf, $mtSf)
+	{
+		$sfDist = 0;
+		
+		if (is_null($egSf)) {
+			if (!empty($mtSf)) {
+				$sfDist = $mtSf;
+			}
+		} else {
+			$sfDist = $egSf;
+		}
+		
+		return $sfDist;
 	}
 	
 	private function __setupTermOfSeriesPoint($meetCode, $ecatName)
