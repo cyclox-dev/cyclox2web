@@ -39,13 +39,22 @@ class ResultParamCalcComponent extends Component
 	private $__rule0111 = array(
 		array('racer_count' => 10, 'up' => 1),
 	);
-	private $__rule0123 = array(
+	private $__rule0123_til167 = array( // 16-17 までのルール
 		array('racer_count' => 50, 'up' => 3),
 		array('racer_count' => 20, 'up' => 2),
 		array('racer_count' => 10, 'up' => 1),
 	);
-	private $__rule0112 = array(
+	private $__rule0123 = array(
+		array('racer_count' => 40, 'up' => 3),
+		array('racer_count' => 20, 'up' => 2),
+		array('racer_count' => 10, 'up' => 1),
+	);
+	private $__rule0112_til167 = array( // 16-17 までのルール
 		array('racer_count' => 50, 'up' => 2),
+		array('racer_count' => 10, 'up' => 1),
+	);
+	private $__rule0112 = array(
+		array('racer_count' => 40, 'up' => 2),
 		array('racer_count' => 10, 'up' => 1),
 	);
 	
@@ -193,11 +202,11 @@ class ResultParamCalcComponent extends Component
 		
 		$mtDate = new DateTime($meetDate);
 		$divDate = new DateTime('2017-04-01');
-		$this->log('meet date is before 2016-17 ? :' . ($mtDate < $divDate) , LOG_DEBUG);
+		//$this->log('meet date is before 2016-17 ? :' . ($mtDate < $divDate) , LOG_DEBUG);
 		
 		// 2017-18 に若干変更
 		if ($mtDate < $divDate) {
-			$this->log('is season before 17-18', LOG_DEBUG);
+			//$this->log('is season before 17-18', LOG_DEBUG);
 			$map = array(
 				array(
 					'started_over' => 40, 'points' => array(
@@ -225,7 +234,7 @@ class ResultParamCalcComponent extends Component
 				)
 			);
 		} else {
-			$this->log('is season aftereq 17-18', LOG_DEBUG);
+			//$this->log('is season aftereq 17-18', LOG_DEBUG);
 			$map = array(
 				array(
 					'started_over' => 39, 'points' => array(
@@ -1399,21 +1408,36 @@ class ResultParamCalcComponent extends Component
 		// 文字列で判断する
 		// パラメタから処理したいが、複雑なのでやめておく。
 		// racesCatCode => array('needs' => 必要な所属, 'to' =>昇格先)
-		$this->__rankUpMap = array(
-			'C2' => array('needs' => array('C2'), 'to' => 'C1', 'rule' => $this->__rule0111),
-			'C3' => array('needs' => array('C3'), 'to' => 'C2', 'rule' => $this->__rule0123),
-			'C4' => array('needs' => array('C4'), 'to' => 'C3', 'rule' => $this->__rule0123),
-			'C3+4' => array('needs' => array('C3', 'C4'), 'to' => 'C2', 'rule' => $this->__rule0123),
-			'CM2' => array('needs' => array('CM2'), 'to' => 'CM1', 'rule' => $this->__rule0111),
-			'CM3' => array('needs' => array('CM3'), 'to' => 'CM2', 'rule' => $this->__rule0123),
-			'CM2+3' => array('needs' => array('CM2', 'CM3'), 'to' => 'CM1', 'rule' => $this->__rule0111),
-		);
 		
-		if ($this->_isSeasonBefore1617()) {
-			// 2015-16 シーズンは C2, CM2 ともに昇格人数が1人に制限される前だった
-			$this->__rankUpMap['C2']['rule'] = $this->__rule0123;
-			$this->__rankUpMap['CM2']['rule'] = $this->__rule0112;
-			$this->__rankUpMap['CM2+3']['rule'] = $this->__rule0112;
+		if ($this->_isSeasonAfter1617()) {
+			//$this->log('is after', LOG_DEBUG);
+			$this->__rankUpMap = array(
+				// 1718 から C1, CM1 への昇格が2名に、基準人数50->40に変更。
+				'C2' => array('needs' => array('C2'), 'to' => 'C1', 'rule' => $this->__rule0112),
+				'C3' => array('needs' => array('C3'), 'to' => 'C2', 'rule' => $this->__rule0123),
+				'C4' => array('needs' => array('C4'), 'to' => 'C3', 'rule' => $this->__rule0123),
+				'C3+4' => array('needs' => array('C3', 'C4'), 'to' => 'C2', 'rule' => $this->__rule0123),
+				'CM2' => array('needs' => array('CM2'), 'to' => 'CM1', 'rule' => $this->__rule0112),
+				'CM3' => array('needs' => array('CM3'), 'to' => 'CM2', 'rule' => $this->__rule0123),
+				'CM2+3' => array('needs' => array('CM2', 'CM3'), 'to' => 'CM1', 'rule' => $this->__rule0112),
+			);
+		} else {
+			$this->__rankUpMap = array(
+				'C2' => array('needs' => array('C2'), 'to' => 'C1', 'rule' => $this->__rule0111),
+				'C3' => array('needs' => array('C3'), 'to' => 'C2', 'rule' => $this->__rule0123_til167),
+				'C4' => array('needs' => array('C4'), 'to' => 'C3', 'rule' => $this->__rule0123_til167),
+				'C3+4' => array('needs' => array('C3', 'C4'), 'to' => 'C2', 'rule' => $this->__rule0123_til167),
+				'CM2' => array('needs' => array('CM2'), 'to' => 'CM1', 'rule' => $this->__rule0111),
+				'CM3' => array('needs' => array('CM3'), 'to' => 'CM2', 'rule' => $this->__rule0123_til167),
+				'CM2+3' => array('needs' => array('CM2', 'CM3'), 'to' => 'CM1', 'rule' => $this->__rule0111),
+			);
+
+			if ($this->_isSeasonBefore1617()) {
+				// 2015-16 シーズンは C2, CM2 ともに昇格人数が1人に制限される前だった
+				$this->__rankUpMap['C2']['rule'] = $this->__rule0123_til167;
+				$this->__rankUpMap['CM2']['rule'] = $this->__rule0112_til167;
+				$this->__rankUpMap['CM2+3']['rule'] = $this->__rule0112_til167;
+			}
 		}
 	}
 	
@@ -1428,6 +1452,19 @@ class ResultParamCalcComponent extends Component
 		}
 		
 		return ($this->__atDate < '2016-04-01');
+	}
+	
+	/**
+	 * 2016-17 シーズンより後のシーズンであるかをかえす
+	 * @return boolean 
+	 */
+	private function _isSeasonAfter1617()
+	{
+		if (empty($this->__atDate)) {
+			return true; // unlikely... 本メソッドを作成したのが1718で巻き戻りはなしので true かえす。
+		}
+		
+		return ($this->__atDate > '2017-03-31');
 	}
 	
 	/**
