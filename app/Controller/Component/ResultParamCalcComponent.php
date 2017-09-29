@@ -1044,7 +1044,7 @@ class ResultParamCalcComponent extends Component
 	private function __resetSeriesPoints($racerCode, $result, $ecatName)
 	{
 		if (empty($racerCode) || empty($result) || empty($ecatName)
-				|| empty($this->__topLapCount) || empty($this->__started)) {
+				|| !isset($this->__topLapCount) || empty($this->__started)) {
 			return Constant::RET_ERROR;
 		}
 		
@@ -1371,7 +1371,7 @@ class ResultParamCalcComponent extends Component
 			
 			if (!empty($r['lap'])) {
 				$lap = $r['lap'];
-				if ($lap > $this->__topLapCount) {
+				if (!isset($this->__topLapCount) || $lap > $this->__topLapCount) {
 					$this->__topLapCount = $lap;
 				}
 			}
