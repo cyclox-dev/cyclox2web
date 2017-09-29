@@ -20,6 +20,7 @@ class PointCalculator extends Object
 	public static $CCM_167;
 	public static $TKI_178;
 	public static $KNT_178;
+	public static $THK_178;
 	
 	private static $TABLE_JCX156_GRADE1 = array(
 		300, 240, 210, 180, 165, 150, 135, 120, 105, 90, 
@@ -66,6 +67,10 @@ class PointCalculator extends Object
 		2, 2, 2, 2, 2, 2, 2, 1, 1, 1,
 	);
 	const RUN_PT_TKI178 = 1;
+	
+	private static $TABLE_THK178 = array(
+		40,30,20,15,10,8,6,4,2,1
+	);
 	
 	// const として
 	const __KEY_STARTED_OVER = 'started_over';
@@ -245,6 +250,18 @@ class PointCalculator extends Object
 			. '</br>ポイントテーブル</br>' . $str;
 		self::$KNT_178 = new PointCalculator(6, 'KNT-178', '2017-18 関東地方のポイントテーブル。17-18 AJOCC ポイントと同じ。グレード指定なし。', $text);
 		
+		$str = '';
+		for ($i = 0; $i < count(self::$TABLE_THK178); $i++) {
+			$str .= ' ' . self::$TABLE_THK178[$i] . ',';
+			if (($i + 1) % 10 == 0) {
+				$str .= '</br>';
+			}
+		}
+		$text = '2017-18 東北 CX のシリーズランキングのために作られたポイントテーブル。順位があるリザルトに対してのみポイントが付与される（DNS,DNF に対してポイントは無し）。'
+			. 'ボーナス、出走ポイントは無し。グレードの指定は必要ない。</br>---</br>'
+			. 'ポイントテーブル</br>' . $str;
+		self::$THK_178 = new PointCalculator(7, 'THK-178', '2017-18 東北 CX のポイントテーブル。ポイントは10位まで。', $text);
+		
 		self::$calculators = array(
 			self::$JCX_156,
 			self::$KNS_156,
@@ -252,6 +269,7 @@ class PointCalculator extends Object
 			self::$CCM_167,
 			self::$TKI_178,
 			self::$KNT_178,
+			self::$THK_178,
 		);
 	}
 	
@@ -310,6 +328,7 @@ class PointCalculator extends Object
 			case self::$CCM_167->val(): $pt = $this->__calcCCM167($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$TKI_178->val(): $pt = $this->__calcTKI167($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$KNT_178->val(): $pt = $this->__calcKNT178($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
+			case self::$THK_178->val(): $pt = $this->__calcTHK178($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 		}
 		
 		if (empty($pt['point']) && empty($pt['bonus'])) {
@@ -559,6 +578,33 @@ class PointCalculator extends Object
 					$point = $ptTable[self::__KEY_TABLE][$rankIndex];
 				}
 				break;
+			}
+		}
+		
+		$pointMap = array();
+		$pointMap['point'] = $point;
+		
+		// 完走ボーナスは無し。
+		
+		return $pointMap;
+	}
+	
+	/**
+	 * 2017-18シーズンの東北 CX のポイントをかえす。
+	 */
+	private function __calcTHK178($result, $grade, $raceLapCount, $raceStartedCount, $meetDate)
+	{
+		$pointSet = array(
+			'rank_pt' => self::$TABLE_THK178,
+		);
+		
+		$point = 0;
+		if (!empty($result['rank']))
+		{
+			$rankIndex = $result['rank'] - 1;
+
+			if (isset($pointSet['rank_pt'][$rankIndex])) {
+				$point = $pointSet['rank_pt'][$rankIndex];
 			}
 		}
 		
