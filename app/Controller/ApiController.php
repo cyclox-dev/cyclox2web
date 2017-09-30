@@ -522,7 +522,15 @@ class ApiController extends ApiBaseController
 		if (count($errs) == 0) {
 			$this->log('リザルトが設定されていません。', LOG_DEBUG);
 		} else {
-			$this->ResultParamCalc->reCalcResults($ecat['id']);
+			$ret = $this->ResultParamCalc->reCalcResults($ecat['id']);
+		
+			if (emptY($ret) || $ret == Constant::RET_FAILED) {
+				$this->log('リザルト計算処理に失敗しました。', LOG_ERR);
+				// not return
+			} else if ($ret == Constant::RET_NO_ACTION) {
+				$this->log(__('出走する選手もしくはリザルトが設定されていません。'), LOG_INFO);
+				// not return
+			}
 		}
 		
 		return $this->success(array('ok')); // 件数とか？
