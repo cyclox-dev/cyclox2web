@@ -30,7 +30,7 @@ class ApiController extends ApiBaseController
 		'Meet', 'CategoryRacer', 'Racer', 'MeetGroup', 'Season',
 		'EntryGroup', 'EntryCategory', 'EntryRacer', 'RacerResult', 'TimeRecord', 'HoldPoint',
 		'PointSeries', 'MeetPointSeries', 'PointSeriesRacer', 'RacesCategory',
-		'Category', 'CategoryGroup', 'NameChangeLog');
+		'Category', 'CategoryGroup', 'NameChangeLog', 'TmpResultUpdateFlag');
 	
 	public $components = array('Session', 'RequestHandler', 'ResultParamCalc', 'UnifiedRacer', 'AgedCategory');
 	
@@ -531,6 +531,17 @@ class ApiController extends ApiBaseController
 				$this->log(__('出走する選手もしくはリザルトが設定されていません。'), LOG_INFO);
 				// not return
 			}
+		}
+		
+		$flag = array(
+			'TmpResultUpdateFlag' => array(
+				'entry_category_id' => $ecat['id'],
+				'result_updated' => date('Y-m-d H:i:s'),
+			)
+		);
+		
+		if (!$this->TmpResultUpdateFlag->save($flag)) {
+			$this->log('リザルト更新フラグの保存に失敗しました。', LOG_WARNING);
 		}
 		
 		return $this->success(array('ok')); // 件数とか？

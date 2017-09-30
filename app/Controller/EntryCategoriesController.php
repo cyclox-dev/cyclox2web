@@ -11,7 +11,7 @@ App::uses('ApiBaseController', 'Controller');
  */
 class EntryCategoriesController extends ApiBaseController
 {
-	public $uses = array('EntryCategory', 'EntryRacer', 'PointSeries');
+	public $uses = array('EntryCategory', 'EntryRacer', 'PointSeries', 'TmpResultUpdateFlag');
 	
 /**
  * Components
@@ -236,6 +236,17 @@ class EntryCategoriesController extends ApiBaseController
 			return $this->Flash->set('処理に失敗しました。');
 		} else if ($ret == Constant::RET_NO_ACTION) {
 			return $this->Flash->set(__('出走する選手もしくはリザルトが設定されていません。'));
+		}
+		
+		$flag = array(
+			'TmpResultUpdateFlag' => array(
+				'entry_category_id' => $ecatId,
+				'result_updated' => date('Y-m-d H:i:s'),
+			)
+		);
+		
+		if (!$this->TmpResultUpdateFlag->save($flag)) {
+			$this->log('リザルト更新フラグの保存に失敗しました。', LOG_WARNING);
 		}
 		
 		return $this->redirect(array('action' => 'view', $ecatId));
