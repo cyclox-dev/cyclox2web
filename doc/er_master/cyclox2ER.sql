@@ -2,13 +2,13 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 /* Drop Tables */
 
-DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS category_races_categories;
+DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
-DROP TABLE IF EXISTS time_records;
 DROP TABLE IF EXISTS hold_points;
 DROP TABLE IF EXISTS point_series_racers;
+DROP TABLE IF EXISTS time_records;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
 DROP TABLE IF EXISTS entry_categories;
@@ -21,6 +21,7 @@ DROP TABLE IF EXISTS meets;
 DROP TABLE IF EXISTS meet_groups;
 DROP TABLE IF EXISTS name_change_logs;
 DROP TABLE IF EXISTS parm_vars;
+DROP TABLE IF EXISTS tmp_point_series_racer_sets;
 DROP TABLE IF EXISTS point_series;
 DROP TABLE IF EXISTS unite_racer_log;
 DROP TABLE IF EXISTS racers;
@@ -498,6 +499,28 @@ CREATE TABLE time_record_info
 	PRIMARY KEY (id),
 	UNIQUE (id),
 	UNIQUE (entry_group_id)
+);
+
+
+CREATE TABLE tmp_point_series_racer_sets
+(
+	id int unsigned NOT NULL AUTO_INCREMENT,
+	point_series_id int unsigned NOT NULL,
+	-- タイトル行、選手データ行の別などを表す。
+	type tinyint unsigned NOT NULL,
+	-- タイトル号はゼロ
+	rank int unsigned NOT NULL,
+	-- 例）THK-134-0002
+	-- 標準では12文字になるが、最後が4桁を超える可能性ありとして長さ16文字としている。
+	racer_code varchar(16) BINARY NOT NULL,
+	name varchar(255) BINARY,
+	team varchar(255) BINARY,
+	point_json text BINARY,
+	sumup_json text BINARY,
+	created datetime,
+	modified datetime,
+	PRIMARY KEY (id),
+	UNIQUE (id)
 );
 
 
