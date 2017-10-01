@@ -105,18 +105,30 @@ class ResultShell extends AppShell
 			//$this->log('set is', LOG_DEBUG);
 			//$this->log($sets, LOG_DEBUG);
 			
+			//>>> transaction ++++++++++++++++++++++++++++++++++++++++
+			$transaction = $this->TransactionManager->begin();
 			// 前回計算分を削除
-			
-			
-			
+			$cdt = array('point_series_id' => $ps['PointSeries']['id']);
+			if (!$this->TmpPointSeriesRacerSet->deleteAll($cdt, false)) {
+				$this->log('ポイントシリーズ[id:' . $psidStr . '] の集計（前回データの削除）に失敗しました。\n'
+						. '処理を中断します。', LOG_ERR);
+				$this->TransactionManager->rollback($transaction);
+				return;
+			}
 
 			if (count($sets) > 1) {
 				if (!$this->TmpPointSeriesRacerSet->saveAll($sets)) {
 					$this->log('ポイントシリーズ[id:' . $psidStr . '] の集計（一時データの作成）に失敗しました。\n'
 						. '処理を中断します。', LOG_ERR);
+					$this->TransactionManager->rollback($transaction);
 					return;
 				}
 			}
+			
+			$this->TransactionManager->commit($transaction);
+			//<<< transaction ++++++++++++++++++++++++++++++++++++++++
+			
+			$this->log('pt series[id:' . $psid . '] について集計処理完了。', LOG_INFO);
 		}
 
 		// すべての tmp_result_update_flags のステータスを変更する
