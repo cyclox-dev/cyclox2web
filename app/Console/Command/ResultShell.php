@@ -240,8 +240,8 @@ class ResultShell extends AppShell
 			return null;
 		}
 
+		$points = array();
 		for ($i = 0; $i < count($mpss); $i++) {
-			$points = array();
 			if (isset($racerPoints[$rpUnit->code][$i])) {
 				$point = $racerPoints[$rpUnit->code][$i];
 				$str = '';
@@ -251,7 +251,7 @@ class ResultShell extends AppShell
 				if (!empty($point['bonus'])) {
 					$str .= '+' . $point['bonus'];
 				}
-
+		
 				$points[$i] = $str;
 			}
 		}
