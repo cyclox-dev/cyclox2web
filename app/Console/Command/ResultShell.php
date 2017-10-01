@@ -45,8 +45,6 @@ class ResultShell extends AppShell
 	{
 		$this->log('>>> Start updateSeriesRankings', LOG_INFO);
 		
-		// TODO: Transaction の利用
-		// TODO: 前データの削除処理
 		// TODO: mail report
 		
 		// フラグの立っているものを抽出
@@ -64,7 +62,7 @@ class ResultShell extends AppShell
 			)
 		);
 		$flags = $this->TmpResultUpdateFlag->find('all', $opt);
-		$this->log($flags, LOG_DEBUG);
+		//$this->log($flags, LOG_DEBUG);
 
 		// レースが登録されているシリーズを取得
 		$psids = $this->__getPsIds($flags);
@@ -91,9 +89,9 @@ class ResultShell extends AppShell
 			$teamMap = $ret['teamMap'];
 			$racerPoints = $ret['racerPoints'];
 			
-			$psidStr .= $ps['PointSeries']['id'] . ',';
-			
 			if (empty($racerPoints)) continue;
+			
+			$psidStr .= $ps['PointSeries']['id'] . ',';
 			
 			$titleRow = $this->__createPsrSetTitle($mpss, $ranking, $ps);
 			$sets[] = $titleRow;
@@ -132,6 +130,7 @@ class ResultShell extends AppShell
 				. '集計自体は済んでいますが、次回に再度（つまり無駄な）更新処理が走ってしまいます。', LOG_ERR);
 			// not return
 		}
+		$this->log('TmpResultUpdateFlag のステータス切替について完了。', LOG_INFO);
 		
 		// 後処理として、deleted EntryCategory を指定している flag は削除してしまう。
 		$this->TmpResultUpdateFlag->Behaviors->unload('Containable');
@@ -144,6 +143,7 @@ class ResultShell extends AppShell
 			$this->log('集計済みでないが、EntryCategory.deleted なデータの削除に失敗しました。', LOG_ERR);
 			// not return
 		}
+		$this->log('既に無効となっている TmpResultUpdateFlag の削除について完了。', LOG_INFO);
 		
 		$this->log('<<< End updateSeriesRankings', LOG_INFO);
 	}
