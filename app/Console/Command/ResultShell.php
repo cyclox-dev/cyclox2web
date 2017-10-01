@@ -7,6 +7,7 @@
 App::uses('PointSeriesController', 'Controller');
 App::uses('PointSeriesSumUpRule', 'Cyclox/Const');
 App::uses('CakeTime', 'Utility');
+App::uses('MailReporter', 'Cyclox/Util');
 
 /**
  * リザルトに関する処理を行なう shell
@@ -45,8 +46,6 @@ class ResultShell extends AppShell
 	{
 		$this->log('>>> Start updateSeriesRankings', LOG_INFO);
 		
-		// TODO: mail report
-		
 		// フラグの立っているものを抽出
 		$this->TmpResultUpdateFlag->Behaviors->load('Containable');
 		
@@ -75,8 +74,6 @@ class ResultShell extends AppShell
 		}
 		
 		// シリーズを更新
-		$psidStr = ''; // ログ用
-		
 		foreach ($psids as $psid) {
 			$sets = array();
 			
@@ -90,8 +87,6 @@ class ResultShell extends AppShell
 			$racerPoints = $ret['racerPoints'];
 			
 			if (empty($racerPoints)) continue;
-			
-			$psidStr .= $ps['PointSeries']['id'] . ',';
 			
 			$titleRow = $this->__createPsrSetTitle($mpss, $ranking, $ps);
 			$sets[] = $titleRow;
@@ -110,17 +105,19 @@ class ResultShell extends AppShell
 			// 前回計算分を削除
 			$cdt = array('point_series_id' => $ps['PointSeries']['id']);
 			if (!$this->TmpPointSeriesRacerSet->deleteAll($cdt, false)) {
-				$this->log('ポイントシリーズ[id:' . $psidStr . '] の集計（前回データの削除）に失敗しました。\n'
-						. '処理を中断します。', LOG_ERR);
 				$this->TransactionManager->rollback($transaction);
+				$msg = 'ポイントシリーズ[id:' . $psid . '] の集計（前回データの削除）に失敗しまし、処理を中断しました。';
+				$this->log($msg, LOG_ERR);
+				MailReporter::report('ResultShell#updateSeriesRankings ' . $msg, 'ERROR');
 				return;
 			}
 
 			if (count($sets) > 1) {
 				if (!$this->TmpPointSeriesRacerSet->saveAll($sets)) {
-					$this->log('ポイントシリーズ[id:' . $psidStr . '] の集計（一時データの作成）に失敗しました。\n'
-						. '処理を中断します。', LOG_ERR);
 					$this->TransactionManager->rollback($transaction);
+					$msg = 'ポイントシリーズ[id:' . $psid . '] の集計（データの作成）に失敗しまし、処理を中断しました。';
+					$this->log($msg, LOG_ERR);
+					MailReporter::report('ResultShell#updateSeriesRankings ' . $msg, 'ERROR');
 					return;
 				}
 			}
@@ -138,8 +135,10 @@ class ResultShell extends AppShell
 			'modified' => "'" . date('Y-m-d H:i:s') . "'", // updateAll だと Date にシングルクォートつけてくれないみたい。
 		);
 		if (!$this->TmpResultUpdateFlag->updateAll($ups, $opt)) {
-			$this->log('出走カテゴリー [id:' . implode(',', $ecatIds) . '] の集計済み日時の設定に失敗しました。\n'
-				. '集計自体は済んでいますが、次回に再度（つまり無駄な）更新処理が走ってしまいます。', LOG_ERR);
+			$msg = '出走カテゴリー [id:' . implode(',', $ecatIds) . '] の集計済み日時の設定に失敗しました。\n'
+				. '集計自体は済んでいますが、次回に再度（つまり無駄な）更新処理が走ってしまいます。';
+			$this->log($msg, LOG_WARNING);
+			MailReporter::report('ResultShell#updateSeriesRankings ' . $msg, 'Warn');
 			// not return
 		}
 		$this->log('TmpResultUpdateFlag のステータス切替について完了。', LOG_INFO);
@@ -152,7 +151,9 @@ class ResultShell extends AppShell
 		);
 		
 		if (!$this->TmpResultUpdateFlag->deleteAll($opt, false)) {
-			$this->log('集計済みでないが、EntryCategory.deleted なデータの削除に失敗しました。', LOG_ERR);
+			$msg = '集計済みでないが、EntryCategory.deleted なデータの削除に失敗しました。';
+			$this->log($msg, LOG_WARNING);
+			MailReporter::report('ResultShell#updateSeriesRankings ' . $msg, 'Warn');
 			// not return
 		}
 		$this->log('既に無効となっている TmpResultUpdateFlag の削除について完了。', LOG_INFO);
