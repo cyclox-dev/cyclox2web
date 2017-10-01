@@ -1173,7 +1173,7 @@ class ApiController extends ApiBaseController
 		}
 		
 		if (!empty($restoredCodeDeleted)) {
-			$codes = array();
+			$codes = '';
 			foreach ($restoredCodeDeleted as $cd) {
 				$codes .= $cd . ', ';
 			}
