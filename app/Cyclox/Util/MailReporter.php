@@ -51,7 +51,7 @@ class MailReporter
 				}
 			}
 
-			$Email->subject('Cyclox2 ' . $titleSub .'Report [' . $request->host() . ']')->send($text);
+			$Email->subject('Cyclox2 ' . $titleSub .' Report [' . $request->host() . ']')->send($text);
 		}
 	}
 }
