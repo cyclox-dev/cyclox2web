@@ -209,8 +209,8 @@ class ResultShell extends AppShell
 				'racer_code' => '選手Code',
 				'name' => '選手',
 				'team' => 'チーム',
-				'point_json' => json_encode($meetTitles),
-				'sumup_json' => json_encode($totalTitles),
+				'point_json' => json_encode($meetTitles, JSON_UNESCAPED_UNICODE),
+				'sumup_json' => json_encode($totalTitles, JSON_UNESCAPED_UNICODE),
 			)
 		);
 		
