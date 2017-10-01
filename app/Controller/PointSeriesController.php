@@ -269,8 +269,8 @@ class PointSeriesController extends ApiBaseController
 				}
 			}
 		}
-		$this->log('cat limit:', LOG_DEBUG);
-		$this->log($catLimit, LOG_DEBUG);
+		//$this->log('cat limit:', LOG_DEBUG);
+		//$this->log($catLimit, LOG_DEBUG);
 		
 		$dt = ($date == null) ? date('Y-m-d') : $date;
 		
