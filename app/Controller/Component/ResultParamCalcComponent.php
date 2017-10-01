@@ -1369,7 +1369,7 @@ class ResultParamCalcComponent extends Component
 		foreach ($results as $result) {
 			$r = $result['RacerResult'];
 			
-			if (!empty($r['lap'])) {
+			if (isset($r['lap'])) {
 				$lap = $r['lap'];
 				if (!isset($this->__topLapCount) || $lap > $this->__topLapCount) {
 					$this->__topLapCount = $lap;
