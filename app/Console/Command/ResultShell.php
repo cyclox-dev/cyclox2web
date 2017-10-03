@@ -207,6 +207,7 @@ class ResultShell extends AppShell
 				'name' => $mps['MeetPointSeries']['express_in_series'],
 				'code' => $mps['MeetPointSeries']['meet_code'],
 				'entry_category_name' => $mps['MeetPointSeries']['entry_category_name'],
+				'at_date' => $mps['Meet']['at_date'],
 			);
 		}
 
