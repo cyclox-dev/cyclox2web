@@ -371,10 +371,6 @@ class PointSeriesController extends ApiBaseController
 				
 				if (empty($nameMap[$racerCode])) {
 					$name = $psr['Racer']['family_name'] . ' ' . $psr['Racer']['first_name'];
-					if ($this->__isLessElite($psr['Racer']['birth_date'], $mps['PointSeries']['season_id'])) {
-						$name .= '*';
-					}
-					
 					$nameMap[$racerCode] = $name;
 				}
 				// $psr['Racer']['team'] は現在のチーム名とは異なる可能性もあるので、格納しない（出走チーム名無しの場合）。
@@ -383,6 +379,12 @@ class PointSeriesController extends ApiBaseController
 				if (!empty($psr['RacerResult']['EntryRacer']['name_at_race'])) {
 					$nameMap[$racerCode] = $psr['RacerResult']['EntryRacer']['name_at_race'];
 				}
+				if (!empty($nameMap[$racerCode])) {
+					if ($this->__isLessElite($psr['Racer']['birth_date'], $mps['PointSeries']['season_id'])) {
+						$nameMap[$racerCode] .= '*';
+					}
+				}
+				
 				if (!empty($psr['RacerResult']['EntryRacer']['team_name'])) {
 					if (!Validation::email($psr['RacerResult']['EntryRacer']['team_name'])) {
 						$teamMap[$racerCode] = $psr['RacerResult']['EntryRacer']['team_name'];
