@@ -32,13 +32,22 @@ class PointSeriesController extends ApiBaseController
 	const __PATH_RANKING = 'cyclox2/point_series/rankings';
 	const __RANKING_FILE_PREFIX = 'ranking_';
 
-
+	public $paginate = array(
+		'limit' => 30,
+        'order' => array(
+			'PointSeries.season_id' => 'DESC',
+			'PointSeries.id' => 'ASC',
+        )
+    );
+	
 /**
  * index method
  *
  * @return void
  */
 	public function index() {
+		$this->Paginator->settings = $this->paginate;
+		
 		$this->PointSeries->recursive = 0;
 		$this->set('pointSeries', $this->Paginator->paginate());
 	}

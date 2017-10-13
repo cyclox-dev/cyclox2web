@@ -20,21 +20,41 @@
 	</div>
 </div>
 <div>
-<?php if (!empty($links)): ?>
-<table style="width:auto;">
-	<?php foreach ($links as $id => $name): ?>
+<?php if (!empty($pss)): ?>
+<?php $noseason = false; ?>
+<?php foreach ($pss as $ps): ?>
+	
+	<?php
+		$sname = $ps['Season']['name'];
+		
+		if (!$noseason) {
+			if (isset($seasonExp) && $sname != $seasonExp) {
+				echo '</table>';
+			}
+			if (!isset($seasonExp) || $sname != $seasonExp) {
+				$name = empty($sname) ? 'シーズン指定なし' : $sname;
+				echo '<h3>' . $name . '</h3>';
+				echo '<table style="width:auto;">';
+				$seasonExp = $sname;
+				
+				if (empty($sname)) {
+					$noseason = true;
+				}
+			}
+		}
+	?>
 	<tr>
 		<td>
-			<?php echo $name; ?>
+			<?php echo $ps['PointSeries']['name']; ?>
 		</td>
 		<td>
 			<?php
 			$opt = array(
 				'url' => array('controller' => 'PointSeries', 'action' => 'calcup'),
-				'id' => 'calcup_form' . $id
+				'id' => 'calcup_form' . $ps['PointSeries']['id']
 			);
 			echo $this->Form->create(false, $opt);
-			echo $this->Form->hidden('point_series_id', array('value' => $id));
+			echo $this->Form->hidden('point_series_id', array('value' => $ps['PointSeries']['id']));
 			echo $this->Form->end(array(
 				'label' => 'ランキングファイルを更新', 
 				'div' => array(
@@ -48,13 +68,13 @@
 			echo $this->Form->postButton(
 				h('Download'),
 				array('controller' => 'PointSeries', 'action' => 'download_point_ranking_csv'),
-				array('data' => array('point_series_id' => $id))
+				array('data' => array('point_series_id' => $ps['PointSeries']['id']))
 			);
 			?>
 		</td>
 	</tr>
 <?php endforeach; ?>
-</table>
+<?php if (count($pss) > 0) echo '</table>'; ?>
 <?php endif; ?>
 </div>
 <script>
