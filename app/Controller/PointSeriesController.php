@@ -240,7 +240,12 @@ class PointSeriesController extends ApiBaseController
 		
 		$this->Flash->set(h($ps['PointSeries']['name'] . 'のランキングファイルを更新しました。'));
 		
-		$this->redirect(array('controller' => 'OrgUtil', 'action' => 'point_series_csv_links'));
+		$redTo = array('controller' => 'OrgUtil', 'action' => 'point_series_csv_links');
+		if (!empty($this->request->data['search'])) {
+			$redTo['?'] = array('search' => $this->request->data['search']);
+		}
+		
+		$this->redirect($redTo);
 	}
 	
 	/**

@@ -538,13 +538,24 @@ class OrgUtilController extends ApiBaseController
 	
 	public function point_series_csv_links()
 	{
+		//$this->log($this->request->query['search'], LOG_DEBUG);
+		
 		$opt = array('order' => array(
 			'season_id' => 'DESC',
 			'PointSeries.id' => 'ASC'
 		));
 		
+		if (!empty($this->request->query['search'])) {
+			$opt['conditions'] = array(
+				'PointSeries.name like' => '%' . $this->request->query['search'] . '%'
+			);
+			
+			$this->set('search', $this->request->query['search']);
+		}
+		
 		$pss = $this->PointSeries->find('all', $opt);
-		$this->log($pss, LOG_DEBUG);
+		//$this->log($pss, LOG_DEBUG);
+		
 		$this->set('pss', $pss);
 	}
 	

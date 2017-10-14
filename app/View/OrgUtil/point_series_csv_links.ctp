@@ -5,85 +5,108 @@
 ?>
 
 <div id="date_nav">
-	<div>
-		<?php
-		echo $this->Form->input('date', array(
-				'label' => 'ランキング計算基準日',
-				'type' => 'date',
-				'dateFormat' => 'YMD',
-				'monthNames' => false,
-				'div' => array(
-					'id' => 'calc_date'
-				)
-			));
-		?>
-	</div>
-</div>
-<div>
-<?php if (!empty($pss)): ?>
-<?php $noseason = false; ?>
-<?php foreach ($pss as $ps): ?>
-	
 	<?php
-		$sname = $ps['Season']['name'];
-		
-		if (!$noseason) {
-			if (isset($seasonExp) && $sname != $seasonExp) {
-				echo '</table>';
-			}
-			if (!isset($seasonExp) || $sname != $seasonExp) {
-				$name = empty($sname) ? 'シーズン指定なし' : $sname;
-				echo '<h3>' . $name . '</h3>';
-				echo '<table style="width:auto;">';
-				$seasonExp = $sname;
-				
-				if (empty($sname)) {
-					$noseason = true;
+	echo $this->Form->input('date', array(
+			'label' => 'ランキング計算基準日',
+			'type' => 'date',
+			'dateFormat' => 'YMD',
+			'monthNames' => false,
+			'div' => array(
+				'id' => 'calc_date',
+			)
+		));
+	$opt = array(
+		'url' => array('controller' => 'OrgUtil', 'action' => 'point_series_csv_links'),
+		'type' => 'get',
+	);
+	echo '<div id="search_box">';
+	echo $this->Form->create(false, $opt);
+	
+	$opt = array('type' => 'text', 'label' => false, 'placeholder' => 'キーワード');
+	if (isset($search)) {
+		$opt['value'] = $search;
+	}
+	echo $this->Form->input('search', $opt);
+	echo $this->Form->end(array(
+		'label' => '大会を絞り込む'
+	));
+	echo '</div>';
+	?>
+</div>
+<?php if (empty($pss)): ?>
+<p>表示するポイントシリーズがありません。</p>
+<?php else: ?>
+<div id="pss_container">
+	<?php $noseason = false; ?>
+	<?php foreach ($pss as $ps): ?>
+
+		<?php
+			$sname = $ps['Season']['name'];
+
+			if (!$noseason) {
+				if (isset($seasonExp) && $sname != $seasonExp) {
+					echo '</table>';
+				}
+				if (!isset($seasonExp) || $sname != $seasonExp) {
+					$name = empty($sname) ? 'シーズン指定なし' : $sname;
+					echo '<h3>' . h($name) . '</h3>';
+					echo '<table style="width:auto;">';
+					$seasonExp = $sname;
+
+					if (empty($sname)) {
+						$noseason = true;
+					}
 				}
 			}
-		}
-	?>
-	<tr>
-		<td>
-			<?php echo $ps['PointSeries']['name']; ?>
-		</td>
-		<td>
-			<?php
-			$opt = array(
-				'url' => array('controller' => 'PointSeries', 'action' => 'calcup'),
-				'id' => 'calcup_form' . $ps['PointSeries']['id']
-			);
-			echo $this->Form->create(false, $opt);
-			echo $this->Form->hidden('point_series_id', array('value' => $ps['PointSeries']['id']));
-			echo $this->Form->end(array(
-				'label' => 'ランキングファイルを更新', 
-				'div' => array(
-					'style' => 'padding:0; margin-bottom:0; margin-top:0;'
-				)
-			));
-			?>
-		</td>
-		<td>
-			<?php
-			echo $this->Form->postButton(
-				h('Download'),
-				array('controller' => 'PointSeries', 'action' => 'download_point_ranking_csv'),
-				array('data' => array('point_series_id' => $ps['PointSeries']['id']))
-			);
-			?>
-		</td>
-	</tr>
-<?php endforeach; ?>
-<?php if (count($pss) > 0) echo '</table>'; ?>
-<?php endif; ?>
+		?>
+		<tr>
+			<td>
+				<?php echo h($ps['PointSeries']['name']); ?>
+			</td>
+			<td>
+				<?php
+				$opt = array(
+					'url' => array('controller' => 'PointSeries', 'action' => 'calcup'),
+					'id' => 'calcup_form' . $ps['PointSeries']['id']
+				);
+				echo $this->Form->create(false, $opt);
+				echo $this->Form->hidden('point_series_id', array('value' => $ps['PointSeries']['id']));
+				if (isset($search)) {
+					echo $this->Form->hidden('search', array('value' => $search));
+				}
+				echo $this->Form->end(array(
+					'label' => 'ランキングファイルを更新', 
+					'div' => array(
+						'style' => 'padding:0; margin-bottom:0; margin-top:0;'
+					)
+				));
+				?>
+			</td>
+			<td>
+				<?php
+				echo $this->Form->postButton(
+					h('Download'),
+					array('controller' => 'PointSeries', 'action' => 'download_point_ranking_csv'),
+					array('data' => array('point_series_id' => $ps['PointSeries']['id']))
+				);
+				?>
+			</td>
+		</tr>
+	<?php endforeach; ?>
+	<?php if (count($pss) > 0) echo '</table>'; ?>
 </div>
+<?php endif; ?>
 <script>
 	$(function() {
 		$(window).on('load resize scroll', function(){
 			if ($(window).scrollTop() > 80) {
 				$('#date_nav').addClass('fixed');
+				$('#pss_container').css('margin-top', $('#date_nav').outerHeight());
+				$('#pss_container').css('margin-bottom', 0);
 			} else {
 				$('#date_nav').removeClass('fixed');
+				$('#pss_container').css('margin-top', 0);
+				$('#pss_container').css('margin-bottom', 80); // スクロール飛び防止
 			}
 		});
 		
