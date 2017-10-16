@@ -1055,9 +1055,25 @@ class ResultParamCalcComponent extends Component
 		
 		$conditions = array(
 			'meet_code' => $this->__meetCode,
-			'entry_category_name' => $ecatName
 		);
+		
 		$pts = $this->MeetPointSeries->find('all', array('conditions' => $conditions));
+		
+		// ecat.name にワイルドカードを設定したいのでプログラム側で走査
+		$tmpPts = array();
+		foreach ($pts as $ptSetting) {
+			$mpsName = $ptSetting['MeetPointSeries']['entry_category_name'];
+			if ($mpsName === $ecatName) { // 実際の出走カテゴリー名に含まれるワイルドカード文字は考慮しない
+				$tmpPts[] = $ptSetting;
+			} else if ($this->__endsWith($mpsName, '*')) {
+				$nameBody = substr($mpsName, 0, -1);
+				if ($this->__startsWith($ecatName, $nameBody)) {
+					//$this->log('match!', LOG_DEBUG);
+					$tmpPts[] = $ptSetting;
+				}
+			}
+		}
+		$pts = $tmpPts;
 		
 		$rStatus = Constant::RET_SUCCEED;
 		
@@ -1161,6 +1177,14 @@ class ResultParamCalcComponent extends Component
 		$this->log('残留ポイント save toResult:' . $result['id'] . ' pt:' . $point . ' as ' . $asCat, LOG_DEBUG);
 		
 		return Constant::RET_SUCCEED;
+	}
+	
+	private function __startsWith($haystack, $needle) {
+		return substr($haystack, 0, strlen($needle)) === $needle;
+	}
+	
+	private function __endsWith($haystack, $needle) {
+		return substr($haystack, - strlen($needle)) === $needle;
 	}
 	
 	/**

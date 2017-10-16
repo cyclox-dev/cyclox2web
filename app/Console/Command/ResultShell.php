@@ -175,7 +175,7 @@ class ResultShell extends AppShell
 			$opt = array(
 				'conditions' => array(
 					'meet_code' => $flag['EntryCategory']['EntryGroup']['meet_code'],
-					'entry_category_name' => $flag['EntryCategory']['name'],
+					// 'entry_category_name' => $flag['EntryCategory']['name'], match or not をプログラム側で走査する
 					'MeetPointSeries.deleted' => 0,
 				)
 			);
@@ -183,6 +183,22 @@ class ResultShell extends AppShell
 			$mpss = $this->MeetPointSeries->find('all', $opt);
 			//$this->log('mps:', LOG_DEBUG);
 			//$this->log($mps, LOG_DEBUG);
+			
+			$tmpMpss = array();
+			foreach ($mpss as $mps) {
+				// mps.ecat_name にワイルドカードが含まれるのでプログラム側で走査
+				$mpsName = $mps['MeetPointSeries']['entry_category_name'];
+				$fecname = $flag['EntryCategory']['name'];
+				if ($mpsName === $fecname) {
+					$tmpMpss[] = $mps;
+				} else if ($this->__endsWith($mpsName, '*')) {
+					$nameBody = substr($mpsName, 0, -1);
+					if ($this->__startsWith($fecname, $nameBody)) {
+						$tmpMpss[] = $mps;
+					}
+				}
+			}
+			$mpss = $tmpMpss;
 			
 			foreach ($mpss as $mps) {
 				$psid = $mps['PointSeries']['id'];
@@ -195,6 +211,14 @@ class ResultShell extends AppShell
 		return $psids;
 	}
 	
+	private function __startsWith($haystack, $needle) {
+		return substr($haystack, 0, strlen($needle)) === $needle;
+	}
+	
+	private function __endsWith($haystack, $needle) {
+		return substr($haystack, - strlen($needle)) === $needle;
+	}
+	
 	/**
 	 * ポイントシリーズデータのタイトル行を作成する
 	 * @return array
@@ -203,12 +227,19 @@ class ResultShell extends AppShell
 	{
 		$meetTitles = array();
 		foreach ($mpss as $mps) {
-			$meetTitles[] = array(
+			$title = array(
 				'name' => $mps['MeetPointSeries']['express_in_series'],
 				'code' => $mps['MeetPointSeries']['meet_code'],
-				'entry_category_name' => $mps['MeetPointSeries']['entry_category_name'],
 				'at_date' => $mps['Meet']['at_date'],
 			);
+			
+			// ワイルドカードなければ ecat.name を設定する
+			$mpsEcatName = $mps['MeetPointSeries']['entry_category_name'];
+			if (!$this->__endsWith($mpsEcatName, '*')) {
+				$title['entry_category_name'] = $mpsEcatName;
+			}
+			
+			$meetTitles[] = $title;
 		}
 
 		$totalTitles = $ranking['rank_pt_title'];

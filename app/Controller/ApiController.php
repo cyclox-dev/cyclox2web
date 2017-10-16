@@ -576,10 +576,24 @@ class ApiController extends ApiBaseController
 		$opt = array(
 			'conditions' => array(
 				'meet_code' => $meetCode,
-				'entry_category_name' => $ecatName
 			)
 		);
 		$mpss = $this->MeetPointSeries->find('all', $opt);
+		
+		$tmpMpss = array();
+		foreach ($mpss as $mps) {
+			// mps.ecat_name にワイルドカードが含まれるのでプログラム側で走査
+			$mpsEcat = $mps['MeetPointSeries']['entry_category_name'];
+			if ($mpsEcat === $ecatName) {
+				$tmpMpss[] = $mps;
+			} else if ($this->__endsWith($mpsEcat, '*')) {
+				$nameBody = substr($mpsEcat, 0, -1);
+				if ($this->__startsWith($ecatName, $nameBody)) {
+					$tmpMpss[] = $mps;
+				}
+			}
+		}
+		$mpss = $tmpMpss;
 		
 		if (empty($mpss)) {
 			return true;
@@ -625,6 +639,14 @@ class ApiController extends ApiBaseController
 		}
 		
 		return true;
+	}
+	
+	private function __startsWith($haystack, $needle) {
+		return substr($haystack, 0, strlen($needle)) === $needle;
+	}
+	
+	private function __endsWith($haystack, $needle) {
+		return substr($haystack, - strlen($needle)) === $needle;
 	}
 	
 	/**
