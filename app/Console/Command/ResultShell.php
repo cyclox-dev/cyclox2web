@@ -106,7 +106,7 @@ class ResultShell extends AppShell
 			$cdt = array('point_series_id' => $ps['PointSeries']['id']);
 			if (!$this->TmpPointSeriesRacerSet->deleteAll($cdt, false)) {
 				$this->TransactionManager->rollback($transaction);
-				$msg = 'ポイントシリーズ[id:' . $psid . '] の集計（前回データの削除）に失敗しまし、処理を中断しました。';
+				$msg = 'ポイントシリーズ[id:' . $psid . '] の集計（前回データの削除）に失敗し、処理を中断しました。';
 				$this->log($msg, LOG_ERR);
 				MailReporter::report('ResultShell#updateSeriesRankings ' . $msg, 'ERROR');
 				return;
@@ -115,7 +115,7 @@ class ResultShell extends AppShell
 			if (count($sets) > 1) {
 				if (!$this->TmpPointSeriesRacerSet->saveAll($sets)) {
 					$this->TransactionManager->rollback($transaction);
-					$msg = 'ポイントシリーズ[id:' . $psid . '] の集計（データの作成）に失敗しまし、処理を中断しました。';
+					$msg = 'ポイントシリーズ[id:' . $psid . '] の集計（データの作成）に失敗し、処理を中断しました。';
 					$this->log($msg, LOG_ERR);
 					MailReporter::report('ResultShell#updateSeriesRankings ' . $msg, 'ERROR');
 					return;
