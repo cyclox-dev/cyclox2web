@@ -70,7 +70,7 @@ class ResultShell extends AppShell
 		
 		// シリーズを更新
 		foreach ($psids as $p) {
-			$ret = $this->updateRanking($p);
+			$ret = $this->__updateRanking($p['psid'], $p['ecatids']);
 			
 			if (!$ret) {
 				$this->log('シリーズ id[' . $p['psid'] . '] の更新に失敗しました。（続行します。）', LOG_WARNING);
@@ -97,13 +97,35 @@ class ResultShell extends AppShell
 	}
 	
 	/**
-	 * 指定のポイントシリーズのランキングデータを更新する。
-	 * @param array $p {'psid'=>88, 'ecatids'=> {12, 34}} の形式のデータ。ecatids はフラグ更新用。
-	 * @return boolean 更新にせいこうしたか。
+	 * 指定 ID のポイントシリーズのランキングデータを更新する。
+	 * > app ディレクトリ
+	 * > Console/cake result updateRanking 88
 	 */
-	public function updateRanking($p)
+	public function updateRanking()
 	{
-		$psid = $p['psid'];
+		if (!isset($this->args[0])) {
+			$this->out('1つの引数（整数／ポイントシリーズ ID）が必要です。');
+			return;
+		}
+		
+		$this->out('>>> Start updateRanking');
+		
+		$ret = $this->__updateRanking($this->args[0]);
+		if (!$ret) {
+			$this->log('処理に失敗しました。', LOG_ERR);
+		}
+		
+		$this->out('<<< End updateRanking');
+	}
+	
+	/**
+	 * 指定のポイントシリーズのランキングデータを更新する。
+	 * @param int $psid ポイントシリーズ ID
+	 * @param array $ecatids フラグ更新用。エントリーカテゴリー ID の配列。false で更新しない。
+	 * @return boolean 更新に成功したか。
+	 */
+	private function __updateRanking($psid, $ecatids = false)
+	{
 		$sets = array();
 			
 		$ret = $this->__psController->calcUpSeries($psid);
@@ -156,22 +178,23 @@ class ResultShell extends AppShell
 		$this->TransactionManager->commit($transaction);
 		//<<< transaction ++++++++++++++++++++++++++++++++++++++++
 
-		// すべての tmp_result_update_flags のステータスを変更する
-		$opt = array('entry_category_id' => $p['ecatids']);
-		$ups = array(
-			'points_sumuped' => 1,
-			'modified' => "'" . date('Y-m-d H:i:s') . "'", // updateAll だと Date にシングルクォートつけてくれないみたい。
-		);
-		if (!$this->TmpResultUpdateFlag->updateAll($ups, $opt)) {
-			$msg = '出走カテゴリー [id:' . implode(',', $p['ecatids']) . '] の集計済み日時の設定に失敗しました。\n'
-				. '集計自体は済んでいますが、次回に再度（つまり無駄な）更新処理が走ってしまいます。';
-			$this->log($msg, LOG_WARNING);
-			MailReporter::report('ResultShell#updateSeriesRankings ' . $msg, 'Warn');
-			// not return
+		if (!empty($ecatids)) {
+			// すべての tmp_result_update_flags のステータスを変更する
+			$opt = array('entry_category_id' => $ecatids);
+			$ups = array(
+				'points_sumuped' => 1,
+				'modified' => "'" . date('Y-m-d H:i:s') . "'", // updateAll だと Date にシングルクォートつけてくれないみたい。
+			);
+			if (!$this->TmpResultUpdateFlag->updateAll($ups, $opt)) {
+				$msg = '出走カテゴリー [id:' . implode(',', $ecatids) . '] の集計済み日時の設定に失敗しました。\n'
+					. '集計自体は済んでいますが、次回に再度（つまり無駄な）更新処理が走ってしまいます。';
+				$this->log($msg, LOG_WARNING);
+				MailReporter::report('ResultShell#updateSeriesRankings ' . $msg, 'Warn');
+				// not return
+			}
 		}
 
 		$this->log('pt series[id:' . $psid . '] について集計処理完了。', LOG_INFO);
-		
 		return true;
 	}
 	
