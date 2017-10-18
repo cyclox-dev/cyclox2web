@@ -317,7 +317,7 @@ class PointSeriesController extends ApiBaseController
 		
 		$mpss = $this->MeetPointSeries->find('all', $op);
 		if (empty($mpss)) {
-			throw new NotFoundException(__('Invalid point series'));
+			throw new NotFoundException(__('Invalid meet point series'));
 		}
 		
 		$meetIndex = 0;
