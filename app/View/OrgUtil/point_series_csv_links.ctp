@@ -71,9 +71,6 @@
 				);
 				echo $this->Form->create(false, $opt);
 				echo $this->Form->hidden('point_series_id', array('value' => $ps['PointSeries']['id']));
-				if (isset($search)) {
-					echo $this->Form->hidden('search', array('value' => $search));
-				}
 				echo $this->Form->end(array(
 					'label' => 'ランキングファイルを更新', 
 					'div' => array(
