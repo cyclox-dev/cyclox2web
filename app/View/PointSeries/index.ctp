@@ -18,6 +18,7 @@
 			<th><?php echo $this->Paginator->sort('point_term_rule', 'Pt期間'); ?></th>
 			<th><?php echo $this->Paginator->sort('season_id'); ?></th>
 			<th><?php echo $this->Paginator->sort('hint'); ?></th>
+			<th><?php echo 'Active?'; ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>
@@ -44,6 +45,7 @@
 			&nbsp;
 		</td>
 		<td><?php echo h($pointSeries['PointSeries']['hint']); ?>&nbsp;</td>
+		<td><?php echo ($pointSeries['PointSeries']['is_active'] ? 'Yes' : 'No'); ?>&nbsp;</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $pointSeries['PointSeries']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $pointSeries['PointSeries']['id'])); ?>

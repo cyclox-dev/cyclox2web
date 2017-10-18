@@ -63,6 +63,11 @@
 			<?php echo h($pointSeries['PointSeries']['hint']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('Is Active?'); ?></dt>
+		<dd>
+			<?php echo ($pointSeries['PointSeries']['is_active'] ? 'Yes' : 'No'); ?>
+			&nbsp;
+		</dd>
 	</dl>
 <p style="height: 1em"></p>
 <h3>Status</h3>
