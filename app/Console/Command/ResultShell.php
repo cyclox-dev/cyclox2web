@@ -68,81 +68,16 @@ class ResultShell extends AppShell
 		$this->log('更新対象のシリーズ id は以下の通り', LOG_INFO);
 		$this->log($psids, LOG_INFO);
 		
-		$ecatIds = array();
-		foreach ($flags as $f) {
-			$ecatIds[] = $f['TmpResultUpdateFlag']['entry_category_id'];
-		}
-		
 		// シリーズを更新
-		foreach ($psids as $psid) {
-			$sets = array();
+		foreach ($psids as $p) {
+			$ret = $this->updateRanking($p);
 			
-			$ret = $this->__psController->calcUpSeries($psid);
-			
-			$ranking = $ret['ranking'];
-			$ps = $ret['ps'];
-			$mpss = $ret['mpss'];
-			$nameMap = $ret['nameMap'];
-			$teamMap = $ret['teamMap'];
-			$racerPoints = $ret['racerPoints'];
-			
-			if (empty($racerPoints)) continue;
-			
-			$titleRow = $this->__createPsrSetTitle($mpss, $ranking, $ps);
-			$sets[] = $titleRow;
-			
-			foreach ($ranking['ranking'] as $rpUnit) {
-				$row = $this->__createPsrSetData($mpss, $racerPoints, $rpUnit, $ps, $nameMap, $teamMap);
-				if (!is_null($row)) {
-					$sets[] = $row;
-				}
+			if (!$ret) {
+				$this->log('シリーズ id[' . $p['psid'] . '] の更新に失敗しました。（続行します。）', LOG_WARNING);
+				// not return
 			}
-			//$this->log('set is', LOG_DEBUG);
-			//$this->log($sets, LOG_DEBUG);
-			
-			//>>> transaction ++++++++++++++++++++++++++++++++++++++++
-			$transaction = $this->TransactionManager->begin();
-			// 前回計算分を削除
-			$cdt = array('point_series_id' => $ps['PointSeries']['id']);
-			if (!$this->TmpPointSeriesRacerSet->deleteAll($cdt, false)) {
-				$this->TransactionManager->rollback($transaction);
-				$msg = 'ポイントシリーズ[id:' . $psid . '] の集計（前回データの削除）に失敗し、処理を中断しました。';
-				$this->log($msg, LOG_ERR);
-				MailReporter::report('ResultShell#updateSeriesRankings ' . $msg, 'ERROR');
-				return;
-			}
-
-			if (count($sets) > 1) {
-				if (!$this->TmpPointSeriesRacerSet->saveAll($sets)) {
-					$this->TransactionManager->rollback($transaction);
-					$msg = 'ポイントシリーズ[id:' . $psid . '] の集計（データの作成）に失敗し、処理を中断しました。';
-					$this->log($msg, LOG_ERR);
-					MailReporter::report('ResultShell#updateSeriesRankings ' . $msg, 'ERROR');
-					return;
-				}
-			}
-			
-			$this->TransactionManager->commit($transaction);
-			//<<< transaction ++++++++++++++++++++++++++++++++++++++++
-			
-			$this->log('pt series[id:' . $psid . '] について集計処理完了。', LOG_INFO);
 		}
 
-		// すべての tmp_result_update_flags のステータスを変更する
-		$opt = array('entry_category_id' => $ecatIds);
-		$ups = array(
-			'points_sumuped' => 1,
-			'modified' => "'" . date('Y-m-d H:i:s') . "'", // updateAll だと Date にシングルクォートつけてくれないみたい。
-		);
-		if (!$this->TmpResultUpdateFlag->updateAll($ups, $opt)) {
-			$msg = '出走カテゴリー [id:' . implode(',', $ecatIds) . '] の集計済み日時の設定に失敗しました。\n'
-				. '集計自体は済んでいますが、次回に再度（つまり無駄な）更新処理が走ってしまいます。';
-			$this->log($msg, LOG_WARNING);
-			MailReporter::report('ResultShell#updateSeriesRankings ' . $msg, 'Warn');
-			// not return
-		}
-		$this->log('TmpResultUpdateFlag のステータス切替について完了。', LOG_INFO);
-		
 		// 後処理として、deleted EntryCategory を指定している flag は削除してしまう。
 		$this->TmpResultUpdateFlag->Behaviors->unload('Containable');
 		$opt = array(
@@ -159,6 +94,85 @@ class ResultShell extends AppShell
 		$this->log('既に無効となっている TmpResultUpdateFlag の削除について完了。', LOG_INFO);
 		
 		$this->log('<<< End updateSeriesRankings', LOG_INFO);
+	}
+	
+	/**
+	 * 指定のポイントシリーズのランキングデータを更新する。
+	 * @param array $p {'psid'=>88, 'ecatids'=> {12, 34}} の形式のデータ。ecatids はフラグ更新用。
+	 * @return boolean 更新にせいこうしたか。
+	 */
+	public function updateRanking($p)
+	{
+		$psid = $p['psid'];
+		$sets = array();
+			
+		$ret = $this->__psController->calcUpSeries($psid);
+
+		$ranking = $ret['ranking'];
+		$ps = $ret['ps'];
+		$mpss = $ret['mpss'];
+		$nameMap = $ret['nameMap'];
+		$teamMap = $ret['teamMap'];
+		$racerPoints = $ret['racerPoints'];
+
+		if (empty($racerPoints)) {
+			return false;
+		}
+
+		$titleRow = $this->__createPsrSetTitle($mpss, $ranking, $ps);
+		$sets[] = $titleRow;
+
+		foreach ($ranking['ranking'] as $rpUnit) {
+			$row = $this->__createPsrSetData($mpss, $racerPoints, $rpUnit, $ps, $nameMap, $teamMap);
+			if (!is_null($row)) {
+				$sets[] = $row;
+			}
+		}
+		//$this->log('set is', LOG_DEBUG);
+		//$this->log($sets, LOG_DEBUG);
+
+		//>>> transaction ++++++++++++++++++++++++++++++++++++++++
+		$transaction = $this->TransactionManager->begin();
+		// 前回計算分を削除
+		$cdt = array('point_series_id' => $ps['PointSeries']['id']);
+		if (!$this->TmpPointSeriesRacerSet->deleteAll($cdt, false)) {
+			$this->TransactionManager->rollback($transaction);
+			$msg = 'ポイントシリーズ[id:' . $psid . '] の集計（前回データの削除）に失敗し、処理を中断しました。';
+			$this->log($msg, LOG_ERR);
+			MailReporter::report('ResultShell#updateSeriesRankings ' . $msg, 'ERROR');
+			return false;
+		}
+
+		if (count($sets) > 1) {
+			if (!$this->TmpPointSeriesRacerSet->saveAll($sets)) {
+				$this->TransactionManager->rollback($transaction);
+				$msg = 'ポイントシリーズ[id:' . $psid . '] の集計（データの作成）に失敗し、処理を中断しました。';
+				$this->log($msg, LOG_ERR);
+				MailReporter::report('ResultShell#updateSeriesRankings ' . $msg, 'ERROR');
+				return false;
+			}
+		}
+
+		$this->TransactionManager->commit($transaction);
+		//<<< transaction ++++++++++++++++++++++++++++++++++++++++
+
+		// すべての tmp_result_update_flags のステータスを変更する
+		$opt = array('entry_category_id' => $p['ecatids']);
+		$ups = array(
+			'points_sumuped' => 1,
+			'modified' => "'" . date('Y-m-d H:i:s') . "'", // updateAll だと Date にシングルクォートつけてくれないみたい。
+		);
+		if (!$this->TmpResultUpdateFlag->updateAll($ups, $opt)) {
+			$msg = '出走カテゴリー [id:' . implode(',', $p['ecatids']) . '] の集計済み日時の設定に失敗しました。\n'
+				. '集計自体は済んでいますが、次回に再度（つまり無駄な）更新処理が走ってしまいます。';
+			$this->log($msg, LOG_WARNING);
+			MailReporter::report('ResultShell#updateSeriesRankings ' . $msg, 'Warn');
+			// not return
+		}
+
+		$this->log('pt series[id:' . $psid . '] について集計処理完了。', LOG_INFO);
+		
+		return true;
 	}
 	
 	/**
@@ -200,10 +214,26 @@ class ResultShell extends AppShell
 			}
 			$mpss = $tmpMpss;
 			
+			$ecatid = $flag['EntryCategory']['id'];
+			
 			foreach ($mpss as $mps) {
 				$psid = $mps['PointSeries']['id'];
-				if (!in_array($psid, $psids)) {
-					$psids[] = $psid;
+				
+				$finds = false;
+				foreach ($psids as &$p) {
+					if ($p['psid'] == $psid) {
+						$p['ecatids'][] = $ecatid;
+						$finds = true;
+						break;
+					}
+				}
+				unset($p);
+				
+				if (!$finds) {
+					$psids[] = array(
+						'psid' => $psid,
+						'ecatids' => array($ecatid),
+					);
 				}
 			}
 		}
