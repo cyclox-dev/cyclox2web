@@ -760,6 +760,11 @@ pre {
     float:left;
 }
 
+#date_nav > #bonusexp_container{
+    float:left;
+    margin-left: 20px;
+}
+
 #date_nav > #search_box {
     float:right;
     padding-right: 20px;

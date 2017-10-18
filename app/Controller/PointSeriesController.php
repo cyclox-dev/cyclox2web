@@ -157,6 +157,7 @@ class PointSeriesController extends ApiBaseController
 		
 		$id = $this->request->data['point_series_id'];
 		$date = $this->request->data['date'];
+		$dividesBonusCol = $this->request->data['divides_bonus'];
 		
 		$dt = null;
 		if (is_array($date)) {
@@ -194,7 +195,10 @@ class PointSeriesController extends ApiBaseController
 		$rowString = '順位,選手 Code,選手名,チーム名';
 		foreach ($mpss as $mps) {
 			$rowString .= ',' . $mps['MeetPointSeries']['express_in_series'];
-			$rowString .= ',' . $mps['MeetPointSeries']['express_in_series'] . 'Bonus';
+			
+			if ($dividesBonusCol) {
+				$rowString .= ',' . $mps['MeetPointSeries']['express_in_series'] . 'Bonus';
+			}
 		}
 		foreach ($ranking['rank_pt_title'] as $title) {
 			$rowString .= ',' . $title;
@@ -211,18 +215,31 @@ class PointSeriesController extends ApiBaseController
 			for ($i = 0; $i < count($mpss); $i++)
 			{
 				$rowString .= ',';
-				if (!isset($racerPoints[$rpUnit->code][$i])) {
-					$rowString .= ',';
+				if ( !isset($racerPoints[$rpUnit->code][$i])) {
+					if ($dividesBonusCol) {
+						$rowString .= ',';
+					}
 					continue;
 				}
 				
 				$point = $racerPoints[$rpUnit->code][$i];
-				if (!empty($point['pt'])) {
-					$rowString .= $point['pt'];
-				}
-				$rowString .= ',';
-				if (!empty($point['bonus'])) {
-					$rowString .= $point['bonus'];
+				if ($dividesBonusCol) {
+					if (!empty($point['pt'])) {
+						$rowString .= $point['pt'];
+					}
+					$rowString .= ',';
+					if (!empty($point['bonus'])) {
+						$rowString .= $point['bonus'];
+					}
+				} else {
+					$ptExp = '';
+					if (!empty($point['pt'])) {
+						$ptExp .= $point['pt'];
+					}
+					if (!empty($point['bonus'])) {
+						$ptExp .= '+' . $point['bonus'];
+					}
+					$rowString .= $ptExp;
 				}
 			}
 			

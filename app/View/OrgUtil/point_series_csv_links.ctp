@@ -15,6 +15,14 @@
 				'id' => 'calc_date',
 			)
 		));
+	echo $this->Form->input('divides_bonus', array(
+			'label' => 'ボーナス表記',
+			'type' => 'select',
+			'options' => array(0 => "列内にPt+Bonus", 1 => '列を分ける'),
+			'div' => array(
+				'id' => 'bonusexp_container',
+			),
+		));
 	$opt = array(
 		'url' => array('controller' => 'OrgUtil', 'action' => 'point_series_csv_links'),
 		'type' => 'get',
@@ -28,7 +36,7 @@
 	}
 	echo $this->Form->input('search', $opt);
 	echo $this->Form->end(array(
-		'label' => '大会を絞り込む'
+		'label' => 'シリーズを絞り込む'
 	));
 	echo '</div>';
 	?>
@@ -126,6 +134,11 @@
 					.attr('name', 'data[date][day]')
 					.attr('value', d));
 			//console.log(d);
+			var bexp = $('#divides_bonus').val();
+			$(this).prepend($('<input />')
+					.attr('type', 'hidden')
+					.attr('name', 'data[divides_bonus]')
+					.attr('value', bexp));
 			return true;
 		});
 	});
