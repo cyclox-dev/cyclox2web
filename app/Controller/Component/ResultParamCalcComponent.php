@@ -361,10 +361,12 @@ class ResultParamCalcComponent extends Component
 				}
 
 				$ecatIds = $this->__getEcatIDsOfSameMeet($mt, array('CL2', 'CL2+3'), false);
-				if ($ecatIds == null) {
+				if ($ecatIds === null) {
 					$this->log('少人数昇格のための出走カテゴリー ID 配列の取得に失敗しました。', LOG_ERR);
 					break;
 				}
+				
+				if (empty($ecatIds)) break; // 1位をチェックしたのでループ終了
 
 				$opt = array('conditions' => array(
 					'EntryCategory.id' => $ecatIds,
@@ -426,7 +428,7 @@ class ResultParamCalcComponent extends Component
 					}
 				}
 
-				break;
+				break; // 1位をチェックしたのでループ終了
 			}
 		} else {
 			// 昇格する人数の決定
@@ -507,10 +509,12 @@ class ResultParamCalcComponent extends Component
 					}
 					
 					$ecatIds = $this->__getEcatIDsOfSameMeet($mt, $needRacesCat);
-					if ($ecatIds == null) {
+					if ($ecatIds === null) {
 						$this->log('少人数昇格のための出走カテゴリー ID 配列の取得に失敗しました。', LOG_ERR);
 						break;
 					}
+					
+					if (empty($ecatIds)) break; // 1位をチェックしたのでループ終了
 
 					$opt = array('conditions' => array(
 						'EntryCategory.id' => $ecatIds,
@@ -578,7 +582,7 @@ class ResultParamCalcComponent extends Component
 						}
 					}
 
-					break;
+					break; // 1位をチェックしたのでループ終了
 				}
 			}
 		}
@@ -619,7 +623,7 @@ class ResultParamCalcComponent extends Component
 		}
 
 		$mts = $this->Meet->find('all', $opt);
-
+		
 		$ecatIds = array();
 		foreach ($mts as $meet) {
 			foreach ($meet['EntryGroup'] as $eg) {
