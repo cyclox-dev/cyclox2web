@@ -11,7 +11,8 @@ App::uses('ApiBaseController', 'Controller');
  */
 class EntryCategoriesController extends ApiBaseController
 {
-	public $uses = array('EntryCategory', 'EntryRacer', 'PointSeries', 'TmpResultUpdateFlag');
+	public $uses = array('EntryCategory', 'EntryRacer', 'PointSeries', 'TmpResultUpdateFlag'
+		, 'MeetPointSeries');
 	
 /**
  * Components
@@ -229,6 +230,26 @@ class EntryCategoriesController extends ApiBaseController
 	public function recalc_result($ecatId = null)
 	{
 		$this->request->allowMethod('post');
+		
+		if (empty($ecatId)) {
+			return $this->Flash->set(__('出走カテゴリーが指定されていません。'));
+		}
+		
+		//++++++++++++++++++++++++++++++++++++++++
+		// meet point series の有効期間設定
+		$opt = array('conditions' => array('EntryCategory.' . $this->EntryCategory->primaryKey => $ecatId));
+		$ecat = $this->EntryCategory->find('first', $opt);
+		if (empty($ecat)) {
+			return $this->Flash->set(__('指定された出走カテゴリーが無効です。'));
+		}
+		
+		$ret = $this->MeetPointSeries->setupTermOfSeriesPoint($ecat['EntryGroup']['meet_code'], $ecat['EntryCategory']['name']);
+		// Transaction は使用せず
+		
+		if (!$ret) {
+			$this->log("ポイントシリーズの有効期間設定が無効です。（処理は続行します。）", LOG_ERR);
+			// not return
+		}
 		
 		$ret = $this->ResultParamCalc->reCalcResults($ecatId);
 		
