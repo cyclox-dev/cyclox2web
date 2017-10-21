@@ -1397,6 +1397,10 @@ class ApiController extends ApiBaseController
 			
 			if ($ser['type'] === "series") {
 				$rankInfos = $this->__addPointSeriesInfo($rankInfos, $ser['id'], $date);
+				
+				if (empty($rankInfos) || isset($rankInfos['error'])) {
+					return $this->error($rankInfos['error'], self::STATUS_CODE_BAD_REQUEST);
+				}
 			} else if ($ser['type'] === "ajocc_pt") {
 				$rankInfos = $this->__addAjoccRankingInfo($rankInfos, $ser['season'], $ser['category']);
 			}
@@ -1477,11 +1481,18 @@ class ApiController extends ApiBaseController
 	 * @param type $seriesId
 	 * @param date $baseDate ポイント計測器準備
 	 * @param type $racers not null, not empty
+	 * @return array ランキング情報。エラーがあった場合 array('error' => 'エラー内容') という配列をかえす。
 	 */
 	private function __addPointSeriesInfo($rankInfos, $seriesId, $baseDate)
 	{
 		$psController = new PointSeriesController();
 		$calced = $psController->calcUpSeries($seriesId, $baseDate);
+		
+		if (empty($calced) || isset($calced['error'])) {
+			$msg = 'ポイントシリーズのランキング計算に失敗しました。エラー内容:' . h($calced['error']);
+			$this->log($msg, LOG_ERR);
+			return array('error' => $msg);
+		}
 		
 		$ranking = $calced['ranking']['ranking'];
 		

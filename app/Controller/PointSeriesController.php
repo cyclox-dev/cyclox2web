@@ -172,6 +172,12 @@ class PointSeriesController extends ApiBaseController
 		
 		$ret = $this->calcUpSeries($id, $dt);
 		
+		if (empty($ret) || isset($ret['error'])) {
+			$this->Flash->set('ポイントシリーズのランキング計算に失敗しました。エラー内容:' . h($ret['error']));
+			$this->redirect($this->referer());
+			return;
+		}
+		
 		$ranking = $ret['ranking'];
 		$ps = $ret['ps'];
 		$mpss = $ret['mpss'];
@@ -265,24 +271,24 @@ class PointSeriesController extends ApiBaseController
 	 * 計算日でのカテゴリー所属がチェックされる。上記例だと C1 or C2 に所属していることが条件となる。
 	 * @param type $seriesId
 	 * @param type $date 計算基準日
-	 * @return array 'ranking', 'ps', 'mpss', 'nameMap', 'teamMap', 'racerPoints' をキーとする配列
-	 * @throws NotFoundException
+	 * @return array 'ranking', 'ps', 'mpss', 'nameMap', 'teamMap', 'racerPoints' をキーとする配列。
+	 *			エラーの場合、 'error' => 'エラー内容' の配列。
 	 */
 	public function calcUpSeries($seriesId, $date = null)
 	{
 		$this->PointSeries->id = $seriesId;
 		if (!$this->PointSeries->exists()) {
-			throw new NotFoundException(__('Invalid point series'));
+			return array('error' => 'ポイントシリーズの指定が不正です。');
 		}
 		
 		$options = array('conditions' => array('PointSeries.' . $this->PointSeries->primaryKey => $seriesId));
 		$ps = $this->PointSeries->find('first', $options);
 		if (empty($ps['PointSeries']['sum_up_rule'])) {
-			throw new NotFoundException(__('Invalid sum-up-rule setting of point series'));
+			return array('error' => 'ポイントシリーズ／集計ルールが見つかりません。');
 		}
 		$sumUpRule = PointSeriesSumUpRule::ruleAt($ps['PointSeries']['sum_up_rule']);
 		if (empty($sumUpRule)) {
-			throw new NotFoundException(__('Invalid(empty) sum-up-rule setting of point series'));
+			return array('error' => '集計ルールの指定が不正です。');
 		}
 		
 		$catLimit = array();
@@ -317,7 +323,7 @@ class PointSeriesController extends ApiBaseController
 		
 		$mpss = $this->MeetPointSeries->find('all', $op);
 		if (empty($mpss)) {
-			throw new NotFoundException(__('Invalid meet point series'));
+			return array('error' => 'ポイントシリーズのレース指定が見つかりません。');
 		}
 		
 		$meetIndex = 0;

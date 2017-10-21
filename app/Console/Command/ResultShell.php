@@ -130,6 +130,11 @@ class ResultShell extends AppShell
 			
 		$ret = $this->__psController->calcUpSeries($psid);
 
+		if (empty($ret) || isset($ret['error'])) {
+			$this->log('ポイントシリーズのランキング計算に失敗しました。エラー内容:' . h($ret['error']), LOG_ERR);
+			return false;
+		}
+		
 		$ranking = $ret['ranking'];
 		$ps = $ret['ps'];
 		$mpss = $ret['mpss'];
