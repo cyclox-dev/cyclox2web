@@ -119,6 +119,15 @@ class ResultShell extends AppShell
 	}
 	
 	/**
+	 * 指定 ID のポイントシリーズのランキングデータを更新する。（コントローラーなどからの呼び出し用）
+	 * @param type $psid ポイントシリーズ ID
+	 */
+	public function execUpdateRanking($psid = false)
+	{
+		return $this->__updateRanking($psid);
+	}
+	
+	/**
 	 * 指定のポイントシリーズのランキングデータを更新する。
 	 * @param int $psid ポイントシリーズ ID
 	 * @param array $ecatids フラグ更新用。エントリーカテゴリー ID の配列。false で更新しない。

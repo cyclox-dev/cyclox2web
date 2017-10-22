@@ -11,6 +11,9 @@ App::uses('PointSeriesPointTo', 'Cyclox/Const');
 App::uses('PointSeriesTermOfValidityRule', 'Cyclox/Const');
 App::uses('Util', 'Cyclox/Util');
 
+App::uses('AppShell','Console/Command');
+App::uses('ResultShell','Console/Command');
+
 /**
  * PointSeries Controller
  *
@@ -541,5 +544,32 @@ class PointSeriesController extends ApiBaseController
 		$seriesList = $this->PointSeries->find('all', array('recursive' => -1));
 		
 		return $this->success(array('series' => $seriesList));
+	}
+	
+	/**
+	 * ランキングデータを更新する。
+	 * @param type $psid ポイントシリーズ ID
+	 */
+	public function updateRanking($psid)
+	{
+		if (!$this->request->is('post')) {
+			throw new BadMethodCallException('Bad method.');
+		}
+		
+		if (!$this->PointSeries->exists($psid)) {
+			throw new NotFoundException(__('無効なポイントシリーズが指定されました。'));
+		}
+		
+		$shell = new ResultShell();
+		$shell->startup();
+		
+		$ret = $shell->execUpdateRanking($psid);
+		if ($ret) {
+			$this->Flash->set(__('ランキングデータを更新しました。'), array('element' => 'success'));
+		} else {
+			$this->Flash->set(__('ランキングデータの更新に失敗しました。'), array('element' => 'error'));
+		}
+		
+		$this->redirect($this->referer());
 	}
 }

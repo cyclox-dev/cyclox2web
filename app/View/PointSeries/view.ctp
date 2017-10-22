@@ -146,3 +146,8 @@
 	</table>
 <?php endif; ?>
 </div>
+<div> 
+	<?php echo $this->Form->postButton('リザルト閲覧システム用のランキングデータを更新'
+		, array('action' => 'updateRanking', $pointSeries['PointSeries']['id'])); ?>
+</div>
+
