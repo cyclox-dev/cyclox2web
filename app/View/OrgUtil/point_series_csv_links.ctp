@@ -70,6 +70,11 @@
 		<tr>
 			<td>
 				<?php echo h($ps['PointSeries']['name']); ?>
+				<?php
+					if (!$ps['PointSeries']['is_active']) {
+						echo '(NOT Active)';
+					}
+				?>
 			</td>
 			<td>
 				<?php
