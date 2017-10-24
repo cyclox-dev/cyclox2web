@@ -547,7 +547,10 @@ class OrgUtilController extends ApiBaseController
 		
 		if (!empty($this->request->query['search'])) {
 			$opt['conditions'] = array(
-				'PointSeries.name like' => '%' . $this->request->query['search'] . '%'
+				'OR' => array(
+					'PointSeries.name like' => '%' . $this->request->query['search'] . '%',
+					'PointSeries.short_name like' => '%' . $this->request->query['search'] . '%',
+				)
 			);
 			
 			$this->set('search', $this->request->query['search']);
