@@ -359,7 +359,7 @@ class OrgUtilController extends ApiBaseController
 	{
 		$cats = $this->Category->find('all', array('fields' => array('code', 'name'), 'recursive' => -1));
 		
-		$this->log($cats, LOG_DEBUG);
+		//$this->log($cats, LOG_DEBUG);
 		
 		// TODO: Category ごとは後で実装する。
 		//$this->set('cats', $cats);
