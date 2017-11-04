@@ -99,36 +99,113 @@ class OrgUtilController extends ApiBaseController
 		
 		//$this->log('year:' . $this->request->data['base_year'] . ' cat:' . $this->request->data['category_code'], LOG_DEBUG);
 		
+		$ret = $this->_calcAjoccPoints($this->request->data['category_code'], $this->request->data['base_year']);
+		
+		if (empty($ret['racerPoints'])) {
+			$this->Flash->set(__('対象となるランキングを取得できませんでした。不正な場合は、管理者に連絡して下さい。'));
+			return $this->redirect(array('action' => 'ajocc_pt_csv_links'));
+		}
+		
+		$meetTitles = $ret['meetTitles'];
+		$racerPoints = $ret['racerPoints'];
+		
+		//$this->log('title:', LOG_DEBUG);
+		//$this->log($meetTitles, LOG_DEBUG);
+		//$this->log('points:', LOG_DEBUG);
+		//$this->log($racerPoints, LOG_DEBUG);
+		
+		$year = $this->request->data['base_year'];
+		$seasonExp = $year . '-' . ($year % 100 + 1);
+		$body = "AJOCC Point Ranking\n" .
+			'Season,' . $seasonExp . "\n" .
+			'Category,' . $this->request->data['category_code'] . "\n" .
+			'集計日,' . date('Y/m/d H:i:s') . "\n\n";
+		
+		// A1, A2 は空
+		$body .= '順位,選手 Code,選手名,チーム,';
+		
+		foreach ($meetTitles as $title) {
+			$body .= $title . ',';
+		}
+		$body .= "合計,自乗和\n";
+		
+		foreach ($racerPoints as $rcode => $rp) {
+			//$this->log('name is:' . $rp['name'], LOG_DEBUG);
+			
+			$line = $rp['rank'] . ',' . $rcode . ',' . $rp['name'] . ',';
+			if (!empty($rp['team'])) {
+				$line .= $rp['team'];
+			}
+			$line .= ',';
+			for ($i = 0; $i < count($meetTitles); $i++) {
+				if (!empty($rp['points'][$i])) {
+					$line .= $rp['points'][$i];
+				}
+				$line .= ',';
+			}
+			
+			$body .= $line . $rp['total'] . ',' . $rp['totalSquared'] . "\n";
+		}
+		
+		$this->autoRender = false;
+		//$this->response->charset('Shift_JIS'); // この行コメントアウトしても問題なしだった
+		$this->response->type('csv');
+		$this->response->download('ajocc_pt_' . $this->request->data['base_year'] . '_' . $this->request->data['category_code'] .'.csv');
+		$this->response->body(mb_convert_encoding($body, 'Shift_JIS', 'UTF-8'));
+	}
+	
+	/**
+	 * ajocc point ランキングデータをかえす。
+	 * @param string $catCode カテゴリーコード
+	 * @param int $baseYear 計算基準年。シーズンの前半の年。例）2016-17ならば2016。
+	 * @return array key:meetTtiles, racerPoints もつ配列
+	 */
+	private function _calcAjoccPoints($catCode, $baseYear)
+	{	
 		// 指定カテゴリーを含むレースカテゴリーを取得しておく
 		$this->Category->Behaviors->load('Containable');
 		$this->Category->actsAs = array('Utils.SoftDelete'); // deleted を拾わないように
 		$opt = array();
 		$opt['contain'] = array('CategoryRacesCategory');
 		$opt['conditions'] = array(
-			'code' => $this->request->data['category_code']
+			'code' => $catCode
 		);
 		$cats = $this->Category->find('all', $opt);
+		
+		if (empty($cats)) {
+			return array();
+		}
+		
 		//$this->log($cats, LOG_DEBUG);
 		$rcats = array();
 		foreach ($cats as $cat) {
 			foreach($cat['CategoryRacesCategory'] as $crc) {
 				if (!empty($crc['deleted']) && $crc['deleted'] == 1) continue;
 				
-				if ($crc['category_code'] === $this->request->data['category_code']) {
+				if ($crc['category_code'] === $catCode) {
 					$rcats[] = $crc['races_category_code'];
 				}
 			}
 		}
+		
+		if (empty($rcats)) {
+			return array();
+		}
+		
 		//$this->log('rcats:', LOG_DEBUG);
 		//$this->log($rcats, LOG_DEBUG);
 		
 		// 大会を日付順にチェック
-		$minDate = $this->request->data['base_year'] . '-04-01';
-		$maxDate = '' . ($this->request->data['base_year'] + 1) . '-03-31';
+		$minDate = $baseYear . '-04-01';
+		$maxDate = '' . ($baseYear + 1) . '-03-31';
 		$cnd = array('at_date between ? and ?' => array($minDate, $maxDate));
 		$this->Meet->actsAs = array('Utils.SoftDelete'); // deleted を拾わないように
 		$meets = $this->Meet->find('all', array('conditions' => $cnd, 'order' => array('at_date' => 'asc'), 'recursive' => -1));
 		//$this->log($meets, LOG_DEBUG);
+		
+		if (empty($meets)) {
+			return array();
+		}
 		
 		$this->EntryGroup->actsAs = array('Utils.SoftDelete'); // deleted を拾わないように
 		$this->EntryGroup->Behaviors->load('Containable');
@@ -192,7 +269,7 @@ class OrgUtilController extends ApiBaseController
 						
 						if (!empty($eracer['RacerResult']['as_category'])) {
 							// as_category 値があるならそれで判定
-							if ($eracer['RacerResult']['as_category'] != $this->request->data['category_code']) {
+							if ($eracer['RacerResult']['as_category'] != $catCode) {
 								continue;
 							}
 						} else {
@@ -202,7 +279,7 @@ class OrgUtilController extends ApiBaseController
 							$opt = array('recursive' => -1);
 							$opt['conditions'] = array(
 								'racer_code' => $eracer['Racer']['code'],
-								'category_code' => $this->request->data['category_code'],
+								'category_code' => $catCode,
 								array('AND' => array(
 									'NOT' => array('apply_date' => null), 
 									'apply_date <=' => $meet['Meet']['at_date'])
@@ -220,13 +297,13 @@ class OrgUtilController extends ApiBaseController
 						
 						// シーズン最終日でのカテゴリー所持を確認（シーズン途中でのカテゴリー中断は想定しない）
 						// 現在日がシーズン最終日をすぎていなくても、最終日計算で OK
-						$lastDate =  new DateTime('' . ($this->request->data['base_year'] + 1) . '/3/31');
+						$lastDate =  new DateTime('' . ($baseYear + 1) . '/3/31');
 						//$this->log('last date:' . $lastDate->format('Y-m-d'), LOG_DEBUG);
 						
 						$opt = array('recursive' => -1);
 						$opt['conditions'] = array(
 							'racer_code' => $eracer['Racer']['code'],
-							'category_code' => $this->request->data['category_code'],
+							'category_code' => $catCode,
 							array('AND' => array(
 								'NOT' => array('apply_date' => null), 
 								'apply_date <=' => $lastDate->format('Y-m-d'))
@@ -281,32 +358,12 @@ class OrgUtilController extends ApiBaseController
 		// sort
 		uasort($racerPoints, array($this, "_compareAjoccPoint"));
 		
-		//$this->log('title:', LOG_DEBUG);
-		//$this->log($meetTitles, LOG_DEBUG);
-		//$this->log('points:', LOG_DEBUG);
-		//$this->log($racerPoints, LOG_DEBUG);
-		
-		$year = $this->request->data['base_year'];
-		$seasonExp = $year . '-' . ($year % 100 + 1);
-		$body = "AJOCC Point Ranking\n" .
-			'Season,' . $seasonExp . "\n" .
-			'Category,' . $this->request->data['category_code'] . "\n" .
-			'集計日,' . date('Y/m/d H:i:s') . "\n\n";
-		
-		// A1, A2 は空
-		$body .= '順位,選手 Code,選手名,チーム,';
-		
-		foreach ($meetTitles as $title) {
-			$body .= $title . ',';
-		}
-		$body .= "合計,自乗和\n";
-		
 		$rank = 0;
 		$skip = 0;
 		$preTotal = -1;
 		$preSqured = -1;
 		
-		foreach ($racerPoints as $rcode => $rp) {
+		foreach ($racerPoints as $rcode => &$rp) {
 			//$this->log('name is:' . $rp['name'], LOG_DEBUG);
 			
 			if ($rp['total'] == $preTotal && $rp['totalSquared'] == $preSqured) {
@@ -318,26 +375,14 @@ class OrgUtilController extends ApiBaseController
 				$preSqured = $rp['totalSquared'];
 			}
 			
-			$line = $rank . ',' . $rcode . ',' . $rp['name'] . ',';
-			if (!empty($rp['team'])) {
-				$line .= $rp['team'];
-			}
-			$line .= ',';
-			for ($i = 0; $i < count($meetTitles); $i++) {
-				if (!empty($rp['points'][$i])) {
-					$line .= $rp['points'][$i];
-				}
-				$line .= ',';
-			}
-			
-			$body .= $line . $rp['total'] . ',' . $rp['totalSquared'] . "\n";
+			$rp['rank'] = $rank;
 		}
+		unset($rp);
 		
-		$this->autoRender = false;
-		//$this->response->charset('Shift_JIS'); // この行コメントアウトしても問題なしだった
-		$this->response->type('csv');
-		$this->response->download('ajocc_pt_' . $this->request->data['base_year'] . '_' . $this->request->data['category_code'] .'.csv');
-		$this->response->body(mb_convert_encoding($body, 'Shift_JIS', 'UTF-8'));
+		return array(
+			'meetTitles' => $meetTitles,
+			'racerPoints' => $racerPoints,
+		);
 	}
 	
 	/**
