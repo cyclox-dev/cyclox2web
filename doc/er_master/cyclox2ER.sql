@@ -2,16 +2,18 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 /* Drop Tables */
 
+DROP TABLE IF EXISTS tmp_ajoccpt_racer_sets;
+DROP TABLE IF EXISTS ajoccpt_local_settings;
 DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
-DROP TABLE IF EXISTS tmp_result_update_flags;
 DROP TABLE IF EXISTS hold_points;
-DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS time_records;
+DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
+DROP TABLE IF EXISTS tmp_result_update_flags;
 DROP TABLE IF EXISTS entry_categories;
 DROP TABLE IF EXISTS time_record_info;
 DROP TABLE IF EXISTS entry_groups;
@@ -33,6 +35,19 @@ DROP TABLE IF EXISTS seasons;
 
 
 /* Create Tables */
+
+CREATE TABLE ajoccpt_local_settings
+(
+	id int unsigned NOT NULL,
+	name varchar(255) BINARY NOT NULL,
+	short_name varchar(255) BINARY NOT NULL,
+	season_id int unsigned NOT NULL,
+	setting varchar(255) BINARY NOT NULL,
+	created datetime,
+	modified datetime,
+	PRIMARY KEY (id)
+);
+
 
 CREATE TABLE categories
 (
@@ -501,6 +516,29 @@ CREATE TABLE time_record_info
 	PRIMARY KEY (id),
 	UNIQUE (id),
 	UNIQUE (entry_group_id)
+);
+
+
+CREATE TABLE tmp_ajoccpt_racer_sets
+(
+	id bigint unsigned NOT NULL AUTO_INCREMENT,
+	ajoccpt_local_setting_id int unsigned,
+	season_id int unsigned NOT NULL,
+	-- タイトル行、選手データ行の別などを表す。
+	type tinyint unsigned NOT NULL,
+	-- タイトル号はゼロ
+	rank int unsigned NOT NULL,
+	-- 例）THK-134-0002
+	-- 標準では12文字になるが、最後が4桁を超える可能性ありとして長さ16文字としている。
+	racer_code varchar(16) BINARY NOT NULL,
+	name varchar(255) BINARY,
+	team varchar(255) BINARY,
+	point_json text BINARY,
+	sumup_json text BINARY,
+	created datetime,
+	modified datetime,
+	PRIMARY KEY (id),
+	UNIQUE (id)
 );
 
 
