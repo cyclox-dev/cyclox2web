@@ -19,7 +19,7 @@ class OrgUtilController extends ApiBaseController
 {
 	 public $uses = array('TransactionManager',
 		 'Meet', 'Category', 'EntryGroup', 'EntryRacer', 'CategoryRacer', 'Racer'
-			, 'PointSeries', 'PointSeriesRacer', 'UniteRacerLog');
+			, 'PointSeries', 'PointSeriesRacer', 'UniteRacerLog', 'Season');
 	 
 	 public $components = array('Flash', 'RequestHandler');
 	 
@@ -42,30 +42,24 @@ class OrgUtilController extends ApiBaseController
 	public function ajocc_pt_csv_links()
 	{
 		// AJOCC シーズンごとカテゴリーごと
-		// 2015-16 を初シーズンとする。
 		
-		// 日付比較で今までのシーズンを抽出
-		$y = (int)date('Y');
-		$m = (int)date('n');
-		
-		// 2015-16 の 15 の方を基準とする
-		if ($m < 4) {
-			--$y;
-		}
+		$opt = array(
+			'conditions' => array(
+				'Season.deleted' => 0,
+				'Season.start_date <' => date('Y-m-d'),
+			),
+			'order' => array('start_date DESC')
+		);
+		$seasons = $this->Season->find('all', $opt);
 		
 		$cats = $this->Category->find('all', array('fields' => array('code', 'name')));
 		
 		$links = array();
-		for (; $y >= 2015; --$y) {
-			$next = $y % 100 + 1;
-			if ($next < 10) {
-				$next = '0' . $next;
-			}
-			$title = $y . '-' . $next;
-			
+		foreach ($seasons as $season) {
 			$seasonPack = array();
-			$seasonPack['title'] = $title;
-			$seasonPack['base_year'] = $y;
+			$seasonPack['title'] = $season['Season']['name'];
+			//$seasonPack['base_year'] = $y;
+			$seasonPack['season_id'] = $season['Season']['id'];
 			$seasonPack['dat'] = array();
 			
 			foreach ($cats as $cat) {
@@ -75,9 +69,9 @@ class OrgUtilController extends ApiBaseController
 				
 				$seasonPack['dat'][] = $obj;
 			}
-			$links[$y] = $seasonPack;
+			$links[] = $seasonPack;
 		}
-		$this->log($links, LOG_DEBUG);
+		//$this->log($links, LOG_DEBUG);
 		
 		$this->set('links', $links);
 	}
@@ -93,13 +87,13 @@ class OrgUtilController extends ApiBaseController
 			throw new BadMethodCallException('bad method.');
 		}
 		
-		if (empty($this->request->data['base_year']) || empty($this->request->data['category_code'])) {
+		if (empty($this->request->data['season_id']) || empty($this->request->data['category_code'])) {
 			throw new BadRequestException('Needs Parameter.');
 		}
 		
 		//$this->log('year:' . $this->request->data['base_year'] . ' cat:' . $this->request->data['category_code'], LOG_DEBUG);
 		
-		$ret = $this->_calcAjoccPoints($this->request->data['category_code'], $this->request->data['base_year']);
+		$ret = $this->calcAjoccPoints($this->request->data['category_code'], $this->request->data['season_id']);
 		
 		if (empty($ret['racerPoints'])) {
 			$this->Flash->set(__('対象となるランキングを取得できませんでした。不正な場合は、管理者に連絡して下さい。'));
@@ -114,10 +108,12 @@ class OrgUtilController extends ApiBaseController
 		//$this->log('points:', LOG_DEBUG);
 		//$this->log($racerPoints, LOG_DEBUG);
 		
-		$year = $this->request->data['base_year'];
-		$seasonExp = $year . '-' . ($year % 100 + 1);
+		$seasonId = $this->request->data['season_id'];
+		
+		$season = $this->Season->find('first', array('conditions' => array('id' => $seasonId)));
+		
 		$body = "AJOCC Point Ranking\n" .
-			'Season,' . $seasonExp . "\n" .
+			'Season,' . $season['Season']['name'] . "\n" .
 			'Category,' . $this->request->data['category_code'] . "\n" .
 			'集計日,' . date('Y/m/d H:i:s') . "\n\n";
 		
@@ -150,17 +146,17 @@ class OrgUtilController extends ApiBaseController
 		$this->autoRender = false;
 		//$this->response->charset('Shift_JIS'); // この行コメントアウトしても問題なしだった
 		$this->response->type('csv');
-		$this->response->download('ajocc_pt_' . $this->request->data['base_year'] . '_' . $this->request->data['category_code'] .'.csv');
+		$this->response->download('ajocc_pt_' . $season['Season']['name'] . '_' . $this->request->data['category_code'] .'.csv');
 		$this->response->body(mb_convert_encoding($body, 'Shift_JIS', 'UTF-8'));
 	}
 	
 	/**
 	 * ajocc point ランキングデータをかえす。
 	 * @param string $catCode カテゴリーコード
-	 * @param int $baseYear 計算基準年。シーズンの前半の年。例）2016-17ならば2016。
+	 * @param int $seasonId シーズン ID
 	 * @return array key:meetTtiles, racerPoints もつ配列
 	 */
-	private function _calcAjoccPoints($catCode, $baseYear)
+	public function calcAjoccPoints($catCode, $seasonId)
 	{	
 		// 指定カテゴリーを含むレースカテゴリーを取得しておく
 		$this->Category->Behaviors->load('Containable');
@@ -196,11 +192,9 @@ class OrgUtilController extends ApiBaseController
 		//$this->log($rcats, LOG_DEBUG);
 		
 		// 大会を日付順にチェック
-		$minDate = $baseYear . '-04-01';
-		$maxDate = '' . ($baseYear + 1) . '-03-31';
-		$cnd = array('at_date between ? and ?' => array($minDate, $maxDate));
+		$cnd = array('season_id' => $seasonId);
 		$this->Meet->actsAs = array('Utils.SoftDelete'); // deleted を拾わないように
-		$meets = $this->Meet->find('all', array('conditions' => $cnd, 'order' => array('at_date' => 'asc'), 'recursive' => -1));
+		$meets = $this->Meet->find('all', array('conditions' => $cnd, 'order' => array('at_date' => 'asc'), 'recursive' => 0));
 		//$this->log($meets, LOG_DEBUG);
 		
 		if (empty($meets)) {
@@ -297,8 +291,8 @@ class OrgUtilController extends ApiBaseController
 						
 						// シーズン最終日でのカテゴリー所持を確認（シーズン途中でのカテゴリー中断は想定しない）
 						// 現在日がシーズン最終日をすぎていなくても、最終日計算で OK
-						$lastDate =  new DateTime('' . ($baseYear + 1) . '/3/31');
-						//$this->log('last date:' . $lastDate->format('Y-m-d'), LOG_DEBUG);
+						$lastDate = $meet['Season']['end_date'];
+						//$this->log('last date:' . $lastDate, LOG_DEBUG);
 						
 						$opt = array('recursive' => -1);
 						$opt['conditions'] = array(
@@ -306,11 +300,11 @@ class OrgUtilController extends ApiBaseController
 							'category_code' => $catCode,
 							array('AND' => array(
 								'NOT' => array('apply_date' => null), 
-								'apply_date <=' => $lastDate->format('Y-m-d'))
+								'apply_date <=' => $lastDate)
 							),
 							array('OR' => array(
 								array('cancel_date' => null),
-								array('cancel_date >=' => $lastDate->format('Y-m-d'))
+								array('cancel_date >=' => $lastDate)
 							)),
 						);
 
