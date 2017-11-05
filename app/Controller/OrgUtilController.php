@@ -366,6 +366,7 @@ class OrgUtilController extends ApiBaseController
 		foreach ($racerPoints as $rcode => &$rp) {
 			//$this->log('name is:' . $rp['name'], LOG_DEBUG);
 			
+			// TODO: 実際には最近の試合の準位比較まで行なって決める。とりあえず手作業でよろしくと 2015/10 に ML に流している。
 			if ($rp['total'] == $preTotal && $rp['totalSquared'] == $preSqured) {
 				 ++$skip;
 			} else {
