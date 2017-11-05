@@ -8,9 +8,9 @@ DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
+DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS hold_points;
 DROP TABLE IF EXISTS time_records;
-DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
 DROP TABLE IF EXISTS tmp_result_update_flags;
@@ -571,6 +571,7 @@ CREATE TABLE tmp_result_update_flags
 	entry_category_id int unsigned NOT NULL,
 	result_updated datetime NOT NULL,
 	points_sumuped tinyint(1) DEFAULT 0,
+	ajoccpt_sumuped tinyint(1) DEFAULT 0 NOT NULL,
 	created datetime,
 	modified datetime,
 	PRIMARY KEY (id),

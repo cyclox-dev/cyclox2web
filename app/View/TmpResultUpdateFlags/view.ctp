@@ -21,6 +21,11 @@
 			<?php echo h($tmpResultUpdateFlag['TmpResultUpdateFlag']['points_sumuped']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('Ajocc Point Sumuped'); ?></dt>
+		<dd>
+			<?php echo h($tmpResultUpdateFlag['TmpResultUpdateFlag']['ajoccpt_sumuped']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Created'); ?></dt>
 		<dd>
 			<?php echo h($tmpResultUpdateFlag['TmpResultUpdateFlag']['created']); ?>

@@ -7,6 +7,7 @@
 		echo $this->Form->input('entry_category_id');
 		echo $this->Form->input('result_updated');
 		echo $this->Form->input('points_sumuped');
+		echo $this->Form->input('ajoccpt_sumuped');
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>

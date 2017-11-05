@@ -7,6 +7,7 @@
 			<th><?php echo $this->Paginator->sort('entry_category_id'); ?></th>
 			<th><?php echo $this->Paginator->sort('result_updated'); ?></th>
 			<th><?php echo $this->Paginator->sort('points_sumuped'); ?></th>
+			<th><?php echo $this->Paginator->sort('ajoccpt_sumuped'); ?></th>
 			<th><?php echo $this->Paginator->sort('created'); ?></th>
 			<th><?php echo $this->Paginator->sort('modified'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
@@ -21,6 +22,7 @@
 		</td>
 		<td><?php echo h($tmpResultUpdateFlag['TmpResultUpdateFlag']['result_updated']); ?>&nbsp;</td>
 		<td><?php echo h($tmpResultUpdateFlag['TmpResultUpdateFlag']['points_sumuped']); ?>&nbsp;</td>
+		<td><?php echo h($tmpResultUpdateFlag['TmpResultUpdateFlag']['ajoccpt_sumuped']); ?>&nbsp;</td>
 		<td><?php echo h($tmpResultUpdateFlag['TmpResultUpdateFlag']['created']); ?>&nbsp;</td>
 		<td><?php echo h($tmpResultUpdateFlag['TmpResultUpdateFlag']['modified']); ?>&nbsp;</td>
 		<td class="actions">
