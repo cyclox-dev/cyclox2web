@@ -95,8 +95,12 @@ class OrgUtilController extends ApiBaseController
 		
 		$ret = $this->calcAjoccPoints($this->request->data['category_code'], $this->request->data['season_id']);
 		
+		if ($ret === false) {
+			$this->Flash->set(__('エラーのため、ランキングを取得できませんでした。不正な場合は、管理者に連絡して下さい。'));
+			return $this->redirect(array('action' => 'ajocc_pt_csv_links'));
+		}
 		if (empty($ret['racerPoints'])) {
-			$this->Flash->set(__('対象となるランキングを取得できませんでした。不正な場合は、管理者に連絡して下さい。'));
+			$this->Flash->set(__('対象となるリザルトが無いようです。ランキングを取得できませんでした。不正な場合は、管理者に連絡して下さい。'));
 			return $this->redirect(array('action' => 'ajocc_pt_csv_links'));
 		}
 		
@@ -169,7 +173,8 @@ class OrgUtilController extends ApiBaseController
 		$cats = $this->Category->find('all', $opt);
 		
 		if (empty($cats)) {
-			return array();
+			$this->log('対象となるカテゴリーが見つかりません。', LOG_WARNING);
+			return false;
 		}
 		
 		//$this->log($cats, LOG_DEBUG);
@@ -185,7 +190,8 @@ class OrgUtilController extends ApiBaseController
 		}
 		
 		if (empty($rcats)) {
-			return array();
+			$this->log('対象となるレースカテゴリーが見つかりません。', LOG_WARNING);
+			return false;
 		}
 		
 		//$this->log('rcats:', LOG_DEBUG);
@@ -198,7 +204,8 @@ class OrgUtilController extends ApiBaseController
 		//$this->log($meets, LOG_DEBUG);
 		
 		if (empty($meets)) {
-			return array();
+			$this->log('対象となる大会が見つかりません。', LOG_WARNING);
+			return false;
 		}
 		
 		$this->EntryGroup->actsAs = array('Utils.SoftDelete'); // deleted を拾わないように
