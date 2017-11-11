@@ -24,12 +24,13 @@ class MailReporter
 			}
 			
 			$request = Router::getRequest();
+			$clientIp = empty($request) ? "none" : $request->clientIp();
 			
-			$text = "Cyclox2 Server[" . $request->host() . "]からの報告 at " . date('Y-m-d H:i:s') ."\n\n"
+			$text = "Cyclox2 Server[" . Router::fullBaseUrl() . "]からの報告 at " . date('Y-m-d H:i:s') ."\n\n"
 					. '内容:'. $msg . "\n\n"
 					. 'この処理を行なった Cyclox2 ユーザ:[' . $user
-					. '] at client ip addr[' . $request->clientIp() . "]";
-					"\n\n※本メールは Cyclox2 Server から自動的に送信されたものです。"
+					. '] at client ip addr[' . $clientIp . "]"
+					. "\n\n※本メールは Cyclox2 Server から自動的に送信されたものです。"
 					. "返信してもリアクションはありません。";
 			
 			$to = Configure::read('mail_report_to');
@@ -51,7 +52,7 @@ class MailReporter
 				}
 			}
 
-			$Email->subject('Cyclox2 ' . $titleSub .' Report [' . $request->host() . ']')->send($text);
+			$Email->subject('Cyclox2 ' . $titleSub .' Report [' . Router::fullBaseUrl() . ']')->send($text);
 		}
 	}
 }
