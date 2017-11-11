@@ -5,6 +5,7 @@
  */
 
 App::uses('PointSeriesController', 'Controller');
+App::uses('OrgUtilController', 'Controller');
 App::uses('PointSeriesSumUpRule', 'Cyclox/Const');
 App::uses('CakeTime', 'Utility');
 App::uses('MailReporter', 'Cyclox/Util');
@@ -20,9 +21,10 @@ class ResultShell extends AppShell
 	const __TYPE_DATA = 1;
 	
 	public $uses = array('TransactionManager', 'TmpResultUpdateFlag', 'TmpPointSeriesRacerSet'
-			, 'MeetPointSeries');
+			, 'MeetPointSeries', 'EntryCategory', 'EntryRacer', 'AjoccptLocalSetting', 'TmpAjoccptRacerSet');
 	
 	private $__psController;
+	private $__orgUtilController;
 	
 	public function main()
 	{
@@ -33,8 +35,400 @@ class ResultShell extends AppShell
 	function startup()
 	{
 		$this->__psController = new PointSeriesController();
+		$this->__orgUtilController = new OrgUtilController();
 		
 		parent::startup();
+	}
+	
+	/**
+	 * 更新をチェックし、必要なリザルトについて AJOCC ポイントランキング計算をする。
+	 * > app ディレクトリ
+	 * > Console/cake result updateAjoccPtRankings
+	 */
+	public function updateAjoccPtRankings()
+	{
+		$this->log('>>> Start updateAjoccPtRankings', LOG_INFO);
+		
+		$flagCats = $this->TmpResultUpdateFlag->query('select * from tmp_result_update_flags as Flag'
+			. ' inner join entry_categories as ec on ec.id = Flag.entry_category_id'
+			. ' inner join entry_groups as eg on eg.id = ec.entry_group_id'
+			. ' inner join meets as Meet on eg.meet_code = Meet.code' // 大会日取得
+			. ' where ec.deleted = 0 and eg.deleted = 0 and Meet.deleted = 0'
+			. ' and ajoccpt_sumuped = 0 and ec.applies_ajocc_pt = 1');
+		
+		if (empty($flagCats)) {
+			$this->log('処理対象となるフラグがありませんでした。', LOG_INFO);
+			$this->log('>>> End updateAjoccPtRankings', LOG_INFO);
+		}
+		
+		/*
+		flag--ec でまとめて取得
+		ec ごとに as_category 取得して処理
+		完了で flag を sumuped
+		done な season-cat は記録しておいて、既にやったのならば、処理なしで flag sumuped のみ。
+		*/
+		
+		$this->log('更新対象のflagは以下の通り', LOG_INFO);
+		$this->log($flagCats, LOG_INFO);
+		
+		$flagIdDone = array();
+		$seasonCatDone = array();
+		
+		foreach ($flagCats as $fc) {
+			$seasonId = $fc['Meet']['season_id'];
+			
+			$opt = array(
+				'conditions' => array(
+					'EntryRacer.deleted' => 0,
+					'RacerResult.deleted' => 0,
+					'entry_category_id'=> $fc['ec']['id']
+				),
+				'fields' => array(
+					'DISTINCT RacerResult.as_category'
+				)
+			);
+			
+			$ers = $this->EntryRacer->find('all', $opt);
+			
+			foreach ($ers as $er) {
+				$asCat = $er['RacerResult']['as_category'];
+				
+				$this->log('about season:' . $seasonId . ' cat:'. $asCat . ' of flagID:' . $fc['Flag']['id'], LOG_DEBUG);
+				
+				if (in_array($this->__seasonCatKey($seasonId, $asCat), $seasonCatDone)) {
+					$this->log('処理済み', LOG_DEBUG);
+					$ret = true;
+				} else {
+					$ret = $this->__updateAjoccPtRanking($asCat, $seasonId);
+				}
+
+				if ($ret) {
+					$flagIdDone[] = $fc['Flag']['id'];
+					$seasonCatDone[] = $this->__seasonCatKey($seasonId, $asCat);
+				} else {
+					$msg = 'as_category:' . $asCat . ', season:' . $seasonId . ' の AjoccPoint ランキング作成に失敗しました。';
+					$this->log($msg, LOG_ERR);
+					MailReporter::report('ResultShell#updateAjoccPtRankings ' . $msg, 'Error');
+					// continue;
+				}
+			}
+		}
+		
+		$this->log('以下のフラグを修正済みとして設定する:' . implode(',', $flagIdDone), LOG_INFO);
+		
+		// flag 処理済みをマーキング
+		$opt = array(
+			'TmpResultUpdateFlag.id' => $flagIdDone,
+		);
+		
+		$ups = array(
+			'ajoccpt_sumuped' => 1,
+			'modified' => "'" . date('Y-m-d H:i:s') . "'", // updateAll だと Date にシングルクォートつけてくれないみたい。
+		);
+		
+		if (!$this->TmpResultUpdateFlag->updateAll($ups, $opt)) {
+			$msg = 'TmpResultUpdateFlag [id:' . implode(',', $flagIdDone) . '] の ajocc ランキング集計済み日時の設定に失敗しました。\n'
+					. '集計自体は済んでいますが、次回に再度（つまり無駄な）更新処理が走ってしまいます。';
+			$this->log($msg, LOG_WARNING);
+			MailReporter::report('ResultShell#updateAjoccPtRankings ' . $msg, 'Warn');
+		}
+		
+		// 削除済み ecat なフラグを削除
+		$cdt = array(
+			'EntryCategory.deleted' => 1,
+		);
+		
+		if (!$this->TmpResultUpdateFlag->deleteAll($cdt, false)) {
+			$msg = '集計済みでないが、EntryCategory.deleted なデータの削除に失敗しました。';
+			$this->log($msg, LOG_WARNING);
+			MailReporter::report('ResultShell#updateAjoccPtRankings ' . $msg, 'Warn');
+			// not return
+		}
+		$this->log('既に無効となっている TmpResultUpdateFlag の削除について完了。', LOG_INFO);
+		
+		
+		$this->log('>>> End updateAjoccPtRankings', LOG_INFO);
+	}
+	
+	private function __seasonCatKey($seasonId, $catCode)
+	{
+		return $seasonId . '_x_' . $catCode;
+	}
+	
+	/**
+	 * 指定された Ajocc ランキングデータを更新する
+	 * @param string $catCode カテゴリーコード
+	 * @param int $seasonId シーズン ID
+	 * @return boolean 正常に更新したか
+	 */
+	private function __updateAjoccPtRanking($catCode, $seasonId)
+	{
+		$ret = $this->__orgUtilController->calcAjoccPoints($catCode, $seasonId);
+		
+		if ($ret === false) {
+			$this->log(__('内部的なエラーのため、ランキングを更新できませんでした。（カテゴリー指定が不正？）cat:' . $catCode . ' season:' . $seasonId), LOG_INFO);
+			return false;
+		}
+		if (empty($ret['racerPoints'])) {
+			$this->log(__('対象となるリザルトが無いため(?)、ランキングを更新できませんでした。cat:' . $catCode . ' season:' . $seasonId), LOG_INFO);
+			return true; // 正常とする
+		}
+		
+		$meetTitles = $ret['meetTitles'];
+		$racerPoints = $ret['racerPoints'];
+		
+		$sets = $this->__createAjoccptSets($catCode, $seasonId, $meetTitles, $racerPoints);
+		
+		if (empty($sets)) {
+			$this->log(__('対象となるレースデータが無いため、ランキングを更新できませんでした。cat:' . $catCode . ' season:' . $seasonId), LOG_INFO);
+			return true;
+		}
+		
+		if ($this->__saveAjoccRanking($seasonId, $catCode, $sets)) {
+			$this->log(__('ランキングを保存しました（local 設定なし）。cat:' . $catCode . ' season:' . $seasonId), LOG_INFO);
+		} else {
+			$this->log(__('ランキングの保存に失敗しました（local 設定なし）。cat:' . $catCode . ' season:' . $seasonId), LOG_INFO);
+		}
+		
+		// local 設定があるなら別立てで。
+		
+		// ajocc point local 設定取得
+		$localSettings = $this->AjoccptLocalSetting->find('all', array('conditions' => array('season_id' => $seasonId)));
+		
+		foreach ($localSettings as $locals) {
+			
+			// ここで制限付けて calcAjoccPoints() してしまう方が良い。
+			
+			$sets = $this->__createAjoccptSets($catCode, $seasonId, $meetTitles, $racerPoints, $locals);
+			
+			if (!empty($sets)) {
+				if ($this->__saveAjoccRanking($seasonId, $catCode, $sets, $locals)) {
+					$this->log(__('ランキングを保存しました（local 設定:' . $locals['AjoccptLocalSetting']['id'] .'）。'
+						. 'cat:' . $catCode . ' season:' . $seasonId), LOG_INFO);
+				} else {
+					$this->log(__('ランキングの保存に失敗しました（local 設定:' . $locals['AjoccptLocalSetting']['id'] .'）。'
+						. 'cat:' . $catCode . ' season:' . $seasonId), LOG_INFO);
+				}
+			}
+		}
+		
+		return true;
+	}
+	
+	private function __saveAjoccRanking($seasonId, $catCode, $sets, $localSetting = null)
+	{
+		//>>> transaction ++++++++++++++++++++++++++++++++++++++++
+		$transaction = $this->TransactionManager->begin();
+		
+		$localsId = $localSetting['AjoccptLocalSetting']['id'];
+		
+		// 前回計算分を削除
+		$cdt = array(
+			'season_id' => $seasonId,
+			'category_code' => $catCode,
+			'ajoccpt_local_setting_id' => $localsId,
+		);
+		
+		if (!$this->TmpAjoccptRacerSet->deleteAll($cdt, false)) {
+			$this->TransactionManager->rollback($transaction);
+			$msg = 'ajocc ランキング[season:' . $seasonId . '-cat:' . $catCode . '] の集計（前回データの削除）に失敗し、処理を中断しました。';
+			$this->log($msg, LOG_ERR);
+			MailReporter::report('ResultShell#__updateAjoccPtRanking ' . $msg, 'ERROR');
+			return false;
+		}
+
+		if (count($sets) > 1) {
+			if (!$this->TmpAjoccptRacerSet->saveAll($sets)) {
+				$this->TransactionManager->rollback($transaction);
+				$msg = 'ajocc ランキング[season:' . $seasonId . '-cat:' . $catCode . '] の集計（データの作成）に失敗し、処理を中断しました。';
+				$this->log($msg, LOG_ERR);
+				MailReporter::report('ResultShell#__updateAjoccPtRanking ' . $msg, 'ERROR');
+				return false;
+			}
+		}
+
+		$this->TransactionManager->commit($transaction);
+		//<<< transaction ++++++++++++++++++++++++++++++++++++++++
+		
+		return true;
+	}
+	
+	/**
+	 * ajocc point ランキングデータの保存用配列をかえす。
+	 * @param string $catCode
+	 * @param int $seasonId
+	 * @param type $meetTitles
+	 * @param type $racerPoints
+	 * @param type $localSetting ローカル設定。FALSE で設定なし。
+	 * @return array 
+	 */
+	private function __createAjoccptSets($catCode, $seasonId, $meetTitles, $racerPoints, $localSetting = FALSE)
+	{
+		$titles = $meetTitles;
+		$points = $racerPoints;
+		
+		if (!empty($localSetting)) {
+			$settingStr = $localSetting['AjoccptLocalSetting']['setting'];
+			$setting = $this->__parseLocalSetting($settingStr);
+			
+			foreach ($setting as $key => $val) {
+				
+				// 大会グループ制限
+				if ($key === 'meet_group') {
+					$groups = explode('/', $val);
+					
+					// MEMO: 参照渡し
+					$this->__limitWithMeetGroups($titles, $points, $groups);
+				}
+				// or other limitation...
+			}
+			
+			// 集計値の計算し直し
+			foreach ($points as $rcode => &$rp) {
+				$total = 0;
+				$squared = 0;
+				
+				foreach ($rp['points'] as $pt) {
+					$total += $pt;
+					$squared += $pt * $pt;
+				}
+				
+				$rp['total'] = $total;
+				$rp['totalSquared'] = $squared;
+			}
+			unset($rp);
+			
+			// 順位振り直し
+			// sort
+			uasort($points, array($this->__orgUtilController, "_compareAjoccPoint"));
+			
+			foreach ($points as &$rp) {
+				
+			}
+			unset($rp);
+		}
+		
+		if (empty($titles)) {
+			$this->log('対象となるレースがありません。', LOG_INFO);
+			return array();
+		}
+		
+		$sets = array();
+		
+		$titleSet = array(
+			'TmpAjoccptRacerSet' => array(
+				'season_id' => $seasonId,
+				'category_code' => $catCode,
+				'type' => self::__TYPE_TITLE,
+				'rank' => 0,
+				'racer_code' => '選手Code',
+				'name' => '選手',
+				'team' => 'チーム',
+				'point_json' => json_encode($titles, JSON_UNESCAPED_UNICODE),
+				'sumup_json' => json_encode(array("合計", "自乗和"), JSON_UNESCAPED_UNICODE),
+			)
+		);
+		
+		if (!empty($localSetting)) {
+			$titleSet['TmpAjoccptRacerSet']['ajoccpt_local_setting_id'] = $localSetting['AjoccptLocalSetting']['id'];
+		}
+		
+		$sets[] = $titleSet;
+		
+		foreach ($points as $rcode => $rp) {
+			$set = array(
+				'TmpAjoccptRacerSet' => array(
+					'season_id' => $seasonId,
+					'category_code' => $catCode,
+					'type' => self::__TYPE_DATA,
+					'rank' => $rp['rank'],
+					'racer_code' => $rcode,
+					'name' => $rp['name'],
+					'team' => isset($rp['team']) ? $rp['team'] : '',
+					'point_json' => json_encode($rp['points'], JSON_UNESCAPED_UNICODE),
+					'sumup_json' => json_encode(array($rp['total'], $rp['totalSquared']), JSON_UNESCAPED_UNICODE),
+				)
+			);
+			
+			if (!empty($localSetting)) {
+				$set['TmpAjoccptRacerSet']['ajoccpt_local_setting_id'] = $localSetting['AjoccptLocalSetting']['id'];
+			}
+			
+			$sets[] = $set;
+		}
+		
+		return $sets;
+	}
+	
+	/**
+	 * 大会グループで ajocc ランキングを制限する
+	 * @param ref-array $titles
+	 * @param ref-array $points
+	 * @param string-array $groups 大会グループコードの入った配列
+	 */
+	private function __limitWithMeetGroups(&$titles, &$points, $groups)
+	{
+		if (empty($groups)) {
+			return;
+		}
+		
+		$applies = array();
+		
+		for($i = 0; $i < count($titles); $i++)
+		{
+			$title = $titles[$i];
+			
+			if (in_array($title['group'], $groups)) {
+				$applies[] = $i;
+			}
+		}
+		
+		$tts = array();
+		$pts = array();
+		
+		foreach ($applies as $aindex) {
+			$tts[$aindex] = $titles[$aindex];
+			
+			foreach ($points as $rcode => &$rp) {
+				if (isset($rp['points'][$aindex])) {
+					if (!isset($pts[$rcode])) {
+						$pts[$rcode] = $rp;
+						$pts[$rcode]['points'] = array();
+					}
+					
+					$pts[$rcode]['points'][$aindex] = $rp['points'][$aindex];
+				}
+			}
+		}
+		
+		$titles = $tts;
+		$points = $pts;
+	}
+	
+	/**
+	 * AJOCC ポイントの local 設定文字列から設定パラメタとして抽出した配列をかえす
+	 * @param string $str
+	 * @return array 配列ごと要素は , で分けられ、key-value は : で分けられた配列。
+	 */
+	private function __parseLocalSetting($str)
+	{
+		if (empty($str)) {
+			return array();
+		}
+		
+		$slist = explode(",", $str);
+		$ret = array();
+		
+		foreach ($slist as $s) {
+			if (strpos($s, ':') !== false) {
+				$kv = explode(':', $s);
+				$ret[$kv[0]] = $kv[1];
+			} else {
+				$ret[] = $s;
+			}
+		}
+		
+		return $ret;
 	}
 	
 	/**
@@ -80,12 +474,11 @@ class ResultShell extends AppShell
 
 		// 後処理として、deleted EntryCategory を指定している flag は削除してしまう。
 		$this->TmpResultUpdateFlag->Behaviors->unload('Containable');
-		$opt = array(
-			'points_sumuped' => 0,
+		$cdt = array(
 			'EntryCategory.deleted' => 1,
 		);
 		
-		if (!$this->TmpResultUpdateFlag->deleteAll($opt, false)) {
+		if (!$this->TmpResultUpdateFlag->deleteAll($cdt, false)) {
 			$msg = '集計済みでないが、EntryCategory.deleted なデータの削除に失敗しました。';
 			$this->log($msg, LOG_WARNING);
 			MailReporter::report('ResultShell#updateSeriesRankings ' . $msg, 'Warn');
