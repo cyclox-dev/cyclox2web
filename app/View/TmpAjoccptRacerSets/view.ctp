@@ -16,6 +16,11 @@
 			<?php echo $this->Html->link($tmpAjoccptRacerSet['Season']['name'], array('controller' => 'seasons', 'action' => 'view', $tmpAjoccptRacerSet['Season']['id'])); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('Category'); ?></dt>
+		<dd>
+			<?php echo $this->Html->link($tmpAjoccptRacerSet['TmpAjoccptRacerSet']['category_code'], array('controller' => 'categories', 'action' => 'view', $tmpAjoccptRacerSet['TmpAjoccptRacerSet']['category_code'])); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Type'); ?></dt>
 		<dd>
 			<?php echo h($tmpAjoccptRacerSet['TmpAjoccptRacerSet']['type']); ?>

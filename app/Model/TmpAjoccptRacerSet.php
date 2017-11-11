@@ -84,6 +84,13 @@ class TmpAjoccptRacerSet extends AppModel {
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''
+		),
+		'Category' => array(
+			'className' => 'Category',
+			'foreignKey' => 'category_code',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
 		)
 	);
 }

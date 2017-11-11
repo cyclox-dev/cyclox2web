@@ -6,6 +6,7 @@
 		echo $this->Form->input('id');
 		echo $this->Form->input('ajoccpt_local_setting_id');
 		echo $this->Form->input('season_id');
+		echo $this->Form->input('category_code', array('options' => $categories));
 		echo $this->Form->input('type');
 		echo $this->Form->input('rank');
 		echo $this->Form->input('racer_code');

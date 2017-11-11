@@ -59,7 +59,8 @@ class TmpAjoccptRacerSetsController extends AppController {
 		}
 		$ajoccptLocalSettings = $this->TmpAjoccptRacerSet->AjoccptLocalSetting->find('list');
 		$seasons = $this->TmpAjoccptRacerSet->Season->find('list');
-		$this->set(compact('ajoccptLocalSettings', 'seasons'));
+		$categories = $this->TmpAjoccptRacerSet->Category->find('list');
+		$this->set(compact('ajoccptLocalSettings', 'seasons', 'categories'));
 	}
 
 /**
@@ -86,7 +87,8 @@ class TmpAjoccptRacerSetsController extends AppController {
 		}
 		$ajoccptLocalSettings = $this->TmpAjoccptRacerSet->AjoccptLocalSetting->find('list');
 		$seasons = $this->TmpAjoccptRacerSet->Season->find('list');
-		$this->set(compact('ajoccptLocalSettings', 'seasons'));
+		$categories = $this->TmpAjoccptRacerSet->Category->find('list');
+		$this->set(compact('ajoccptLocalSettings', 'seasons', 'categories'));
 	}
 
 /**

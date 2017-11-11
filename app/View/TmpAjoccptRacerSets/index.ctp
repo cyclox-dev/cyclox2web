@@ -6,6 +6,7 @@
 			<th><?php echo $this->Paginator->sort('id'); ?></th>
 			<th><?php echo $this->Paginator->sort('ajoccpt_local_setting_id'); ?></th>
 			<th><?php echo $this->Paginator->sort('season_id'); ?></th>
+			<th><?php echo $this->Paginator->sort('category_code'); ?></th>
 			<th><?php echo $this->Paginator->sort('type'); ?></th>
 			<th><?php echo $this->Paginator->sort('rank'); ?></th>
 			<th><?php echo $this->Paginator->sort('racer_code'); ?></th>
@@ -27,6 +28,9 @@
 		</td>
 		<td>
 			<?php echo $this->Html->link($tmpAjoccptRacerSet['Season']['name'], array('controller' => 'seasons', 'action' => 'view', $tmpAjoccptRacerSet['Season']['id'])); ?>
+		</td>
+		<td>
+			<?php echo $this->Html->link($tmpAjoccptRacerSet['TmpAjoccptRacerSet']['category_code'], array('controller' => 'categories', 'action' => 'view', $tmpAjoccptRacerSet['TmpAjoccptRacerSet']['category_code'])); ?>
 		</td>
 		<td><?php echo h($tmpAjoccptRacerSet['TmpAjoccptRacerSet']['type']); ?>&nbsp;</td>
 		<td><?php echo h($tmpAjoccptRacerSet['TmpAjoccptRacerSet']['rank']); ?>&nbsp;</td>

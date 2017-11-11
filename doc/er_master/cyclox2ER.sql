@@ -8,12 +8,12 @@ DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
+DROP TABLE IF EXISTS tmp_result_update_flags;
 DROP TABLE IF EXISTS point_series_racers;
-DROP TABLE IF EXISTS hold_points;
 DROP TABLE IF EXISTS time_records;
+DROP TABLE IF EXISTS hold_points;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
-DROP TABLE IF EXISTS tmp_result_update_flags;
 DROP TABLE IF EXISTS entry_categories;
 DROP TABLE IF EXISTS time_record_info;
 DROP TABLE IF EXISTS entry_groups;
@@ -524,6 +524,8 @@ CREATE TABLE tmp_ajoccpt_racer_sets
 	id bigint unsigned NOT NULL AUTO_INCREMENT,
 	ajoccpt_local_setting_id int unsigned,
 	season_id int unsigned NOT NULL,
+	-- C1, CL3 など
+	category_code varchar(16) BINARY NOT NULL,
 	-- タイトル行、選手データ行の別などを表す。
 	type tinyint unsigned NOT NULL,
 	-- タイトル号はゼロ
