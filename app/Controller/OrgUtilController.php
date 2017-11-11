@@ -125,7 +125,7 @@ class OrgUtilController extends ApiBaseController
 		$body .= '順位,選手 Code,選手名,チーム,';
 		
 		foreach ($meetTitles as $title) {
-			$body .= $title . ',';
+			$body .= $title['name'] . ',';
 		}
 		$body .= "合計,自乗和\n";
 		
@@ -247,7 +247,11 @@ class OrgUtilController extends ApiBaseController
 					if (!$finds) continue;
 					
 					if (!$meetAdds) {
-						$meetTitles[] = $meet['Meet']['short_name'];
+						$meetTitles[] = array(
+							'name' => $meet['Meet']['short_name'],
+							'code' => $meet['Meet']['code'],
+							'group' => $meet['Meet']['meet_group_code'],
+						);
 						$meetAdds = true;
 					}
 					
