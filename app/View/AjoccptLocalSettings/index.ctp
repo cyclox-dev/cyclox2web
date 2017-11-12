@@ -1,5 +1,12 @@
 <div class="ajoccptLocalSettings index">
 	<h2><?php echo __('Ajoccpt Local Settings'); ?></h2>
+	<p>全レース対象となる AJOCC ポイントランキングとは別に一部のレースでの AJOCC ランキングを作りたい場合、つまり関東のレースだけとか、そういった設定のページです。</p>
+	<p>Setting の項目は key1:val1,key2:val2,key3:val3 という形式で記述してください。key値に使用できるのは 以下のとおり。</p>
+	<p>meet_group: 大会グループを限定します。</br>
+		exclude_meet: 大会コード指定でその大会を除外します。</p>
+	<p>入力例1）関東と湘南のみの場合 = meet_group:CXK/SHN</br>
+		入力例2）CCH-178-003 を除外したランキングを作成する場合 = exclude_meet:CCH-178-003</br>
+		入力例3）meet_group:CCH/TKI,exclude_meet:TKI-178-003</p>
 	<table cellpadding="0" cellspacing="0">
 	<thead>
 	<tr>
