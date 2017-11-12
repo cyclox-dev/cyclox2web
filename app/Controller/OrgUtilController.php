@@ -415,6 +415,12 @@ class OrgUtilController extends ApiBaseController
 					if (!empty($groups)) {
 						$cdt[] = array('meet_group_code' => $groups);
 					}
+				} else if ($key === 'exclude_meet') {
+					$meets = explode('/', $val);
+					
+					if (!empty($meets)) {
+						$cdt[] = array('NOT' => ['Meet.code' => $meets]);
+					}
 				}
 				// or other limitation...
 			}
