@@ -158,9 +158,10 @@ class OrgUtilController extends ApiBaseController
 	 * ajocc point ランキングデータをかえす。
 	 * @param string $catCode カテゴリーコード
 	 * @param int $seasonId シーズン ID
+	 * @param array $localSetting ajocc point ローカル設定（AjoccptLocalSetting クラス）
 	 * @return array key:meetTtiles, racerPoints もつ配列
 	 */
-	public function calcAjoccPoints($catCode, $seasonId)
+	public function calcAjoccPoints($catCode, $seasonId, $localSetting = array())
 	{	
 		// 指定カテゴリーを含むレースカテゴリーを取得しておく
 		$this->Category->Behaviors->load('Containable');
@@ -198,9 +199,7 @@ class OrgUtilController extends ApiBaseController
 		//$this->log($rcats, LOG_DEBUG);
 		
 		// 大会を日付順にチェック
-		$cnd = array('season_id' => $seasonId);
-		$this->Meet->Behaviors->load('Utils.SoftDelete'); // deleted を拾わないように
-		$meets = $this->Meet->find('all', array('conditions' => $cnd, 'order' => array('at_date' => 'asc'), 'recursive' => 0));
+		$meets = $this->__getMeets($seasonId, $localSetting);
 		//$this->log($meets, LOG_DEBUG);
 		
 		if (empty($meets)) {
@@ -389,6 +388,65 @@ class OrgUtilController extends ApiBaseController
 			'meetTitles' => $meetTitles,
 			'racerPoints' => $racerPoints,
 		);
+	}
+	
+	/**
+	 * 指定条件の大会の配列を取得する
+	 * @param type $seasonId
+	 * @param type $localSetting
+	 * @return type
+	 */
+	private function __getMeets($seasonId, $localSetting)
+	{
+		$this->Meet->Behaviors->load('Utils.SoftDelete'); // deleted を拾わないように
+		
+		$cdt = array('season_id' => $seasonId);
+		
+		if (!empty($localSetting)) {
+			$settingStr = $localSetting['AjoccptLocalSetting']['setting'];
+			$setting = $this->__parseLocalSetting($settingStr);
+			
+			foreach ($setting as $key => $val) {
+				
+				// 大会グループ制限
+				if ($key === 'meet_group') {
+					$groups = explode('/', $val);
+					
+					if (!empty($groups)) {
+						$cdt[] = array('meet_group_code' => $groups);
+					}
+				}
+				// or other limitation...
+			}
+		}
+		
+		return $this->Meet->find('all', array('conditions' => $cdt, 'order' => array('at_date' => 'asc'), 'recursive' => 0));
+	}
+	
+	/**
+	 * AJOCC ポイントの local 設定文字列から設定パラメタとして抽出した配列をかえす
+	 * @param string $str
+	 * @return array 配列ごと要素は , で分けられ、key-value は : で分けられた配列。
+	 */
+	private function __parseLocalSetting($str)
+	{
+		if (empty($str)) {
+			return array();
+		}
+		
+		$slist = explode(",", $str);
+		$ret = array();
+		
+		foreach ($slist as $s) {
+			if (strpos($s, ':') !== false) {
+				$kv = explode(':', $s);
+				$ret[$kv[0]] = $kv[1];
+			} else {
+				$ret[] = $s;
+			}
+		}
+		
+		return $ret;
 	}
 	
 	/**
