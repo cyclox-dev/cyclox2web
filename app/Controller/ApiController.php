@@ -361,7 +361,7 @@ class ApiController extends ApiBaseController
 		);
 		$egroups = $this->EntryGroup->find('all', $opt);
 		if (empty($egroups)) {
-			return $this->error('大会が見つかりません。', self::STATUS_CODE_BAD_REQUEST);
+			return $this->error('出走設定が見つかりません。出走設定をアップロードしてください。', self::STATUS_CODE_BAD_REQUEST);
 		}
 		
 		$ecats = array();
