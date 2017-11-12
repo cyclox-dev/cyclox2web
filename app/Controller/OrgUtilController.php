@@ -164,7 +164,7 @@ class OrgUtilController extends ApiBaseController
 	{	
 		// 指定カテゴリーを含むレースカテゴリーを取得しておく
 		$this->Category->Behaviors->load('Containable');
-		$this->Category->actsAs = array('Utils.SoftDelete'); // deleted を拾わないように
+		$this->Category->Behaviors->load('Utils.SoftDelete'); // deleted を拾わないように
 		$opt = array();
 		$opt['contain'] = array('CategoryRacesCategory');
 		$opt['conditions'] = array(
@@ -199,7 +199,7 @@ class OrgUtilController extends ApiBaseController
 		
 		// 大会を日付順にチェック
 		$cnd = array('season_id' => $seasonId);
-		$this->Meet->actsAs = array('Utils.SoftDelete'); // deleted を拾わないように
+		$this->Meet->Behaviors->load('Utils.SoftDelete'); // deleted を拾わないように
 		$meets = $this->Meet->find('all', array('conditions' => $cnd, 'order' => array('at_date' => 'asc'), 'recursive' => 0));
 		//$this->log($meets, LOG_DEBUG);
 		
@@ -208,7 +208,7 @@ class OrgUtilController extends ApiBaseController
 			return false;
 		}
 		
-		$this->EntryGroup->actsAs = array('Utils.SoftDelete'); // deleted を拾わないように
+		$this->EntryGroup->Behaviors->load('Utils.SoftDelete'); // deleted を拾わないように
 		$this->EntryGroup->Behaviors->load('Containable');
 		
 		// 該当出走カテゴリーを引き出しておく
@@ -255,7 +255,7 @@ class OrgUtilController extends ApiBaseController
 						$meetAdds = true;
 					}
 					
-					$this->EntryRacer->actsAs = array('Utils.SoftDelete'); // deleted を拾わないように
+					$this->EntryRacer->Behaviors->load('Utils.SoftDelete'); // deleted を拾わないように
 					
 					$opt = array('recursive' => 1);
 					$opt['conditions'] = array(
@@ -279,7 +279,7 @@ class OrgUtilController extends ApiBaseController
 							}
 						} else {
 							// 大会日におけるカテゴリーの所持を確認
-							$this->CategoryRacer->actsAs = array('Utils.SoftDelete'); // deleted を拾わないように
+							$this->CategoryRacer->Behaviors->load('Utils.SoftDelete'); // deleted を拾わないように
 
 							$opt = array('recursive' => -1);
 							$opt['conditions'] = array(
