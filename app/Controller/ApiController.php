@@ -289,7 +289,7 @@ class ApiController extends ApiBaseController
 			
 			$cats = $this->request->data['entry_cats'];
 			
-			if (is_array($cats) && !emptY($cats)) {
+			if (is_array($cats) && !empty($cats)) {
 				foreach ($cats as $cat) {
 					$this->EntryCategory->create();
 					
