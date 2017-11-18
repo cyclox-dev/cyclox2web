@@ -74,7 +74,6 @@ class ResultParamCalcComponent extends Component
 	public function reCalcResults($ecatId = null)
 	{
 		$this->EntryCategory = new EntryCategory();
-		
 		$this->EntryCategory->Behaviors->load('Containable');
 		
 		$options = array(
@@ -95,7 +94,7 @@ class ResultParamCalcComponent extends Component
 		} else {
 			$ers = array();
 			foreach ($ecat['EntryRacer'] as $eracer) {
-				if (!empty($eracer['RacerResult'])) {
+				if (!empty($eracer['RacerResult']) && !$eracer['deleted']) {
 					$er = array();
 					$er['EntryRacer'] = $eracer;
 					$er['RacerResult'] = $eracer['RacerResult'];
