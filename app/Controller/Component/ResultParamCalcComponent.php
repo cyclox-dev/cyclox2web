@@ -335,20 +335,20 @@ class ResultParamCalcComponent extends Component
 
 			if ($rankUpCount > 0) {
 				foreach ($results as $result) {
-				$isOpenRacer = ($result['EntryRacer']['entry_status'] == RacerEntryStatus::$OPEN->val());
-				if ($isOpenRacer) {
-					continue;
-				}
+					$isOpenRacer = ($result['EntryRacer']['entry_status'] == RacerEntryStatus::$OPEN->val());
+					if ($isOpenRacer) {
+						continue;
+					}
 
 					$er = $result['EntryRacer'];
 					$r = $result['RacerResult'];
 
-				if ($r['rank'] == 1) {
-					$this->__applyRankUp2CM($er['racer_code'], 'CM1', $r);
+					if ($r['rank'] == 1) {
+						$this->__applyRankUp2CM($er['racer_code'], 'CM1', $r);
 					} else if ($r['rank'] > 1 && $r['rank'] <= $rankUpCount) {
-					$this->__applyRankUp2CM($er['racer_code'], 'CM2', $r);
+						$this->__applyRankUp2CM($er['racer_code'], 'CM2', $r);
+					}
 				}
-			}
 			}
 		} else if ($this->__started >= 6 && ($racesCat == 'CL2' || $racesCat == 'CL2+3')) {
 			// シリーズ2勝で昇格
@@ -529,6 +529,7 @@ class ResultParamCalcComponent extends Component
 					$opt = array('conditions' => array(
 						'EntryCategory.id' => $ecatIds,
 						'EntryRacer.racer_code' => $result['EntryRacer']['racer_code'],
+						'RacerResult.rank' => 1,
 						'RacerResult.deleted' => 0,
 						'Racer.deleted' => 0,
 						'EntryCategory.deleted' => 0,
@@ -538,46 +539,49 @@ class ResultParamCalcComponent extends Component
 					//$this->log('ers:', LOG_DEBUG);
 					//$this->log($ers, LOG_DEBUG);
 
-					$catTo = null;
+					$catTo = $this->__rankUpMap[$racesCat]['to'];
 					$cancelCats = $this->__rankUpMap[$racesCat]['needs'];
 					
 					$rankUps = false;
+					$rankUpTo = null;
 					foreach ($ers as $entryRacer) {
-						if (!empty($entryRacer['RacerResult']['rank']) && $entryRacer['RacerResult']['rank'] == 1) {
-							// ただしその出走人数が5-9人であること
-							$opt = array('conditions' => array(
+						// ただしその出走人数が5-9人であること
+						$opt = array('conditions' => array(
 							'entry_category_id' => $entryRacer['EntryCategory']['id'],
 							'RacerResult.deleted' => 0,
 							'NOT' => array('RacerResult.status' => RacerResultStatus::$DNS->val()),
 						));
 
-							$erCount = $this->EntryRacer->find('count', $opt);
+						$erCount = $this->EntryRacer->find('count', $opt);
 							//$this->log('er count:' . $erCount . ' id:' . $entryRacer['EntryCategory']['id'], LOG_DEBUG);
 							//$this->log($erCount, LOG_DEBUG);
 
-							if ($erCount >= 5 && $erCount <= 9) {
-								$rankUps = true;
-								if ($racesCat == 'C3+4') { // 特殊処理
-									if ($entryRacer['EntryCategory']['races_category_code'] == 'C3'
-											|| $entryRacer['EntryCategory']['races_category_code'] == 'C3+4') {
-										// 過去に C3 or C3+4 で少人数勝利しているなら C2 に昇格
-										$catTo = 'C2';
-										$cancelCats = array('C3', 'C4');
-									} else if ($entryRacer['EntryCategory']['races_category_code'] == 'C4') {
-										// 過去に C4 で少人数勝利しているなら C3 に昇格
-										if ($catTo != 'C2') {
-											$catTo = 'C3';
-											$cancelCats = array('C4'); // C3 はキャンセルしない
-										}
+						if ($erCount >= 5 && $erCount <= 9) {
+							$rankUps = true;
+							if ($racesCat == 'C3+4') { // 特殊処理
+								if ($entryRacer['EntryCategory']['races_category_code'] == 'C3'
+										|| $entryRacer['EntryCategory']['races_category_code'] == 'C3+4') {
+									// 過去に C3 or C3+4 で少人数勝利しているなら C2 に昇格
+									$rankUpTo = 'C2';
+									$cancelCats = array('C3', 'C4');
+								} else if ($entryRacer['EntryCategory']['races_category_code'] == 'C4') {
+									// 過去に C4 で少人数勝利しているなら C3 に昇格
+									if ($rankUpTo != 'C2') {
+										$rankUpTo = 'C3';
+										$cancelCats = array('C4'); // C3 はキャンセルしない
 									}
-									// not break
-								} else {
-									break;
 								}
+								// not break
+							} else {
+								break;
 							}
 						}
 					}
-
+					
+					if (!is_null($rankUpTo)) {
+						$catTo = $rankUpTo;
+					}
+					
 					if ($rankUps) {
 						$ret = $this->__execApplyRankUp($result['EntryRacer']['racer_code'], $racesCat, $r, '少人数シーズン2勝', $catTo);
 						
