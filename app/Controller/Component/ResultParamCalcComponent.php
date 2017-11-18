@@ -484,11 +484,6 @@ class ResultParamCalcComponent extends Component
 					
 					if ($r['rank'] != 1) continue;
 					
-					// 年齢チェック
-					if (!$this->__isProperAgeForCat($result['EntryRacer']['racer_code'], $racesCat)) {
-						break; // 1位は見つけているので処理終了
-					}
-
 					// そのシーズン、同じシリーズでの成績を取得 -> 1位があるかチェック
 					
 					$mt = $this->__getMeetInfoOfEcat($ecat['id']);
@@ -580,6 +575,13 @@ class ResultParamCalcComponent extends Component
 					
 					if (!is_null($rankUpTo)) {
 						$catTo = $rankUpTo;
+					}
+					
+					// 年齢チェック
+					if ($rankUps) {
+						if (!$this->__isProperAgeForCat($result['EntryRacer']['racer_code'], $catTo)) {
+							break; // 1位は見つけているので処理終了
+						}
 					}
 					
 					if ($rankUps) {
