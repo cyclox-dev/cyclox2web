@@ -546,8 +546,11 @@ class ResultParamCalcComponent extends Component
 						if (!empty($entryRacer['RacerResult']['rank']) && $entryRacer['RacerResult']['rank'] == 1) {
 							// ただしその出走人数が5-9人であること
 							$opt = array('conditions' => array(
-								'entry_category_id' => $entryRacer['EntryCategory']['id']
-							), 'recursive' => -1); // 'recursive' => -1 を書かないとカウントが異常値になる <-- er hasMany results だからっぽい。
+							'entry_category_id' => $entryRacer['EntryCategory']['id'],
+							'RacerResult.deleted' => 0,
+							'NOT' => array('RacerResult.status' => RacerResultStatus::$DNS->val()),
+						));
+
 							$erCount = $this->EntryRacer->find('count', $opt);
 							//$this->log('er count:' . $erCount . ' id:' . $entryRacer['EntryCategory']['id'], LOG_DEBUG);
 							//$this->log($erCount, LOG_DEBUG);
