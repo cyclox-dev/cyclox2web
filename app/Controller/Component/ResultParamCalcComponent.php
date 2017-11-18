@@ -319,25 +319,36 @@ class ResultParamCalcComponent extends Component
 		}
 		
 		if ($racesCat === 'CM1+2+3') {
-			// M1+2+3 は勝利したら CM1 表彰台で CM2（降格なし）
-			foreach ($results as $result) {
-				$er = $result['EntryRacer'];
-				$r = $result['RacerResult'];
+			// M1+2+3 は勝利したら CM1、表彰台で CM2（降格なし）
+			
+			$rankUpCount = 3;
+			// 2017-18 から人数制限あり
+			if ($this->_isSeasonAfter1617()) {
+				$rankUpCount = 0;
+				foreach ($this->__rule0123 as $rule) {
+					if ($this->__started >= $rule['racer_count']) {
+						$rankUpCount = $rule['up'];
+						break;
+					}
+				}
+			}
 
+			if ($rankUpCount > 0) {
+				foreach ($results as $result) {
 				$isOpenRacer = ($result['EntryRacer']['entry_status'] == RacerEntryStatus::$OPEN->val());
 				if ($isOpenRacer) {
 					continue;
 				}
 
-				if (empty($r['rank'])) {
-					continue;
-				}
+					$er = $result['EntryRacer'];
+					$r = $result['RacerResult'];
 
 				if ($r['rank'] == 1) {
 					$this->__applyRankUp2CM($er['racer_code'], 'CM1', $r);
-				} else if ($r['rank'] < 4) {
+					} else if ($r['rank'] > 1 && $r['rank'] <= $rankUpCount) {
 					$this->__applyRankUp2CM($er['racer_code'], 'CM2', $r);
 				}
+			}
 			}
 		} else if ($this->__started >= 6 && ($racesCat == 'CL2' || $racesCat == 'CL2+3')) {
 			// シリーズ2勝で昇格
