@@ -358,7 +358,7 @@ class ResultParamCalcComponent extends Component
 				if ($r['rank'] != 1) continue;
 
 				// 年齢チェック
-				if (!$this->__isProperAgeForCat($result['EntryRacer']['racer_code'], $racesCat)) {
+				if (!$this->__isProperAgeForCat($result['EntryRacer']['racer_code'], 'CL1')) {
 					break; // 1位は見つけているので処理終了
 				}
 
@@ -422,7 +422,7 @@ class ResultParamCalcComponent extends Component
 				}
 
 				if ($rankUps) {
-					$ret = $this->__execApplyRankUp($result['EntryRacer']['racer_code'], $racesCat, $r, 'シーズン2勝', 'CL1', false);
+					$ret = $this->__execApplyRankUp($result['EntryRacer']['racer_code'], $r, 'シーズン2勝', 'CL1', false);
 
 					if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
 						$this->log('昇格適用に失敗しました。', LOG_ERR);
@@ -458,7 +458,7 @@ class ResultParamCalcComponent extends Component
 					$r = $result['RacerResult'];
 
 					if ($count > 0) {
-						$ret = $this->__applyRankUp($result['EntryRacer']['racer_code'], $racesCat, $r, $rankUpCount);
+						$ret = $this->__applyRankUp($result['EntryRacer']['racer_code'], $this->__rankUpMap[$racesCat]['to'], $r, $rankUpCount);
 						if ($ret != Constant::RET_NO_ACTION) {
 							--$count; // failed, error でも繰り上げしない
 						}
@@ -583,7 +583,7 @@ class ResultParamCalcComponent extends Component
 					}
 					
 					if ($rankUps) {
-						$ret = $this->__execApplyRankUp($result['EntryRacer']['racer_code'], $racesCat, $r, '少人数シーズン2勝', $catTo);
+						$ret = $this->__execApplyRankUp($result['EntryRacer']['racer_code'], $r, '少人数シーズン2勝', $catTo);
 						
 						if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
 							$this->log('昇格適用に失敗しました。', LOG_ERR);
@@ -816,14 +816,14 @@ class ResultParamCalcComponent extends Component
 	/**
 	 * 昇格を適用する
 	 * @param string $racerCode 選手コード
-	 * @param string $racesCat レースカテゴリー
+	 * @param string $catTo 昇格先カテゴリー
 	 * @param array $result リザルト
 	 * @param int $rankUpCount 昇格者数
 	 * @return Constant.RET_xxx 処理ステータス
 	 */
-	private function __applyRankUp($racerCode, $racesCat, $result, $rankUpCount)
+	private function __applyRankUp($racerCode, $catTo, $result, $rankUpCount)
 	{
-		if (empty($racerCode) || empty($racesCat)) {
+		if (empty($racerCode) || empty($catTo)) {
 			return Constant::RET_ERROR;
 		}
 		
@@ -831,26 +831,25 @@ class ResultParamCalcComponent extends Component
 			return Constant::RET_NO_ACTION;
 		}
 		
-		if (!$this->__isProperAgeForCat($racerCode, $racesCat)) {
+		if (!$this->__isProperAgeForCat($racerCode, $catTo)) {
 			return Constant::RET_NO_ACTION;
 		}
 		
 		$reasonNote = ($result['rank'] > $rankUpCount) ? "繰り上げ昇格" : "";
 		
-		return $this->__execApplyRankUp($racerCode, $racesCat, $result, $reasonNote);
+		return $this->__execApplyRankUp($racerCode, $result, $reasonNote, $catTo);
 	}
 	
 	/**
 	 * 昇格適用処理を実行する
 	 * @param string $racerCode 選手コード
-	 * @param string $racesCat レースカテゴリー
 	 * @param array $result リザルト
 	 * @param string $reasonNote 昇格理由 Note
 	 * @param string $categoryTo 昇格先カテゴリーコード
 	 * @param boolean $savesHoldPoints 昇格による残留ポイントを付加するか
 	 * @return Constant.RET_xxx 処理ステータス
 	 */
-	private function __execApplyRankUp($racerCode, $racesCat, $result, $reasonNote, $categoryTo = null, $savesHoldPoints = true)
+	private function __execApplyRankUp($racerCode, $result, $reasonNote, $categoryTo, $savesHoldPoints = true)
 	{
 		// 新しいカテゴリー所属の保存
 		// 現在所属しているかは見ない。不整合の場合は手動での修正とする。
@@ -858,12 +857,10 @@ class ResultParamCalcComponent extends Component
 		// 過去の Result_up の昇格は削除する
 		$applyDate = date('Y/m/d', strtotime($this->__atDate . ' +1 day'));
 		
-		$toCat = ($categoryTo == null) ? $this->__rankUpMap[$racesCat]['to'] : $categoryTo;
-		
 		$conditions = array(
 			'racer_code' => $racerCode,
 			'meet_code' => $this->__meetCode,
-			'category_code' => $toCat,
+			'category_code' => $categoryTo,
 			'apply_date' => $applyDate,
 			'reason_id' => CategoryReason::$RESULT_UP->ID(),
 		);
@@ -879,7 +876,7 @@ class ResultParamCalcComponent extends Component
 		$cr = array();
 		$cr['CategoryRacer'] = array();
 		$cr['CategoryRacer']['racer_code'] = $racerCode;
-		$cr['CategoryRacer']['category_code'] = $toCat;
+		$cr['CategoryRacer']['category_code'] = $categoryTo;
 		$cr['CategoryRacer']['apply_date'] = $applyDate;
 		$cr['CategoryRacer']['reason_id'] = CategoryReason::$RESULT_UP->ID();
 		$cr['CategoryRacer']['reason_note'] = $reasonNote;
@@ -902,7 +899,7 @@ class ResultParamCalcComponent extends Component
 			$hp['HoldPoint'] = array();
 			$hp['HoldPoint']['racer_result_id'] = $result['id'];
 			$hp['HoldPoint']['point'] = 3;
-			$hp['HoldPoint']['category_code'] = $toCat;
+			$hp['HoldPoint']['category_code'] = $categoryTo;
 
 			$this->HoldPoint->create();
 			if (!$this->HoldPoint->save($hp)) {
@@ -915,20 +912,26 @@ class ResultParamCalcComponent extends Component
 	}
 	
 	/**
-	 * ある選手についてレースカテゴリーの昇格先カテゴリーに適用する年齢であるかをかえす
+	 * ある選手について昇格先カテゴリーに適合する年齢であるかをかえす
 	 * @param type $racerCode 選手コード
-	 * @param type $racesCat レースカテゴリー
+	 * @param type $catTo 昇格先カテゴリー
 	 * @return boolean 正しい年齢であるか。誕生日が不明な場合も true をかえす。
 	 */
-	private function __isProperAgeForCat($racerCode, $racesCat)
+	private function __isProperAgeForCat($racerCode, $catTo)
 	{
-		if (empty($racerCode) || empty($racesCat)) {
+		if (empty($racerCode) || empty($catTo)) {
 			$this->log('__isProperAgeForCat の引数が不正です。暫定として true を返します。', LOG_ERR);
 			return true;
 		}
 		
-		// 昇格に該当するかをチェック
-		if ($racesCat == 'C2' || $racesCat == 'C3' || $racesCat == 'C4' || $racesCat == 'C3+4') {
+		$catMinAgeMap = array(
+			'C1' => 19,
+			'C2' => 17,
+			'C3' => 15,
+			'CL1' => 17,
+		);
+		
+		if (!empty($catMinAgeMap[$catTo])) {
 			$conditions = array('code' => $racerCode);
 			$racer = $this->Racer->find('first', array('conditions' => $conditions, 'recursive' => -1));
 			
@@ -938,42 +941,13 @@ class ResultParamCalcComponent extends Component
 				$meetDate = new DateTime($this->__atDate);
 				$uciCxAge = Util::uciCXAgeAt(new DateTime($birth), $meetDate);
 				
-				$isBadAge = false;
-				$catTo = $this->__rankUpMap[$racesCat]['to'];
-				
-				if ($catTo == 'C1') {
-					// U23 以上
-					$isBadAge = ($uciCxAge < 19);
-				} else if ($catTo == 'C2') {
-					// Junior 以上
-					$isBadAge = ($uciCxAge < 17);
-				} else if ($catTo == 'C3') {
-					// Youth? 以上
-					$isBadAge = false;// ($uciCxAge < 15); 2015/12 の AJOCC 会議にて Youth でも C3 に昇格 OK とする
-				}
-				// TODO: カテゴリーの設定から引き出すように。（DB 上データを修正してから）
-				
-				if ($isBadAge) {
+				if ($uciCxAge < $catMinAgeMap[$catTo]) {
 					$this->log('選手:' . $racerCode . 'について、対象年齢外です (CxAge:' . $uciCxAge . ')', LOG_NOTICE);
 					return false;
 				}
 			} else {
 				$this->log('昇格処理において選手の生年月日が不明でした。選手コード:' . $racerCode
 					. ' --> 昇格は適用しますが、チェックが必要です。', LOG_WARNING);
-			}
-		} else if ($racesCat == 'CL2') {
-			$conditions = array('code' => $racerCode);
-			$racer = $this->Racer->find('first', array('conditions' => $conditions, 'recursive' => -1));
-			
-			if (!empty($racer['Racer']['birth_date'])) {
-				$birth = $racer['Racer']['birth_date'];
-				$meetDate = new DateTime($this->__atDate);
-				$uciCxAge = Util::uciCXAgeAt(new DateTime($birth), $meetDate);
-				
-				if ($uciCxAge < 16) { // age16 is for CL1
-					$this->log('選手:' . $racerCode . 'について、対象年齢外です (CxAge:' . $uciCxAge . ')', LOG_NOTICE);
-					return false;
-				}
 			}
 		}
 		
