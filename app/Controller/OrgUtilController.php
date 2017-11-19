@@ -529,15 +529,22 @@ class OrgUtilController extends ApiBaseController
 		// All
 		$this->log('start all racer csv', LOG_DEBUG);
 		
-		$tmpFile = new File(TMP . self::__PATH_RACERS . '/' . self::__RACERS_FILE_PREFIX . 'all.csv.tmp');
+		$tmpPath = TMP . self::__PATH_RACERS . '/' . self::__RACERS_FILE_PREFIX . 'all.csv.tmp';
+		
+		$tmpFile = new File($tmpPath);
 		if ($tmpFile->exists()) {
 			$tmpFile->delete();
 		}
 		$tmpFile->create();
 		
-		$tmpFile->append(mb_convert_encoding('AJOCC 選手リスト,更新日:' . date('Y/m/d') ."\n", 'SJIS', 'auto'));
-		$tmpFile->append(mb_convert_encoding('選手コード,姓,名,姓（かな）,名（かな）,姓 (en),名 (en),チーム名'
-			. ',性別,生年月日,国籍,Jcf No.,UCI ID,UCI No.,UCI Code,都道府県,所属カテゴリー' . "\n", 'SJIS', 'auto'));
+		// 以下、fputcsv を使いたいので fp で処理
+		$fp = fopen($tmpPath, 'w');
+		
+		$this->__putToFp($fp, array('AJOCC 選手リスト', '更新日:' . date('Y/m/d')));
+		
+		$row = array('選手コード', '姓', '名', '姓（かな）', '名（かな）', '姓 (en)', '名 (en)', 'チーム名'
+			, '性別', '生年月日', '国籍', 'Jcf No.', 'UCI ID', 'UCI No.', 'UCI Code', '都道府県', '所属カテゴリー');
+		$this->__putToFp($fp, $row);
 		
 		$offset = 0;
 		$limit = 100;
@@ -607,34 +614,30 @@ class OrgUtilController extends ApiBaseController
 					$cats[] = $catRacer['category_code'];
 				}
 				
-				$tmpFile->append(
-					mb_convert_encoding(
-						$this->__strOrEmpty($r['code']) . ',' .
-						$this->__strOrEmpty($r['family_name']) . ',' .
-						$this->__strOrEmpty($r['first_name']) . ',' .
-						$this->__strOrEmpty($r['family_name_kana']) . ',' .
-						$this->__strOrEmpty($r['first_name_kana']) . ',' .
-						$this->__strOrEmpty($r['family_name_en']) . ',' .
-						$this->__strOrEmpty($r['first_name_en']) . ',' .
-						$this->__strOrEmpty($r['team']) . ',' .
-						$genExp . ',' .
-						$this->__strOrEmpty($birthExp) . ',' .
-						$this->__strOrEmpty($r['nationality_code']) . ',' .
-						$this->__strOrEmpty($r['jcf_number']) . ',' .
-						$this->__strOrEmpty($r['uci_id']) . ',' .
-						$this->__strOrEmpty($r['uci_number']) . ',' .
-						$this->__strOrEmpty($r['uci_code']) . ',' .
-						$this->__strOrEmpty($r['prefecture']) . ',' .
-						'"' . $catExp . '"' . // カンマ対策でダブルクォート囲み
-						"\n"
-					, 'SJIS', 'auto')
-					);
+				$row = array($this->__strOrEmpty($r['code']),
+						$this->__strOrEmpty($r['family_name']),
+						$this->__strOrEmpty($r['first_name']),
+						$this->__strOrEmpty($r['family_name_kana']),
+						$this->__strOrEmpty($r['first_name_kana']),
+						$this->__strOrEmpty($r['family_name_en']),
+						$this->__strOrEmpty($r['first_name_en']),
+						$this->__strOrEmpty($r['team']),
+						$genExp,
+						$this->__strOrEmpty($birthExp),
+						$this->__strOrEmpty($r['nationality_code']),
+						$this->__strOrEmpty($r['jcf_number']),
+						$this->__strOrEmpty($r['uci_id']),
+						$this->__strOrEmpty($r['uci_number']),
+						$this->__strOrEmpty($r['uci_code']),
+						$this->__strOrEmpty($r['prefecture']),
+						$catExp);
+				$this->__putToFp($fp, $row);
 			}
 			
 			$offset += $limit;
 		}
 		
-		$tmpFile->close();
+		fclose($fp);
 		
 		$filename = TMP . self::__PATH_RACERS . '/' . self::__RACERS_FILE_PREFIX . 'all.csv';
 		$tmpFile->copy($filename, true);
@@ -646,10 +649,20 @@ class OrgUtilController extends ApiBaseController
 		
 		// TODO: Category ごとリスト実装
 		
-		$this->Flash->set(h('選手リストを更新しました。'));
+		$this->Flash->success(h('選手リストを更新しました。'));
 		$this->redirect(array('action' => 'racer_list_csv_links'));
 	}
 	
+	/**
+	 * file pointer に対して shift-JIS で CSV 出力する。
+	 * @param filepointer $fp ファイルポインタ
+	 * @param array $row 行ごとの配列
+	 */
+	private function __putToFp($fp, $row)
+	{
+		mb_convert_variables('SJIS', 'auto', $row);
+		fputcsv($fp, $row);
+	}
 	
 	public function point_series_csv_links()
 	{
@@ -684,7 +697,7 @@ class OrgUtilController extends ApiBaseController
 	 */
 	private function __strOrEmpty($str)
 	{
-		return emptY($str) ? '' : $str;
+		return empty($str) ? '' : $str;
 	}
 	
 	/**
