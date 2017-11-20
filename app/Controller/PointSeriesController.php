@@ -194,52 +194,59 @@ class PointSeriesController extends ApiBaseController
 		
 		$this->_mkdir4Ranking();
 		
-		$tmpFile = new File(TMP . self::__PATH_RANKING . '/' . self::__RANKING_FILE_PREFIX . $id . '.csv.tmp');
+		$tmpPath = TMP . self::__PATH_RANKING . '/' . self::__RANKING_FILE_PREFIX . $id . '.csv.tmp';
+		$tmpFile = new File($tmpPath);
 		if ($tmpFile->exists()) {
 			$tmpFile->delete();
 		}
 		$tmpFile->create();
-		$tmpFile->append(mb_convert_encoding($ps['PointSeries']['name'] . ' ランキング,更新日:' . date('Y-m-d')
-				. ',計算基準日:' . $dt . "\n", 'UTF-8', 'auto'));
-		$rowString = '順位,選手 Code,選手名,チーム名';
+		
+		// 以下、fputcsv を使いたいので fp で処理
+		$fp = fopen($tmpPath, 'w');
+		
+		$row = array(
+			$ps['PointSeries']['name'] . ' ランキング',
+			'更新日:' . date('Y-m-d'),
+			'計算基準日:' . $dt
+		);
+		$this->__putToFp($fp, $row);
+		
+		$row = array('順位', '選手 Code', '選手名', 'チーム名');
 		foreach ($mpss as $mps) {
-			$rowString .= ',' . $mps['MeetPointSeries']['express_in_series'];
+			$row[] = $mps['MeetPointSeries']['express_in_series'];
 			
 			if ($dividesBonusCol) {
-				$rowString .= ',' . $mps['MeetPointSeries']['express_in_series'] . 'Bonus';
+				$row[] = $mps['MeetPointSeries']['express_in_series'] . 'Bonus';
 			}
 		}
 		foreach ($ranking['rank_pt_title'] as $title) {
-			$rowString .= ',' . $title;
+			$row[] = $title;
 		}
-		$tmpFile->append(mb_convert_encoding($rowString . "\n", 'UTF-8', 'auto'));
+		$this->__putToFp($fp, $row);
 		
 		foreach ($ranking['ranking'] as $rpUnit) {
-			$rowString = $rpUnit->rank . ',' . $rpUnit->code . ','
-				. $this->__dQuoteEscaped($nameMap[$rpUnit->code]) . ',';
-			if (!empty($teamMap[$rpUnit->code])) {
-				$rowString .= $this->__dQuoteEscaped($teamMap[$rpUnit->code]);
-			}
+			$row = array(
+				$rpUnit->rank,
+				$rpUnit->code,
+				$nameMap[$rpUnit->code],
+			);
+			
+			$row[] = empty($teamMap[$rpUnit->code]) ? '' : $teamMap[$rpUnit->code];
 			
 			for ($i = 0; $i < count($mpss); $i++)
 			{
-				$rowString .= ',';
-				if ( !isset($racerPoints[$rpUnit->code][$i])) {
+				if (!isset($racerPoints[$rpUnit->code][$i])) {
+					$row[] = '';
 					if ($dividesBonusCol) {
-						$rowString .= ',';
+						$row[] = '';
 					}
 					continue;
 				}
 				
 				$point = $racerPoints[$rpUnit->code][$i];
 				if ($dividesBonusCol) {
-					if (!empty($point['pt'])) {
-						$rowString .= $point['pt'];
-					}
-					$rowString .= ',';
-					if (!empty($point['bonus'])) {
-						$rowString .= $point['bonus'];
-					}
+					$row[] = empty($point['pt']) ? '' : $point['pt'];
+					$row[] = empty($point['bonus']) ? '' : $point['bonus'];
 				} else {
 					$ptExp = '';
 					if (!empty($point['pt'])) {
@@ -248,18 +255,18 @@ class PointSeriesController extends ApiBaseController
 					if (!empty($point['bonus'])) {
 						$ptExp .= '+' . $point['bonus'];
 					}
-					$rowString .= $ptExp;
+					$row[] = $ptExp;
 				}
 			}
 			
 			foreach ($rpUnit->rankPt as $pt) {
-				$rowString .= ',' . $pt;
+				$row[] = $pt;
 			}
 			
-			$tmpFile->append(mb_convert_encoding($rowString . "\n", 'UTF-8', 'auto'));
+			$this->__putToFp($fp, $row);
 		}
 		
-		$tmpFile->close();
+		fclose($fp);
 		
 		$filename = TMP . self::__PATH_RANKING . '/' . self::__RANKING_FILE_PREFIX . $id . '.csv';
 		$tmpFile->copy($filename, true);
@@ -267,6 +274,17 @@ class PointSeriesController extends ApiBaseController
 		$this->Flash->set(h($ps['PointSeries']['name'] . 'のランキングファイルを更新しました。'));
 		
 		$this->redirect($this->referer());
+	}
+	
+	/**
+	 * file pointer に対して shift-JIS で CSV 出力する。
+	 * @param filepointer $fp ファイルポインタ
+	 * @param array $row 行ごとの配列
+	 */
+	private function __putToFp($fp, $row)
+	{
+		mb_convert_variables('UTF-8', 'auto', $row);
+		fputcsv($fp, $row);
 	}
 	
 	/**
