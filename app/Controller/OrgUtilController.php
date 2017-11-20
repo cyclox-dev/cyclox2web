@@ -116,42 +116,50 @@ class OrgUtilController extends ApiBaseController
 		
 		$season = $this->Season->find('first', array('conditions' => array('id' => $seasonId)));
 		
-		$body = "AJOCC Point Ranking\n" .
-			'Season,' . $season['Season']['name'] . "\n" .
-			'Category,' . $this->request->data['category_code'] . "\n" .
-			'集計日,' . date('Y/m/d H:i:s') . "\n\n";
+		$fp = fopen('php://temp/maxmemory:5242880', 'a');
+		
+		$this->__putToFp($fp, array('AJOCC Point Ranking'));
+		$this->__putToFp($fp, array('Season', $season['Season']['name']));
+		$this->__putToFp($fp, array('Category', $this->request->data['category_code']));
+		$this->__putToFp($fp, array('集計日', date('Y/m/d H:i:s')));
 		
 		// A1, A2 は空
-		$body .= '順位,選手 Code,選手名,チーム,';
+		$row = array('順位', '選手 Code', '選手名', 'チーム');
 		
 		foreach ($meetTitles as $title) {
-			$body .= $title['name'] . ',';
+			$row[] .= $title['name'];
 		}
-		$body .= "合計,自乗和\n";
+		$row[] = '合計';
+		$row[] = '自乗和';
+		
+		$this->__putToFp($fp, $row);
 		
 		foreach ($racerPoints as $rcode => $rp) {
 			//$this->log('name is:' . $rp['name'], LOG_DEBUG);
 			
-			$line = $rp['rank'] . ',' . $rcode . ',' . $rp['name'] . ',';
-			if (!empty($rp['team'])) {
-				$line .= $rp['team'];
-			}
-			$line .= ',';
+			$line = array($rp['rank'], $rcode, $rp['name']);
+			
+			$line[] = empty($rp['team']) ? '' : $rp['team'];
+			
 			for ($i = 0; $i < count($meetTitles); $i++) {
-				if (!empty($rp['points'][$i])) {
-					$line .= $rp['points'][$i];
-				}
-				$line .= ',';
+				$line[] = empty($rp['points'][$i]) ? '' : $rp['points'][$i];
 			}
 			
-			$body .= $line . $rp['total'] . ',' . $rp['totalSquared'] . "\n";
+			$line[] = $rp['total'];
+			$line[] = $rp['totalSquared'];
+			
+			$this->__putToFp($fp, $line);
 		}
+		
+		rewind($fp);
 		
 		$this->autoRender = false;
 		//$this->response->charset('Shift_JIS'); // この行コメントアウトしても問題なしだった
 		$this->response->type('csv');
 		$this->response->download('ajocc_pt_' . $season['Season']['name'] . '_' . $this->request->data['category_code'] .'.csv');
-		$this->response->body(mb_convert_encoding($body, 'Shift_JIS', 'UTF-8'));
+		$this->response->body(stream_get_contents($fp));
+		
+		fclose($fp);
 	}
 	
 	/**
