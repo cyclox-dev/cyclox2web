@@ -26,6 +26,6 @@
 <p><?php echo $this->Html->link("AJOCC ランキング個別設定", "/ajoccpt_local_settings/index");?></p>
 
 <h2>その他</h2>
-<p><?php echo $this->Html->link("ユティリティ【オーガナイザ用】", "/org_util");?></p>
+<p><?php echo $this->Html->link("ユーティリティ【オーガナイザ用】", "/org_util");?></p>
 <p><?php echo $this->Html->link("ページごと権限設定【管理者用】", "/admin/acl/aros/ajax_role_permissions");?></p>
 
