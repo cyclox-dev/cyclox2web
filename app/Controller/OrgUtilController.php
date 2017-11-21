@@ -668,7 +668,7 @@ class OrgUtilController extends ApiBaseController
 	 */
 	private function __putToFp($fp, $row)
 	{
-		mb_convert_variables('SJIS', 'auto', $row);
+		mb_convert_variables('SJIS', 'UTF-8', $row);
 		fputcsv($fp, $row);
 	}
 	

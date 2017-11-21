@@ -283,7 +283,7 @@ class PointSeriesController extends ApiBaseController
 	 */
 	private function __putToFp($fp, $row)
 	{
-		mb_convert_variables('UTF-8', 'auto', $row);
+		//mb_convert_variables('UTF-8', 'auto', $row);
 		fputcsv($fp, $row);
 	}
 	
