@@ -9,9 +9,9 @@ DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
 DROP TABLE IF EXISTS tmp_result_update_flags;
+DROP TABLE IF EXISTS hold_points;
 DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS time_records;
-DROP TABLE IF EXISTS hold_points;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
 DROP TABLE IF EXISTS entry_categories;
@@ -38,14 +38,15 @@ DROP TABLE IF EXISTS seasons;
 
 CREATE TABLE ajoccpt_local_settings
 (
-	id int unsigned NOT NULL,
+	id int unsigned NOT NULL AUTO_INCREMENT,
 	name varchar(255) BINARY NOT NULL,
 	short_name varchar(255) BINARY NOT NULL,
 	season_id int unsigned NOT NULL,
 	setting varchar(255) BINARY NOT NULL,
 	created datetime,
 	modified datetime,
-	PRIMARY KEY (id)
+	PRIMARY KEY (id),
+	UNIQUE (id)
 );
 
 
