@@ -237,7 +237,7 @@ class ApiController extends ApiBaseController
 			// 出走グループ名が異なり、同じ名前の出走カテゴリーがある場合には警告（出走グループ名同じなら下流で削除）
 			$egroups = $this->EntryGroup->find('all', array('conditions' => array('meet_code' => $meetCode)));
 			$cats = $this->request->data['entry_cats'];
-			if (is_array($cats) && !emptY($cats)) {
+			if (is_array($cats) && !empty($cats)) {
 				foreach ($cats as $cat) {
 					//$this->log('vs ' . $egroupName . 'ofEcat:' . $cat['EntryCategory']['name'], LOG_DEBUG);
 					foreach ($egroups as $egroup) {
@@ -344,7 +344,7 @@ class ApiController extends ApiBaseController
 			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
 		}
 		
-		if (emptY($meetCode) || empty($ecatName)) {
+		if (empty($meetCode) || empty($ecatName)) {
 			return $this->error('大会 Code または出走カテゴリー名が指定されていません。', self::STATUS_CODE_BAD_REQUEST);
 		}
 		
@@ -524,7 +524,7 @@ class ApiController extends ApiBaseController
 		} else {
 			$ret = $this->ResultParamCalc->reCalcResults($ecat['id']);
 		
-			if (emptY($ret) || $ret == Constant::RET_FAILED) {
+			if (empty($ret) || $ret == Constant::RET_FAILED) {
 				$this->log('リザルト計算処理に失敗しました。', LOG_ERR);
 				// not return
 			} else if ($ret == Constant::RET_NO_ACTION) {
@@ -1158,12 +1158,12 @@ class ApiController extends ApiBaseController
 				
 				$this->CategoryRacer->Behaviors->load('Utils.SoftDelete');
 				
-				if (!emptY($cr['id']) && $this->CategoryRacer->exists($cr['id'])) {
+				if (!empty($cr['id']) && $this->CategoryRacer->exists($cr['id'])) {
 					$saveCatRacers[] = $crMap;
 					//$this->log('id:' . $cr['id'] . ' is exists(not del', LOG_DEBUG);
 				} else {
 					$this->CategoryRacer->Behaviors->unload('Utils.SoftDelete');
-					if (!emptY($cr['id']) && $this->CategoryRacer->exists($cr['id'])) {
+					if (!empty($cr['id']) && $this->CategoryRacer->exists($cr['id'])) {
 						// deleted = 別個に save
 						$deletedIndexList[] = $index;
 						$deletedIds[] = $cr['id'];

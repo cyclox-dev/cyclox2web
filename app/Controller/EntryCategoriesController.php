@@ -253,7 +253,7 @@ class EntryCategoriesController extends ApiBaseController
 		
 		$ret = $this->ResultParamCalc->reCalcResults($ecatId);
 		
-		if (emptY($ret)|| $ret == Constant::RET_FAILED) {
+		if (empty($ret)|| $ret == Constant::RET_FAILED) {
 			return $this->Flash->set('処理に失敗しました。');
 		} else if ($ret == Constant::RET_NO_ACTION) {
 			return $this->Flash->set(__('出走する選手もしくはリザルトが設定されていません。'));

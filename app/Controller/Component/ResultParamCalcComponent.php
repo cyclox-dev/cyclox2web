@@ -702,7 +702,7 @@ class ResultParamCalcComponent extends Component
 	 */
 	private function __applyRankUp2CM($racerCode, $newCatCode, $result)
 	{
-		if (emptY($racerCode)) {
+		if (empty($racerCode)) {
 			$this->log('__applyRankUp2CM() の引数が不正です。', LOG_ERR);
 			return Constant::RET_ERROR;
 		}
