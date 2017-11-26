@@ -316,19 +316,22 @@ class ResultShell extends AppShell
 	
 	/**
 	 * 更新をチェックし、必要なリザルトについて PointSeries のランキング計算をする。
+	 * 第1引数として nextDayUpdate を使用すると昨日にリザルトがアップされたものを更新する
 	 * > app ディレクトリ
-	 * > Console/cake result updateSeriesRankings
+	 * > Console/cake result updateSeriesRankings nextDayUpdate
 	 */
 	public function updateSeriesRankings()
 	{
 		$this->log('>>> Start updateSeriesRankings', LOG_INFO);
+		
+		$isNextDayUpdate = isset($this->args[0]) && $this->args[0] === 'nextDayUpdate';
 		
 		// フラグの立っているものを抽出
 		$this->TmpResultUpdateFlag->Behaviors->load('Containable');
 		
 		$opt = array(
 			'conditions' => array(
-				'points_sumuped' => 0,
+				//'points_sumuped' => 0,
 				'EntryCategory.deleted' => 0,
 			),
 			'contain' => array(
@@ -337,13 +340,24 @@ class ResultShell extends AppShell
 				)
 			)
 		);
+		
+		if ($isNextDayUpdate) {
+			$opt['conditions']['result_updated >='] = date('Y/m/d', strtotime('-1 day')) . ' 00:00:00';
+			$opt['conditions']['result_updated <'] = date('Y-m-d') . ' 00:00:00';
+			// points_sumuped は見ない
+		} else {
+			$opt['conditions']['points_sumuped'] = 0;
+		}
+		
 		$flags = $this->TmpResultUpdateFlag->find('all', $opt);
 		//$this->log($flags, LOG_DEBUG);
 
 		// レースが登録されているシリーズを取得
 		$psids = $this->__getPsIds($flags);
-		$this->log('更新対象のシリーズ id は以下の通り', LOG_INFO);
-		$this->log($psids, LOG_INFO);
+		if (!empty($psids)) {
+			$this->log('更新対象のシリーズ id は以下の通り', LOG_INFO);
+			$this->log($psids, LOG_INFO);
+		}
 		
 		// シリーズを更新
 		foreach ($psids as $p) {
