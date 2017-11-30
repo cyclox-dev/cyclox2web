@@ -1136,7 +1136,8 @@ class ResultParamCalcComponent extends Component
 			return Constant::RET_NO_ACTION;
 		}
 		
-		if (!(isset($result['rank_per']) && $result['rank_per'] === 0)) { // ゼロパーセントはポイントあり
+		// $result['rank_per'] は string 値である
+		if (!(isset($result['rank_per']) && ($result['rank_per'] === 0 || $result['rank_per'] === '0'))) { // ゼロパーセントはポイントあり
 			if (empty($result['rank_per'])) {
 				return Constant::RET_NO_ACTION;
 			}
