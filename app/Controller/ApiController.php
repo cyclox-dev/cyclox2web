@@ -540,6 +540,15 @@ class ApiController extends ApiBaseController
 			)
 		);
 		
+		$this->RacesCategory->unbindModel(array('hasMany' => array('EntryCategory'))); // メモリ節約
+		$racesCat = $this->RacesCategory->find('first', array('conditions' => array('code' => $ecat['races_category_code'])));
+		//$this->log('racescag:', LOG_DEBUG);
+		//$this->log($racesCat, LOG_DEBUG);
+		if (empty($racesCat['CategoryRacesCategory'])) {
+			// カテゴリーを持たないレースカテゴリーの場合には ajocc point は計算しない。
+			$flag['TmpResultUpdateFlag']['ajoccpt_sumuped'] = 1;
+		}
+		
 		if (!$this->TmpResultUpdateFlag->save($flag)) {
 			$this->log('リザルト更新フラグの保存に失敗しました。', LOG_WARNING);
 		}
