@@ -4,13 +4,13 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 DROP TABLE IF EXISTS tmp_ajoccpt_racer_sets;
 DROP TABLE IF EXISTS ajoccpt_local_settings;
-DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS category_racers;
+DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
 DROP TABLE IF EXISTS tmp_result_update_flags;
-DROP TABLE IF EXISTS hold_points;
 DROP TABLE IF EXISTS point_series_racers;
+DROP TABLE IF EXISTS hold_points;
 DROP TABLE IF EXISTS time_records;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
@@ -26,6 +26,7 @@ DROP TABLE IF EXISTS name_change_logs;
 DROP TABLE IF EXISTS parm_vars;
 DROP TABLE IF EXISTS tmp_point_series_racer_sets;
 DROP TABLE IF EXISTS point_series;
+DROP TABLE IF EXISTS point_series_groups;
 DROP TABLE IF EXISTS unite_racer_log;
 DROP TABLE IF EXISTS racers;
 DROP TABLE IF EXISTS races_categories;
@@ -330,6 +331,7 @@ CREATE TABLE parm_vars
 CREATE TABLE point_series
 (
 	id int unsigned NOT NULL AUTO_INCREMENT,
+	point_series_group_id int unsigned,
 	name varchar(255) BINARY NOT NULL,
 	short_name varchar(255) BINARY NOT NULL,
 	description text BINARY,
@@ -348,6 +350,23 @@ CREATE TABLE point_series
 	modified datetime,
 	deleted_date datetime,
 	deleted tinyint(1) DEFAULT 0 NOT NULL,
+	PRIMARY KEY (id),
+	UNIQUE (id)
+);
+
+
+CREATE TABLE point_series_groups
+(
+	id int unsigned NOT NULL AUTO_INCREMENT,
+	name varchar(255) BINARY NOT NULL,
+	-- ゼロから100までの値を格納する。World Cup ランキングが90、JCX が60など。表示順序のために利用する。
+	priority_value tinyint NOT NULL,
+	description text,
+	is_active tinyint(1) DEFAULT 1 NOT NULL,
+	created datetime,
+	modified datetime,
+	deleted tinyint(1) DEFAULT 0,
+	deleted_date datetime,
 	PRIMARY KEY (id),
 	UNIQUE (id)
 );

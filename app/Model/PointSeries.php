@@ -120,6 +120,13 @@ class PointSeries extends AppModel
 			'fields' => '',
 			'order' => ''
 		),
+		'PointSeriesGroup' => array(
+			'className' => 'PointSeriesGroup',
+			'foreignKey' => 'point_series_group_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		),
 	);
 
 }

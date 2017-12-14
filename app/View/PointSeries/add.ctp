@@ -5,6 +5,7 @@
 	<?php
 		App::uses('PointSeriesPointTo', 'Cyclox/Const');
 
+		echo $this->Form->input('point_series_group_id', array('empty' => '--'));
 		echo $this->Form->input('name', array('label' => 'シリーズタイトル'));
 		echo $this->Form->input('short_name', array('label' => '短縮タイトル'));
 		echo $this->Form->input('description', array('label' => '詳細'));

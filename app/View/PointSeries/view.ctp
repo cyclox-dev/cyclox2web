@@ -6,6 +6,17 @@
 			<?php echo h($pointSeries['PointSeries']['id']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('Series Group'); ?></dt>
+		<dd>
+			<?php
+			if (empty($pointSeries['PointSeries']['point_series_group_id'])) {
+				echo '';
+			} else {
+				echo $this->Html->link($pointSeries['PointSeriesGroup']['name'], array('controller' => 'point_series_groups', 'action' => 'view', $pointSeries['PointSeries']['point_series_group_id']));
+			}
+			?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('シリーズタイトル'); ?></dt>
 		<dd>
 			<?php echo h($pointSeries['PointSeries']['name']); ?>

@@ -23,7 +23,7 @@ App::uses('ResultShell','Console/Command');
  */
 class PointSeriesController extends ApiBaseController
 {
-	public $uses = array('PointSeries', 'MeetPointSeries', 'PointSeriesRacer', 'Season');
+	public $uses = array('PointSeries', 'MeetPointSeries', 'PointSeriesRacer', 'Season', 'PointSeriesGroup');
 
 /**
  * Components
@@ -86,7 +86,8 @@ class PointSeriesController extends ApiBaseController
 			}
 		}
 		$seasons = $this->PointSeries->Season->find('list');
-		$this->set(compact('seasons'));
+		$pointSeriesGroups = $this->PointSeriesGroup->find('list');
+		$this->set(compact('seasons', 'pointSeriesGroups'));
 		
 		$this->set('pointCalculators', PointCalculator::calculators());
 		$this->set('sumUpRules', PointSeriesSumUpRule::rules());
@@ -117,7 +118,8 @@ class PointSeriesController extends ApiBaseController
 			$this->request->data = $this->PointSeries->find('first', $options);
 		}
 		$seasons = $this->PointSeries->Season->find('list');
-		$this->set(compact('seasons'));
+		$pointSeriesGroups = $this->PointSeriesGroup->find('list');
+		$this->set(compact('seasons', 'pointSeriesGroups'));
 		
 		$this->set('pointCalculators', PointCalculator::calculators());
 		$this->set('sumUpRules', PointSeriesSumUpRule::rules());

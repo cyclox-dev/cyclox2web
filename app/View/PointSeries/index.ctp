@@ -10,6 +10,7 @@
 	<thead>
 	<tr>
 			<th><?php echo $this->Paginator->sort('id'); ?></th>
+			<th><?php echo $this->Paginator->sort('point_series_group_id', 'SeriesGroup'); ?></th>
 			<th><?php echo $this->Paginator->sort('name', 'タイトル'); ?></th>
 			<th><?php echo $this->Paginator->sort('short_name', '短縮名'); ?></th>
 			<th><?php echo $this->Paginator->sort('calc_rule', '配点ルール'); ?></th>
@@ -26,6 +27,13 @@
 	<?php foreach ($pointSeries as $pointSeries): ?>
 	<tr>
 		<td><?php echo h($pointSeries['PointSeries']['id']); ?>&nbsp;</td>
+		<td><?php
+		if (empty($pointSeries['PointSeriesGroup']['id'])) {
+			echo '--';
+		} else {
+			echo h($pointSeries['PointSeriesGroup']['name']);
+		}
+		?>&nbsp;</td>
 		<td><?php echo h($pointSeries['PointSeries']['name']); ?>&nbsp;</td>
 		<td><?php echo h($pointSeries['PointSeries']['short_name']); ?>&nbsp;</td>
 		<td><?php
