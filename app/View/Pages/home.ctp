@@ -20,6 +20,7 @@
 
 <h2>ポイントシリーズ</h2>
 <p><?php echo $this->Html->link("ポイントシリーズ", "/point_series/index");?></p>
+<p><?php echo $this->Html->link("ポイントシリーズグループ", "/point_series_groups/index");?></p>
 <p><?php echo $this->Html->link("ポイントシリーズの設定・ルールetc", "/pages/point_series_rules");?></p>
 
 <h2>AJOCC ランキング設定</h2>
