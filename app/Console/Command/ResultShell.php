@@ -319,6 +319,32 @@ class ResultShell extends AppShell
 			return array();
 		}
 		
+		// 誰もポイントを取得していない列を除去する。
+		$titles = array();
+		foreach ($racerPoints as &$rp) {
+			$rp['rev_points'] = array();
+		}
+		unset($rp);
+		
+		$index = 0;
+		for ($i = 0; $i < count($meetTitles); $i++)
+		{
+			$hasPoint = false;
+			foreach ($racerPoints as &$rp) {
+				if (!empty($rp['points'][$i])) {
+					$rp['rev_points'][$index] = $rp['points'][$i];
+					$hasPoint = true;
+				}
+			}
+			unset($rp);
+			
+			if ($hasPoint)
+			{
+				$titles[$index] = $meetTitles[$i];
+				++$index;
+			}
+		}
+		
 		$sets = array();
 		
 		$titleSet = array(
@@ -330,7 +356,7 @@ class ResultShell extends AppShell
 				'racer_code' => '選手Code',
 				'name' => '選手',
 				'team' => 'チーム',
-				'point_json' => json_encode($meetTitles, JSON_UNESCAPED_UNICODE),
+				'point_json' => json_encode($titles, JSON_UNESCAPED_UNICODE),
 				'sumup_json' => json_encode(array("合計", "自乗和"), JSON_UNESCAPED_UNICODE),
 			)
 		);
@@ -351,7 +377,7 @@ class ResultShell extends AppShell
 					'racer_code' => $rcode,
 					'name' => $rp['name'],
 					'team' => isset($rp['team']) ? $rp['team'] : '',
-					'point_json' => json_encode($rp['points'], JSON_UNESCAPED_UNICODE),
+					'point_json' => json_encode($rp['rev_points'], JSON_UNESCAPED_UNICODE),
 					'sumup_json' => json_encode(array($rp['total'], $rp['totalSquared']), JSON_UNESCAPED_UNICODE),
 				)
 			);
