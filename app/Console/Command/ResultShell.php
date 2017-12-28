@@ -161,12 +161,64 @@ class ResultShell extends AppShell
 		$this->log('既に無効となっている TmpResultUpdateFlag の削除について完了。', LOG_INFO);
 		
 		
-		$this->log('>>> End updateAjoccPtRankings', LOG_INFO);
+		$this->log('<<< End updateAjoccPtRankings', LOG_INFO);
 	}
 	
 	private function __seasonCatKey($seasonId, $catCode)
 	{
 		return $seasonId . '_x_' . $catCode;
+	}
+	
+	/**
+	 * 更新をチェックし、必要なリザルトについて AJOCC ポイントランキング計算をする。
+	 * > app ディレクトリ
+	 * > Console/cake result updateAjoccRanking CL1 99
+	 */
+	public function updateAjoccRanking()
+	{
+		$this->log('>>> Start updateAjoccRanking', LOG_INFO);
+		
+		if (!isset($this->args[0]) || !isset($this->args[1])) {
+			$this->out('2つの引数（カテゴリーコード, シーズン ID）が必要です。');
+		} else {
+			$catCode = $this->args[0];
+			$seasonId = $this->args[1];
+
+			$this->__execUpdateAjoccRanking($catCode, $seasonId);
+		}
+		
+		$this->log('<<< End updateAjoccRanking', LOG_INFO);
+	}
+	
+	/**
+	 * updateAjoccRanking() の実際の実行処理
+	 * @param string $catCode
+	 * @param int $seasonId
+	 * @return void
+	 */
+	private function __execUpdateAjoccRanking($catCode, $seasonId)
+	{
+		$ret = $this->__updateAjoccRanking($catCode, $seasonId);
+		
+		if (!$ret)
+		{
+			$this->log('AJOCC ランキングの更新に失敗しました（ローカル設定なし）。', LOG_ERR);
+			return;
+		}
+		
+		$opt = array('conditions' => array(
+			'season_id' => $seasonId,
+		));
+		$localSettings = $this->AjoccptLocalSetting->find('all', $opt);
+
+		foreach ($localSettings as $locals) {
+			$ret = $this->__updateAjoccRanking($catCode, $seasonId, $locals);
+
+			if (!$ret) {
+				$this->log('AJOCC ランキングの更新に失敗しました。ローカル設定 id:' . $locals['AjoccptLocalSetting']['id'], LOG_ERR);
+				return;
+			}
+		}
 	}
 	
 	/**
