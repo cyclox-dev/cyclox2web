@@ -11,15 +11,12 @@
 	<tr>
 			<th><?php echo $this->Paginator->sort('id'); ?></th>
 			<th><?php echo $this->Paginator->sort('point_series_group_id', 'SeriesGroup'); ?></th>
+			<th><?php echo $this->Paginator->sort('season_id'); ?></th>
 			<th><?php echo $this->Paginator->sort('name', 'タイトル'); ?></th>
 			<th><?php echo $this->Paginator->sort('short_name', '短縮名'); ?></th>
-			<th><?php echo $this->Paginator->sort('calc_rule', '配点ルール'); ?></th>
-			<th><?php echo $this->Paginator->sort('sum_up_rule', '集計ルール'); ?></th>
-			<!--<th><?php echo $this->Paginator->sort('point_to', 'PointTo'); ?></th><!-- -->
-			<th><?php echo $this->Paginator->sort('point_term_rule', 'Pt期間'); ?></th>
-			<th><?php echo $this->Paginator->sort('season_id'); ?></th>
 			<th><?php echo $this->Paginator->sort('hint'); ?></th>
 			<th><?php echo 'Active?'; ?></th>
+			<th><?php echo '公開?'; ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>
@@ -34,26 +31,15 @@
 			echo h($pointSeries['PointSeriesGroup']['name']);
 		}
 		?>&nbsp;</td>
-		<td><?php echo h($pointSeries['PointSeries']['name']); ?>&nbsp;</td>
-		<td><?php echo h($pointSeries['PointSeries']['short_name']); ?>&nbsp;</td>
-		<td><?php
-			echo h(PointCalculator::getCalculator($pointSeries['PointSeries']['calc_rule'])->name()); 
-		?>&nbsp;</td>
-		<td><?php
-			echo h(PointSeriesSumUpRule::ruleAt($pointSeries['PointSeries']['sum_up_rule'])->title());
-		?>&nbsp;</td>
-		<!--<td><?php
-			echo h(PointSeriesPointTo::pointToAt($pointSeries['PointSeries']['point_to'])->title());
-		?>&nbsp;</td><!-- -->
-		<td><?php
-			echo h(PointSeriesTermOfValidityRule::ruleAt($pointSeries['PointSeries']['point_term_rule'])->title());
-		?>&nbsp;</td>
 		<td>
 			<?php echo $this->Html->link($pointSeries['Season']['short_name'], array('controller' => 'seasons', 'action' => 'view', $pointSeries['Season']['id'])); ?>
 			&nbsp;
 		</td>
+		<td><?php echo h($pointSeries['PointSeries']['name']); ?>&nbsp;</td>
+		<td><?php echo h($pointSeries['PointSeries']['short_name']); ?>&nbsp;</td>
 		<td><?php echo h($pointSeries['PointSeries']['hint']); ?>&nbsp;</td>
 		<td><?php echo ($pointSeries['PointSeries']['is_active'] ? 'Yes' : 'No'); ?>&nbsp;</td>
+		<td><?php echo (empty($pointSeries['PointSeries']['public_psrset_group_id']) ? 'NOT' : '公開(' . $pointSeries['PointSeries']['public_psrset_group_id'] . ')'); ?>&nbsp;</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $pointSeries['PointSeries']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $pointSeries['PointSeries']['id'])); ?>
