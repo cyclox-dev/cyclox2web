@@ -523,33 +523,29 @@ class ResultShell extends AppShell
 			return false;
 		}
 
-		$titleRow = $this->__createPsrSetTitle($mpss, $ranking, $ps);
+		$opt = array(
+			'fields' => array('max(set_group_id) as max_set_group_id'),
+			'conditions' => array('point_series_id' => $ps['PointSeries']['id'])
+		);
+		$maxSet = $this->TmpPointSeriesRacerSet->find('first', $opt);
+		//$this->log('max id obj is', LOG_DEBUG);
+		//$this->log($maxSet, LOG_DEBUG);
+		$maxSetGroupId =  empty($maxSet[0]['max_set_group_id']) ? 1 : $maxSet[0]['max_set_group_id'] + 1;
+
+		$titleRow = $this->__createPsrSetTitle($mpss, $ranking, $ps, $maxSetGroupId);
 		$sets[] = $titleRow;
 
 		foreach ($ranking['ranking'] as $rpUnit) {
-			$row = $this->__createPsrSetData($mpss, $racerPoints, $rpUnit, $ps, $nameMap, $teamMap);
+			$row = $this->__createPsrSetData($mpss, $racerPoints, $rpUnit, $ps, $nameMap, $teamMap, $maxSetGroupId);
 			if (!is_null($row)) {
 				$sets[] = $row;
 			}
 		}
 		//$this->log('set is', LOG_DEBUG);
 		//$this->log($sets, LOG_DEBUG);
-
-		//>>> transaction ++++++++++++++++++++++++++++++++++++++++
-		$transaction = $this->TransactionManager->begin();
-		// 前回計算分を削除
-		$cdt = array('point_series_id' => $ps['PointSeries']['id']);
-		if (!$this->TmpPointSeriesRacerSet->deleteAll($cdt, false)) {
-			$this->TransactionManager->rollback($transaction);
-			$msg = 'ポイントシリーズ[id:' . $psid . '] の集計（前回データの削除）に失敗し、処理を中断しました。';
-			$this->log($msg, LOG_ERR);
-			MailReporter::report('ResultShell#updateSeriesRankings ' . $msg, 'ERROR');
-			return false;
-		}
-
+		
 		if (count($sets) > 1) {
 			if (!$this->TmpPointSeriesRacerSet->saveAll($sets)) {
-				$this->TransactionManager->rollback($transaction);
 				$msg = 'ポイントシリーズ[id:' . $psid . '] の集計（データの作成）に失敗し、処理を中断しました。';
 				$this->log($msg, LOG_ERR);
 				MailReporter::report('ResultShell#updateSeriesRankings ' . $msg, 'ERROR');
@@ -557,7 +553,6 @@ class ResultShell extends AppShell
 			}
 		}
 
-		$this->TransactionManager->commit($transaction);
 		//<<< transaction ++++++++++++++++++++++++++++++++++++++++
 
 		if (!empty($ecatids)) {
@@ -658,7 +653,7 @@ class ResultShell extends AppShell
 	 * ポイントシリーズデータのタイトル行を作成する
 	 * @return array
 	 */
-	private function __createPsrSetTitle($mpss, $ranking, $ps)
+	private function __createPsrSetTitle($mpss, $ranking, $ps, $setGroupId)
 	{
 		$meetTitles = array();
 		foreach ($mpss as $mps) {
@@ -684,6 +679,7 @@ class ResultShell extends AppShell
 		$titleRow = array(
 			'TmpPointSeriesRacerSet' => array(
 				'point_series_id' => $ps['PointSeries']['id'],
+				'set_group_id' => $setGroupId,
 				'type' => self::__TYPE_TITLE,
 				'rank' => 0, // ゼロ行目として配置
 				'racer_code' => '選手Code',
@@ -701,7 +697,7 @@ class ResultShell extends AppShell
 	 * ポイントシリーズデータ1選手分のデータを作成する
 	 * @return array かえすデータが無い場合には null をかえす
 	 */
-	private function __createPsrSetData($mpss, $racerPoints, $rpUnit, $ps, $nameMap, $teamMap)
+	private function __createPsrSetData($mpss, $racerPoints, $rpUnit, $ps, $nameMap, $teamMap, $setGroupId)
 	{
 		if (empty($racerPoints[$rpUnit->code])) {
 			return null;
@@ -731,6 +727,7 @@ class ResultShell extends AppShell
 		$row = array(
 			'TmpPointSeriesRacerSet' => array(
 				'point_series_id' => $ps['PointSeries']['id'],
+				'set_group_id' => $setGroupId,
 				'type' => self::__TYPE_DATA,
 				'rank' => $rpUnit->rank,
 				'racer_code' => $rpUnit->code,

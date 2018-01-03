@@ -23,7 +23,8 @@ App::uses('ResultShell','Console/Command');
  */
 class PointSeriesController extends ApiBaseController
 {
-	public $uses = array('PointSeries', 'MeetPointSeries', 'PointSeriesRacer', 'Season', 'PointSeriesGroup');
+	public $uses = array('PointSeries', 'MeetPointSeries', 'PointSeriesRacer', 'Season', 'PointSeriesGroup'
+		, 'TmpPointSeriesRacerSet');
 
 /**
  * Components
@@ -66,8 +67,22 @@ class PointSeriesController extends ApiBaseController
 		if (!$this->PointSeries->exists($id)) {
 			throw new NotFoundException(__('Invalid point series'));
 		}
+		
 		$options = array('conditions' => array('PointSeries.' . $this->PointSeries->primaryKey => $id));
-		$this->set('pointSeries', $this->PointSeries->find('first', $options));
+		$pointSeries = $this->PointSeries->find('first', $options);
+		
+		$options = array(
+			'conditions' => array(
+				'point_series_id' => $id,
+				'type' => 0, // タイトル行を利用
+			),
+			'order' => array(
+				'TmpPointSeriesRacerSet.modified' => 'DESC',
+			)
+		);
+		$psrSets = $this->TmpPointSeriesRacerSet->find('all', $options);
+		
+		$this->set(compact('pointSeries', 'psrSets'));
 	}
 
 /**
@@ -591,5 +606,32 @@ class PointSeriesController extends ApiBaseController
 		}
 		
 		$this->redirect($this->referer());
+	}
+	
+	/**
+	 * 公開とするデータを指定する
+	 * @param int $id point series id
+	 * @param int $psrsGroupId 公開とするデータ set の group id
+	 * @return void
+	 * @throws NotFoundException
+	 */
+	public function assign_public_ranking($id, $psrsGroupId)
+	{
+		$this->request->allowMethod('post', 'delete');
+
+		$this->PointSeries->id = $id;
+		if (!$this->PointSeries->exists()) {
+			throw new NotFoundException(__('Invalid point series'));
+		}
+		
+		$ps = array('PointSeries' => array(
+			'public_psrset_group_id' => $psrsGroupId,
+		));
+		if ($this->PointSeries->save($ps)) {
+			$this->Flash->success(__('ポイントシリーズ ID:' . $id . ' の公開データとして Data-ID:' . $psrsGroupId . ' を指定しました。'));
+			return $this->redirect($this->request->referer());
+		} else {
+			$this->Flash->set(__('公開処理に失敗しました。'));
+		}
 	}
 }

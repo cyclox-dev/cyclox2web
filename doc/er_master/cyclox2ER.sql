@@ -4,14 +4,14 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 DROP TABLE IF EXISTS tmp_ajoccpt_racer_sets;
 DROP TABLE IF EXISTS ajoccpt_local_settings;
-DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS category_races_categories;
+DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
 DROP TABLE IF EXISTS tmp_result_update_flags;
 DROP TABLE IF EXISTS point_series_racers;
-DROP TABLE IF EXISTS hold_points;
 DROP TABLE IF EXISTS time_records;
+DROP TABLE IF EXISTS hold_points;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
 DROP TABLE IF EXISTS entry_categories;
@@ -346,6 +346,7 @@ CREATE TABLE point_series
 	-- 集計などのヒント（上位何戦までを比較するか）。基本的には key:value,key:value,,, と記入する。
 	hint varchar(255) BINARY,
 	is_active tinyint(1) DEFAULT 1 NOT NULL,
+	public_psrset_group_id int unsigned,
 	created datetime,
 	modified datetime,
 	deleted_date datetime,
@@ -568,6 +569,7 @@ CREATE TABLE tmp_point_series_racer_sets
 (
 	id int unsigned NOT NULL AUTO_INCREMENT,
 	point_series_id int unsigned NOT NULL,
+	set_group_id int unsigned DEFAULT 1 NOT NULL,
 	-- タイトル行、選手データ行の別などを表す。
 	type tinyint unsigned NOT NULL,
 	-- タイトル号はゼロ

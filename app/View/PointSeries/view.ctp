@@ -127,7 +127,7 @@
 	<?php if (!empty($pointSeries['MeetPointSeries'])): ?>
 	<table cellpadding = "0" cellspacing = "0">
 	<tr>
-		<th><?php echo __('Id'); ?></th>
+		<th><?php echo __('ID'); ?></th>
 		<th><?php echo __('シリーズ内名称'); ?></th>
 		<th><?php echo __('大会コード'); ?></th>
 		<th><?php echo __('出走カテゴリー名'); ?></th>
@@ -157,8 +157,44 @@
 	</table>
 <?php endif; ?>
 </div>
-<div> 
-	<?php echo $this->Form->postButton('リザルト閲覧システム用のランキングデータを更新'
-		, array('action' => 'updateRanking', $pointSeries['PointSeries']['id'])); ?>
+<div class="related">
+	<h3><?php echo __('公開データの指定'); ?></h3>
+	<table cellpadding = "0" cellspacing = "0">
+	<tr>
+		<th><?php echo __('Data-ID'); ?></th>
+		<th><?php echo __('更新日時'); ?></th>
+		<th><?php echo __('公開状況'); ?></th>
+		<th class="actions"><?php echo __('Actions'); ?></th>
+	</tr>
+	<?php if (empty($psrSets)): ?>
+	ランキングデータがありません。
+	<?php else: ?>
+	<?php foreach ($psrSets as $psrs): ?>
+		<tr>
+			<td><?php echo h($psrs['TmpPointSeriesRacerSet']['set_group_id']); ?></td>
+			<td><?php echo h($psrs['TmpPointSeriesRacerSet']['modified']); ?></td>
+			<td><?php
+			$gid = $psrs['TmpPointSeriesRacerSet']['set_group_id'];
+			if ($gid == $pointSeries['PointSeries']['public_psrset_group_id']) {
+				echo '公開中';
+			} else {
+				echo $this->Form->postLink('これを公開に設定', array('controller' => 'point_series', 'action' => 'assign_public_ranking'
+					, $pointSeries['PointSeries']['id'], $gid)
+					, array(), __('Data-ID:%s のデータを公開に設定してよいですか？', $gid));
+			}
+			?></td>
+			<td class="actions">
+				<?php echo $this->Html->link(__('ランキングを閲覧'), array('controller' => 'point_series', 'action' => 'view_ranking', $psrs['TmpPointSeriesRacerSet']['set_group_id'])); ?>
+			</td>
+		</tr>
+	<?php endforeach; ?>
+	<?php endif; ?>
+	</table>
 </div>
+<div class="related">
+	<h3><?php echo __('公開データ作成'); ?></h3>
+	<div><?php echo $this->Form->postButton('最新リザルトでリザルト閲覧システム用のランキングデータを作成'
+		, array('action' => 'updateRanking', $pointSeries['PointSeries']['id'])); ?></div>
+</div>
+
 
