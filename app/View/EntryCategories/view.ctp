@@ -11,6 +11,11 @@
 			<?php echo $this->Html->link($entryCategory['EntryGroup']['name'], array('controller' => 'entry_groups', 'action' => 'view', $entryCategory['EntryGroup']['id'])); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('大会'); ?></dt>
+		<dd>
+			<?php echo $this->Html->link($entryCategory['EntryGroup']['meet_code'], array('controller' => 'meets', 'action' => 'view', $entryCategory['EntryGroup']['meet_code'])); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('レースカテゴリー'); ?></dt>
 		<dd>
 			<?php echo $this->Html->link($entryCategory['RacesCategory']['name'], array('controller' => 'races_categories', 'action' => 'view', $entryCategory['RacesCategory']['code'])); ?>
