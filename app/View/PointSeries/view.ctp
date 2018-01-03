@@ -184,7 +184,8 @@
 			}
 			?></td>
 			<td class="actions">
-				<?php echo $this->Html->link(__('ランキングを閲覧'), array('controller' => 'point_series', 'action' => 'view_ranking', $psrs['TmpPointSeriesRacerSet']['set_group_id'])); ?>
+				<?php echo $this->Html->link(__('ランキングを閲覧'), array('controller' => 'point_series', 'action' => 'view_ranking'
+					, $psrs['PointSeries']['id'], $psrs['TmpPointSeriesRacerSet']['set_group_id'])); ?>
 			</td>
 		</tr>
 	<?php endforeach; ?>

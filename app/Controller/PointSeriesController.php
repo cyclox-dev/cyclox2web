@@ -634,4 +634,25 @@ class PointSeriesController extends ApiBaseController
 			$this->Flash->set(__('公開処理に失敗しました。'));
 		}
 	}
+	
+	/**
+	 * 
+	 * @param int $id ポイントシリーズ ID
+	 * @param int $psrsGroupId set の group id
+	 */
+	public function view_ranking($id, $psrsGroupId)
+	{
+		$opt = array(
+			'conditions' => array(
+				'point_series_id' => $id,
+				'set_group_id' => $psrsGroupId
+			),
+			'order' => array(
+				'rank' => 'ASC'
+			)
+		);
+		
+		$psrsets = $this->TmpPointSeriesRacerSet->find('all', $opt);
+		$this->set('psrsets', $psrsets);
+	}
 }
