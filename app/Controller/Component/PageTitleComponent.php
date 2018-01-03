@@ -26,6 +26,8 @@ class PageTitleComponent extends Component
 		'TimeRecordInfos' => '計測時情報',
 		'TimeRecords' => '計測データ',
 		'Users' => 'ユーザー',
+		'PointSeries' => 'ポイントシリーズ',
+		'PointSeriesGroup' => 'ポイントシリーズグループ'
 		
 	);
 	
