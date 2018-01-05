@@ -4,16 +4,16 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 DROP TABLE IF EXISTS tmp_ajoccpt_racer_sets;
 DROP TABLE IF EXISTS ajoccpt_local_settings;
-DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS category_racers;
+DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
-DROP TABLE IF EXISTS tmp_result_update_flags;
+DROP TABLE IF EXISTS hold_points;
 DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS time_records;
-DROP TABLE IF EXISTS hold_points;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
+DROP TABLE IF EXISTS tmp_result_update_flags;
 DROP TABLE IF EXISTS entry_categories;
 DROP TABLE IF EXISTS time_record_info;
 DROP TABLE IF EXISTS entry_groups;
@@ -347,6 +347,7 @@ CREATE TABLE point_series
 	hint varchar(255) BINARY,
 	is_active tinyint(1) DEFAULT 1 NOT NULL,
 	public_psrset_group_id int unsigned,
+	published_at datetime,
 	created datetime,
 	modified datetime,
 	deleted_date datetime,

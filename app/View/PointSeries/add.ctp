@@ -36,6 +36,15 @@
 		}
 		echo $this->Form->input('point_term_rule', array('label' => 'Pt有効期間ルール', 'options' => $termSelects));
 		echo $this->Form->input('season_id', array('empty' => '--'));
+		echo $this->Form->input('public_psrset_group_id', array('type' => 'text', 'label' => '公開データID'));
+		echo $this->Form->input('published_at', array(
+			'label' => '公開日時',
+			'type' => 'datetime',
+			'dateFormat' => 'YMD',
+			'timeFormat' => '24',
+			'monthNames' => false,
+			'empty' => '--'
+		));
 		echo $this->Form->input('hint');
 	?>
 	</fieldset>

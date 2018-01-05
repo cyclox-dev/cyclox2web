@@ -626,6 +626,7 @@ class PointSeriesController extends ApiBaseController
 		
 		$ps = array('PointSeries' => array(
 			'public_psrset_group_id' => $psrsGroupId,
+			'published_at' => date("Y-m-d H:i:s"),
 		));
 		if ($this->PointSeries->save($ps)) {
 			$this->Flash->success(__('ポイントシリーズ ID:' . $id . ' の公開データとして Data-ID:' . $psrsGroupId . ' を指定しました。'));

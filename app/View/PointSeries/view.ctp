@@ -69,6 +69,16 @@
 			<?php echo $this->Html->link($pointSeries['Season']['name'], array('controller' => 'seasons', 'action' => 'view', $pointSeries['Season']['id'])); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('公開 Data-ID'); ?></dt>
+		<dd>
+			<?php echo h($pointSeries['PointSeries']['public_psrset_group_id']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('公開日時'); ?></dt>
+		<dd>
+			<?php echo h($pointSeries['PointSeries']['published_at']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('ヒント'); ?></dt>
 		<dd>
 			<?php echo h($pointSeries['PointSeries']['hint']); ?>
