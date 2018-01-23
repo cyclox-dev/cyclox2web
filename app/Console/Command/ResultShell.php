@@ -170,7 +170,7 @@ class ResultShell extends AppShell
 	}
 	
 	/**
-	 * 更新をチェックし、必要なリザルトについて AJOCC ポイントランキング計算をする。
+	 * カテゴリー + シーズン指定で AJOCC ポイントランキング計算をする。
 	 * > app ディレクトリ
 	 * > Console/cake result updateAjoccRanking CL1 99
 	 */
