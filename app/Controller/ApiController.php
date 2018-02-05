@@ -1488,7 +1488,7 @@ class ApiController extends ApiBaseController
 	 * $rankInfos にポイントシリーズによる情報を加える。要素は { "rank":23, "exp":"56,556pt" } である。
 	 * @param type $rankInfos
 	 * @param type $seriesId
-	 * @param date $baseDate ポイント計測器準備
+	 * @param date $baseDate ポイント計測器準日
 	 * @param type $racers not null, not empty
 	 * @return array ランキング情報。エラーがあった場合 array('error' => 'エラー内容') という配列をかえす。
 	 */
