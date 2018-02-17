@@ -14,6 +14,7 @@ App::uses('PointCalculator', 'Cyclox/Util');
 App::uses('PointSeriesTermOfValidityRule', 'Cyclox/Const');
 
 App::uses('PointSeriesController', 'Controller');
+App::uses('OrgUtilController', 'Controller');
 
 /*
  *  created at 2015/06/19 by shun
@@ -30,7 +31,7 @@ class ApiController extends ApiBaseController
 		'Meet', 'CategoryRacer', 'Racer', 'MeetGroup', 'Season',
 		'EntryGroup', 'EntryCategory', 'EntryRacer', 'RacerResult', 'TimeRecord', 'HoldPoint',
 		'PointSeries', 'MeetPointSeries', 'PointSeriesRacer', 'RacesCategory',
-		'Category', 'CategoryGroup', 'NameChangeLog', 'TmpResultUpdateFlag');
+		'Category', 'CategoryGroup', 'NameChangeLog', 'TmpResultUpdateFlag', 'AjoccptLocalSetting');
 	
 	public $components = array('Session', 'RequestHandler', 'ResultParamCalc', 'UnifiedRacer', 'AgedCategory');
 	
@@ -1411,7 +1412,11 @@ class ApiController extends ApiBaseController
 					return $this->error($rankInfos['error'], self::STATUS_CODE_BAD_REQUEST);
 				}
 			} else if ($ser['type'] === "ajocc_pt") {
-				$rankInfos = $this->__addAjoccRankingInfo($rankInfos, $ser['season'], $ser['category']);
+				$lid = empty($ser['local_setting_id']) ? null : $ser['local_setting_id'];
+				$rankInfos = $this->__addAjoccRankingInfo($rankInfos, $ser['season'], $ser['category'], $lid);
+				if (empty($rankInfos) || isset($rankInfos['error'])) {
+					return $this->error($rankInfos['error'], self::STATUS_CODE_BAD_REQUEST);
+				}
 			}
 		}
 		
@@ -1545,80 +1550,46 @@ class ApiController extends ApiBaseController
 	 * @param type $rankInfos 
 	 * @param type $season シーズン ID
 	 * @param type $category カテゴリーコード
-	 * @param type $racers not null, not empty
+	 * @param type $localSettingId local 設定 ID may be null
 	 */
-	private function __addAjoccRankingInfo($rankInfos, $season, $category)
+	private function __addAjoccRankingInfo($rankInfos, $season, $category, $localSettingId = null)
 	{
-		//$this->log('called', LOG_DEBUG);
-		
-		// season とカテゴリー指定でリザルト取得。選手コードも in list。
-		// ajocc point を集計してポイントのみを並べる。
-		
-		$this->EntryRacer->Behaviors->load('Utils.SoftDelete');
-		$this->EntryRacer->Behaviors->load('Containable');
-		
-		$codes = array();
-		$sumUped = array();
-		foreach ($rankInfos as $code => $val) {
-			$codes[] = $code;
-			$sumUped[$code] = 0;
+		if (!empty($localSettingId)) {
+			$opt = array('conditions' => array(
+				'AjoccptLocalSetting.id' => $localSettingId,
+			));
+			$localSetting = $this->AjoccptLocalSetting->find('first', $opt);
+			if (empty($localSetting)) {
+				$msg = 'ajocc ランキング計算に失敗しました。エラー内容: ローカル設定 ID が無効です。';
+				$this->log($msg, LOG_ERR);
+				return array('error' => $msg);
+			}
+		} else {
+			$localSetting = array();
 		}
 		
-		$options = array(
-			'conditions' => array(
-				'EntryRacer.racer_code' => $codes,
-				'RacerResult.deleted' => 0,
-				'RacerResult.ajocc_pt >' => 0,
-				'RacerResult.as_category' => $category,
-				'EntryCategory.deleted' => 0
-				// season.id は検索条件に入れられないので後の for 文内でチェックする
-			),
-			'contain' => array(
-				'RacerResult',
-				'EntryCategory' => array(
-					'fields' => array(),
-					'EntryGroup' => array(
-						'fields' => array(),
-						'Meet' => array(
-							'fields' => array('season_id'),
-						),
-					)
-				)
-			)
-		);
+		$orgUtilController = new OrgUtilController();
+		$ret = $orgUtilController->calcAjoccPoints($category, $season, $localSetting);
 		
-		// TODO: season_id を調べたいため、かなり重い処理になる。
-		// EntryCategory に season をキャッシュ値で持たせたい。
-		
-		$offset = 0;
-		$limit = 100;
-		
-		while (true) {
-			$options['offset'] = $offset;
-			$options['limit'] = $limit;
-			$ers = $this->EntryRacer->find('all', $options);
-			if (empty($ers)) break;
-
-			//$this->log('ers:', LOG_DEBUG);
-			//$this->log($ers, LOG_DEBUG);
-			
-			foreach ($ers as $er) {
-				if (empty($er['EntryCategory']['EntryGroup']['Meet']['season_id'])
-						|| $er['EntryCategory']['EntryGroup']['Meet']['season_id'] != $season) {
-					continue;
-				}
-				
-				$sumUped[$er['EntryRacer']['racer_code']] += $er['RacerResult']['ajocc_pt'];
-			}
-			
-			$offset += $limit;
+		if ($ret === false) {
+			return array('error' => 'cat:' . $category . ' season:' . $season . ' local設定:' . $localSettingId . ' の AjoccRanking 取得に失敗しました。');
 		}
 		
 		foreach ($rankInfos as $code => &$ri) {
-			$ri['ranks'][] = $sumUped[$code];
+			if (!empty($ret['racerPoints'][$code])) {
+				$ptUnit = $ret['racerPoints'][$code];
+				$ri['ranks'][] = array(
+					'rank' => $ptUnit['rank'],
+					'exp' => $ptUnit['total'] . 'pt-' . $ptUnit['totalSquared'] . 'pt',
+				);
+			} else {
+				$ri['ranks'][] = array(
+					'rank' => null,
+					'exp' => 'no point',
+				);
+			}
 		}
-		
-		//$this->log('end', LOG_DEBUG);
+		unset($ri);
 		
 		return $rankInfos;
 	}
