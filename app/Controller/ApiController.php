@@ -1473,7 +1473,7 @@ class ApiController extends ApiBaseController
 				
 				return $itemA['rank'] - $itemB['rank'];
 			} else {
-				// compare with ajocc @pt
+				// compare with ajocc pt
 				if ($itemA != $itemB) {
 					return $itemB - $itemA;
 				}
@@ -1549,7 +1549,7 @@ class ApiController extends ApiBaseController
 	 */
 	private function __addAjoccRankingInfo($rankInfos, $season, $category)
 	{
-		$this->log('called', LOG_DEBUG);
+		//$this->log('called', LOG_DEBUG);
 		
 		// season とカテゴリー指定でリザルト取得。選手コードも in list。
 		// ajocc point を集計してポイントのみを並べる。
@@ -1618,7 +1618,7 @@ class ApiController extends ApiBaseController
 			$ri['ranks'][] = $sumUped[$code];
 		}
 		
-		$this->log('end', LOG_DEBUG);
+		//$this->log('end', LOG_DEBUG);
 		
 		return $rankInfos;
 	}
