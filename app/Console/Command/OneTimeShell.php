@@ -1155,7 +1155,8 @@ class OneTimeShell extends AppShell
 	/**
 	 * 全ての選手に対して aged category のチェック・設定を行なう。
 	 * > cd app ディレクトリ
-	 * > Console/cake one_time setupAgedCategory
+	 * > Console/cake one_time setupAgedCategory 2017/4/1
+	 * 第1引数（日付）を指定しない場合、処理実行日での処理となる。
 	 */
 	public function setupAgedCategory()
 	{
