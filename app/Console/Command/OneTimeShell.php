@@ -1223,7 +1223,7 @@ class OneTimeShell extends AppShell
 	}
 	
 	/**
-	 * 選手コード指定でカテゴリー所属
+	 * 選手コード指定でカテゴリー所属に適正な aged category を付与する。
 	 * > cd app ディレクトリ
 	 * > Console/cake one_time checkAgedCategory KNS-156-0023 2016-04-01
 	 */
