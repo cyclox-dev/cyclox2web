@@ -577,8 +577,14 @@ class PointSeriesController extends ApiBaseController
 	public function series_json()
 	{
 		$seriesList = $this->PointSeries->find('all', array('recursive' => -1));
+		$groups = $this->PointSeriesGroup->find('all', array('recursive' => -1));
+		$seasons = $this->Season->find('all', array('recursive' => -1));
 		
-		return $this->success(array('series' => $seriesList));
+		return $this->success(array(
+			'series' => $seriesList,
+			'series_groups' => $groups,
+			'seasons' => $seasons,
+		));
 	}
 	
 	/**
