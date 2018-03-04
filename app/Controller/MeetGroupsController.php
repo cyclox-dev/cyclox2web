@@ -18,7 +18,8 @@ class MeetGroupsController extends ApiBaseController
  *
  * @var array
  */
-	public $components = array('Paginator', 'Flash', 'RequestHandler');
+	public $components = array('Flash', 'RequestHandler');
+	// 大会グループ自体が少ないので paginator は一旦無しに。@20180304
 
 /**
  * index method
@@ -27,7 +28,7 @@ class MeetGroupsController extends ApiBaseController
  */
 	public function index() {
 		$this->MeetGroup->recursive = 0;
-		$this->set('meetGroups', $this->Paginator->paginate());
+		$this->set('meetGroups', $this->MeetGroup->find('all'));
 	}
 
 /**
@@ -51,8 +52,13 @@ class MeetGroupsController extends ApiBaseController
 			$this->success($meetGroup);
 		} else {
 			$this->Meet->Behaviors->load('Utils.SoftDelete');
-			$options = array('conditions' => array('meet_group_code' => $id));
+			$options = array(
+				'conditions' => array('meet_group_code' => $id),
+				'recursive' => -1,
+				'order' => array('at_date' => 'DESC'),
+			);
 			$meets = $this->Meet->find('all', $options);
+			
 			$meetGroup['meets'] = $meets;
 			//$this->log('Meet:', LOG_DEBUG);
 			//$this->log($meets, LOG_DEBUG);
@@ -98,7 +104,7 @@ class MeetGroupsController extends ApiBaseController
 			$this->MeetGroup->id = $id; // id 指定で update にする
 			if ($this->MeetGroup->save($this->request->data)) {
 				$this->Flash->set(__('The meet group has been saved.'));
-				return $this->redirect(array('action' => 'index'));
+				return $this->redirect('/meet_groups/view/' . $id);
 			} else {
 				$this->Flash->set(__('The meet group could not be saved. Please, try again.'));
 			}

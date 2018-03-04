@@ -62,11 +62,15 @@
 		<li><?php echo $this->Html->link(__('> 大会グループリスト'), array('action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('> 大会グループを追加'), array('action' => 'add')); ?> </li>
 		<li><?php echo $this->Html->link(__('> 大会リスト'), array('controller' => 'meets', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('> 大会を追加'), array('controller' => 'meets', 'action' => 'add')); ?> </li>
 	</ul>
 </div>
 <div class="related">
 	<h3><?php echo __('開催する大会一覧'); ?></h3>
+	<div class="actions">
+		<ul>
+			<li><?php echo $this->Html->link(__('大会を追加'), array('controller' => 'meets', 'action' => 'add', $meetGroup['MeetGroup']['code'])); ?> </li>
+		</ul>
+	</div>
 	<?php if (!empty($meetGroup['meets'])): ?>
 	<table cellpadding = "0" cellspacing = "0">
 	<tr>
@@ -93,11 +97,6 @@
 		</tr>
 	<?php endforeach; ?>
 	</table>
-<?php endif; ?>
+	<?php endif; ?>
 
-	<div class="actions">
-		<ul>
-			<li><?php echo $this->Html->link(__('New Meets'), array('controller' => 'meets', 'action' => 'add')); ?> </li>
-		</ul>
-	</div>
 </div>
