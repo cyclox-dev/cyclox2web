@@ -13,7 +13,7 @@ App::uses('CategoryReason', 'Cyclox/Const');
  */
 class MeetsController extends ApiBaseController
 {
-	public $uses = array('Meet', 'CategoryRacer', 'EntryCategory');
+	public $uses = array('Meet', 'CategoryRacer', 'EntryCategory', 'MeetGroup');
 
 /**
  * Components
@@ -29,7 +29,17 @@ class MeetsController extends ApiBaseController
  */
 	public function index() {
 		$this->Meet->recursive = 0;
+		$this->Meet->order = array('at_date' => 'DESC');
+		$this->paginate = array('limit' => 60);
+		
+		if (isset($this->request->query['group'])) {
+			$this->Paginator->settings['conditions'] = array('meet_group_code' => $this->request->query['group']);
+		}
+		
 		$this->set('meets', $this->Paginator->paginate());
+		
+		$this->MeetGroup->recursive = 0;
+		$this->set('meet_groups', $this->MeetGroup->find('list'));
 	}
 
 /**
@@ -109,7 +119,7 @@ class MeetsController extends ApiBaseController
 
 			if ($this->Meet->save($this->request->data)) {
 				$this->Flash->set(__('新規大会 [code:' . $code . '] を保存しました。'));
-				return $this->redirect('/meets/view/' . $this->Meet->id);
+				return $this->redirect('/meets/view/' . $code);
 			} else {
 				$this->Flash->set(__('The meet could not be saved. Please, try again.'));
 			}
@@ -137,8 +147,8 @@ class MeetsController extends ApiBaseController
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->Meet->save($this->request->data)) {
-				$this->Flash->set(__('The meet has been saved.'));
-				return $this->redirect(array('action' => 'index'));
+				$this->Flash->set(__('大会設定が変更されました。'));
+				return $this->redirect('/meets/view/' . $code);
 			} else {
 				$this->Flash->set(__('The meet could not be saved. Please, try again.'));
 			}

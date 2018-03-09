@@ -60,3 +60,12 @@
 		<li><?php echo $this->Html->link(__('> 出走グループの追加'), array('controller' => 'entry_groups', 'action' => 'add')); ?> </li>
 	</ul>
 </div>
+<div class="actions">
+	<h3><?php echo '大会グループ別一覧'; ?></h3>
+	<ul>
+		<li><?php echo $this->Html->link('すべて', '/meets/index'); ?> </li>
+		<?php foreach ($meet_groups as $code => $mg): ?>
+		<li><?php echo $this->Html->link(h($mg), '/meets/index?group=' . $code); ?> </li>
+		<?php endforeach; ?>
+	</ul>
+</div>
