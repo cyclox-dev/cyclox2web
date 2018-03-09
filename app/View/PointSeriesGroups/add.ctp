@@ -5,7 +5,7 @@
 	<?php
 		echo $this->Form->input('name');
 		echo $this->Form->input('priority_value', array('after' => $priority_note));
-		echo $this->Form->input('description');
+		echo $this->Form->input('description', array('label' => '詳細'));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>

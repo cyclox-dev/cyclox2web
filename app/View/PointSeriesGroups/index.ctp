@@ -3,10 +3,10 @@
 	<table cellpadding="0" cellspacing="0">
 	<thead>
 	<tr>
-			<th><?php echo $this->Paginator->sort('id'); ?></th>
+			<th><?php echo $this->Paginator->sort('id', 'ID'); ?></th>
 			<th><?php echo $this->Paginator->sort('name'); ?></th>
 			<th><?php echo $this->Paginator->sort('priority_value'); ?></th>
-			<th><?php echo $this->Paginator->sort('is_active'); ?></th>
+			<th><?php echo $this->Paginator->sort('is_active', 'Active?'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>

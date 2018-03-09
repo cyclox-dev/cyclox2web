@@ -43,7 +43,11 @@ class PointSeriesGroupsController extends AppController
 			throw new NotFoundException(__('Invalid point series group'));
 		}
 		$options = array('conditions' => array('PointSeriesGroup.' . $this->PointSeriesGroup->primaryKey => $id));
+		$this->PointSeriesGroup->hasMany['PointSeries']['order'] = array('PointSeries.id' => 'DESC');
 		$this->set('pointSeriesGroup', $this->PointSeriesGroup->find('first', $options));
+		
+		$this->loadModel('Season');
+		$this->set('seasons', $this->Season->find('list'));
 	}
 
 /**
@@ -56,7 +60,7 @@ class PointSeriesGroupsController extends AppController
 			$this->PointSeriesGroup->create();
 			if ($this->PointSeriesGroup->save($this->request->data)) {
 				$this->Flash->success(__('The point series group has been saved.'));
-				return $this->redirect(array('action' => 'index'));
+				return $this->redirect(array('action' => 'view', $this->PointSeriesGroup->id));
 			} else {
 				$this->Flash->error(__('The point series group could not be saved. Please, try again.'));
 			}
@@ -78,7 +82,7 @@ class PointSeriesGroupsController extends AppController
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->PointSeriesGroup->save($this->request->data)) {
 				$this->Flash->success(__('The point series group has been saved.'));
-				return $this->redirect(array('action' => 'index'));
+				return $this->redirect(array('action' => 'view', $id));
 			} else {
 				$this->Flash->error(__('The point series group could not be saved. Please, try again.'));
 			}

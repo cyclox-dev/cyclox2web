@@ -1,11 +1,23 @@
 <div class="pointSeries form">
 <?php echo $this->Form->create('PointSeries'); ?>
 	<fieldset>
-		<legend><?php echo __('Add Point Series'); ?></legend>
+		<legend>
+			<?php
+			if (isset($groupID)) {
+				echo __('シリーズグループ [%s] へのシリーズの追加', h($groupName));
+			} else {
+				echo __('新規ポイントシリーズの作成');
+			}
+			?>
+		</legend>
 	<?php
 		App::uses('PointSeriesPointTo', 'Cyclox/Const');
 
-		echo $this->Form->input('point_series_group_id', array('empty' => '--'));
+		if (isset($groupID)) {
+			echo $this->Form->hidden('point_series_group_id');
+		} else {
+			echo $this->Form->input('point_series_group_id', array('empty' => '--'));
+		}
 		echo $this->Form->input('name', array('label' => 'シリーズタイトル'));
 		echo $this->Form->input('short_name', array('label' => '短縮タイトル'));
 		echo $this->Form->input('description', array('label' => '詳細'));

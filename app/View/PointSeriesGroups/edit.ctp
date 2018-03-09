@@ -6,8 +6,8 @@
 		echo $this->Form->input('id');
 		echo $this->Form->input('name');
 		echo $this->Form->input('priority_value', array('after' => $priority_note));
-		echo $this->Form->input('description');
-		echo $this->Form->input('is_active');
+		echo $this->Form->input('description', array('label' => '詳細'));
+		echo $this->Form->input('is_active', array('label' => 'Active?'));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>
