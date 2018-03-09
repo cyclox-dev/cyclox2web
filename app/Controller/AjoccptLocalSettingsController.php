@@ -51,8 +51,8 @@ class AjoccptLocalSettingsController extends AppController {
 		if ($this->request->is('post')) {
 			$this->AjoccptLocalSetting->create();
 			if ($this->AjoccptLocalSetting->save($this->request->data)) {
-				$this->Flash->set(__('The ajoccpt local setting has been saved.'));
-				return $this->redirect(array('action' => 'index'));
+				$this->Flash->success(__('The ajoccpt local setting has been saved.'));
+				return $this->redirect(array('action' => 'view', $this->AjoccptLocalSetting->id));
 			} else {
 				$this->Flash->set(__('The ajoccpt local setting could not be saved. Please, try again.'));
 			}
@@ -74,8 +74,8 @@ class AjoccptLocalSettingsController extends AppController {
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->AjoccptLocalSetting->save($this->request->data)) {
-				$this->Flash->set(__('The ajoccpt local setting has been saved.'));
-				return $this->redirect(array('action' => 'index'));
+				$this->Flash->success(__('The ajoccpt local setting has been saved.'));
+				return $this->redirect(array('action' => 'view', $id));
 			} else {
 				$this->Flash->set(__('The ajoccpt local setting could not be saved. Please, try again.'));
 			}

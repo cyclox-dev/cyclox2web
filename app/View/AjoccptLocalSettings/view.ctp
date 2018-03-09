@@ -1,5 +1,5 @@
 <div class="ajoccptLocalSettings view">
-<h2><?php echo __('Ajoccpt Local Setting'); ?></h2>
+<h2><?php echo __('Ajoccpt Local 設定'); ?></h2>
 	<dl>
 		<dt><?php echo __('Id'); ?></dt>
 		<dd>
@@ -41,11 +41,9 @@
 <div class="actions">
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
-		<li><?php echo $this->Html->link(__('Edit Ajoccpt Local Setting'), array('action' => 'edit', $ajoccptLocalSetting['AjoccptLocalSetting']['id'])); ?> </li>
-		<li><?php echo $this->Form->postLink(__('Delete Ajoccpt Local Setting'), array('action' => 'delete', $ajoccptLocalSetting['AjoccptLocalSetting']['id']), array('confirm' => __('Are you sure you want to delete # %s?', $ajoccptLocalSetting['AjoccptLocalSetting']['id']))); ?> </li>
-		<li><?php echo $this->Html->link(__('List Ajoccpt Local Settings'), array('action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Ajoccpt Local Setting'), array('action' => 'add')); ?> </li>
-		<li><?php echo $this->Html->link(__('List Seasons'), array('controller' => 'seasons', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Season'), array('controller' => 'seasons', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('この Ajoccpt Local 設定を編集'), array('action' => 'edit', $ajoccptLocalSetting['AjoccptLocalSetting']['id'])); ?> </li>
+		<li><?php echo $this->Form->postLink(__('この Ajoccpt Local 設定を削除'), array('action' => 'delete', $ajoccptLocalSetting['AjoccptLocalSetting']['id']), array('confirm' => __('Are you sure you want to delete # %s?', $ajoccptLocalSetting['AjoccptLocalSetting']['id']))); ?> </li>
+		<li><?php echo $this->Html->link(__('> Ajoccpt Local 設定リスト'), array('action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('> Ajoccpt Local 設定を作成'), array('action' => 'add')); ?> </li>
 	</ul>
 </div>

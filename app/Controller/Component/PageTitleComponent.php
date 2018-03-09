@@ -28,7 +28,8 @@ class PageTitleComponent extends Component
 		'TimeRecords' => '計測データ',
 		'Users' => 'ユーザー',
 		'PointSeries' => 'ポイントシリーズ',
-		'PointSeriesGroups' => 'ポイントシリーズグループ'
+		'PointSeriesGroups' => 'ポイントシリーズグループ',
+		'AjoccptLocalSettings' => 'Ajocc Point Local 設定',
 		
 	);
 	

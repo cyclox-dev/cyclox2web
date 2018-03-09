@@ -1,5 +1,5 @@
 <div class="ajoccptLocalSettings index">
-	<h2><?php echo __('Ajoccpt Local Settings'); ?></h2>
+	<h2><?php echo __('Ajoccpt Local 設定'); ?></h2>
 	<p>全レース対象となる AJOCC ポイントランキングとは別に一部のレースでの AJOCC ランキングを作りたい場合、つまり関東のレースだけとか、そういった設定のページです。</p>
 	<p>Setting の項目は key1:val1,key2:val2,key3:val3 という形式で記述してください。key値に使用できるのは 以下のとおり。</p>
 	<p>meet_group: 大会グループを限定します。</br>
@@ -58,8 +58,6 @@
 <div class="actions">
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
-		<li><?php echo $this->Html->link(__('New Ajoccpt Local Setting'), array('action' => 'add')); ?></li>
-		<li><?php echo $this->Html->link(__('List Seasons'), array('controller' => 'seasons', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Season'), array('controller' => 'seasons', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('Ajoccpt Local 設定を作成'), array('action' => 'add')); ?></li>
 	</ul>
 </div>
