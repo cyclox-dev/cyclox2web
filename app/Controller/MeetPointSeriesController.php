@@ -50,7 +50,7 @@ class MeetPointSeriesController extends AppController {
 		if ($this->request->is('post')) {
 			$this->MeetPointSeries->create();
 			if ($this->MeetPointSeries->save($this->request->data)) {
-				$this->Flash->set(__('The meet point series has been saved.'));
+				$this->Flash->success(__('The meet point series has been saved.'));
 				// シリーズにリダイレクト
 				return $this->redirect('/point_series/view/' . $this->request->data['MeetPointSeries']['point_series_id']);
 			} else {
@@ -86,8 +86,8 @@ class MeetPointSeriesController extends AppController {
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->MeetPointSeries->save($this->request->data)) {
-				$this->Flash->set(__('The meet point series has been saved.'));
-				return $this->redirect(array('action' => 'index'));
+				$this->Flash->success(__('The meet point series has been saved.'));
+				return $this->redirect(array('action' => 'view', $id));
 			} else {
 				$this->Flash->set(__('The meet point series could not be saved. Please, try again.'));
 			}

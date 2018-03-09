@@ -118,12 +118,10 @@
 <div class="actions">
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
-		<li><?php echo $this->Html->link(__('Edit Point Series'), array('action' => 'edit', $pointSeries['PointSeries']['id'])); ?> </li>
-		<li><?php echo $this->Form->postLink(__('Delete Point Series'), array('action' => 'delete', $pointSeries['PointSeries']['id']), array(), __('Are you sure you want to delete # %s?', $pointSeries['PointSeries']['id'])); ?> </li>
-		<li><?php echo $this->Html->link(__('List Point Series'), array('action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Point Series'), array('action' => 'add')); ?> </li>
-		<li><?php echo $this->Html->link(__('List Meet Point Series'), array('controller' => 'meet_point_series', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Meet Point Series'), array('controller' => 'meet_point_series', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('このポイントシリーズを編集'), array('action' => 'edit', $pointSeries['PointSeries']['id'])); ?> </li>
+		<li><?php echo $this->Form->postLink(__('このポイントシリーズを削除'), array('action' => 'delete', $pointSeries['PointSeries']['id']), array(), __('Are you sure you want to delete # %s?', $pointSeries['PointSeries']['id'])); ?> </li>
+		<li><?php echo $this->Html->link(__('> シリーズリスト'), array('action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('> 新規シリーズを作成'), array('action' => 'add')); ?> </li>
 	</ul>
 </div>
 <div class="related">
@@ -134,7 +132,7 @@
 				, '/meet_point_series/add/' . $pointSeries['PointSeries']['id']); ?> </li>
 		</ul>
 	</div>
-	<?php if (!empty($pointSeries['MeetPointSeries'])): ?>
+	<?php if (!empty($mpss)): ?>
 	<table cellpadding = "0" cellspacing = "0">
 	<tr>
 		<th><?php echo __('ID'); ?></th>
@@ -147,25 +145,25 @@
 		<th><?php echo __('集計時ヒント'); ?></th>
 		<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
-	<?php foreach ($pointSeries['MeetPointSeries'] as $meetPointSeries): ?>
+	<?php foreach ($mpss as $mps): ?>
 		<tr>
-			<td><?php echo h($meetPointSeries['id']); ?></td>
-			<td><?php echo h($meetPointSeries['express_in_series']); ?></td>
-			<td><?php echo h($meetPointSeries['meet_code']); ?></td>
-			<td><?php echo h($meetPointSeries['entry_category_name']); ?></td>
-			<td><?php echo h($meetPointSeries['grade']); ?></td>
-			<td><?php echo h($meetPointSeries['point_term_begin']); ?></td>
-			<td><?php echo h($meetPointSeries['point_term_end']); ?></td>
-			<td><?php echo h($meetPointSeries['hint']); ?></td>
+			<td><?php echo h($mps['MeetPointSeries']['id']); ?></td>
+			<td><?php echo h($mps['MeetPointSeries']['express_in_series']); ?></td>
+			<td><?php echo $this->Html->link($mps['MeetPointSeries']['meet_code'], '/meets/view/' . $mps['MeetPointSeries']['meet_code']); ?></td>
+			<td><?php echo h($mps['MeetPointSeries']['entry_category_name']); ?></td>
+			<td><?php echo h($mps['MeetPointSeries']['grade']); ?></td>
+			<td><?php echo h($mps['MeetPointSeries']['point_term_begin']); ?></td>
+			<td><?php echo h($mps['MeetPointSeries']['point_term_end']); ?></td>
+			<td><?php echo h($mps['MeetPointSeries']['hint']); ?></td>
 			<td class="actions">
-				<?php echo $this->Html->link(__('View'), array('controller' => 'meet_point_series', 'action' => 'view', $meetPointSeries['id'])); ?>
-				<?php echo $this->Html->link(__('Edit'), array('controller' => 'meet_point_series', 'action' => 'edit', $meetPointSeries['id'])); ?>
-				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'meet_point_series', 'action' => 'delete', $meetPointSeries['id']), array(), __('Are you sure you want to delete # %s?', $meetPointSeries['id'])); ?>
+				<?php echo $this->Html->link(__('View'), array('controller' => 'meet_point_series', 'action' => 'view', $mps['MeetPointSeries']['id'])); ?>
+				<?php echo $this->Html->link(__('Edit'), array('controller' => 'meet_point_series', 'action' => 'edit', $mps['MeetPointSeries']['id'])); ?>
+				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'meet_point_series', 'action' => 'delete', $mps['MeetPointSeries']['id']), array(), __('Are you sure you want to delete # %s?', $mps['MeetPointSeries']['id'])); ?>
 			</td>
 		</tr>
 	<?php endforeach; ?>
 	</table>
-<?php endif; ?>
+	<?php endif; ?>
 </div>
 <div class="related">
 	<h3><?php echo __('公開データの指定'); ?></h3>

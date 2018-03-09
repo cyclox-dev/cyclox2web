@@ -66,8 +66,17 @@
 <div class="actions">
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
-		<li><?php echo $this->Html->link(__('New Point Series'), array('action' => 'add')); ?></li>
-		<li><?php echo $this->Html->link(__('List Meet Point Series'), array('controller' => 'meet_point_series', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Meet Point Series'), array('controller' => 'meet_point_series', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('新規シリーズを作成'), array('action' => 'add')); ?></li>
+		<li><?php echo $this->Html->link(__('> シリーズグループ'), '/point_series_groups/index'); ?></li>
+	</ul>
+</div>
+<div class="actions">
+	<h3><?php echo __('SeriesGroup ごと'); ?></h3>
+	<ul>
+		<li><?php echo $this->Html->link(__('すべて'), '/point_series'); ?></li>
+		<li><?php echo $this->Html->link(__('グループ未所属'), '/point_series?group=__not_grouped__'); ?></li>
+		<?php foreach ($series_groups as $gid => $group): ?>
+		<li><?php echo $this->Html->link(__($group), '/point_series?group=' . $gid); ?></li>
+		<?php endforeach; ?>
 	</ul>
 </div>

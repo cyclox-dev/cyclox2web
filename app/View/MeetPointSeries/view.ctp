@@ -75,13 +75,13 @@
 <div class="actions">
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
-		<li><?php echo $this->Html->link(__('Edit Meet Point Series'), array('action' => 'edit', $meetPointSeries['MeetPointSeries']['id'])); ?> </li>
-		<li><?php echo $this->Form->postLink(__('Delete Meet Point Series'), array('action' => 'delete', $meetPointSeries['MeetPointSeries']['id']), array(), __('Are you sure you want to delete # %s?', $meetPointSeries['MeetPointSeries']['id'])); ?> </li>
-		<li><?php echo $this->Html->link(__('List Meet Point Series'), array('action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Meet Point Series'), array('action' => 'add')); ?> </li>
-		<li><?php echo $this->Html->link(__('List Point Series'), array('controller' => 'point_series', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Point Series'), array('controller' => 'point_series', 'action' => 'add')); ?> </li>
-		<li><?php echo $this->Html->link(__('List Meets'), array('controller' => 'meets', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Meet'), array('controller' => 'meets', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('このシリーズ-大会設定を編集'), array('action' => 'edit', $meetPointSeries['MeetPointSeries']['id'])); ?> </li>
+		<li><?php echo $this->Form->postLink(__('このシリーズ-大会設定を削除'), array('action' => 'delete', $meetPointSeries['MeetPointSeries']['id']), array(), __('Are you sure you want to delete # %s?', $meetPointSeries['MeetPointSeries']['id'])); ?> </li>
+		<li><?php echo $this->Html->link(__('> シリーズ-大会設定リスト'), array('action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('> シリーズ-大会設定を作成'), array('action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('> List Point Series'), array('controller' => 'point_series', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('> New Point Series'), array('controller' => 'point_series', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('> List Meets'), array('controller' => 'meets', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('> New Meet'), array('controller' => 'meets', 'action' => 'add')); ?> </li>
 	</ul>
 </div>

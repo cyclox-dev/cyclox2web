@@ -24,7 +24,7 @@ App::uses('ResultShell','Console/Command');
 class PointSeriesController extends ApiBaseController
 {
 	public $uses = array('PointSeries', 'MeetPointSeries', 'PointSeriesRacer', 'Season', 'PointSeriesGroup'
-		, 'TmpPointSeriesRacerSet');
+		, 'TmpPointSeriesRacerSet', 'PointSeriesGroup');
 
 /**
  * Components
@@ -53,7 +53,20 @@ class PointSeriesController extends ApiBaseController
 		$this->Paginator->settings = $this->paginate;
 		
 		$this->PointSeries->recursive = 0;
+		
+		if (isset($this->request->query['group'])) {
+			$group = $this->request->query['group'];
+			if ($group === '__not_grouped__' || $group === 0) {
+				$this->Paginator->settings['conditions'] = array('point_series_group_id' => null);
+			} else {
+				$this->Paginator->settings['conditions'] = array('point_series_group_id' => $this->request->query['group']);
+			}
+		}
+		
 		$this->set('pointSeries', $this->Paginator->paginate());
+		
+		$this->PointSeriesGroup->recursive = 0;
+		$this->set('series_groups', $this->PointSeriesGroup->find('list'));
 	}
 
 /**
@@ -71,6 +84,16 @@ class PointSeriesController extends ApiBaseController
 		$options = array('conditions' => array('PointSeries.' . $this->PointSeries->primaryKey => $id));
 		$pointSeries = $this->PointSeries->find('first', $options);
 		
+		$opt = array(
+			'conditions' => array(
+				'point_series_id' => $id,
+			),
+			'order' => array(
+				'Meet.at_date' => 'DESC',
+			)
+		);
+		$mpss = $this->MeetPointSeries->find('all', $opt);
+		
 		$options = array(
 			'conditions' => array(
 				'point_series_id' => $id,
@@ -82,7 +105,7 @@ class PointSeriesController extends ApiBaseController
 		);
 		$psrSets = $this->TmpPointSeriesRacerSet->find('all', $options);
 		
-		$this->set(compact('pointSeries', 'psrSets'));
+		$this->set(compact('pointSeries', 'mpss', 'psrSets'));
 	}
 
 /**
@@ -90,12 +113,12 @@ class PointSeriesController extends ApiBaseController
  *
  * @return void
  */
-	public function add() {
+	public function add($groupID = null) {
 		if ($this->request->is('post')) {
 			$this->PointSeries->create();
 			if ($this->PointSeries->save($this->request->data)) {
-				$this->Flash->set(__('The point series has been saved.'));
-				return $this->redirect(array('action' => 'index'));
+				$this->Flash->success(__('The point series has been saved.'));
+				return $this->redirect(array('action' => 'view', $this->PointSeries->id));
 			} else {
 				$this->Flash->set(__('The point series could not be saved. Please, try again.'));
 			}
@@ -108,6 +131,14 @@ class PointSeriesController extends ApiBaseController
 		$this->set('sumUpRules', PointSeriesSumUpRule::rules());
 		$this->set('pointTos', PointSeriesPointTo::pointToList());
 		$this->set('termRules', PointSeriesTermOfValidityRule::rules());
+		
+		if (!is_null($groupID)) {
+			$this->set('groupID', $groupID);
+			$this->request->data['PointSeries']['point_series_group_id'] = $groupID;
+			if (!empty($pointSeriesGroups[$groupID])) {
+				$this->set('groupName', $pointSeriesGroups[$groupID]);
+			}
+		}
 	}
 
 /**
@@ -123,8 +154,8 @@ class PointSeriesController extends ApiBaseController
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->PointSeries->save($this->request->data)) {
-				$this->Flash->set(__('The point series has been saved.'));
-				return $this->redirect(array('action' => 'index'));
+				$this->Flash->success(__('The point series has been saved.'));
+				return $this->redirect(array('action' => 'view', $id));
 			} else {
 				$this->Flash->set(__('The point series could not be saved. Please, try again.'));
 			}

@@ -43,8 +43,7 @@
 <div class="actions">
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
-		<li><?php echo $this->Html->link(__('New Point Series Group'), array('action' => 'add')); ?></li>
-		<li><?php echo $this->Html->link(__('List Point Series'), array('controller' => 'point_series', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Point Series'), array('controller' => 'point_series', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('新規シリーズグループを作成'), array('action' => 'add')); ?></li>
+		<li><?php echo $this->Html->link(__('> ポイントシリーズ'), array('controller' => 'point_series', 'action' => 'index')); ?> </li>
 	</ul>
 </div>
