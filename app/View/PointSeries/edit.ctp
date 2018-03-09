@@ -38,6 +38,9 @@
 		}
 		echo $this->Form->input('point_term_rule', array('label' => 'Pt有効期間ルール', 'options' => $termSelects));
 		echo $this->Form->input('season_id', array('empty' => '--'));
+		echo $this->Form->input('hint');
+		echo $this->Form->input('is_active');
+		echo '<p>※以下の項目は通常の場合、この画面で値を入力する必要はありません。</p>';
 		echo $this->Form->input('public_psrset_group_id', array('type' => 'text', 'label' => '公開データID'));
 		echo $this->Form->input('published_at', array(
 			'label' => '公開日時',
@@ -47,8 +50,6 @@
 			'monthNames' => false,
 			'empty' => '--'
 		));
-		echo $this->Form->input('hint');
-		echo $this->Form->input('is_active');
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>
