@@ -53,15 +53,11 @@
 	<ul>
 		<li><?php echo $this->Html->link(__('大会データの追加'), array('action' => 'add')); ?></li>
 		<li><?php echo $this->Html->link(__('> シーズンリスト'), array('controller' => 'seasons', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('> シーズンの追加'), array('controller' => 'seasons', 'action' => 'add')); ?> </li>
 		<li><?php echo $this->Html->link(__('> 大会グループリスト'), array('controller' => 'meet_groups', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('> 大会グループの追加'), array('controller' => 'meet_groups', 'action' => 'add')); ?> </li>
-		<li><?php echo $this->Html->link(__('> 出走グループリスト'), array('controller' => 'entry_groups', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('> 出走グループの追加'), array('controller' => 'entry_groups', 'action' => 'add')); ?> </li>
 	</ul>
 </div>
 <div class="actions">
-	<h3><?php echo '大会グループ別一覧'; ?></h3>
+	<h3><?php echo '大会グループごと'; ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link('すべて', '/meets/index'); ?> </li>
 		<?php foreach ($meet_groups as $code => $mg): ?>
