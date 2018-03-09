@@ -22,12 +22,13 @@ class PageTitleComponent extends Component
 		'Meets' => '大会',
 		'RacerResults' => '選手結果データ',
 		'Racers' => '選手データ',
+		'CategoryRacers' => 'カテゴリー所属',
 		'Seasons' => 'シーズン',
 		'TimeRecordInfos' => '計測時情報',
 		'TimeRecords' => '計測データ',
 		'Users' => 'ユーザー',
 		'PointSeries' => 'ポイントシリーズ',
-		'PointSeriesGroup' => 'ポイントシリーズグループ'
+		'PointSeriesGroups' => 'ポイントシリーズグループ'
 		
 	);
 	
