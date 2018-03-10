@@ -17,6 +17,25 @@ $(document).ready(function(){
 	});
 	$(".point_term_end").append(b);
 });
+$(function() {
+	// 元ネタ: https://try-m.co.jp/blog/jquery/936/
+	var $children = $('.meet_select');
+	var original = $children.html();
+
+	$('.group_select').change(function() {
+		var val1 = $(this).val();
+		console.log("val1:" + val1);
+		$children.html(original).find('option').each(function() {
+			var val2 = $(this).val();
+			//console.log("val1:" + val1 + " val2" + val2);
+			if (!val2.match("^" + val1)) {
+				$(this).remove();
+				// empty 選択でも問題なし
+			}
+		});
+	});
+});
+
 <?php echo $this->Html->scriptEnd(); ?>
 
 <div class="meetPointSeries form">
@@ -27,7 +46,15 @@ $(document).ready(function(){
 		echo $this->Form->input('id');
 		echo $this->Form->input('point_series_id', array('label' => 'ポイントシリーズ'));
 		echo $this->Form->input('express_in_series', array('label' => 'シリーズ内での名称（例：#2菅生／ランキング表上での大会タイトルとなる。）'));
-		echo $this->Form->input('meet_code', array('options' => $meets, 'label' => '大会'));
+		
+		$html = '<div class="flex">大会絞込：<select class="group_select">';
+		$html .= '<option value="" selected>--- 絞り込みなし ---</option>';
+		foreach ($meetGroups as $code => $mg) {
+			$html .= '<option value="' . $code . '">' . $mg .'</option>';
+		}
+		$html .= '</select></div>';
+		
+		echo $this->Form->input('meet_code', array('options' => $meets, 'label' => '大会', 'after' => $html, 'class' => 'meet_select'));
 		echo $this->Form->input('entry_category_name', array('label' => '出走カテゴリー名'));
 		echo $this->Form->input('grade', array('label' => 'ポイントテーブルのグレード／詳細は配点ルールを確認して下さい。'));
 		echo $this->Form->input('point_term_begin', array(

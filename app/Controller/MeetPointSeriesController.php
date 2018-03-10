@@ -7,7 +7,9 @@ App::uses('AppController', 'Controller');
  * @property PaginatorComponent $Paginator
  * @property FlashComponent $Flash
  */
-class MeetPointSeriesController extends AppController {
+class MeetPointSeriesController extends AppController
+{
+	public $uses = array('MeetPointSeries', 'Meet', 'MeetGroup');
 
 /**
  * Components
@@ -59,11 +61,15 @@ class MeetPointSeriesController extends AppController {
 		}
 		$pointSeries = $this->MeetPointSeries->PointSeries->find('list');
 		
-		$mts = $this->MeetPointSeries->Meet->find('list');
+		$opt = array(
+			'order' => array('code' => 'DESC'),
+			'recursive'=> 0,
+		);
+		$mts = $this->Meet->find('list', $opt);
 		$meets = array();
-		foreach (array_keys($mts) as $key)
+		foreach ($mts as $code => $name)
 		{
-			$meets[$key] = $key . ':' . $mts[$key];
+			$meets[$code] = $code . ':' . $name;
 		}
 		
 		$this->set(compact('pointSeries', 'meets'));
@@ -71,6 +77,8 @@ class MeetPointSeriesController extends AppController {
 		if ($pointSeriesId != null) {
 			$this->set('psid', $pointSeriesId);
 		}
+		
+		$this->set('meetGroups', $this->MeetGroup->find('list'));
 	}
 
 /**
@@ -97,14 +105,19 @@ class MeetPointSeriesController extends AppController {
 		}
 		$pointSeries = $this->MeetPointSeries->PointSeries->find('list');
 		
-		$mts = $this->MeetPointSeries->Meet->find('list');
+		$opt = array(
+			'order' => array('code' => 'DESC'),
+			'recursive'=> 0,
+		);
+		$mts = $this->Meet->find('list', $opt);
 		$meets = array();
-		foreach (array_keys($mts) as $key)
+		foreach ($mts as $code => $name)
 		{
-			$meets[$key] = $key . ':' . $mts[$key];
+			$meets[$code] = $code . ':' . $name;
 		}
 		
 		$this->set(compact('pointSeries', 'meets'));
+		$this->set('meetGroups', $this->MeetGroup->find('list'));
 	}
 
 /**
