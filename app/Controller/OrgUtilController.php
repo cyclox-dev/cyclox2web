@@ -488,21 +488,28 @@ class OrgUtilController extends ApiBaseController
 		//$this->set('cats', $cats);
 	}
 	
-	public function download_racers_csv()
+	public function download_racers_csv($encoding = null)
 	{
 		if (!$this->request->is('post')) {
 			throw new BadMethodCallException('Bad method.');
 		}
 		
+		$encode = 'SJIS';
+		$fnameSfix = 'sjis';
+		if (!empty($encoding) && $encoding == 'utf8') {
+			$encode = 'UTF-8';
+			$fnameSfix = 'utf8';
+		}
+		
 		$this->_mkdir4RacerList();
 		
-		$catCode = $this->request->data['category_code'];
-		
 		$filename = self::__RACERS_FILE_PREFIX;
-		if (empty($catCode)) {
+		if (empty($this->request->data['category_code'])) {
 			$catCode = 'all';
+		} else {
+			$catCode = $this->request->data['category_code'];
 		}
-		$filename .= $catCode;
+		$filename .= $catCode . '_' . $fnameSfix;
 		
 		$this->log('tmp:' . TMP, LOG_DEBUG);
 		$file = new File(TMP . self::__PATH_RACERS . '/' . $filename . '.csv');
@@ -526,18 +533,25 @@ class OrgUtilController extends ApiBaseController
 	/**
 	 * 選手リストを作成（更新）する
 	 */
-	public function create_racer_lists()
+	public function create_racer_lists($encoding = null)
 	{
 		$this->_mkdir4RacerList();
 		
 		$this->Racer->Behaviors->load('Utils.SoftDelete');
 		$this->CategoryRacer->Behaviors->load('Utils.SoftDelete');
 		
+		$encode = 'SJIS';
+		$fnameSfix = 'sjis';
+		if (!empty($encoding) && $encoding == 'utf8') {
+			$encode = 'UTF-8';
+			$fnameSfix = 'utf8';
+		}
+		
 		//++++++++++++++++++++++++++++++++++++++++
 		// All
 		$this->log('start all racer csv', LOG_DEBUG);
 		
-		$tmpPath = TMP . self::__PATH_RACERS . '/' . self::__RACERS_FILE_PREFIX . 'all.csv.tmp';
+		$tmpPath = TMP . self::__PATH_RACERS . '/' . self::__RACERS_FILE_PREFIX . 'all_' . $fnameSfix . '.csv.tmp';
 		
 		$tmpFile = new File($tmpPath);
 		if ($tmpFile->exists()) {
@@ -548,11 +562,11 @@ class OrgUtilController extends ApiBaseController
 		// 以下、fputcsv を使いたいので fp で処理
 		$fp = fopen($tmpPath, 'w');
 		
-		$this->__putToFp($fp, array('AJOCC 選手リスト', '更新日:' . date('Y/m/d')));
+		$this->__putToFp($fp, array('AJOCC 選手リスト', '更新日:' . date('Y/m/d')), $encode);
 		
 		$row = array('選手コード', '姓', '名', '姓（かな）', '名（かな）', '姓 (en)', '名 (en)', 'チーム名'
 			, '性別', '生年月日', '国籍', 'Jcf No.', 'UCI ID', 'UCI No.', 'UCI Code', '都道府県', '所属カテゴリー');
-		$this->__putToFp($fp, $row);
+		$this->__putToFp($fp, $row, $encode);
 		
 		$offset = 0;
 		$limit = 100;
@@ -639,7 +653,7 @@ class OrgUtilController extends ApiBaseController
 						$this->__strOrEmpty($r['uci_code']),
 						$this->__strOrEmpty($r['prefecture']),
 						$catExp);
-				$this->__putToFp($fp, $row);
+				$this->__putToFp($fp, $row, $encode);
 			}
 			
 			$offset += $limit;
@@ -647,7 +661,7 @@ class OrgUtilController extends ApiBaseController
 		
 		fclose($fp);
 		
-		$filename = TMP . self::__PATH_RACERS . '/' . self::__RACERS_FILE_PREFIX . 'all.csv';
+		$filename = TMP . self::__PATH_RACERS . '/' . self::__RACERS_FILE_PREFIX . 'all_' . $fnameSfix . '.csv';
 		$tmpFile->copy($filename, true);
 		
 		$this->log('end all racer csv', LOG_DEBUG);
@@ -665,10 +679,14 @@ class OrgUtilController extends ApiBaseController
 	 * file pointer に対して shift-JIS で CSV 出力する。
 	 * @param filepointer $fp ファイルポインタ
 	 * @param array $row 行ごとの配列
+	 * @param String encode 
 	 */
-	private function __putToFp($fp, $row)
+	private function __putToFp($fp, $row, $encode = 'SJIS')
 	{
-		mb_convert_variables('SJIS', 'UTF-8', $row);
+		if ($encode != 'UTF-8') {
+			mb_convert_variables('SJIS', 'UTF-8', $row);
+		}
+		
 		fputcsv($fp, $row);
 	}
 	
