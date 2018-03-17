@@ -140,6 +140,16 @@ class EntryGroupsController extends ApiBaseController {
 		} else {
 			$this->Flash->set(__('The entry group could not be deleted. Please, try again.'));
 		}
-		return $this->redirect(array('action' => 'index'));
+		if (empty($this->referer()) || $this->_strEndsWith($this->referer(), '/entry_groups/view/' . $id)) {
+			$this->redirect(array('controller' => 'meets', 'action' => 'index'));
+		}
+		
+		return $this->redirect($this->referer());
+		//return $this->redirect(array('action' => 'index'));
 	}
+	
+	private function _strEndsWith($haystack, $needle) {
+		return (strpos(strrev($haystack), strrev($needle)) === 0);
+	}
+
 }

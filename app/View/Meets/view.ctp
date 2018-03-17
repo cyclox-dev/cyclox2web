@@ -156,7 +156,8 @@
 				<td class="actions">
 						<?php echo $this->Html->link(__('View'), array('controller' => 'entry_groups', 'action' => 'view', $entryGroup['id'])); ?>
 						<?php echo $this->Html->link(__('Edit'), array('controller' => 'entry_groups', 'action' => 'edit', $entryGroup['id'])); ?>
-						<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'entry_groups', 'action' => 'delete', $entryGroup['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryGroup['id'])); ?>
+						<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'entry_groups', 'action' => 'delete', $entryGroup['id']),
+								array(), __('[%s] のデータを削除してよろしいですか？', $entryGroup['id'])); ?>
 				</td>
 			</tr>
 			<?php endforeach; ?>
