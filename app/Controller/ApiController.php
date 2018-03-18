@@ -255,6 +255,23 @@ class ApiController extends ApiBaseController
 				}
 			}
 			
+			if (!empty($duplicatedEcatNames)) {
+				$str = '';
+				foreach ($duplicatedEcatNames as $ecatName) {
+					if (!empty($str)) {
+						$str .= ',';
+					}
+					$str.= $ecatName;
+				}
+				return $this->error("出走カテゴリー " . $str . " について、\n"
+					. "今回のとは異なる出走グループでのエントリーデータが存在します。\n"
+					. "（= おそらく今回と異なるレースの組み方をしている出走グループがあります。）\n"
+					. "Web 上で上記出走カテゴリーを含む出走グループを削除してからリトライして下さい。\n\n"
+					. "※出走カテゴリーではなく出走グループを削除すること！\n"
+					. "　出走グループ削除により、それに含まれる出走カテゴリーが削除されます。\n"
+					. "　削除後、必要なエントリー・リザルトをアップロードし直すこと。", self::STATUS_CODE_BAD_REQUEST);
+			}
+			
 			// 同じ名前の出走グループを削除
 			$opt = array('conditions' => array('name' => $egroupName, 'meet_code' => $meetCode));
 			$oldGroups = $this->EntryGroup->find('list', $opt);
@@ -316,11 +333,7 @@ class ApiController extends ApiBaseController
 			
 			$this->TransactionManager->commit($transaction);
 			
-			if (empty($duplicatedEcatNames)) {
-				return $this->success(array('ok')); // 件数とか？
-			} else {
-				return $this->success(array('duplidated_entry_category' => $duplicatedEcatNames));
-			}
+			return $this->success(array('ok')); // 件数とか？
 		} catch (Exception $ex) {
 			$this->log('exception:' . $ex.message, LOG_DEBUG);
 			$this->TransactionManager->rollback($transaction);
