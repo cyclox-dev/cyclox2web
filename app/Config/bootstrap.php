@@ -232,3 +232,4 @@ Configure :: write('acl.gui.users_permissions.ajax', true);
 //<<< Acl Plugin
 
 App::uses('AppErrorHandler', 'Lib/Error');
+date_default_timezone_set('Asia/Tokyo'); // shun local で php.ini の timezone 設定が繁衍されないの対策用
