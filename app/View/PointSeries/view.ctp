@@ -69,6 +69,16 @@
 			<?php echo $this->Html->link($pointSeries['Season']['name'], array('controller' => 'seasons', 'action' => 'view', $pointSeries['Season']['id'])); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('ヒント'); ?></dt>
+		<dd>
+			<?php echo h($pointSeries['PointSeries']['hint']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Is Active?'); ?></dt>
+		<dd>
+			<?php echo ($pointSeries['PointSeries']['is_active'] ? 'Yes' : 'No'); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('公開 Data-ID'); ?></dt>
 		<dd>
 			<?php echo h($pointSeries['PointSeries']['public_psrset_group_id']); ?>
@@ -79,14 +89,9 @@
 			<?php echo h($pointSeries['PointSeries']['published_at']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('ヒント'); ?></dt>
+		<dt><?php echo __('公開データの更新'); ?></dt>
 		<dd>
-			<?php echo h($pointSeries['PointSeries']['hint']); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('Is Active?'); ?></dt>
-		<dd>
-			<?php echo ($pointSeries['PointSeries']['is_active'] ? 'Yes' : 'No'); ?>
+			<?php echo h($pointSeries['PointSeries']['publishes_newest_asap'] ? 'Auto' : '手動'); ?>
 			&nbsp;
 		</dd>
 	</dl>

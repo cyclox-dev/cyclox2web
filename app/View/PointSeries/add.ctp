@@ -49,6 +49,7 @@
 		echo $this->Form->input('point_term_rule', array('label' => 'Pt有効期間ルール', 'options' => $termSelects));
 		echo $this->Form->input('season_id', array('empty' => '--'));
 		echo $this->Form->input('hint');
+		echo $this->Form->input('publishes_newest_asap', array('label' => 'リザルトから計算された最新のランキングデータをすぐに公開する。'));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>

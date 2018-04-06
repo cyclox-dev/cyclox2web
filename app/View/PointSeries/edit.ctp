@@ -50,6 +50,7 @@
 			'monthNames' => false,
 			'empty' => '--'
 		));
+		echo $this->Form->input('publishes_newest_asap', array('label' => 'リザルトから計算された最新のランキングデータをすぐに公開する。'));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>
