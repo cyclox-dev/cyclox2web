@@ -63,98 +63,104 @@ class AgedCategoryComponent  extends Component
 			$transaction = $TransactionManager->begin();
 		}
 		
-		$deleteCrIds = array();
-		foreach ($racer['CategoryRacer'] as $cr) {
-			if (!empty($cr['Category']['is_aged_category'])) {
-				$deleteCrIds[] = $cr['id'];
-			}
-		}
-		
-		foreach ($this->agedCats as $agedCat) {
-			
-			$gen = $agedCat['Category']['gender'];
-			if ($gen != Gender::$UNASSIGNED->val()) {
-				if ($racer['Racer']['gender'] != $gen) {
-					continue;
+		try {
+			$deleteCrIds = array();
+			foreach ($racer['CategoryRacer'] as $cr) {
+				if (!empty($cr['Category']['is_aged_category'])) {
+					$deleteCrIds[] = $cr['id'];
 				}
 			}
-			
-			// 付与基準日から考えてその agedCat を与える必要があるかを判断
-			$applyDate = $this->__getMinAgedDate($agedCat, $birth);
-			$cancelDate = $this->__getMaxAgeDate($agedCat, $birth);
-			
-			if ($putsLog) $this->log('cat:' . $agedCat['Category']['code'] . ' ' . $applyDate . ' to ' . $cancelDate, LOG_DEBUG);
-			
-			if ($cancelDate != null && $cancelDate < $baseDate) {
-				// 付与必要なし
-				//if ($putsLog) $this->log('not need(over period)', LOG_DEBUG);
-				continue;
-			}
-			
-			$findsCr = false;
-			
-			if (!empty($racer['CategoryRacer'])) {
-				foreach ($racer['CategoryRacer'] as $cr) {
-					if ($cr['deleted']) continue;
-					
-					if ($cr['category_code'] == $agedCat['Category']['code'])
-					{
-						if ($cr['apply_date'] == $applyDate && $cr['cancel_date'] == $cancelDate) {
-							if ($findsCr) {
-								if ($putsLog) $this->log('cat:' . $cr['id'] . '/' . $cr['category_code'] . ' will be delete(duplicated).', LOG_INFO);
-							} else {
-								if ($putsLog) $this->log('FINDS cat:' . $cr['id'] . '/' . $cr['category_code'], LOG_INFO);
-								$findsCr = true;
-								
-								// 削除 Cr.id リスト($deleteCrIds) から除外する
-								$delIndex = -1;
-								$index = 0;
-								foreach ($deleteCrIds as $crid) {
-									if ($crid == $cr['id']) {
-										$delIndex = $index;
-										break;
+
+			foreach ($this->agedCats as $agedCat) {
+
+				$gen = $agedCat['Category']['gender'];
+				if ($gen != Gender::$UNASSIGNED->val()) {
+					if ($racer['Racer']['gender'] != $gen) {
+						continue;
+					}
+				}
+
+				// 付与基準日から考えてその agedCat を与える必要があるかを判断
+				$applyDate = $this->__getMinAgedDate($agedCat, $birth);
+				$cancelDate = $this->__getMaxAgeDate($agedCat, $birth);
+
+				if ($putsLog) $this->log('cat:' . $agedCat['Category']['code'] . ' ' . $applyDate . ' to ' . $cancelDate, LOG_DEBUG);
+
+				if ($cancelDate != null && $cancelDate < $baseDate) {
+					// 付与必要なし
+					//if ($putsLog) $this->log('not need(over period)', LOG_DEBUG);
+					continue;
+				}
+
+				$findsCr = false;
+
+				if (!empty($racer['CategoryRacer'])) {
+					foreach ($racer['CategoryRacer'] as $cr) {
+						if ($cr['deleted']) continue;
+
+						if ($cr['category_code'] == $agedCat['Category']['code'])
+						{
+							if ($cr['apply_date'] == $applyDate && $cr['cancel_date'] == $cancelDate) {
+								if ($findsCr) {
+									if ($putsLog) $this->log('cat:' . $cr['id'] . '/' . $cr['category_code'] . ' will be delete(duplicated).', LOG_INFO);
+								} else {
+									if ($putsLog) $this->log('FINDS cat:' . $cr['id'] . '/' . $cr['category_code'], LOG_INFO);
+									$findsCr = true;
+
+									// 削除 Cr.id リスト($deleteCrIds) から除外する
+									$delIndex = -1;
+									$index = 0;
+									foreach ($deleteCrIds as $crid) {
+										if ($crid == $cr['id']) {
+											$delIndex = $index;
+											break;
+										}
+										++$index;
 									}
-									++$index;
+									array_splice($deleteCrIds, $delIndex, 1);
 								}
-								array_splice($deleteCrIds, $delIndex, 1);
+							} else {
+								if ($putsLog) $this->log('cat:' . $cr['id'] . '/' . $cr['category_code'] . ' will be delete.', LOG_INFO);
+								// 不適な日にち指定のものは削除してしまう。
 							}
-						} else {
-							if ($putsLog) $this->log('cat:' . $cr['id'] . '/' . $cr['category_code'] . ' will be delete.', LOG_INFO);
-							// 不適な日にち指定のものは削除してしまう。
 						}
 					}
 				}
-			}
-			
-			if (!$findsCr) {
-				if ($putsLog) $this->log('not find and will create.', LOG_INFO);
-				
-				// 新規に付与する必要あり
-				$newCr = array('CategoryRacer' => array(
-					'racer_code' => $racerCode,
-					'category_code' => $agedCat['Category']['code'],
-					'apply_date' => $applyDate,
-					'cancel_date' => $cancelDate,
-					'reason_id' => CategoryReason::$FIRST_REGIST->ID(),
-					'reason_note' => '年少者カテゴリー自動付与'
-				));
-				
-				$this->CategoryRacer->create();
-				if (!$this->CategoryRacer->save($newCr)) {
-					if ($usesTransaction) $TransactionManager->rollback($transaction);
-					$this->log('カテゴリー所属の保存に失敗しました。', LOG_ERR);
-					return false;
+
+				if (!$findsCr) {
+					if ($putsLog) $this->log('not find and will create.', LOG_INFO);
+
+					// 新規に付与する必要あり
+					$newCr = array('CategoryRacer' => array(
+						'racer_code' => $racerCode,
+						'category_code' => $agedCat['Category']['code'],
+						'apply_date' => $applyDate,
+						'cancel_date' => $cancelDate,
+						'reason_id' => CategoryReason::$FIRST_REGIST->ID(),
+						'reason_note' => '年少者カテゴリー自動付与'
+					));
+
+					$this->CategoryRacer->create();
+					if (!$this->CategoryRacer->save($newCr)) {
+						if ($usesTransaction) $TransactionManager->rollback($transaction);
+						$this->log('カテゴリー所属の保存に失敗しました。', LOG_ERR);
+						return false;
+					}
 				}
 			}
-		}
-		
-		// 不要なカテゴリー所属を削除
-		$ret = $this->__deleteCategories($deleteCrIds);
-		if (!$ret) {
-			if ($usesTransaction) $TransactionManager->rollback($transaction);
-			$this->log('カテゴリー所属のチェックと修正に失敗しました。', LOG_ERR);
-		} else {
-			if ($usesTransaction) $TransactionManager->commit($transaction);
+
+			// 不要なカテゴリー所属を削除
+			$ret = $this->__deleteCategories($deleteCrIds);
+			if (!$ret) {
+				if ($usesTransaction) $TransactionManager->rollback($transaction);
+				$this->log('カテゴリー所属のチェックと修正に失敗しました。', LOG_ERR);
+			} else {
+				if ($usesTransaction) $TransactionManager->commit($transaction);
+			}
+		} catch (Exception $ex) {
+			$this->log('Exception により処理に失敗しました。' . $ex->getMessage(), LOG_ERR);
+			if ($usesTransaction) $this->TransactionManager->rollback($transaction);
+			return false;
 		}
 		// <<< Transaction
 		

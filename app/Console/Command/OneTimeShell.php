@@ -954,7 +954,7 @@ class OneTimeShell extends AppShell
 	/**
 	 * 全ての選手に対して aged category のチェック・設定を行なう。
 	 * > cd app ディレクトリ
-	 * > Console/cake one_time setupAgedCategory 2017/4/1
+	 * > Console/cake one_time setupAgedCategory 2017-04-01
 	 * 第1引数（日付）を指定しない場合、処理実行日での処理となる。
 	 */
 	public function setupAgedCategory()
@@ -981,38 +981,44 @@ class OneTimeShell extends AppShell
 			// >>> Transaction
 			$transaction = $this->TransactionManager->begin();
 
-			$opt = array(
-				'recursive' => -1,
-				'conditions' => array(
-					'Racer.deleted' => 0,
-					array('NOT' => array('birth_date' => null)),
-					//array('NOT' => array('gender' => Gender::$UNASSIGNED->val())),
-				),
-				'offset' => $offset,
-				'limit' => $limit,
-			);
-			
-			$racers = $this->Racer->find('all', $opt);
-			
-			if (empty($racers)) {
-				$this->log('could not find racers... break.', LOG_DEBUG);
-				break;
-			}
-			
-			foreach ($racers as $r) {
-				++$index;
-				$this->log('--- index:' . $index . ' [' . $r['Racer']['code'] . '] '
-						. $r['Racer']['family_name'] . ' ' . $r['Racer']['first_name']
-						. ' ' . $r['Racer']['birth_date'] . ' gen:' . $r['Racer']['gender'], LOG_DEBUG);
-				
-				if (!$this->__agedCatComp->checkAgedCategory($r['Racer']['code'], $date, false)) {
-					$this->log('code:' . $r['Racer']['code'] . ' の処理に失敗しました。', LOG_ERR);
-					$this->TransactionManager->rollback($transaction);
-					return;
+			try {
+				$opt = array(
+					'recursive' => -1,
+					'conditions' => array(
+						'Racer.deleted' => 0,
+						array('NOT' => array('birth_date' => null)),
+						//array('NOT' => array('gender' => Gender::$UNASSIGNED->val())),
+					),
+					'offset' => $offset,
+					'limit' => $limit,
+				);
+
+				$racers = $this->Racer->find('all', $opt);
+
+				if (empty($racers)) {
+					$this->log('could not find racers... break.', LOG_DEBUG);
+					break;
 				}
+
+				foreach ($racers as $r) {
+					++$index;
+					$this->log('--- index:' . $index . ' [' . $r['Racer']['code'] . '] '
+							. $r['Racer']['family_name'] . ' ' . $r['Racer']['first_name']
+							. ' ' . $r['Racer']['birth_date'] . ' gen:' . $r['Racer']['gender'], LOG_DEBUG);
+
+					if (!$this->__agedCatComp->checkAgedCategory($r['Racer']['code'], $date, false)) {
+						$this->log('code:' . $r['Racer']['code'] . ' の処理に失敗しました。', LOG_ERR);
+						$this->TransactionManager->rollback($transaction);
+						return;
+					}
+				}
+
+				$this->TransactionManager->commit($transaction);
+			} catch (Exception $ex) {
+				$this->log('Exception により処理に失敗しました。' . $ex->getMessage(), LOG_ERR);
+				$this->TransactionManager->rollback($transaction);
+				return;
 			}
-			
-			$this->TransactionManager->commit($transaction);
 			// <<< Transaction
 
 			$offset += $limit;
