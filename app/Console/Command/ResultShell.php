@@ -21,7 +21,9 @@ class ResultShell extends AppShell
 	const __TYPE_DATA = 1;
 	
 	public $uses = array('TransactionManager', 'TmpResultUpdateFlag', 'TmpPointSeriesRacerSet'
-			, 'MeetPointSeries', 'EntryCategory', 'EntryRacer', 'AjoccptLocalSetting', 'TmpAjoccptRacerSet');
+			, 'MeetPointSeries', 'EntryCategory', 'EntryRacer', 'AjoccptLocalSetting', 'TmpAjoccptRacerSet'
+			, 'PointSeries'
+		);
 	
 	private $__psController;
 	private $__orgUtilController;
@@ -550,6 +552,21 @@ class ResultShell extends AppShell
 				$this->log($msg, LOG_ERR);
 				MailReporter::report('ResultShell#updateSeriesRankings ' . $msg, 'ERROR');
 				return false;
+			}
+			
+			if ($ps['PointSeries']['publishes_newest_asap']) {
+				$values = array('PointSeries' => array(
+					'id' => $ps['PointSeries']['id'],
+					'public_psrset_group_id' => $maxSetGroupId,
+					'published_at' => date('Y-m-d H:i:s'),
+				));
+				$this->log('ps.id:' . $ps['PointSeries']['id'] . ' group:' . $maxSetGroupId, LOG_DEBUG);
+				if (!$this->PointSeries->save($values)) {
+					$msg = 'ポイントシリーズ [id:' . $ps['PointSeries']['id'] . '] の公開データセットに失敗しました。'
+						. '公開すべき最新データが公開となりません。';
+					$this->log($msg, LOG_WARNING);
+					MailReporter::report('ResultShell#updateSeriesRankings ' . $msg, 'Warn');
+				}
 			}
 		}
 
