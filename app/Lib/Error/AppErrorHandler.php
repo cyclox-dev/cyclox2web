@@ -123,6 +123,9 @@ class AppErrorHandler extends ErrorHandler
 				'recordings/index.php',
 				'recordings/misc/audio.php',
 				'HNAP1/',
+				'_asterisk/',
+				'sitemap.xml',
+				'.well-known/security.txt',
 				// ここに例外ログを防ぎたいアドレスを
 			);
 			
