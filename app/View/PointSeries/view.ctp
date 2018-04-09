@@ -79,6 +79,11 @@
 			<?php echo ($pointSeries['PointSeries']['is_active'] ? 'Yes' : 'No'); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('ランキング公開？'); ?></dt>
+		<dd>
+			<?php echo ($pointSeries['PointSeries']['publishes_on_ressys'] ? 'Yes' : 'No'); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('公開 Data-ID'); ?></dt>
 		<dd>
 			<?php echo h($pointSeries['PointSeries']['public_psrset_group_id']); ?>
@@ -89,9 +94,9 @@
 			<?php echo h($pointSeries['PointSeries']['published_at']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('公開データの更新'); ?></dt>
+		<dt><?php echo __('公開データの指定'); ?></dt>
 		<dd>
-			<?php echo h($pointSeries['PointSeries']['publishes_newest_asap'] ? 'Auto' : '手動'); ?>
+			<?php echo h($pointSeries['PointSeries']['publishes_newest_asap'] ? 'Auto（最新）' : '手動'); ?>
 			&nbsp;
 		</dd>
 	</dl>

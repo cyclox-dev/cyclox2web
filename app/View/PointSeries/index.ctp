@@ -16,8 +16,9 @@
 			<th><?php echo $this->Paginator->sort('short_name', '短縮名'); ?></th>
 			<th><?php echo $this->Paginator->sort('hint'); ?></th>
 			<th><?php echo 'Active?'; ?></th>
+			<th><?php echo '公開?'; ?></th>
 			<th><?php echo '公開 Data'; ?></th>
-			<th><?php echo '公開 Data 更新'; ?></th>
+			<th><?php echo '公開 Data 指定'; ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>
@@ -40,6 +41,7 @@
 		<td><?php echo h($pointSeries['PointSeries']['short_name']); ?>&nbsp;</td>
 		<td><?php echo h($pointSeries['PointSeries']['hint']); ?>&nbsp;</td>
 		<td><?php echo ($pointSeries['PointSeries']['is_active'] ? 'Yes' : 'No'); ?>&nbsp;</td>
+		<td><?php echo ($pointSeries['PointSeries']['publishes_on_ressys'] ? 'Yes' : 'No'); ?>&nbsp;</td>
 		<td><?php echo (empty($pointSeries['PointSeries']['public_psrset_group_id']) ? '無し' : 'ver' . $pointSeries['PointSeries']['public_psrset_group_id']); ?>&nbsp;</td>
 		<td><?php echo ($pointSeries['PointSeries']['publishes_newest_asap'] ? 'Auto' : '手動'); ?>&nbsp;</td>
 		<td class="actions">

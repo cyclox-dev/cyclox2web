@@ -40,6 +40,8 @@
 		echo $this->Form->input('season_id', array('empty' => '--'));
 		echo $this->Form->input('hint');
 		echo $this->Form->input('is_active');
+		echo $this->Form->input('publishes_on_ressys', array('label' => 'リザルト閲覧システム上でランキングを公開する。'));
+		echo $this->Form->input('publishes_newest_asap', array('label' => 'リザルトから計算された最新のランキングデータをすぐに公開する。'));
 		echo '<p>※以下の項目は通常の場合、この画面で値を入力する必要はありません。</p>';
 		echo $this->Form->input('public_psrset_group_id', array('type' => 'text', 'label' => '公開データID'));
 		echo $this->Form->input('published_at', array(
@@ -50,7 +52,6 @@
 			'monthNames' => false,
 			'empty' => '--'
 		));
-		echo $this->Form->input('publishes_newest_asap', array('label' => 'リザルトから計算された最新のランキングデータをすぐに公開する。'));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>
