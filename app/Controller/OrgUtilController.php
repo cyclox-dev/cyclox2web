@@ -18,8 +18,9 @@ App::uses('UniteRacerStatus', 'Cyclox/Const');
 class OrgUtilController extends ApiBaseController
 {
 	 public $uses = array('TransactionManager',
-		 'Meet', 'Category', 'EntryGroup', 'EntryRacer', 'CategoryRacer', 'Racer'
-			, 'PointSeries', 'PointSeriesRacer', 'UniteRacerLog', 'Season');
+			'Meet', 'Category', 'EntryGroup', 'EntryRacer', 'CategoryRacer', 'Racer',
+			'PointSeries', 'PointSeriesRacer', 'UniteRacerLog', 'Season',
+			'AjoccptLocalSetting');
 	 
 	 public $components = array('Flash', 'RequestHandler');
 	 
@@ -54,6 +55,8 @@ class OrgUtilController extends ApiBaseController
 		
 		$cats = $this->Category->find('all', array('fields' => array('code', 'name')));
 		
+		$aplsetts = $this->AjoccptLocalSetting->find('all', array('recursive' => -1));
+		
 		$links = array();
 		foreach ($seasons as $season) {
 			$seasonPack = array();
@@ -70,6 +73,17 @@ class OrgUtilController extends ApiBaseController
 				$seasonPack['dat'][] = $obj;
 			}
 			$links[] = $seasonPack;
+			
+			foreach ($aplsetts as $aplset)
+			{
+				if ($aplset['AjoccptLocalSetting']['season_id'] == $season['Season']['id'])
+				{
+					$seasonPack['title'] .= ' (' . $aplset['AjoccptLocalSetting']['name'] . ')';
+					$seasonPack['local_setting_id'] = $aplset['AjoccptLocalSetting']['id'];
+					
+					$links[] = $seasonPack;
+				}
+			}
 		}
 		//$this->log($links, LOG_DEBUG);
 		
@@ -91,9 +105,18 @@ class OrgUtilController extends ApiBaseController
 			throw new BadRequestException('Needs Parameter.');
 		}
 		
+		$als = array();
+		if (!empty($this->request->data['local_setting_id'])) {
+			$als = $this->AjoccptLocalSetting->find('first', array('id' => $this->request->data['local_setting_id']));
+			if (empty($als)) {
+				$this->Flash->set(__('該当 ID の AjoccPoint Local 設定が見つかりません。'));
+				$this->redirect($this->referer());
+			}
+		}
+		
 		//$this->log('year:' . $this->request->data['base_year'] . ' cat:' . $this->request->data['category_code'], LOG_DEBUG);
 		
-		$ret = $this->calcAjoccPoints($this->request->data['category_code'], $this->request->data['season_id']);
+		$ret = $this->calcAjoccPoints($this->request->data['category_code'], $this->request->data['season_id'], $als);
 		
 		if ($ret === false) {
 			$this->Flash->set(__('エラーのため、ランキングを取得できませんでした。不正な場合は、管理者に連絡して下さい。'));
