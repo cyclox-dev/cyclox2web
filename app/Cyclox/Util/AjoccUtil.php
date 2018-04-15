@@ -5,7 +5,10 @@
  */
 
 App::uses('ParmVar', 'Model');
+App::uses('Season', 'Model');
+App::uses('Util', 'Cyclox/Util');
 App::uses('Constant', 'Cyclox/Const');
+App::uses('UCIAge', 'Cyclox/Const');
 
 /**
  * Description of AjoccUtil
@@ -175,7 +178,29 @@ class AjoccUtil
 		return $mgCode . '-' . $currSeasonNo . '-' . sprintf('%04d', $number);
 	}
 	
-	
-	
-	
+	/**
+	 * UCI Elite 未満の年齢であるかをかえす
+	 * @param date $birth 生年月日
+	 * @param int $seasonID 年齢判定シーズン ID。null 指定、もしくは無効なシーズン ID 指定ならば現在日時で判定する。
+	 * @return boolean Elite 未満の年齢であるか
+	 */
+	public static function isLessElite($birth, $seasonID)
+	{
+		if (empty($birth)) return false;
+		
+		$Season = new Season();
+		
+		$atDate = new DateTime('now');
+		if (!empty($seasonID)) {
+			$season = $Season->find('first', array('conditions' => array('id' => $seasonID), 'recurive' => 0));
+			
+			if (!empty($season['Season']['end_date'])) {
+				$atDate = new DateTime($season['Season']['end_date']);
+			}
+		}
+		
+		$uciAge = Util::uciCXAgeAt(new DateTime($birth), $atDate);
+		
+		return $uciAge < UCIAge::$ELITE->ageMin();
+	}
 }

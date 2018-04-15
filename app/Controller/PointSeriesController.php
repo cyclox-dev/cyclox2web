@@ -10,6 +10,7 @@ App::uses('PointSeriesSumUpRule', 'Cyclox/Const');
 App::uses('PointSeriesPointTo', 'Cyclox/Const');
 App::uses('PointSeriesTermOfValidityRule', 'Cyclox/Const');
 App::uses('Util', 'Cyclox/Util');
+App::uses('AjoccUtil', 'Cyclox/Util');
 
 App::uses('AppShell','Console/Command');
 App::uses('ResultShell','Console/Command');
@@ -481,7 +482,7 @@ class PointSeriesController extends ApiBaseController
 					$nameMap[$racerCode] = $psr['RacerResult']['EntryRacer']['name_at_race'];
 				}
 				if (!empty($nameMap[$racerCode])) {
-					if ($this->__isLessElite($psr['Racer']['birth_date'], $mps['PointSeries']['season_id'])) {
+					if (AjoccUtil::isLessElite($psr['Racer']['birth_date'], $mps['PointSeries']['season_id'])) {
 						$nameMap[$racerCode] .= '*';
 					}
 				}
@@ -518,33 +519,6 @@ class PointSeriesController extends ApiBaseController
 	private function __dQuoteEscaped($s)
 	{
 		return '"' . str_replace('"', '""', $s) . '"';
-	}
-	
-	/**
-	 * UCI Elite 未満の年齢であるかをかえす
-	 * @param date $birth 生年月日
-	 * @param int $seasonID 年齢判定シーズン ID。null 指定、もしくは無効なシーズン ID 指定ならば現在日時で判定する。
-	 * @return boolean Elite 未満の年齢であるか
-	 */
-	private function __isLessElite($birth, $seasonID)
-	{
-		if (empty($birth)) return false;
-		
-		$atDate = new DateTime('now');
-		if (!empty($seasonID)) {
-			$season = $this->Season->find('first', array('conditions' => array('id' => $seasonID), 'recurive' => 0));
-			//$this->log('season:', LOG_DEBUG);
-			//$this->log($season, LOG_DEBUG);
-			
-			if (!empty($season['Season']['end_date'])) {
-				$atDate = new DateTime($season['Season']['end_date']);
-			}
-		}
-		
-		$uciAge = Util::uciCXAgeAt(new DateTime($birth), $atDate);
-		//$this->log('uci age:' . $uciAge, LOG_DEBUG);
-		
-		return $uciAge < 23;
 	}
 	
 	public function download_point_ranking_csv()

@@ -5,6 +5,7 @@ App::uses('Folder', 'Utility');
 App::uses('File', 'Utility');
 App::uses('Gender', 'Cyclox/Const');
 App::uses('UniteRacerStatus', 'Cyclox/Const');
+App::uses('AjoccUtil', 'Cyclox/Util');
 
 /*
  *  created at 2015/10/04 by shun
@@ -358,7 +359,14 @@ class OrgUtilController extends ApiBaseController
 						if (!empty($racerPoints[$rcode])) {
 							$rp = $racerPoints[$rcode];
 						} else {
-							$rp['name'] = $eracer['Racer']['family_name'] . '　' . $eracer['Racer']['first_name'];
+							$name = $eracer['Racer']['family_name'] . ' ' . $eracer['Racer']['first_name'];
+							if (!empty($eracer['Racer']['birth_date'])) {
+								if (AjoccUtil::isLessElite($eracer['Racer']['birth_date'], $meet['Meet']['season_id'])) {
+									$name .= '*';
+								}
+							}
+							
+							$rp['name'] = $name;
 							$rp['points'] = array();
 						}
 						
