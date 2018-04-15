@@ -209,9 +209,9 @@
 			<th><?php echo __('Category Code'); ?></th>
 			<th><?php echo __('所属開始日'); ?></th>
 			<th><?php echo __('所属終了日'); ?></th>
-			<th><?php echo __('適用タイプ'); ?></th>
-			<th><?php echo __('関連リザルト ID'); ?></th>
-			<th><?php echo __('関連大会 Code'); ?></th>
+			<th><?php echo __('所属開始理由'); ?></th>
+			<th><?php echo __('所属開始のリザルトID'); ?></th>
+			<th><?php echo __('所属開始の大会'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 		</tr>
 		<?php

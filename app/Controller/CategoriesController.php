@@ -108,7 +108,7 @@ class CategoriesController extends AppController {
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->Category->delete()) {
-			$this->Flash->set(__('カテゴリー [code:' . $code . ']を削除しました（削除日時を適用）。'));
+			$this->Flash->set(__('カテゴリー [code:' . $code . ']を削除しました（削除ステータスを設定）。'));
 		} else {
 			$this->Flash->set(__('カテゴリーの削除に失敗しました。'));
 		}

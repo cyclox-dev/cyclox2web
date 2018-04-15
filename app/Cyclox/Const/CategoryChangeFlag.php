@@ -5,7 +5,7 @@
  */
 
 /**
- * カテゴリー適用フラグ
+ * カテゴリー適用（所属開始）フラグ
  */
 class CategoryChangeFlag
 {

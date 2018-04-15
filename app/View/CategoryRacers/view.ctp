@@ -26,7 +26,7 @@
 			<?php echo h($categoryRacer['CategoryRacer']['cancel_date']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('適用タイプ'); ?></dt>
+		<dt><?php echo __('所属開始理由'); ?></dt>
 		<dd>
 			<?php 
 				App::uses('CategoryReason', 'Cyclox/Const');
@@ -34,18 +34,18 @@
 			?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('適用に関する Note'); ?></dt>
+		<dt><?php echo __('所属開始に関する Note'); ?></dt>
 		<dd>
 			<?php echo h($categoryRacer['CategoryRacer']['reason_note']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('適用リザルト ID'); ?></dt>
+		<dt><?php echo __('所属開始に関するリザルトID'); ?></dt>
 		<dd>
 			<?php echo $this->Html->link($categoryRacer['CategoryRacer']['racer_result_id'], array('controller' => 'racer_results', 'action' => 'view', $categoryRacer['CategoryRacer']['racer_result_id'])); ?>
 			&nbsp;
 		</dd>
 
-		<dt><?php echo __('適用根拠大会 Code'); ?></dt>
+		<dt><?php echo __('所属開始に関する大会 Code'); ?></dt>
 		<dd>
 			<?php echo $this->Html->link($categoryRacer['CategoryRacer']['meet_code'], array('controller' => 'meets', 'action' => 'view', $categoryRacer['CategoryRacer']['meet_code'])); ?>
 			&nbsp;

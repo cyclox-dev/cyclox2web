@@ -109,9 +109,9 @@ class CategoryRacesCategoriesController extends AppController {
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->CategoryRacesCategory->delete()) {
-			$this->Flash->set(__('レースカテゴリーへのカテゴリー配属 [ID:' . $id . '] を削除しました（削除日時を適用）。'));
+			$this->Flash->set(__('レースカテゴリーへのカテゴリー所属 [ID:' . $id . '] を削除しました（削除ステータスを設定）。'));
 		} else {
-			$this->Flash->set(__('レースカテゴリーへのカテゴリー配属の削除に失敗しました。'));
+			$this->Flash->set(__('レースカテゴリーへのカテゴリー所属の削除に失敗しました。'));
 		}
 		
 		return $this->redirect(array('action' => 'index'));

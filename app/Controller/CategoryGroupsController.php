@@ -99,7 +99,7 @@ class CategoryGroupsController extends AppController {
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->CategoryGroup->delete()) {
-			$this->Flash->set(__('カテゴリーグループ [ID:' . $code . '] を削除しました（削除日時を適用）。'));
+			$this->Flash->set(__('カテゴリーグループ [ID:' . $code . '] を削除しました（削除ステータスを設定）。'));
 		} else {
 			$this->Flash->set(__('カテゴリーグループの削除に失敗しました。'));
 		}

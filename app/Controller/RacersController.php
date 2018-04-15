@@ -487,7 +487,7 @@ class RacersController extends ApiBaseController
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->Racer->delete()) {
-			$this->Flash->set(__('選手 [code:' . $code . '] を削除しました（削除日時を適用）。'));
+			$this->Flash->set(__('選手 [code:' . $code . '] を削除しました（削除ステータスを設定）。'));
 		} else {
             $this->Flash->set(__('選手の削除に失敗しました。'));
 		}

@@ -217,7 +217,7 @@ class CategoryRacersController extends ApiBaseController
 		
 		$this->CategoryRacer->Behaviors->load('Utils.SoftDelete');
 		if ($this->CategoryRacer->delete()) {
-			$this->Flash->set(__('選手のカテゴリー所属情報 [ID:' . $id . '] を削除しました（削除日時の適用）。'));
+			$this->Flash->set(__('選手のカテゴリー所属情報 [ID:' . $id . '] を削除しました（削除ステータスを設定）。'));
 		} else {
 			$this->Flash->set(__('選手のカテゴリー所属情報削除に失敗しました。'));
 		}

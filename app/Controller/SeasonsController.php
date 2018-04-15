@@ -111,7 +111,7 @@ class SeasonsController extends ApiBaseController {
 		}
 		$this->request->allowMethod('post', 'delete');
 		if ($this->MeetGroup->delete()) {
-			$this->Flash->set(__('シーズン [ID:' . $id . '] を削除しました（削除日時を適用）。'));
+			$this->Flash->set(__('シーズン [ID:' . $id . '] を削除しました（削除ステータスを設定）。'));
 		} else {
 			$this->Flash->set(__('シーズンの削除に失敗しました。'));
 		}

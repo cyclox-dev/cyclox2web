@@ -11,7 +11,7 @@ App::uses('CategoryReason', 'Cyclox/Const');
 			<th><?php echo $this->Paginator->sort('category_code'); ?></th>
 			<th><?php echo $this->Paginator->sort('apply_date', '所属開始日'); ?></th>
 			<th><?php echo $this->Paginator->sort('cancel_date', '所属終了日'); ?></th>
-			<th><?php echo $this->Paginator->sort('reason_id', '適用タイプ'); ?></th>
+			<th><?php echo $this->Paginator->sort('reason_id', '所属開始理由'); ?></th>
 			<th><?php echo $this->Paginator->sort('racer_result_id', 'リザルト ID'); ?></th>
 			<th><?php echo $this->Paginator->sort('meet_code', '関連大会 Code'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
