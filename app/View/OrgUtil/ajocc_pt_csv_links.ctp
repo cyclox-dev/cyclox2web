@@ -19,5 +19,5 @@
 		</span>
 	<?php endforeach; ?>
 	</div>
-<?php endforeach;
+<?php endforeach; ?>
 
