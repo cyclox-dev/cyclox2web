@@ -6,7 +6,7 @@
 		echo $this->Form->input('id');
 		echo $this->Form->input('meet_code');
 		echo $this->Form->input('name');
-		echo $this->Form->input('start_clock');
+		echo $this->Form->input('start_clock', array('timeFormat' => 24));
 		echo $this->Form->input('start_frac_distance');
 		echo $this->Form->input('lap_distance');
 		echo $this->Form->input('skip_lap_count');
