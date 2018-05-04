@@ -129,6 +129,7 @@
 		</table>
 	<?php endif; ?>
 </div>
+<?php echo $this->Html->link(__('空の出走カテゴリーを作成（リザルト読込用）'), array('controller' => 'entry_categories', 'action' => 'addEmpty', $meet['Meet']['code'])); ?>
 <?php if (!empty($meet['EntryGroup'])): ?>
 	<div class="related">
 		<p style="height: 1em"></p>

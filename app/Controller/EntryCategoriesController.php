@@ -12,7 +12,7 @@ App::uses('ApiBaseController', 'Controller');
 class EntryCategoriesController extends ApiBaseController
 {
 	public $uses = array('EntryCategory', 'EntryRacer', 'PointSeries', 'TmpResultUpdateFlag'
-		, 'MeetPointSeries');
+		, 'MeetPointSeries', 'Category', 'EntryGroup');
 	
 /**
  * Components
@@ -173,6 +173,30 @@ class EntryCategoriesController extends ApiBaseController
 		} else {
 			return $this->error('不正なリクエストです。', self::STATUS_CODE_METHOD_NOT_ALLOWED);
 		}
+	}
+	
+	public function addEmpty($meetCode = null)
+	{
+		if (empty($meetCode)) {
+			$this->Flash->error(__('大会コードを指定して下さい。'));
+		} else {
+		if ($this->request->is('post')) {
+			$dat = $this->request->data;
+			$dat['EntryGroup']['skip_lap_count'] = 0;
+			$dat['EntryGroup']['name'] = $dat['EntryCategory'][0]['name'];
+			$dat['EntryCategory'][0]['start_delay_sec'] = 0;
+					//$this->log($dat, LOG_DEBUG);
+			if ($this->EntryGroup->saveAssociated($dat)) {
+						$this->Flash->success(__('空の出走カテゴリー ' . $dat['EntryCategory'][0]['name'] . ' を作成しました。', self::STATUS_CODE_BAD_REQUEST));
+				return $this->redirect(array('controller' => 'meets', 'action' => 'view', $meetCode));
+			} else {
+				$this->Flash->set(__('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST));
+				}
+			}
+		}
+		
+		$this->set('cats', $this->Category->find('list'));
+		$this->set('meetCode', $meetCode);
 	}
 
 /**
