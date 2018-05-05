@@ -180,23 +180,49 @@ class EntryCategoriesController extends ApiBaseController
 		if (empty($meetCode)) {
 			$this->Flash->error(__('大会コードを指定して下さい。'));
 		} else {
-		if ($this->request->is('post')) {
-			$dat = $this->request->data;
-			$dat['EntryGroup']['skip_lap_count'] = 0;
-			$dat['EntryGroup']['name'] = $dat['EntryCategory'][0]['name'];
-			$dat['EntryCategory'][0]['start_delay_sec'] = 0;
+			if ($this->request->is('post')) {
+				$dat = $this->request->data;
+				
+				$ecname = $dat['EntryCategory'][0]['name'];
+				
+				if ($this->__checkEcatNameDuplicated($meetCode, $ecname)) {
+					$this->Flash->set(__('出走カテゴリー名 ' . $ecname . ' が既に存在します。'
+						. '既存のものを削除するか、違う名前で作成して下さい。', self::STATUS_CODE_BAD_REQUEST));
+				} else {
+					$dat['EntryGroup']['skip_lap_count'] = 0;
+					$dat['EntryGroup']['name'] = $ecname;
+					$dat['EntryCategory'][0]['start_delay_sec'] = 0;
 					//$this->log($dat, LOG_DEBUG);
-			if ($this->EntryGroup->saveAssociated($dat)) {
+					if ($this->EntryGroup->saveAssociated($dat)) {
 						$this->Flash->success(__('空の出走カテゴリー ' . $dat['EntryCategory'][0]['name'] . ' を作成しました。', self::STATUS_CODE_BAD_REQUEST));
-				return $this->redirect(array('controller' => 'meets', 'action' => 'view', $meetCode));
-			} else {
-				$this->Flash->set(__('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST));
+						return $this->redirect(array('controller' => 'meets', 'action' => 'view', $meetCode));
+					} else {
+						$this->Flash->set(__('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST));
+					}
 				}
 			}
 		}
 		
 		$this->set('cats', $this->Category->find('list'));
 		$this->set('meetCode', $meetCode);
+	}
+	
+	/**
+	 * 重複する名前を持つ出走カテゴリーがあるかチェックする
+	 * @param type $meetCode
+	 * @param type $ecatName
+	 * @return boolean 重複するものがある場合 true をかえす。
+	 * @throws InternalErrorException
+	 */
+	private function __checkEcatNameDuplicated($meetCode, $ecatName)
+	{
+		if (empty($meetCode) || empty($ecatName)) {
+			throw new InternalErrorException('引数が不正です。');
+		}
+		
+		$count = $this->EntryCategory->find('count', array('conditions' => array('EntryGroup.meet_code' => $meetCode, 'EntryCategory.name' => $ecatName)));
+		
+		return $count > 0;
 	}
 
 /**

@@ -122,7 +122,8 @@
 				<td class="actions">
 					<?php echo $this->Html->link(__('View'), array('controller' => 'entry_categories', 'action' => 'view', $entryCategory['id'])); ?>
 					<?php echo $this->Html->link(__('Edit'), array('controller' => 'entry_categories', 'action' => 'edit', $entryCategory['id'])); ?>
-					<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'entry_categories', 'action' => 'delete', $entryCategory['id']), array(), __('[%s] のデータを削除してよろしいですか？', $entryCategory['id'])); ?>
+					<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'entry_categories', 'action' => 'delete', $entryCategory['id']), array(),
+							__('[ID:%s] の出走カテゴリーのデータを削除してよろしいですか？！！！通常の場合は出走グループごと削除して下さい（関連する出走カテゴリーも削除されます。）', $entryCategory['id'])); ?>
 				</td>
 			</tr>
 		<?php endforeach; ?>
