@@ -207,6 +207,32 @@ class EntryCategoriesController extends ApiBaseController
 		$this->set('meetCode', $meetCode);
 	}
 	
+	public function select_result_file($ecatID)
+	{
+		if (!$this->EntryCategory->exists($ecatID)) {
+			throw new NotFoundException(__('Invalid entry category'));
+		}
+		$options = array(
+			'conditions' => array('EntryCategory.' . $this->EntryCategory->primaryKey => $ecatID),
+			'recursive' => 0,
+		);
+		$ecat = $this->EntryCategory->find('first', $options);
+		
+		$this->set('entryCategory', $ecat);
+	}
+	
+	public function check_result_file($ecatID)
+	{
+		$filename = $this->request->data['File']['csv']['tmp_name'];
+		
+		/*
+		$txt = file_get_contents($filename);
+		$this->log('txt id:', LOG_DEBUG);
+		$this->log($txt, LOG_DEBUG); //*/
+		
+		
+	}
+	
 	/**
 	 * 重複する名前を持つ出走カテゴリーがあるかチェックする
 	 * @param type $meetCode

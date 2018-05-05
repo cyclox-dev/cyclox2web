@@ -95,6 +95,8 @@
 		<li><?php echo $this->Html->link(__('> 出走グループリスト'), array('controller' => 'entry_groups', 'action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('> レースカテゴリーリスト'), array('controller' => 'races_categories', 'action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('> 出走選手リスト'), array('controller' => 'entry_racers', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('◆◆◆ リザルト読込 ◆◆◆'), array('controller' => 'entry_categories', 'action' => 'select_result_file', $entryCategory['EntryCategory']['id'])
+					, array('confirm' => __("既存の出走データ・リザルトは削除されますがよろしいですか？"))); ?></li>
 	</ul>
 </div>
 <div class="related">
