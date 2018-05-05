@@ -8,17 +8,17 @@
 		</dd>
 		<dt><?php echo __('出走グループ'); ?></dt>
 		<dd>
-			<?php echo $this->Html->link($entryCategory['EntryGroup']['name'], array('controller' => 'entry_groups', 'action' => 'view', $entryCategory['EntryGroup']['id'])); ?>
+			<?php echo $this->Html->link(h($entryCategory['EntryGroup']['name']), array('controller' => 'entry_groups', 'action' => 'view', h($entryCategory['EntryGroup']['id']))); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('大会'); ?></dt>
 		<dd>
-			<?php echo $this->Html->link($entryCategory['EntryGroup']['meet_code'], array('controller' => 'meets', 'action' => 'view', $entryCategory['EntryGroup']['meet_code'])); ?>
+			<?php echo $this->Html->link(h($entryCategory['EntryGroup']['meet_code']), array('controller' => 'meets', 'action' => 'view', h($entryCategory['EntryGroup']['meet_code']))); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('レースカテゴリー'); ?></dt>
 		<dd>
-			<?php echo $this->Html->link($entryCategory['RacesCategory']['name'], array('controller' => 'races_categories', 'action' => 'view', $entryCategory['RacesCategory']['code'])); ?>
+			<?php echo $this->Html->link(h($entryCategory['RacesCategory']['name']), array('controller' => 'races_categories', 'action' => 'view', h($entryCategory['RacesCategory']['code']))); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('出走カテゴリー名'); ?></dt>

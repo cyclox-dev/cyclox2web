@@ -8,12 +8,12 @@
 		</dd>
 		<dt><?php echo __('大会 Group'); ?></dt>
 		<dd>
-			<?php echo $this->Html->link($meet['MeetGroup']['name'], array('controller' => 'meet_groups', 'action' => 'view', $meet['MeetGroup']['code'])); ?>
+			<?php echo $this->Html->link(h($meet['MeetGroup']['name']), array('controller' => 'meet_groups', 'action' => 'view', ($meet['MeetGroup']['code']))); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('Season'); ?></dt>
 		<dd>
-			<?php echo $this->Html->link($meet['Season']['name'], array('controller' => 'seasons', 'action' => 'view', $meet['Season']['id'])); ?>
+			<?php echo $this->Html->link(h($meet['Season']['name']), array('controller' => 'seasons', 'action' => 'view', h($meet['Season']['id']))); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('開催日'); ?></dt>
