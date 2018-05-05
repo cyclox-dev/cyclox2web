@@ -961,10 +961,6 @@ class OrgUtilController extends ApiBaseController
 				$param[] = array(
 					'id' => $er['EntryRacer']['id'],
 					'racer_code' => $uniteTo,
-					'name_at_race' => $racer['Racer']['family_name'] . ' ' . $racer['Racer']['first_name'],
-					'name_kana_at_race' => $racer['Racer']['family_name_kana'] . ' ' . $racer['Racer']['first_name_kana'],
-					'name_en_at_race' => $racer['Racer']['family_name_en'] . ' ' . $racer['Racer']['first_name_en'],
-					'team_name' => $racer['Racer']['team'],
 				);
 
 				$ids .= $er['EntryRacer']['id'] . ',';
