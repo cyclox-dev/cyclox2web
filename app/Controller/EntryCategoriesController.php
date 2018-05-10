@@ -225,6 +225,10 @@ class EntryCategoriesController extends ApiBaseController
 	{
 		$filename = $this->request->data['File']['csv']['tmp_name'];
 		
+		if (!file_exists($filename)) {
+			$this->Flash->set(__('ファイルを指定して下さい。', self::STATUS_CODE_BAD_REQUEST));
+			return $this->redirect($this->referer());
+		}
 		/*
 		$txt = file_get_contents($filename);
 		$this->log('txt id:', LOG_DEBUG);
