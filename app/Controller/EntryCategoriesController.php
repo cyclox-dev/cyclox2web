@@ -19,7 +19,7 @@ class EntryCategoriesController extends ApiBaseController
  *
  * @var array
  */
-	public $components = array('Paginator', 'Flash', 'RequestHandler', 'ResultParamCalc');
+	public $components = array('Paginator', 'Flash', 'RequestHandler', 'ResultParamCalc', 'ResultRead');
 
 /**
  * index method
@@ -223,9 +223,14 @@ class EntryCategoriesController extends ApiBaseController
 	
 	public function check_result_file($ecatID)
 	{
-		$filename = $this->request->data['File']['csv']['tmp_name'];
+		if (!$this->request->is('post')) {
+			$this->Flash->set(__('リザルト読込処理はキャンセルされました。', self::STATUS_CODE_BAD_REQUEST));
+			return $this->redirect(array('action' => 'select_result_file', $ecatID));
+		}
 		
-		if (!file_exists($filename)) {
+		$filepath = $this->request->data['File']['csv']['tmp_name'];
+		
+		if (empty($filepath) || !file_exists($filepath)) {
 			$this->Flash->set(__('ファイルを指定して下さい。', self::STATUS_CODE_BAD_REQUEST));
 			return $this->redirect($this->referer());
 		}
@@ -234,7 +239,24 @@ class EntryCategoriesController extends ApiBaseController
 		$this->log('txt id:', LOG_DEBUG);
 		$this->log($txt, LOG_DEBUG); //*/
 		
+		if (($fp = fopen($filepath, "r")) === false) {
+			$this->Flash->set(__('ファイル読込に失敗しました。', self::STATUS_CODE_BAD_REQUEST));
+			return $this->redirect($this->referer());
+		}
 		
+		try {
+			$results = $this->ResultRead->readResults($fp, $ecatID);
+			
+			$this->log('$results is,,,', LOG_DEBUG);
+			$this->log($results, LOG_DEBUG);
+			
+			$this->set('results', $results);
+		} catch (Exception $ex) {
+			$this->Flash->set(__('リザルト読込に失敗しました。' . $ex->getMessage(), self::STATUS_CODE_BAD_REQUEST));
+			return $this->redirect($this->referer());
+		}
+		
+		fclose($fp);
 	}
 	
 	/**
