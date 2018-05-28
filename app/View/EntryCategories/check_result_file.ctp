@@ -5,7 +5,8 @@
 	<h3>
 		<?php 
 			$code = isset($result['racer_code']) ? $result['racer_code'] : '新規選手';
-			echo 'BibNo.' . $result['body_number'] . ' ' . $result['name'] . ' [' . $code . ']';
+			$name = isset($result['name']['error']) ? $result['name']['error']['key'] : $result['name'];
+			echo 'BibNo.' . $result['body_number'] . ' ' . $name . ' [' . $code . ']';
 		?>
 	</h3>
 	<?php $finds = false; ?>
@@ -26,7 +27,7 @@
 	<tr>
 		<td><?php echo $runit->title . ' (' . $runit->key . ')'; ?></td>
 		<?php if (!empty($result[$key]['error'])): ?>
-		<td></td>
+		<td><?php if(isset($result[$key]['error']['original_val'])) echo $result[$key]['error']['original_val']; ?></td>
 		<td><?php if ($runit->checks) echo $result['original'][$key]; ?></td>
 		<td><?php echo $result[$key]['error']['msg'] . '(' . $result[$key]['error']['pos'] . ')'; ?></td>
 		<?php else: ?>

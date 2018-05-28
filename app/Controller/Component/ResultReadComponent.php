@@ -102,7 +102,6 @@ class ResultReadComponent extends Component
 				// TODO: タイトル内容チェック、選手コードなど
 				
 			} else {
-				// TODO: name --> family, first
 				// TODO: 名前は必ずあること、は個別でチェック。__readResult() 内の方がよいかも。
 				$res = $this->__readResult($line, $titleMap, $i);
 				
@@ -170,23 +169,69 @@ class ResultReadComponent extends Component
 			if (empty($titleMap[$i])) continue;
 			
 			$val = $line[$i];
+			$key = $titleMap[$i]->key;
+			//$pos = '第' . ($lineNum+1) . '行-' . chr(65 + $i) . '列'; // XYZ 以降オーバーには未対応
+			$pos = 'セル' . ($lineNum+1) .  chr(65 + $i); // XYZ 以降オーバーには未対応
 			
 			if (empty($val)) {
 				if ($titleMap[$i]->needs) {
 					$val = array('error' => array(
 						'msg' => '値が必要です。',
-						'pos' => '第' . ($lineNum+1) . '行-' . chr(65 + $i) . '列', // XYZ 以降オーバーには未対応,
-						'key' => $titleMap[$i]->key,
+						'pos' => $pos,
+						'key' => $key,
 					));
 				} else {
 					continue;
 				}
 			}
 			
-			$map[$titleMap[$i]->key] = $val;
+			$map[$key] = $val;
+			
+			if (!isset($val['error'])
+					&& ($key === 'name' || $key === 'name_en')) {
+				$names = $this->__splitName($val, $key, $pos);
+				if (isset($names['error'])) {
+					$map[$key] = $names;
+				} else {
+					foreach ($names as $k => $n) {
+						$map[$k] = $n;
+					}
+				}
+			}
 		}
 		
 		return $map;
+	}
+	
+	private function __splitName($name, $key, $cellpos)
+	{
+		// 半角 or 全角スペーズで区切る
+		
+		$pos = strpos($name, ' ');
+		
+		if ($pos === false) {
+			$pos = strpos($name, '　');
+			
+			if ($pos === false) {
+				return array('error' => array(
+					'msg' => 'key:' . $key . ' の値は半角or全角スペースを含む必要があります。',
+					'pos' => $cellpos,
+					'key' => $key,
+					'original_val' => $name,
+				));
+			}
+		}
+		
+		if ($pos === 0) {
+			// error
+		} else if ($pos === strlen($name) - 1) {
+			// error
+		}
+		
+		$fam = substr($name, 0, $pos);
+		$fir = substr($name, $pos + 1);
+		
+		return array(('family_' . $key) => $fam, ('first_' . $key) => $fir);
 	}
 	
 	/**
