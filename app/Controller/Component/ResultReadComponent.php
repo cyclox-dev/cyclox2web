@@ -42,6 +42,7 @@ class ResultReadComponent extends Component
 	private $_readUnits;
 	
 	private $__TITLE_NOT_READ = '__title_not_read';
+	private $__TITLE_ERRORS = '__title_errors';
 	
 	private function __createReadUnit()
 	{
@@ -124,6 +125,7 @@ class ResultReadComponent extends Component
 		
 		return array(
 			'not_read_titles' => $titleMap[$this->__TITLE_NOT_READ],
+			'title_errors' => $titleMap[$this->__TITLE_ERRORS],
 			'racers' => $eresults,
 			'runits' => $this->_readUnits,
 		);
@@ -260,6 +262,17 @@ class ResultReadComponent extends Component
 				$map[$this->__TITLE_NOT_READ][] = $title;
 			}
 		}
+		
+		$err = array();
+		if (!isset($map['racer_code'])) {
+			$err[] = "[警告] 選手コードを指定する列がありません。";
+		}
+		$hasName = (isset($map['name']) || (isset($map['family_name']) && isset($map['first_name'])));
+		if (!$hasName) {
+			$err[] = "[警告] 選手の名前を指定する列がありません。";
+		}
+		
+		$map[$this->__TITLE_ERRORS] = $err;
 		
 		return $map;
 	}

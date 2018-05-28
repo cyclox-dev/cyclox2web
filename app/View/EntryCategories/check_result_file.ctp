@@ -1,14 +1,33 @@
 <div class="entryCategories">
 	<h2><?php echo __('エントリー・リザルトデータのチェック'); ?></h2>
-	<p></p>
+	<h3>タイトルに関するエラー</h3>
+	
+	<?php if (!empty($results['not_read_titles'])): ?>
+	<?php 
+		echo '<h4>以下のタイトルの行は読み込まれていません。</h4>';
+		foreach ($results['not_read_titles'] as $title) {
+			echo '<p>' . $title . '</p>';
+		}
+	?>
+	<?php endif; ?>
+	
+	<?php if (!empty($results['title_errors'])): ?>
+	<?php 
+		foreach ($results['title_errors'] as $err) {
+			echo '<h3>' . $err . '</h3>';
+		}
+	?>
+	<?php endif; ?>
+	
+	<h3>以下の違いが検出されました。全て今回の値で上書きして問題ありませんか？</h3>
 	<?php foreach ($results['racers'] as $result): ?>
-	<h3>
+	<h4>
 		<?php 
 			$code = isset($result['racer_code']) ? $result['racer_code'] : '新規選手';
-			$name = isset($result['name']['error']) ? $result['name']['error']['key'] : $result['name'];
+			$name = isset($result['name']['error']) ? $result['name']['error']['key'] : isset($result['name']) ? $result['name'] : '名前不明の選手';
 			echo 'BibNo.' . $result['body_number'] . ' ' . $name . ' [' . $code . ']';
 		?>
-	</h3>
+	</h4>
 	<?php $finds = false; ?>
 	<?php foreach ($results['runits'] as $runit): ?>
 	<?php 
