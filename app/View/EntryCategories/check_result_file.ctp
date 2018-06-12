@@ -24,7 +24,7 @@
 	<h4>
 		<?php 
 			$code = isset($result['racer_code']) ? $result['racer_code'] : '新規選手';
-			$name = isset($result['name']['error']) ? $result['name']['error']['key'] : isset($result['name']) ? $result['name'] : '名前不明の選手';
+			$name = isset($result['name']['error']) ? $result['name']['error']['original_val'] : (isset($result['name']) ? $result['name'] : '名前不明の選手');
 			echo 'BibNo.' . $result['body_number'] . ' ' . $name . ' [' . $code . ']';
 		?>
 	</h4>
@@ -47,7 +47,13 @@
 		<td><?php echo $runit->title . ' (' . $runit->key . ')'; ?></td>
 		<?php if (!empty($result[$key]['error'])): ?>
 		<td><?php if(isset($result[$key]['error']['original_val'])) echo $result[$key]['error']['original_val']; ?></td>
-		<td><?php if ($runit->checks) echo $result['original'][$key]; ?></td>
+		<td><?php 
+			if ($key == 'name') {
+				echo $result['original']['family_name'] . ' ' . $result['original']['first_name'];
+			} else if ($runit->checks) {
+				echo $result['original'][$key]; 
+			}
+		?></td>
 		<td><?php echo $result[$key]['error']['msg'] . '(' . $result[$key]['error']['pos'] . ')'; ?></td>
 		<?php else: ?>
 		<td><?php echo $result[$key]; ?></td>
