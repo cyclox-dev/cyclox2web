@@ -247,6 +247,10 @@ class ResultReadComponent extends Component
 			$this->__TITLE_NOT_READ => array()
 		);
 		
+		$findsCode = false;
+		$findsFamName = false;
+		$finds1stName = false;
+		
 		for ($i = 0; $i < count($line); $i++) {
 			$finds = false;
 			$title = $line[$i];
@@ -260,15 +264,26 @@ class ResultReadComponent extends Component
 			
 			if (!$finds) {
 				$map[$this->__TITLE_NOT_READ][] = $title;
+			} else {
+				if ($title == 'racer_code') {
+					$findsCode = true;
+				} else if ($title == 'family_name') {
+					$findsFamName = true;
+				} else if ($title == 'first_name') {
+					$finds1stName = true;
+				} else if ($title == 'name') {
+					$findsFamName = true;
+					$finds1stName = true;
+				}
 			}
 		}
 		
 		$err = array();
-		if (!isset($map['racer_code'])) {
+		if (!$findsCode) {
 			$err[] = "[警告] 選手コードを指定する列がありません。";
 		}
-		$hasName = (isset($map['name']) || (isset($map['family_name']) && isset($map['first_name'])));
-		if (!$hasName) {
+		
+		if (!$findsFamName || !$finds1stName) {
 			$err[] = "[警告] 選手の名前を指定する列がありません。";
 		}
 		
