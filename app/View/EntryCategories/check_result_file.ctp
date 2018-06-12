@@ -25,7 +25,8 @@
 		<?php 
 			$code = isset($result['racer_code']) ? $result['racer_code'] : '新規選手';
 			$name = isset($result['name']['error']) ? $result['name']['error']['original_val'] : (isset($result['name']) ? $result['name'] : '名前不明の選手');
-			echo 'BibNo.' . $result['body_number'] . ' ' . $name . ' [' . $code . ']';
+			$birth = isset($result['birth_date']) ? $result['birth_date'] : '生年月日不明';
+			echo 'BibNo.' . $result['body_number'] . ' ' . $name . ' [' . $code . '] Birth:' . $birth;
 		?>
 	</h4>
 	<?php $finds = false; ?>
