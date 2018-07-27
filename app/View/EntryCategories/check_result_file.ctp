@@ -19,7 +19,7 @@
 	?>
 	<?php endif; ?>
 	
-	<h3>以下の違いが検出されました。全て今回の値で上書きして問題ありませんか？</h3>
+	<h3>検出された違いは以下のとおりです。</h3>
 	<?php foreach ($results['racers'] as $result): ?>
 	<h4>
 		<?php 
@@ -65,6 +65,39 @@
 	<?php endif; /* if (diff) */ ?>
 	<?php endforeach; /* units */ ?>
 	<?php if ($finds) echo '</tbody></table>'; ?>
+	<?php if (!empty($result['cddts'])): ?>
+	<t3>同じ名前の選手が存在します。</t3>
+	<table cellpadding="0" cellspacing="0">
+		<thead>
+			<tr>
+				<th>選手コード</th>
+				<th>姓</th>
+				<th>名</th>
+				<th>family_name</th>
+				<th>first_name</th>
+				<th>team</th>
+				<th>birth</th>
+				<th>UCI ID</th>
+				<th>備考</th>
+			</tr>
+		</thead>
+		<tbody>
+		<?php foreach ($result['cddts'] as $cddt): ?>
+			<tr>
+				<td><?php echo $cddt['Racer']['code']; ?></td>
+				<td><?php echo $cddt['Racer']['family_name']; ?></td>
+				<td><?php echo $cddt['Racer']['first_name']; ?></td>
+				<td><?php echo $cddt['Racer']['family_name_en']; ?></td>
+				<td><?php echo $cddt['Racer']['first_name_en']; ?></td>
+				<td><?php echo $cddt['Racer']['team']; ?></td>
+				<td><?php echo $cddt['Racer']['birth_date']; ?></td>
+				<td><?php echo $cddt['Racer']['uci_id']; ?></td>
+				<td><?php if ($cddt['Racer']['deleted']) echo '削除済み選手' ?></td>
+			</tr>
+		<?php endforeach; /* $result['cddts'] */ ?>
+		</tbody>
+	</table>
+	<?php endif; ?>
 	<?php endforeach; /* results */ ?>
 </div>
 	

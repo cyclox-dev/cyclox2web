@@ -109,10 +109,11 @@ class ResultReadComponent extends Component
 				// TODO: 日付フォーマット変換
 				if (empty($res["racer_code"])) {
 					// 新規選手
-					// TODO: 候補検索すること。
+					$cddts = $this->__getSameNamedRacer($res);
 					
-					
+					$res['cddts'] = $cddts;
 				} else {
+					// TODO: 選手コードあっても候補は提示したい。
 					// TODO: カテゴリー所持チェック？
 					$res['original'] = $this->__getOriginalRacer($res, $date);
 				}
@@ -131,6 +132,46 @@ class ResultReadComponent extends Component
 		);
 	}
 	
+	/**
+	 * 同じ名前をもつ選手をかえす
+	 * @param array $dat
+	 */
+	private function __getSameNamedRacer($dat)
+	{
+		$this->Racer = new Racer();
+		$this->Racer->Behaviors->unload('Utils.SoftDelete'); // 削除済み選手チェックのため
+		
+		$opt = array(
+			'conditions' => array('or' => array()),
+			'recursive' => 0,
+			'limit' => 5,
+			'order' => array('Racer.deleted' => 'ASC'), // 削除済み選手をあとにまわす
+		);
+		
+		if (!empty($dat['family_name']) && !empty($dat['first_name'])) {
+			$opt['conditions']['or'][] = array(
+				'family_name' => $dat['family_name'],
+				'first_name' => $dat['first_name'],
+			);
+		}
+		if (!empty($dat['family_name_en']) && !empty($dat['first_name_en'])) {
+			$opt['conditions']['or'][] = array(
+				'family_name_en' => $dat['family_name_en'],
+				'first_name_en' => $dat['first_name_en'],
+			);
+		}
+		
+		$cddts = $this->Racer->find('all', $opt);
+		
+		return $cddts;
+	}
+	
+	/**
+	 * $dat['racer_code'] をを持つ選手情報をかえす
+	 * @param array $dat エントリー読値
+	 * @param date $date カテゴリー所持判断日付
+	 * @return array 選手コードをもつ登録済みデータ
+	 */
 	private function __getOriginalRacer($dat, $date)
 	{
 		// assert !empty($dat['racer_code'])
