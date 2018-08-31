@@ -13,6 +13,7 @@
 		echo $this->Form->input('needs_uci');
 		echo $this->Form->input('race_min');
 		echo $this->Form->input('uci_age_limit');
+		echo $this->Form->input('display_rank');
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>

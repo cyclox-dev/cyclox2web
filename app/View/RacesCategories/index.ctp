@@ -12,7 +12,7 @@
 			<th><?php echo $this->Paginator->sort('needs_jcf'); ?></th>
 			<th><?php echo $this->Paginator->sort('needs_uci'); ?></th>
 			<th><?php echo $this->Paginator->sort('race_min'); ?></th>
-			<th><?php echo $this->Paginator->sort('uci_age_limit'); ?></th>
+			<th><?php echo $this->Paginator->sort('display_rank'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>
@@ -28,7 +28,7 @@
 		<td><?php echo h($racesCategory['RacesCategory']['needs_jcf']); ?>&nbsp;</td>
 		<td><?php echo h($racesCategory['RacesCategory']['needs_uci']); ?>&nbsp;</td>
 		<td><?php echo h($racesCategory['RacesCategory']['race_min']); ?>&nbsp;</td>
-		<td><?php echo h($racesCategory['RacesCategory']['uci_age_limit']); ?>&nbsp;</td>
+		<td><?php echo h($racesCategory['RacesCategory']['display_rank']); ?>&nbsp;</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $racesCategory['RacesCategory']['code'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $racesCategory['RacesCategory']['code'])); ?>

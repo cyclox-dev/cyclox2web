@@ -51,6 +51,11 @@
 			<?php echo h($racesCategory['RacesCategory']['uci_age_limit']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('表示順位'); ?></dt>
+		<dd>
+			<?php echo h($racesCategory['RacesCategory']['display_rank']); ?>
+			&nbsp;
+		</dd>
 	</dl>
 </div>
 <div class="actions">
