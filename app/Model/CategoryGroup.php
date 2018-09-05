@@ -36,6 +36,10 @@ class CategoryGroup extends AppModel {
 			'rule' => array('notBlank'),
 			'message' => '必須項目です。',
 		),
+		'display_rank' => array(
+			'rule' => array('notBlank'),
+			'message' => '必須項目です。'
+		),
 	);
 
 	//The Associations below have been created with all possible keys, those that are not needed can be removed

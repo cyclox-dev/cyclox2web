@@ -7,6 +7,7 @@
 			<th><?php echo $this->Paginator->sort('name'); ?></th>
 			<th><?php echo $this->Paginator->sort('description'); ?></th>
 			<th><?php echo $this->Paginator->sort('lank_up_hint'); ?></th>
+			<th><?php echo $this->Paginator->sort('display_rank'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>
@@ -17,6 +18,7 @@
 		<td><?php echo h($categoryGroup['CategoryGroup']['name']); ?>&nbsp;</td>
 		<td><?php echo h($categoryGroup['CategoryGroup']['description']); ?>&nbsp;</td>
 		<td><?php echo h($categoryGroup['CategoryGroup']['lank_up_hint']); ?>&nbsp;</td>
+		<td><?php echo h($categoryGroup['CategoryGroup']['display_rank']); ?>&nbsp;</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $categoryGroup['CategoryGroup']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $categoryGroup['CategoryGroup']['id'])); ?>

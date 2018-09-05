@@ -21,6 +21,11 @@
 			<?php echo h($categoryGroup['CategoryGroup']['lank_up_hint']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('表示順位'); ?></dt>
+		<dd>
+			<?php echo h($categoryGroup['CategoryGroup']['display_rank']); ?>
+			&nbsp;
+		</dd>
 	</dl>
 </div>
 <div class="actions">

@@ -7,6 +7,7 @@
 		echo $this->Form->input('name');
 		echo $this->Form->input('description');
 		echo $this->Form->input('lank_up_hint');
+		echo $this->Form->input('display_rank');
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>
