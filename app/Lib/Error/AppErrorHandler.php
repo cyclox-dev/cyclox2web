@@ -92,6 +92,11 @@ class AppErrorHandler extends ErrorHandler
 	 */
 	private static function __needReport($exception)
 	{
+		if (get_class($exception) == 'MissingControllerException')
+		{
+			return false;
+		}
+		
 		if (get_class($exception) == 'UnauthorizedException')
 		{
 			// Basic 認証の第1段階についてはログ出力、メール報告ともにしない。

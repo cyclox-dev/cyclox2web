@@ -404,19 +404,20 @@ class OrgUtilController extends ApiBaseController
 		$rank = 0;
 		$skip = 0;
 		$preTotal = -1;
-		$preSqured = -1;
+		$preSquared = -1;
 		
 		foreach ($racerPoints as $rcode => &$rp) {
 			//$this->log('name is:' . $rp['name'], LOG_DEBUG);
 			
 			// TODO: 実際には最近の試合の準位比較まで行なって決める。とりあえず手作業でよろしくと 2015/10 に ML に流している。
-			if ($rp['total'] == $preTotal && $rp['totalSquared'] == $preSqured) {
+			// 2018-19 からは 合計→平均→最高→同順位
+			if ($rp['total'] == $preTotal && $rp['totalSquared'] == $preSquared) {
 				 ++$skip;
 			} else {
 				$rank += 1 + $skip;
 				$skip = 0;
 				$preTotal = $rp['total'];
-				$preSqured = $rp['totalSquared'];
+				$preSquared = $rp['totalSquared'];
 			}
 			
 			$rp['rank'] = $rank;
