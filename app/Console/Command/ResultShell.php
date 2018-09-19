@@ -22,7 +22,7 @@ class ResultShell extends AppShell
 	
 	public $uses = array('TransactionManager', 'TmpResultUpdateFlag', 'TmpPointSeriesRacerSet'
 			, 'MeetPointSeries', 'EntryCategory', 'EntryRacer', 'AjoccptLocalSetting', 'TmpAjoccptRacerSet'
-			, 'PointSeries'
+			, 'PointSeries', 'Season'
 		);
 	
 	private $__psController;
@@ -347,6 +347,9 @@ class ResultShell extends AppShell
 			}
 		}
 		
+		$season = $this->Season->find('first', array('conditions' => array('id' => $seasonId)));
+		$isBefore189 = $season['Season']['start_date'] < '2018-04-01';
+		
 		$sets = array();
 		
 		$titleSet = array(
@@ -362,6 +365,11 @@ class ResultShell extends AppShell
 				'sumup_json' => json_encode(array("合計", "自乗和"), JSON_UNESCAPED_UNICODE),
 			)
 		);
+		if ($isBefore189) {
+			$titleSet['TmpAjoccptRacerSet']['sumup_json'] = json_encode(array("合計", "自乗和"), JSON_UNESCAPED_UNICODE);
+		} else {
+			$titleSet['TmpAjoccptRacerSet']['sumup_json'] = json_encode(array("合計", "平均", "最大"), JSON_UNESCAPED_UNICODE);
+		}
 		
 		if (!empty($localSetting)) {
 			$titleSet['TmpAjoccptRacerSet']['ajoccpt_local_setting_id'] = $localSetting['AjoccptLocalSetting']['id'];
@@ -380,9 +388,13 @@ class ResultShell extends AppShell
 					'name' => $rp['name'],
 					'team' => isset($rp['team']) ? $rp['team'] : '',
 					'point_json' => json_encode($rp['rev_points'], JSON_UNESCAPED_UNICODE),
-					'sumup_json' => json_encode(array($rp['total'], $rp['totalSquared']), JSON_UNESCAPED_UNICODE),
 				)
 			);
+			if ($isBefore189) {
+				$set['TmpAjoccptRacerSet']['sumup_json'] = json_encode(array($rp['total'], $rp['totalSquared']), JSON_UNESCAPED_UNICODE);
+			} else {
+				$set['TmpAjoccptRacerSet']['sumup_json'] = json_encode(array($rp['total'], $rp['ave'], $rp['max']), JSON_UNESCAPED_UNICODE);
+			}
 			
 			if (!empty($localSetting)) {
 				$set['TmpAjoccptRacerSet']['ajoccpt_local_setting_id'] = $localSetting['AjoccptLocalSetting']['id'];

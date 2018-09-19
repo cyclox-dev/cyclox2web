@@ -154,7 +154,13 @@ class OrgUtilController extends ApiBaseController
 			$row[] .= $title['name'];
 		}
 		$row[] = '合計';
-		$row[] = '自乗和';
+		
+		if ($season['Season']['start_date'] < '2018-04-01') {
+			$row[] = '自乗和';
+		} else {
+			$row[] = '平均';
+			$row[] = '最大';
+		}
 		
 		$this->__putToFp($fp, $row);
 		
@@ -170,7 +176,12 @@ class OrgUtilController extends ApiBaseController
 			}
 			
 			$line[] = $rp['total'];
-			$line[] = $rp['totalSquared'];
+			if ($season['Season']['start_date'] < '2018-04-01') {
+				$line[] = $rp['totalSquared'];
+			} else {
+				$line[] = $rp['ave'];
+				$line[] = $rp['max'];
+			}
 			
 			$this->__putToFp($fp, $line);
 		}
@@ -384,40 +395,76 @@ class OrgUtilController extends ApiBaseController
 			}
 		}
 		
+		$season = $this->Season->find('first', array('conditions' => array('id' => $seasonId)));
+		
 		// トータルと自乗和を計算
 		foreach ($racerPoints as &$rp) {
 			$total = 0;
 			$totalSquared = 0;
+			$maxPt = 0;
 			foreach ($rp['points'] as $pt) {
 				$total += $pt;
 				$totalSquared += $pt * $pt;
+				if ($pt > $maxPt) {
+					$maxPt = $pt;
+				}
 			}
 			
 			$rp['total'] = $total;
 			$rp['totalSquared'] = $totalSquared;
+			$rp['ave'] = count($rp['points']) == 0 ? 0 : $total / count($rp['points']);
+			$rp['max'] = $maxPt;
 		}
 		unset($rp); // 下流で使うので
 		
 		// sort
-		uasort($racerPoints, array($this, "_compareAjoccPoint"));
+		uasort($racerPoints, function($a, $b) use ($season) {
+			if ($a['total'] == $b['total']) {
+				if ($season['Season']['start_date'] < '2018-04-01') {
+					return $b['totalSquared'] - $a['totalSquared'];
+				} else {
+					// 2018-19 からは 合計→平均→最高→同順位
+					if ($a['ave'] == $b['ave']) {
+						return $b['max'] - $a['max'];
+					}
+					return $b['ave'] - $a['ave'];
+				}
+			}
+
+			return $b['total'] - $a['total'];
+		});
 		
 		$rank = 0;
 		$skip = 0;
 		$preTotal = -1;
 		$preSquared = -1;
+		$preAve = -1;
+		$preMax = -1;
 		
 		foreach ($racerPoints as $rcode => &$rp) {
 			//$this->log('name is:' . $rp['name'], LOG_DEBUG);
 			
 			// TODO: 実際には最近の試合の準位比較まで行なって決める。とりあえず手作業でよろしくと 2015/10 に ML に流している。
 			// 2018-19 からは 合計→平均→最高→同順位
-			if ($rp['total'] == $preTotal && $rp['totalSquared'] == $preSquared) {
-				 ++$skip;
+			if ($season['Season']['start_date'] < '2018-04-01') {
+				if ($rp['total'] == $preTotal && $rp['totalSquared'] == $preSquared) {
+					 ++$skip;
+				} else {
+					$rank += 1 + $skip;
+					$skip = 0;
+					$preTotal = $rp['total'];
+					$preSquared = $rp['totalSquared'];
+				}
 			} else {
-				$rank += 1 + $skip;
-				$skip = 0;
-				$preTotal = $rp['total'];
-				$preSquared = $rp['totalSquared'];
+				if ($rp['total'] == $preTotal && $rp['ave'] == $preAve && $rp['max'] == $preMax) {
+					 ++$skip;
+				} else {
+					$rank += 1 + $skip;
+					$skip = 0;
+					$preTotal = $rp['total'];
+					$preAve = $rp['ave'];
+					$preMax = $rp['max'];
+				}
 			}
 			
 			$rp['rank'] = $rank;
@@ -493,21 +540,6 @@ class OrgUtilController extends ApiBaseController
 		}
 		
 		return $ret;
-	}
-	
-	/**
-	 * AjoccPoint 比較用メソッド
-	 * @param type $a
-	 * @param type $b
-	 * @return 順序
-	 */
-	static public function _compareAjoccPoint($a, $b)
-	{
-		if ($a['total'] == $b['total']) {
-			return $b['totalSquared'] - $a['totalSquared'];
-		}
-		
-		return $b['total'] - $a['total'];
 	}
 	
 	public function racer_list_csv_links()

@@ -1588,12 +1588,20 @@ class ApiController extends ApiBaseController
 			return array('error' => 'cat:' . $category . ' season:' . $season . ' local設定:' . $localSettingId . ' の AjoccRanking 取得に失敗しました。');
 		}
 		
+		$ss = $this->Season->find('first', array('conditions' => array('id' => $season)));
+		
 		foreach ($rankInfos as $code => &$ri) {
 			if (!empty($ret['racerPoints'][$code])) {
 				$ptUnit = $ret['racerPoints'][$code];
+				if ($ss['Season']['start_date'] < '2018-04-01') {
+					$exp = $ptUnit['total'] . 'pt-' . $ptUnit['totalSquared'] . 'pt';
+				} else {
+					$exp = $ptUnit['total'] . 'pt-' . $ptUnit['ave'] . 'pt-' . $ptUnit['max'] . 'pt';
+				}
+				
 				$ri['ranks'][] = array(
 					'rank' => $ptUnit['rank'],
-					'exp' => $ptUnit['total'] . 'pt-' . $ptUnit['totalSquared'] . 'pt',
+					'exp' => $exp,
 				);
 			} else {
 				$ri['ranks'][] = array(
