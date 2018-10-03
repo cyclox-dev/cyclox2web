@@ -232,12 +232,18 @@ class ResultShell extends AppShell
 	 */
 	private function __updateAjoccRanking($catCode, $seasonId, $localSetting = null)
 	{
-		$ret = $this->__orgUtilController->calcAjoccPoints($catCode, $seasonId, $localSetting);
-		
 		$location = 'cat:' . $catCode . ' season:' . $seasonId;
 		if (!empty($localSetting)) {
 			$location .= ' local setting id:' . $localSetting['AjoccptLocalSetting']['id'];
 		}
+		
+		$meets = $this->__getMeets($seasonId, $localSetting);
+		if (empty($meets)) {
+			$this->log('対象となる大会が存在しないため、更新処理しません。' . $location, LOG_INFO);
+			return true;
+		}
+		
+		$ret = $this->__orgUtilController->calcAjoccPoints($catCode, $seasonId, $localSetting);
 		
 		if ($ret === false) {
 			$this->log(__('内部的なエラーのため、ランキングを更新できませんでした。（カテゴリー指定が不正？）' . $location), LOG_INFO);
