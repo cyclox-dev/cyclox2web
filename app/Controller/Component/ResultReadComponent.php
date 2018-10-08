@@ -324,7 +324,7 @@ class ResultReadComponent extends Component
 		}
 		
 		if (!$findsFamName || !$finds1stName) {
-			$err[] = "[警告] 選手の名前を指定する列がありません。";
+			$err[] = "[警告] 選手の名前を指定する列が無いか、不十分です。";
 		}
 		
 		$map[$this->__TITLE_ERRORS] = $err;
