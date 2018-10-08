@@ -40,9 +40,9 @@
 		<?php if (!$finds): ?>
 		<?php
 			$finds = true;
-
+			$rcode = isset($result['racer_code']) ? '(' . $result['racer_code'] . ')' : '';
 			echo '<table cellpadding="0" cellspacing="0">';
-			echo '<thead><tr><th>種類</th><th>読み込んだ値</th><th>既存登録値</th><th>備考</th></thead><tbody>';
+			echo '<thead><tr><th>種類</th><th>読み込んだ値</th><th>既存値' . $rcode . '</th><th>備考</th></thead><tbody>';
 		?>
 		<?php endif; /* $finds? */ ?>
 		<tr>
