@@ -242,6 +242,13 @@ class ResultReadComponent extends Component
 			}
 		}
 		
+		if (isset($map['family_name']) && isset($map['first_name'])) {
+			$map['name'] = $map['family_name'] . ' ' . $map['first_name'];
+		}
+		if (isset($map['family_name_en']) && isset($map['first_name_en'])) {
+			$map['name_en'] = $map['family_name_en'] . ' ' . $map['first_name_en'];
+		}
+		
 		return $map;
 	}
 	
