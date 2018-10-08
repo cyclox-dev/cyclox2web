@@ -107,16 +107,15 @@ class ResultReadComponent extends Component
 				$res = $this->__readResult($line, $titleMap, $i);
 				
 				// TODO: 日付フォーマット変換
-				if (empty($res["racer_code"])) {
-					// 新規選手
-					$cddts = $this->__getSameNamedRacer($res);
-					
-					$res['cddts'] = $cddts;
-				} else {
-					// TODO: 選手コードあっても候補は提示したい。
-					// TODO: カテゴリー所持チェック？
+				if (!empty($res["racer_code"])){
 					$res['original'] = $this->__getOriginalRacer($res, $date);
 				}
+				
+				$cddts = $this->__getSameNamedRacer($res);
+				$res['cddts'] = $cddts;
+
+				// TODO: カテゴリー所持チェック？
+				
 				
 				$eresults[] = $res;
 			}
