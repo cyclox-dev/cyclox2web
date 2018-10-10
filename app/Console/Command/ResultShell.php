@@ -237,7 +237,7 @@ class ResultShell extends AppShell
 			$location .= ' local setting id:' . $localSetting['AjoccptLocalSetting']['id'];
 		}
 		
-		$meets = $this->__getMeets($seasonId, $localSetting);
+		$meets = $this->__orgUtilController->getMeets($seasonId, $localSetting);
 		if (empty($meets)) {
 			$this->log('対象となる大会が存在しないため、更新処理しません。' . $location, LOG_INFO);
 			return true;

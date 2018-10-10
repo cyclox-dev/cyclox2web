@@ -477,6 +477,11 @@ class OrgUtilController extends ApiBaseController
 		);
 	}
 	
+	public function getMeets($seasonId, $localSetting)
+	{
+		return $this->__getMeets($seasonId, $localSetting);
+	}
+	
 	/**
 	 * 指定条件の大会の配列を取得する
 	 * @param type $seasonId
