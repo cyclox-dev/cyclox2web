@@ -232,7 +232,7 @@ class ApiController extends ApiBaseController
 		$egroupName = isset($this->request->data['entry_group']['EntryGroup']['name']) ? $this->request->data['entry_group']['EntryGroup']['name'] : null;
 		$meetCode = isset($this->request->data['entry_group']['EntryGroup']['meet_code']) ? $this->request->data['entry_group']['EntryGroup']['meet_code'] : null;
 		
-		$ret = $this->__add_entry($entryGroup, $cats, $egroupName, $meetCode);
+		$ret = $this->execAddEntry($entryGroup, $cats, $egroupName, $meetCode);
 		
 		if (empty($ret['error'])) {
 			return $this->success($ret); // 件数とか？
@@ -249,7 +249,7 @@ class ApiController extends ApiBaseController
 	 * @param type $meetCode
 	 * @return array エラーがある場合、array('error'=>array('msg','ret_code')) といった配列をかえす。
 	 */
-	private function __add_entry($entryGroup, $cats, $egroupName, $meetCode)
+	public function execAddEntry($entryGroup, $cats, $egroupName, $meetCode)
 	{
 		$duplicatedEcatNames = array();
 		
@@ -386,7 +386,7 @@ class ApiController extends ApiBaseController
 		$appVersion = isset($this->request->data['app_version']) ? $this->request->data['app_version'] : 1.31;
 		$bodyResult = $this->request->data['body-result'];
 		
-		$ret = $this->__add_result($meetCode, $ecatName, $bodyResult, $appVersion);
+		$ret = $this->execAddResult($meetCode, $ecatName, $bodyResult, $appVersion);
 		
 		if (empty($ret['error'])) {
 			return $this->success($ret);
@@ -403,7 +403,7 @@ class ApiController extends ApiBaseController
 	 * @param type $accessVersion
 	 * @return array エラーがある場合、array('error'=>array('msg','ret_code')) といった配列をかえす。
 	 */
-	private function __add_result($meetCode, $ecatName, $bodyResult, $accessVersion)
+	public function execAddResult($meetCode, $ecatName, $bodyResult, $accessVersion)
 	{
 		// 出走カテゴリーの特定
 		
@@ -541,14 +541,7 @@ class ApiController extends ApiBaseController
 				$result['RacerResult']['as_category']
 						= $this->ResultParamCalc->asCategory($er['EntryRacer']['racer_code'], $ecat, $meet['Meet']['at_date']);
 				
-				/*if (!$this->RacerResult->saveAssociated($result)) {
-					$this->TransactionManager->rollback($transaction);
-					return $this->error('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
-				}//*/
 				$ress[] = $result;
-				
-				//$this->log('new result id:' . $this->RacerResult->id, LOG_DEBUG);
-				$result['RacerResult']['id'] = $this->RacerResult->id;
 				
 				$err = array();
 				$err['EntryRacer'] = $erMap[$body]['EntryRacer'];
