@@ -305,7 +305,7 @@ class ApiController extends ApiBaseController
 				}
 			}
 			
-			// oldGroups に関連づいている昇格データについて除去 <-- EntryGroup->delete() から削除。
+			// TODO: oldGroups に関連づいている昇格データについて除去（EntryGroup->delete() からは除去されない。） result upload からはある程度やっているが...
 			
 			if (!empty($oldGroups)) {
 				foreach ($oldGroups as $key => $val)
