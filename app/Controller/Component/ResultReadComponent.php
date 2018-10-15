@@ -53,9 +53,9 @@ class ResultReadComponent extends Component
 														// また、isImportant は family, first 単位で判定するので false とする。
 			new ResReadUnit("family_name",		'姓',			false,	true,	true),
 			new ResReadUnit("first_name",		'名',			false,	true,	true),
-			new ResReadUnit("name_en",			'Name',			false),
-			new ResReadUnit("family_name_en",	'FamilyName',	false,	true,	true),
-			new ResReadUnit("first_name_en",	'FirstName',	false,	true,	true),
+			//new ResReadUnit("name_en",			'Name',			false),
+			//new ResReadUnit("family_name_en",	'FamilyName',	false,	true,	true),
+			//new ResReadUnit("first_name_en",	'FirstName',	false,	true,	true),
 			new ResReadUnit("team",				'チーム',		false,	true,	false),
 			new ResReadUnit("team_en",			'Team',			false,	true,	false),
 			new ResReadUnit("uci_id",			'UCI_ID',		false,	true,	true),
