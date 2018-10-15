@@ -69,7 +69,7 @@
 </div>
 <div>
 	<?php 
-		echo $this->Form->create('File', array('type'=>'> file', 'enctype' => 'multipart/form-data', 'url'=>'/entry_categories/check_result_file/' . $entryCategory['EntryCategory']['id']));
+		echo $this->Form->create('File', array('type'=>'file', 'url'=>'/entry_categories/check_result_file/' . $entryCategory['EntryCategory']['id']));
 		echo $this->Form->input('csv', array('type' => 'file', 'label' => false, 'before' => 'エントリー・リザルトデータのファイルを指定して下さい。'));
 		echo $this->Form->submit(__('Upload'));
 		echo $this->Form->end(); 
