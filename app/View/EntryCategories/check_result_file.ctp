@@ -1,5 +1,7 @@
 <div class="entryCategories check_result">
 	<h1><?php echo __('エントリー・リザルトデータのチェック'); ?></h1>
+	<p>注意：この処理により、選手データ（名前など）は今回読み込んだ値により書き変わります。</p>
+	<p>（UCI ID は上書きされません。）</p>
 	<h2>タイトルに関するエラー</h2>
 	
 	<?php if (!empty($results['not_read_titles'])): ?>
@@ -23,10 +25,11 @@
 	<?php foreach ($results['racers'] as $result): ?>
 	<h3>
 		<?php 
+			$bib = isset($result['body_number']['error']) ? '(No.無し)' : $result['body_number'];
 			$code = isset($result['racer_code']) ? $result['racer_code'] : '新規選手';
 			$name = isset($result['name']['error']) ? $result['name']['error']['original_val'] : (isset($result['name']) ? $result['name'] : '名前不明の選手');
 			$birth = isset($result['birth_date']) ? $result['birth_date'] : '生年月日不明';
-			echo 'Bib.' . $result['body_number'] . ' ' . $name . ' [' . $code . '] ' . $birth . ' 生まれ';
+			echo 'Bib.' . $bib . ' ' . $name . ' [' . $code . '] ' . $birth . ' 生まれ';
 		?>
 	</h3>
 	<div class="diff_tables">

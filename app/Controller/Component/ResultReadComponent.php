@@ -47,7 +47,7 @@ class ResultReadComponent extends Component
 	private function __createReadUnit()
 	{
 		$this->_readUnits = array(
-			new ResReadUnit('body_number',		'BibNo',		false),
+			new ResReadUnit('body_number',		'BibNo',		true),
 			new ResReadUnit("racer_code",		'選手コード',	false,	true,	true),
 			new ResReadUnit("name",				'名前',			false), // not blank は name_en との兼ね合いのため、個別に行なう
 														// また、isImportant は family, first 単位で判定するので false とする。
@@ -60,7 +60,7 @@ class ResultReadComponent extends Component
 			new ResReadUnit("team_en",			'Team',			false,	true,	false),
 			new ResReadUnit("uci_id",			'UCI_ID',		false,	true,	true),
 			new ResReadUnit("birth_date",		'生年月日',		false,	true,	true),
-			new ResReadUnit("entry_status",		'EntryStatus',	true),
+			new ResReadUnit("entry_status",		'EntryStatus',	false), // 'opn' だったら対応する。ほかは無視。
 			new ResReadUnit("rank",				'順位',			false), // result status によっては not blank
 			new ResReadUnit("result_status",	'ResultStatus',	true),
 			new ResReadUnit("lap",				'周回数',		false),
@@ -222,9 +222,9 @@ class ResultReadComponent extends Component
 						'pos' => $pos,
 						'key' => $key,
 					));
-				} else {
-					continue;
-				}
+			} else {
+				continue;
+			}
 			}
 			
 			$map[$key] = $val;
