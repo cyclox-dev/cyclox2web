@@ -247,9 +247,10 @@ class ApiController extends ApiBaseController
 	 * @param type $cats not empty
 	 * @param type $egroupName
 	 * @param type $meetCode
+	 * @param boolean $usesTransaction メソッド内でトランザクションを使用するかどうか
 	 * @return array エラーがある場合、array('error'=>array('msg','ret_code')) といった配列をかえす。
 	 */
-	public function execAddEntry($entryGroup, $cats, $egroupName, $meetCode)
+	public function execAddEntry($entryGroup, $cats, $egroupName, $meetCode, $usesTransaction = true)
 	{
 		$duplicatedEcatNames = array();
 		
@@ -316,12 +317,12 @@ class ApiController extends ApiBaseController
 			}			
 		}
 		
-		$transaction = $this->TransactionManager->begin();
+		if ($usesTransaction) $transaction = $this->TransactionManager->begin();
 		
 		try {
 			$this->EntryGroup->create();
 			if (!$this->EntryGroup->save($entryGroup)) {
-				$this->TransactionManager->rollback($transaction);
+				if ($usesTransaction) $this->TransactionManager->rollback($transaction);
 				return array('error' => array('出走グループの保存に失敗しました。', self::STATUS_CODE_BAD_REQUEST));
 			}
 			
@@ -343,18 +344,18 @@ class ApiController extends ApiBaseController
 					//$this->log('cat:', LOG_DEBUG);
 					//$this->log($cat, LOG_DEBUG);
 					if (!$this->EntryCategory->saveAssociated($cat)) {
-						$this->TransactionManager->rollback($transaction);
+						if ($usesTransaction) $this->TransactionManager->rollback($transaction);
 						return array('error' => array('出走カテゴリーの保存に失敗しました。', self::STATUS_CODE_BAD_REQUEST));
 					}
 				}
 			}
 			
-			$this->TransactionManager->commit($transaction);
+			if ($usesTransaction) $this->TransactionManager->commit($transaction);
 			
 			return array('ok'); // 件数とか？
 		} catch (Exception $ex) {
 			$this->log('exception:' . $ex.message, LOG_DEBUG);
-			$this->TransactionManager->rollback($transaction);
+			if ($usesTransaction) $this->TransactionManager->rollback($transaction);
 			return array('error' => array('予期しないエラー:' . $ex, self::STATUS_CODE_BAD_REQUEST));
 		}
 	}
