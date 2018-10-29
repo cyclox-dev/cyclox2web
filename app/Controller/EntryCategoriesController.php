@@ -11,7 +11,7 @@ App::uses('ApiBaseController', 'Controller');
  */
 class EntryCategoriesController extends ApiBaseController
 {
-	public $uses = array('EntryCategory', 'EntryRacer', 'PointSeries', 'TmpResultUpdateFlag'
+	public $uses = array('TransactionManager', 'EntryCategory', 'EntryRacer', 'PointSeries', 'TmpResultUpdateFlag'
 		, 'MeetPointSeries', 'Category', 'EntryGroup');
 	
 /**
@@ -207,6 +207,78 @@ class EntryCategoriesController extends ApiBaseController
 		$this->set('meetCode', $meetCode);
 	}
 	
+	public function write_results($ecatID)
+	{
+		// ApiManager->execAddEntry() 参考のこと。
+		
+		if (!$this->EntryCategory->exists($ecatID)) {
+			throw new NotFoundException(__('Invalid entry category'));
+		}
+		
+		$this->log('posted ========================================', LOG_DEBUG);
+		$this->log($this->request->data, LOG_DEBUG);
+		
+		$transaction = $this->TransactionManager->begin();
+		
+		try {
+			$ret = $this->__write_results($ecatID, $this->request->data);
+			
+			if ($ret === true) {
+				$this->TransactionManager->commit($transaction);
+				
+				$msg = '出走・リザルトの書込およびポイントなどの計算を正常に終了しました。';
+				$this->log($msg, LOG_INFO);
+				$this->Flash->success($msg);
+				return $this->redirect(array('action' => 'view', $ecatID));
+			} else {
+				$this->TransactionManager->rollback($transaction);
+				
+				$this->log('出走・リザルトの書込に失敗しました。', LOG_INFO);
+				$this->Flash->set('出走・リザルトの書込に失敗しました。');
+				if (!empty($ret['err'])) {
+					foreach ($ret['err'] as $er) {
+						$this->Flash->set($er);
+					}
+				}
+				return $this->redirect(array('action' => 'select_result_file', $ecatID));
+			}
+		} catch (Exception $ex) {
+			$this->TransactionManager->rollback($transaction);
+			
+			$this->log('予測しないエラーにより終了しました。ex:' . $ex->getMessage(), LOG_ERR);
+			$this->Flash->set(__('予測されないエラー' . $ex->getMessage() . 'により、リザルト読込処理はキャンセルされました。'));
+			return $this->redirect(array('action' => 'select_result_file', $ecatID));
+		}
+	}
+	
+	/**
+	 * 
+	 * @param type $ecatID
+	 * @return true or ['err' => ['mwg', 'mwg',,,]] 正常終了の場合は true を、エラーがあった場合は err をキーとする配列をかえす
+	 */
+	private function __write_results($ecatID, $entryResultData)
+	{
+		// 既存 entry racer の削除
+		$cdt = array('entry_category_id' => $ecatID);			
+		if (!$this->EntryRacer->deleteAll($cdt, true)) {
+			return array('err' => array('既存出走設定の削除に失敗しました。'));
+		}
+
+		// entry racer の保存
+		if (!$this->EntryRacer->saveAll($entryResultData['EntryRacer'], array('atomic' => false, 'deep' => true))) {
+			return array('err' => array('出走設定の保存に失敗しました。'));
+		}
+		
+		// リザルトの書込
+
+
+		// 失敗するとめんどうな新規選手の登録および書き換え
+
+
+
+		return true;
+	}
+	
 	public function select_result_file($ecatID)
 	{
 		if (!$this->EntryCategory->exists($ecatID)) {
@@ -250,6 +322,7 @@ class EntryCategoriesController extends ApiBaseController
 			$this->log('$results is,,,', LOG_DEBUG);
 			$this->log($results, LOG_DEBUG);
 			
+			$this->set('ecat_id', $ecatID);
 			$this->set('results', $results);
 		} catch (Exception $ex) {
 			$this->Flash->set(__('リザルト読込に失敗しました。' . $ex->getMessage(), self::STATUS_CODE_BAD_REQUEST));

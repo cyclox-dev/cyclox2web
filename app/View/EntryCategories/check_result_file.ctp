@@ -25,10 +25,10 @@
 	<?php foreach ($results['racers'] as $result): ?>
 	<h3>
 		<?php 
-			$bib = isset($result['body_number']['error']) ? '(No.無し)' : $result['body_number'];
-			$code = isset($result['racer_code']) ? $result['racer_code'] : '新規選手';
-			$name = isset($result['name']['error']) ? $result['name']['error']['original_val'] : (isset($result['name']) ? $result['name'] : '名前不明の選手');
-			$birth = isset($result['birth_date']) ? $result['birth_date'] : '生年月日不明';
+			$bib = isset($result['body_number']['error']) ? '(No.無し)' : $result['body_number']['val'];
+			$code = isset($result['racer_code']['val']) ? $result['racer_code']['val'] : '新規選手';
+			$name = isset($result['name']['error']) ? $result['name']['original'] : (isset($result['name']['val']) ? $result['name']['val'] : '名前不明の選手');
+			$birth = isset($result['birth_date']['val']) ? $result['birth_date']['val'] : '生年月日不明';
 			echo 'Bib.' . $bib . ' ' . $name . ' [' . $code . '] ' . $birth . ' 生まれ';
 		?>
 	</h3>
@@ -43,7 +43,7 @@
 		<?php if (!$finds): ?>
 		<?php
 			$finds = true;
-			$rcode = isset($result['racer_code']) ? '(' . $result['racer_code'] . ')' : '';
+			$rcode = isset($result['racer_code']['val']) ? '(' . $result['racer_code']['val'] . ')' : '';
 			echo '<table cellpadding="0" cellspacing="0">';
 			echo '<thead><tr><th>種類</th><th>読み込んだ値</th><th>既存値' . $rcode . '</th><th>備考</th></thead><tbody>';
 		?>
@@ -51,19 +51,20 @@
 		<tr>
 			<td><?php echo $runit->title . ' (' . $runit->key . ')'; ?></td>
 			<?php if (!empty($result[$key]['error'])): ?>
-			<td><?php if(isset($result[$key]['error']['original_val'])) echo $result[$key]['error']['original_val']; ?></td>
-			<td><?php 
-				if ($key == 'name') {
-					echo $result['original']['family_name'] . ' ' . $result['original']['first_name'];
-				} else if ($runit->checks) {
-					echo $result['original'][$key]; 
-				}
-			?></td>
-			<td><?php echo $result[$key]['error']['msg'] . '(' . $result[$key]['error']['pos'] . ')'; ?></td>
+			<?php $haserr = true; ?>
+				<td><?php if(isset($result[$key]['original'])) echo $result[$key]['original']; ?></td>
+				<td><?php 
+					if ($key == 'name') {
+						echo $result['original']['family_name'] . ' ' . $result['original']['first_name'];
+					} else if ($runit->checks) {
+						echo $result['original'][$key]; 
+					}
+				?></td>
+				<td><?php echo $result[$key]['error'] . '(' . $result[$key]['pos'] . ')'; ?></td>
 			<?php else: ?>
-			<td><?php echo $result[$key]; ?></td>
-			<td><?php echo $result['original'][$key]; ?></td>
-			<td></td>
+				<td><?php echo $result[$key]['val']; ?></td>
+				<td><?php echo $result['original'][$key]; ?></td>
+				<td></td>
 			<?php endif; ?>
 		</tr>
 		<?php endif; /* if (diff) */ ?>
@@ -104,5 +105,83 @@
 		<?php endif; ?>
 	</div>
 	<?php endforeach; /* results */ ?>
+	<?php
+		App::uses('RacerEntryStatus', 'Cyclox/Const');
+		App::uses('RacerResultStatus', 'Cyclox/Const');
+		App::uses('Util', 'Cyclox/Util');
+	?>
+	<?php 
+	
+	// TODO: エラーありなら upload させない。
+	
+		echo $this->Form->create('EntryRacer', array('type' => 'post', 'url'=>'/entry_categories/write_results/' . $ecat_id));
+		
+		$self = $this;
+		$puthid = function($index, $key, $val) use ($self) {
+			echo $self->Form->hidden('EntryRacer.' . $index . '.' . $key, array('value' => $val));
+		};
+		
+		$i = 0;
+		foreach ($results['racers'] as $result)
+		{
+			$puthid($i, 'entry_category_id', $ecat_id);
+			
+			$puthid($i, 'racer_code', empty($result['racer_code']['val']) ? 'EMPTY!!!' : $result['racer_code']['val']);
+			
+			$puthid($i, 'body_number', $result['body_number']['val']);
+			$puthid($i, 'name_at_race', $result['name']);
+			// TODO: fill name_en_at_race, kana
+			$puthid($i, 'checks_in', 1);
+			
+			$puthid($i, 'entry_status', $result['entry_status']['val']->msg());
+			
+			$puthid($i, 'team_name', $result['team']['val']);
+			$puthid($i, 'note', 'from web result read.');
+			
+			// リザルトパラメタ
+			$puthid($i, 'RacerResult.' . 'order_index', $i+1);
+			$puthid($i, 'RacerResult.' . 'status', $result['result_status']['val']);
+			
+			$lap = empty($result['lap']['val']) ? 0 : $result['lap']['val'];
+			$puthid($i, 'RacerResult.' . 'lap', $lap);
+			
+			if (!empty($result['goal_time']['val'])) $puthid($i, 'RacerResult.' . 'goal_milli_sec', $result['goal_time']['val']);
+			
+			
+			// rank_per
+			// run_per
+			
+			// as_category は ResultParamCalc->asCategory() で自前設定する。
+			
+			$i++;
+		}
+		
+		
+		/*
+		 [EntryRacer] => Array
+                (
+                    [0] => Array
+                        (
+                            [body_number] => 111
+                            [note] => φ(..)メモメモ
+                            [racer_code] => YAM-178-0020
+                            [name_en_at_race] => SETO Kazuhiro
+                            [checks_in] => 1
+                            [entry_status] => 0
+                            [name_at_race] => 瀬戸 なおき
+                            [name_kana_at_race] => ニシムラ カズヒロ
+                            [team_name] => WESTBERG/ProRide
+                        )
+		 * 
+		 */
+			
+		if (isset($haserr) && $haserr === true) {
+			echo $this->Form->submit(__('Upload'), array('type' => 'hidden', 'disabled' => 'disabled'));
+			echo '<p>上に記述されているエラーを修正し、再度読込し直してください。</p>';
+		} else {
+			echo $this->Form->submit(__('Upload'));
+		}
+		echo $this->Form->end(); 
+	?>
 </div>
 	

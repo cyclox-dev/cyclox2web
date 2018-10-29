@@ -5,6 +5,9 @@
  */
 
 App::uses('Component', 'Controller');
+App::uses('Util', 'Cyclox/Util');
+App::uses('RacerEntryStatus', 'Cyclox/Const');
+App::uses('RacerResultStatus', 'Cyclox/Const');
 App::uses('ResultParamCalcComponent', 'Controller/Component'); 
 App::uses('EntryCategory', 'Model');
 App::uses('Meet', 'Model');
@@ -17,7 +20,7 @@ class ResReadUnit {
 	public $key = "unknown";
 	public $title = 'no_title';
 	public $needs = false;
-	public $checks = false;
+	public $checks = false; // 登録値と比較するか
 	public $isImportant = false;
 	
 	function __construct($k, $t, $inb, $c = false, $i = false)
@@ -64,7 +67,7 @@ class ResultReadComponent extends Component
 			new ResReadUnit("rank",				'順位',			false), // result status によっては not blank
 			new ResReadUnit("result_status",	'ResultStatus',	true),
 			new ResReadUnit("lap",				'周回数',		false),
-			new ResReadUnit("goal_milli",		'タイム',		false),
+			new ResReadUnit("goal_time",		'タイム',		false),
 			new ResReadUnit("category_code",	'カテゴリー',	false),
 		);
 	}
@@ -208,29 +211,87 @@ class ResultReadComponent extends Component
 		$map = array();
 		
 		for ($i = 0; $i < count($line); $i++) {
+			$err = null; $valexp = null; // 初期化
+			
 			if (empty($titleMap[$i])) continue;
 			
 			$val = $line[$i];
-			$key = $titleMap[$i]->key;
+			$tunit = $titleMap[$i];
+			$key = $tunit->key;
 			//$pos = '第' . ($lineNum+1) . '行-' . chr(65 + $i) . '列'; // XYZ 以降オーバーには未対応
 			$pos = 'セル' . ($lineNum+1) .  chr(65 + $i); // XYZ 以降オーバーには未対応
+			$cnved = $val;
 			
 			if (empty($val)) {
-				if ($titleMap[$i]->needs) {
-					$val = array('error' => array(
-						'msg' => '値が必要です。',
-						'pos' => $pos,
-						'key' => $key,
-					));
-			} else {
-				continue;
-			}
+				if ($tunit->key == 'body_number' || $tunit->key == 'result_status') {
+					$err = '値が必要です。';
+				} else if ($key !== 'entry_status') {
+					continue;
+				}
 			}
 			
-			$map[$key] = $val;
+			// 値の変換
 			
-			if (!isset($val['error'])
-					&& ($key === 'name' || $key === 'name_en')) {
+			if (!empty($val)) {
+				if ($key == 'racer_code') {
+					if (!preg_match('/^[A-Z]{3}-[0-9]{3}-[0-9]{4}$/', $val)) {
+						$err = '選手コードは XXX-178-0123 の形式です。';
+						// MORE: 選手コードの変換（ハイフンや全角など）
+					}
+				} else if ($key == 'uci_id') {
+					if (!preg_match('/^[0-9]{11}$/', $val)) {
+						$err = 'UCI ID は11桁の数字です。';
+						// MORE: 選手コードの変換（ハイフンや全角など）
+					}
+				} else if ($key == 'birth_date') {
+					if (!Util::is_date($val)) {
+						$err = '日付の形式が不正です。';
+					}
+				} else if ($key == 'result_status') {
+					$r = RacerResultStatus::ofExpress($val, false);
+					if ($r == false) {
+						$err = '不正な値。マニュアルを確認のこと。';
+					} else {
+						$cnved = $r->val();
+						$valexp = $r->code();
+					}
+				} else if ($key == 'goal_time') {
+					$cnved = Util::time2milli($val);
+					if ($cnved == false) {
+						$err = '時間フォーマットが不正です。';
+						$cnved = $val;
+					}
+				}
+			}
+
+			if ($key == 'entry_status') {
+				if (!empty($val) && strtolower($val) !== 'opn') {
+					$err = 'OPN 以外の値は認識できません。';
+					$cnved = RacerEntryStatus::$NORMAL; // hidden 出力時にエラーになるため仮の値を入れておく。
+				} else {
+					$cnved = (strtolower($val) === 'opn') ? RacerEntryStatus::$OPEN : RacerEntryStatus::$NORMAL;
+				}
+			}
+			
+			// データの格納
+			$v = array(
+				'original' => $val,
+				'pos' => $pos,
+				'key' => $key,
+				'val' => $cnved,
+			);
+			if (!empty($err)) {
+				$v['error'] = $err;
+			}
+			if (!empty($valexp)) {
+				$v['valexp'] = $valexp;
+			}
+			
+			$map[$key] = $v;
+			
+			// 名前の分割
+			
+			if (!isset($val['error']) && ($key === 'name' || $key === 'name_en')) {
 				$names = $this->__splitName($val, $key, $pos);
 				if (isset($names['error'])) {
 					$map[$key] = $names;
@@ -243,10 +304,10 @@ class ResultReadComponent extends Component
 		}
 		
 		if (isset($map['family_name']) && isset($map['first_name'])) {
-			$map['name'] = $map['family_name'] . ' ' . $map['first_name'];
+			$map['name'] = $map['family_name']['val'] . ' ' . $map['first_name']['val'];
 		}
 		if (isset($map['family_name_en']) && isset($map['first_name_en'])) {
-			$map['name_en'] = $map['family_name_en'] . ' ' . $map['first_name_en'];
+			$map['name_en'] = $map['family_name_en']['val'] . ' ' . $map['first_name_en']['val'];
 		}
 		
 		return $map;
