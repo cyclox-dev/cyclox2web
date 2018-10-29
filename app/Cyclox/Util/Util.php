@@ -86,6 +86,28 @@ class Util
 		return $hour . ':' . sprintf('%02d', $minInHour) . ':' . sprintf('%02d', $secInMin) . '.' . sprintf('%03d', $milli);
 	}
 	
+	public static function time2milli($timeExp)
+	{
+		if (is_int($timeExp) || is_float($timeExp)) {
+			return $timeExp;
+		}
+		
+		try {
+			$d = new DateTime($timeExp);
+		} catch (Exception $ex) {
+			return false;
+		}
+		
+		if ($d === false) {
+			return false;
+		}
+		
+		return $d->format('u') / 100
+			+ $d->format('s') * 100
+			+ $d->format('i') * 100 * 60
+			+ $d->format('H') * 100 * 3600;
+	}
+	
 	/**
 	 * 生年月日から年齢をかえす
 	 * @param DateTime $birth 生年月日
