@@ -362,12 +362,16 @@ class PointSeriesController extends ApiBaseController
 		}
 		
 		$catLimit = array();
+		$onlyJcfer = false;
 		if (isset($ps['PointSeries']['hint'])) {
 			$seriesHints = PointSeriesSumUpRule::getSeriesHints($ps['PointSeries']['hint']);
 			foreach ($seriesHints as $key => $val) {
-				if ($key == 'cat_limit') {
+				if ($key === 'cat_limit') {
 					$catLimit = explode("/", $val);
+					// not break // 最後のものを有効とする。
 					break;
+				} else if ($val === 'only_jcfer') {
+					$onlyJcfer = true;
 				}
 			}
 		}
@@ -412,7 +416,7 @@ class PointSeriesController extends ApiBaseController
 			$hints[] = $mps['MeetPointSeries']['hint'];
 			
 			$contains = array(
-				'Racer' => array('fields' => array('family_name', 'first_name', 'team', 'birth_date')),
+				'Racer' => array('fields' => array('family_name', 'first_name', 'team', 'birth_date', 'jcf_number')),
 				'RacerResult' => array(
 					'fields' => array('rank'),
 					'EntryRacer' => array(
@@ -451,6 +455,13 @@ class PointSeriesController extends ApiBaseController
 					
 					//$this->log('hasCat:' . $hasCat . ' racer:' . $psr['PointSeriesRacer']['racer_code'], LOG_DEBUG);
 					if (!$hasCat) continue;
+				}
+				
+				if ($onlyJcfer) {
+					// jcf number 持っている選手のみ
+					if (empty($psr['Racer']['jcf_number'])) {
+						continue;
+					}
 				}
 				
 				// result.deleted, entry_racer.deleted など拾おうと思ったが、外部レースの集計を考えると入れておきたい
