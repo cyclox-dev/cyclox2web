@@ -2,6 +2,14 @@
 	<h1><?php echo __('エントリー・リザルトデータのチェック'); ?></h1>
 	<p>注意：この処理により、選手データ（名前など）は今回読み込んだ値により書き変わります。</p>
 	<p>（UCI ID は上書きされません。）</p>
+	<?php // hidden 出力時にエラーになるため仮の値を入れておく
+		echo '出走人数（OPN除く）: ';
+		if ($results['started'] === false) {
+			echo 'エラーがあるためカウント不可能でした。';
+		} else {
+			echo $results['started'] . '人';
+		}
+	?>
 	<h2>タイトルに関するエラー</h2>
 	
 	<?php if (!empty($results['not_read_titles'])): ?>
@@ -60,7 +68,7 @@
 						echo $result['original'][$key]; 
 					}
 				?></td>
-				<td><?php echo $result[$key]['error'] . '(' . $result[$key]['pos'] . ')'; ?></td>
+				<td><?php echo '[Error] ' . $result[$key]['error'] . '(' . $result[$key]['pos'] . ')'; ?></td>
 			<?php else: ?>
 				<td><?php echo $result[$key]['val']; ?></td>
 				<td><?php echo $result['original'][$key]; ?></td>
@@ -105,11 +113,6 @@
 		<?php endif; ?>
 	</div>
 	<?php endforeach; /* results */ ?>
-	<?php
-		App::uses('RacerEntryStatus', 'Cyclox/Const');
-		App::uses('RacerResultStatus', 'Cyclox/Const');
-		App::uses('Util', 'Cyclox/Util');
-	?>
 	<?php 
 	
 	// TODO: エラーありなら upload させない。
@@ -140,16 +143,20 @@
 			
 			// リザルトパラメタ
 			$puthid($i, 'RacerResult.' . 'order_index', $i+1);
-			$puthid($i, 'RacerResult.' . 'status', $result['result_status']['val']);
+			$puthid($i, 'RacerResult.' . 'status', $result['result_status']['val']->val());
 			
 			$lap = empty($result['lap']['val']) ? 0 : $result['lap']['val'];
 			$puthid($i, 'RacerResult.' . 'lap', $lap);
 			
 			if (!empty($result['goal_time']['val'])) $puthid($i, 'RacerResult.' . 'goal_milli_sec', $result['goal_time']['val']);
 			
+			if (isset($result['rank_per'])) {
+				$puthid($i, 'RacerResult.' . 'rank_per', $result['rank_per']);
+			}
 			
-			// rank_per
-			// run_per
+			if (isset($result['run_per'])) {
+				$puthid($i, 'RacerResult.' . 'run_per', $result['run_per']);
+			}
 			
 			// as_category は ResultParamCalc->asCategory() で自前設定する。
 			

@@ -126,12 +126,115 @@ class ResultReadComponent extends Component
 			$i++;
 		}
 		
+		$started = $this->__countStarted($eresults);
+		$eresults = $this->__makePers($eresults, $started);
+		
 		return array(
 			'not_read_titles' => $titleMap[$this->__TITLE_NOT_READ],
 			'title_errors' => $titleMap[$this->__TITLE_ERRORS],
 			'racers' => $eresults,
 			'runits' => $this->_readUnits,
+			'started' => $started,
 		);
+	}
+	
+	private function __makePers($eresults, $started)
+	{
+		$rets = array();
+		
+		$topLap = null;
+		$topTime = null;
+		foreach ($eresults as $ere) {
+			
+			$this->log('eres:', LOG_DEBUG);
+			$this->log($ere, LOG_DEBUG);
+
+			if (isset($ere['rank']['val']) && $ere['rank']['val'] == 1) {
+				if (isset($ere['lap']['val'])) {
+					$topLap = $ere['lap']['val'];
+				}
+				if (isset($ere['goal_time']['val'])) {
+					$topTime = $ere['goal_time']['val'];
+				}
+				break;
+			}
+		}
+		$this->log('tops:' . $topLap . ', ' . $topTime, LOG_DEBUG);
+		
+		foreach ($eresults as $ere) {
+			if (!empty($ere['rank']['val'])) {
+				$pt = $this->__rankPer($started, $ere['rank']['val'], $ere['result_status']['val'], $ere['entry_status']['val']);
+				$ere['rank_per'] = $pt;
+
+				if (!empty($ere['lap']['val']) && !empty($ere['goal_time']['val'])) {
+					$pt = $this->__runPer($ere['lap']['val'], $ere['rank']['val'], $ere['goal_time']['val'], $topLap, $topTime);
+					$ere['run_per'] = $pt;
+				}
+			}
+			
+			$rets[] = $ere;
+		}
+		
+		return $rets;
+	}
+	
+	private function __rankPer($started, $rank, $resStatus, $erStatus)
+	{
+		$this->log('called:' . $started . ' ' . $rank . '-' . $resStatus->code() . '-' . $erStatus->val(), LOG_DEBUG);
+		if ($started <= 0
+				|| $erStatus == RacerEntryStatus::$OPEN
+				|| empty($rank)
+				|| !$resStatus->isRankedStatus()) {
+			return null;
+		}
+		
+		return bcdiv('' . ($rank * 100), '' . $started, 0);
+	}
+	
+	private function __runPer($lap, $rank, $time, $topLap, $topTime)
+	{
+		if (empty($topLap) || empty($topTime)) {
+			return null;
+		}
+		
+		if (empty($time)
+				|| $lap < $topLap
+				|| empty($rank)
+				|| empty($time)) {
+			return null;
+		}
+		
+		// 走行％＝トップの走行時間（1/10秒単位）÷走行時間（1/10秒単位）（1%未満は四捨五入）
+		$dotOne = bcdiv('' . $time, 100, 0);
+		$dotOneTop = bcdiv('' . $topTime, 100, 0);
+		
+		return round(bcmul(bcdiv('' . $dotOneTop, '' . $dotOne, 4), 100, 1)); // 割り算時、小数点2桁目まであればOK
+	}
+	
+	/**
+	 * 出走人数をカウントする
+	 * @param type $eresults
+	 * @return boolean|int エラーがあった場合には false をかえす
+	 */
+	private function __countStarted($eresults)
+	{
+		$count = 0;
+		
+		foreach ($eresults as $er) {
+			if (isset($er['entry_status']['error'])) {
+				return false;
+			}
+			$this->log('try:' . $er['entry_status']['val']->val() . ' and ' . $er['result_status']['val']->val(), LOG_DEBUG);
+			if ($er['entry_status']['val']->val() != RacerEntryStatus::$OPEN->val()) {
+				if ($er['result_status']['val']->val() != RacerResultStatus::$DNS->val()) {
+					++$count;
+				}
+			}
+		}
+		
+		$this->log('出走人数:' . $count, LOG_DEBUG);
+		
+		return $count;
 	}
 	
 	/**
@@ -251,8 +354,9 @@ class ResultReadComponent extends Component
 					$r = RacerResultStatus::ofExpress($val, false);
 					if ($r == false) {
 						$err = '不正な値。マニュアルを確認のこと。';
+						$cnved = RacerResultStatus::$DNF; // hidden 出力時にエラーになるため仮の値を入れておく。
 					} else {
-						$cnved = $r->val();
+						$cnved = $r;
 						$valexp = $r->code();
 					}
 				} else if ($key == 'goal_time') {
