@@ -313,7 +313,7 @@
 					<?php if (!empty($entry['RacerResult']['id'])): ?>
 						<td><?php
 							if (empty($entry['RacerResult']['rank'])) {
-								echo h(RacerResultStatus::ofVal($entry['RacerResult']['rank'])->code());
+								echo h(RacerResultStatus::ofVal($entry['RacerResult']['status'])->code());
 							} else {
 								echo h($entry['RacerResult']['rank']);
 							}
