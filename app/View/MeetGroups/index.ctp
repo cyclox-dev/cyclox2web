@@ -8,6 +8,8 @@
 			<th><?php echo $this->Paginator->sort('name', '名称'); ?></th>
 			<th><?php echo $this->Paginator->sort('short_name', '短縮名'); ?></th>
 			<th><?php echo $this->Paginator->sort('homepage', 'Homepage'); ?></th>
+			<th><?php echo '選手コード末尾最小値'; ?></th>
+			<th><?php echo '最大値'; ?></th>
 			<th><?php echo 'Action'; ?></th>
 	</tr>
 	</thead>
@@ -18,6 +20,8 @@
 		<td><?php echo h($meetGroup['MeetGroup']['name']); ?>&nbsp;</td>
 		<td><?php echo h($meetGroup['MeetGroup']['short_name']); ?>&nbsp;</td>
 		<td><?php echo h($meetGroup['MeetGroup']['homepage']); ?>&nbsp;</td>
+		<td><?php echo h($meetGroup['MeetGroup']['racer_code_4num_min']); ?>&nbsp;</td>
+		<td><?php echo h($meetGroup['MeetGroup']['racer_code_4num_max']); ?>&nbsp;</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('詳細'), array('action' => 'view', $meetGroup['MeetGroup']['code'])); ?>
 			<?php echo $this->Html->link(__('編集'), array('action' => 'edit', $meetGroup['MeetGroup']['code'])); ?>

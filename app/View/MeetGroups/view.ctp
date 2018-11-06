@@ -26,6 +26,16 @@
 			<?php echo h($meetGroup['MeetGroup']['homepage']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('選手コード末尾4桁最小値'); ?></dt>
+		<dd>
+			<?php echo h($meetGroup['MeetGroup']['racer_code_4num_min']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('選手コード末尾4桁最小値'); ?></dt>
+		<dd>
+			<?php echo h($meetGroup['MeetGroup']['racer_code_4num_max']); ?>
+			&nbsp;
+		</dd>
 	</dl>
 <p style="height: 1em"></p>
 <h3>Status</h3>

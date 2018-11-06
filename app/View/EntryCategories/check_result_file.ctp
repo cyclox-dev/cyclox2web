@@ -1,7 +1,13 @@
 <div class="entryCategories check_result">
 	<h1><?php echo __('エントリー・リザルトデータのチェック'); ?></h1>
-	<p>注意：この処理により、選手データ（名前など）は今回読み込んだ値により書き変わります。</p>
-	<p>（UCI ID は上書きされません。）</p>
+	<p>
+		注意：この処理により、選手データ（名前など）は今回読み込んだ値により書き変わります。</br>
+		（UCI ID は上書きされません。）
+	</p>
+	<p>
+		新規選手に払い出される選手コード末尾番号の範囲は<?php echo $results['rcode_range'][0] . '〜' . $results['rcode_range'][1] ?>です。</br>
+		Cyclox2Application の設定と重複していないよう、確認してください。
+	</p>
 	<?php // hidden 出力時にエラーになるため仮の値を入れておく
 		echo '出走人数（OPN除く）: ';
 		if ($results['started'] === false) {

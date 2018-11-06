@@ -52,7 +52,16 @@ class MeetGroup extends AppModel
 			'rule' => 'url',
 			'message' => 'URL 形式が不正です。',
 			'allowEmpty' => true
-		)
+		),
+		'racer_code_4num_max' => array(
+			'rule' => array('naturalNumber', true),
+			'message' => '1から9999までの数値を入力してください。',
+		),
+		'racer_code_4num_min' => array(
+			'rule' => array('naturalNumber', true),
+			'message' => '1から9999までの数値を入力してください。',
+		),
+		// TODO: min < max の保証
 	);
 
 	//The Associations below have been created with all possible keys, those that are not needed can be removed

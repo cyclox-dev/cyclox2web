@@ -88,7 +88,6 @@ class ResultReadComponent extends Component
 		$this->Meet = new Meet();
 		$meet = $this->Meet->find('first', array(
 			'conditions' => array('Meet.code' => $ecat['EntryGroup']['meet_code']),
-			'recursive' => 0,
 		));
 		if (empty($meet)) {
 			return array('error' => array('msg' => '出走カテゴリー指定から大会情報が取得できません。id=' . $ecatID));
@@ -129,12 +128,15 @@ class ResultReadComponent extends Component
 		$started = $this->__countStarted($eresults);
 		$eresults = $this->__makePers($eresults, $started);
 		
+		
+		
 		return array(
 			'not_read_titles' => $titleMap[$this->__TITLE_NOT_READ],
 			'title_errors' => $titleMap[$this->__TITLE_ERRORS],
 			'racers' => $eresults,
 			'runits' => $this->_readUnits,
 			'started' => $started,
+			'rcode_range' => array($meet['MeetGroup']['racer_code_4num_min'], $meet['MeetGroup']['racer_code_4num_max']),
 		);
 	}
 	

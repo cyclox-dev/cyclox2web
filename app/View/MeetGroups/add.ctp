@@ -8,6 +8,8 @@
 		echo $this->Form->input('short_name', array('type' => 'text'));
 		echo $this->Form->input('description', array('type' => 'text'));
 		echo $this->Form->input('homepage', array('type' => 'text'));
+		echo $this->Form->input('racer_code_4num_min', array('label' => '選手コード末尾4桁最大値 (1-9999)'));
+		echo $this->Form->input('racer_code_4num_max', array('label' => '選手コード末尾4桁最小値 (1-9999)'));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>

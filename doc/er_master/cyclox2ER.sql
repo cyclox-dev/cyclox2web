@@ -10,8 +10,8 @@ DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
 DROP TABLE IF EXISTS tmp_result_update_flags;
 DROP TABLE IF EXISTS hold_points;
-DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS time_records;
+DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
 DROP TABLE IF EXISTS entry_categories;
@@ -267,6 +267,8 @@ CREATE TABLE meet_groups
 	short_name varchar(255) BINARY NOT NULL,
 	description text,
 	homepage varchar(255),
+	racer_code_4num_max int DEFAULT 9999 NOT NULL,
+	racer_code_4num_min int DEFAULT 1 NOT NULL,
 	created datetime,
 	modified datetime,
 	deleted_date datetime,
