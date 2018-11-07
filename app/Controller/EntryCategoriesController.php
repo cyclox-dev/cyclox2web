@@ -324,12 +324,12 @@ class EntryCategoriesController extends ApiBaseController
 			
 			$this->set('ecat_id', $ecatID);
 			$this->set('results', $results);
+			fclose($fp);
 		} catch (Exception $ex) {
 			$this->Flash->set(__('リザルト読込に失敗しました。' . $ex->getMessage(), self::STATUS_CODE_BAD_REQUEST));
+			fclose($fp);
 			return $this->redirect($this->referer());
 		}
-		
-		fclose($fp);
 	}
 	
 	/**
