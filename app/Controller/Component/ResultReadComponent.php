@@ -6,6 +6,7 @@
 
 App::uses('Component', 'Controller');
 App::uses('Util', 'Cyclox/Util');
+App::uses('Gender', 'Cyclox/Const');
 App::uses('RacerEntryStatus', 'Cyclox/Const');
 App::uses('RacerResultStatus', 'Cyclox/Const');
 App::uses('ResultParamCalcComponent', 'Controller/Component'); 
@@ -62,6 +63,7 @@ class ResultReadComponent extends Component
 			new ResReadUnit("team",				'チーム',		false,	true,	false),
 			new ResReadUnit("team_en",			'Team',			false,	true,	false),
 			new ResReadUnit("uci_id",			'UCI_ID',		false,	true,	true),
+			new ResReadUnit("gender",			'性別',			false,	true,	true),
 			new ResReadUnit("birth_date",		'生年月日',		false,	true,	true),
 			new ResReadUnit("entry_status",		'EntryStatus',	false), // 'opn' だったら対応する。ほかは無視。
 			new ResReadUnit("rank",				'順位',			false), // result status によっては not blank
@@ -351,6 +353,15 @@ class ResultReadComponent extends Component
 				} else if ($key == 'birth_date') {
 					if (!Util::is_date($val)) {
 						$err = '日付の形式が不正です。';
+					}
+				} else if ($key == 'gender') {
+					$g = strtolower($val);
+					if ($g === 'm' || $g === 'men' || $g === 'male') {
+						$cnved = Gender::$MALE;
+					} else if ($g === 'w' || $g === 'f' || $g === 'women' || $g === 'female') {
+						$cnved = Gender::$FEMALE;
+					} else {
+						$cnved = Gender::$UNASSIGNED;
 					}
 				} else if ($key == 'result_status') {
 					$r = RacerResultStatus::ofExpress($val, false);
