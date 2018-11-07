@@ -76,7 +76,13 @@
 				?></td>
 				<td><?php echo '[Error] ' . $result[$key]['error'] . '(' . $result[$key]['pos'] . ')'; ?></td>
 			<?php else: ?>
-				<td><?php echo $result[$key]['val']; ?></td>
+				<td><?php 
+					if (isset($result[$key]['valexp'])) {
+						echo $result[$key]['valexp']; 
+					} else {
+						echo $result[$key]['val']; 
+					}
+				?></td>
 				<td><?php echo $result['original'][$key]; ?></td>
 				<td></td>
 			<?php endif; ?>

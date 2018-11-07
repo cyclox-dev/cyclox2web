@@ -363,6 +363,7 @@ class ResultReadComponent extends Component
 					} else {
 						$cnved = Gender::$UNASSIGNED;
 					}
+					$valexp = $cnved->charExp();
 				} else if ($key == 'result_status') {
 					$r = RacerResultStatus::ofExpress($val, false);
 					if ($r === false) {
