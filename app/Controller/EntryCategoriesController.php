@@ -264,8 +264,8 @@ class EntryCategoriesController extends ApiBaseController
 			return array('err' => array('既存出走設定の削除に失敗しました。'));
 		}
 
-		// entry racer の保存
-		if (!$this->EntryRacer->saveAll($entryResultData['EntryRacer'], array('atomic' => false, 'deep' => true))) {
+		// entry racer, result の保存
+		if (!$this->EntryRacer->saveMany($entryResultData['EntryRacer'], array('atomic' => false, 'deep' => true))) {
 			return array('err' => array('出走設定の保存に失敗しました。'));
 		}
 		

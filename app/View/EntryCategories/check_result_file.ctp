@@ -142,7 +142,7 @@
 			// TODO: fill name_en_at_race, kana
 			$puthid($i, 'checks_in', 1);
 			
-			$puthid($i, 'entry_status', $result['entry_status']['val']->msg());
+			$puthid($i, 'entry_status', $result['entry_status']['val']->val());
 			
 			$puthid($i, 'team_name', $result['team']['val']);
 			$puthid($i, 'note', 'from web result read.');

@@ -81,13 +81,15 @@ class RacerResultStatus
 	 */
 	public static function ofExpress($ex, $retAsNone)
 	{
+		$lowered = strtolower($ex);
+		
 		foreach (self::$statuses as $st) {
-			if ($st->code() == $ex) {
+			if (strtolower($st->code()) === $lowered) {
 				return $st;
 			}
 			
 			foreach ($st->otherNames() as $ons) {
-				if ($ons == $ex) {
+				if (strtolower($ons) === $lowered) {
 					return $st;
 				}
 			}
