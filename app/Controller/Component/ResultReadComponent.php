@@ -366,7 +366,7 @@ class ResultReadComponent extends Component
 				} else if ($key == 'result_status') {
 					$r = RacerResultStatus::ofExpress($val, false);
 					if ($r === false) {
-						$err = '不正な値。マニュアルを確認のこと。';
+						$err .= '不正な値。マニュアルを確認のこと。';
 						$cnved = RacerResultStatus::$DNF; // hidden 出力時にエラーになるため仮の値を入れておく。
 					} else {
 						$cnved = $r;

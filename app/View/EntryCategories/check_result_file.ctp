@@ -144,14 +144,16 @@
 			
 			$puthid($i, 'entry_status', $result['entry_status']['val']->val());
 			
+			if (isset($result['team']['val'])) {
 			$puthid($i, 'team_name', $result['team']['val']);
+			}
 			$puthid($i, 'note', 'from web result read.');
 			
 			// リザルトパラメタ
 			$puthid($i, 'RacerResult.' . 'order_index', $i+1);
 			$puthid($i, 'RacerResult.' . 'status', $result['result_status']['val']->val());
 			
-			$lap = empty($result['lap']['val']) ? 0 : $result['lap']['val'];
+			$lap = empty($result['lap']['val']) ? 0 : $result['lap']['val']; // TODO: start-loop ありの場合には -1 設定？
 			$puthid($i, 'RacerResult.' . 'lap', $lap);
 			
 			if (!empty($result['goal_time']['val'])) $puthid($i, 'RacerResult.' . 'goal_milli_sec', $result['goal_time']['val']);
