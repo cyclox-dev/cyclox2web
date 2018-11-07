@@ -144,7 +144,7 @@
 			$puthid($i, 'racer_code', empty($result['racer_code']['val']) ? 'EMPTY!!!' : $result['racer_code']['val']);
 			
 			$puthid($i, 'body_number', $result['body_number']['val']);
-			$puthid($i, 'name_at_race', $result['name']);
+			$puthid($i, 'name_at_race', $result['name']['val']);
 			// TODO: fill name_en_at_race, kana
 			$puthid($i, 'checks_in', 1);
 			

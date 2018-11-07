@@ -315,7 +315,11 @@ class ResultReadComponent extends Component
 	 */
 	private function __readResult($line, $titleMap, $lineNum)
 	{
-		$map = array();
+		$map = array(
+			'name' => array(),
+			'name_kana' => array(),
+			'name_en' => array(),
+		);
 		
 		for ($i = 0; $i < count($line); $i++) {
 			$err = null; $valexp = null; // 初期化
@@ -422,11 +426,13 @@ class ResultReadComponent extends Component
 		}
 		
 		if (isset($map['family_name']) && isset($map['first_name'])) {
-			$map['name'] = $map['family_name']['val'] . ' ' . $map['first_name']['val'];
+			$map['name']['val'] = $map['family_name']['val'] . ' ' . $map['first_name']['val'];
 		}
 		if (isset($map['family_name_en']) && isset($map['first_name_en'])) {
-			$map['name_en'] = $map['family_name_en']['val'] . ' ' . $map['first_name_en']['val'];
+			$map['name_en']['val'] = $map['family_name_en']['val'] . ' ' . $map['first_name_en']['val'];
 		}
+		
+		
 		
 		return $map;
 	}
