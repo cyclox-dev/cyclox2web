@@ -21,10 +21,12 @@ class AjoccUtil
 	 * 現在での3桁のシーズンの表現番号をかえす
 	 * @return string 3桁のシーズンの表現番号
 	 */
-	public static function seasonExp()
+	public static function seasonExp($date = null)
 	{
-		$y = (int)date('Y');
-		$m = (int)date('n');
+		$ts = !is_null($date) ? strtotime($date) : time();
+		
+		$y = (int)date('Y', $ts);
+		$m = (int)date('n', $ts);
 		
 		if ($m < 3) {
 			$y--;
@@ -107,6 +109,44 @@ class AjoccUtil
 		}
 		
 		return $meetGroupCode . '-' . $currSeasonNo . '-' . sprintf('%03d', $number);
+	}
+	
+	/**
+	 * 払い出し可能な選手コードのリスト一覧をかえす
+	 * @param type $meetGroup
+	 * @param type $date シーズン番号用の日付
+	 * @param int $limit 一度に取得する数の制限値（処理速度対応用）
+	 * @return array 選手コードのリスト
+	 */
+	public static function nextRacerCodesAt($meetGroup, $date, $limit = 500)
+	{
+		$prefix = $meetGroup['code'] . '-' . self::seasonExp($date) . '-';
+		CakeLog::write(LOG_DEBUG, $prefix);
+		// 既存コードを取得
+		App::import('Model','ConnectionManager');
+		$db = ConnectionManager::getDataSource('default');
+		$fed = $db->fetchAll('SELECT code FROM racers WHERE code LIKE "' . $prefix . '%"'
+				. ' and cast(replace(code, "' . $prefix . '" ,"") as signed) >= ' . $meetGroup['racer_code_4num_min']
+				. ' and cast(replace(code, "' . $prefix . '" ,"") as signed) <= ' . $meetGroup['racer_code_4num_max']
+				. ' order by code ASC limit ' . $limit . ';');
+		//CakeLog::write(LOG_DEBUG, '$fed:');
+		//CakeLog::write(LOG_DEBUG, print_r($fed, true));
+		
+		// 検索しやすいようにパック
+		$codes = array();
+		foreach ($fed as $f) {
+			$codes[] = $f['racers']['code'];
+		}
+		
+		$nextCodes = array();
+		for ($i = $meetGroup['racer_code_4num_min']; $i <= $meetGroup['racer_code_4num_max']; $i++) {
+			$cd = $prefix . sprintf("%'.04d", $i);
+			if (!in_array($cd, $codes)) {
+				$nextCodes[] = $cd;
+			}
+		}
+		
+		return $nextCodes;
 	}
 	
 	/**
