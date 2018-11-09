@@ -1,6 +1,8 @@
 <?php
 
 App::uses('ApiBaseController', 'Controller');
+App::uses('CategoryReason', 'Cyclox/Const');
+App::uses('AjoccUtil', 'Cyclox/Util');
 
 /**
  * EntryCategories Controller
@@ -12,7 +14,7 @@ App::uses('ApiBaseController', 'Controller');
 class EntryCategoriesController extends ApiBaseController
 {
 	public $uses = array('TransactionManager', 'EntryCategory', 'EntryRacer', 'PointSeries', 'TmpResultUpdateFlag'
-		, 'MeetPointSeries', 'Category', 'EntryGroup');
+		, 'MeetPointSeries', 'Category', 'EntryGroup', 'Racer', 'CategoryRacer', 'Meet');
 	
 /**
  * Components
@@ -258,25 +260,129 @@ class EntryCategoriesController extends ApiBaseController
 	 */
 	private function __write_results($ecatID, $entryResultData)
 	{
-		// 既存 entry racer の削除
-		$cdt = array('entry_category_id' => $ecatID);			
-		if (!$this->EntryRacer->deleteAll($cdt, true)) {
-			return array('err' => array('既存出走設定の削除に失敗しました。'));
+		// 既存 entry racer の削除 - racer_results.soft_delete のため、deleteAll() は使えないのでループを回す。
+		$cdt = array('entry_category_id' => $ecatID);
+		$ers = $this->EntryRacer->find('list', array('conditions' => $cdt));
+		foreach ($ers as $erid => $er) {
+			if (!$this->EntryRacer->delete($erid, true)) {
+				return array('err' => array('既存出走設定の削除に失敗しました。'));
+			}
 		}
+		
+		$meet = $this->__getMeetInfo($ecatID);
+		if ($meet === false) {
+			return array('err' => array('出走設定から大会情報の取得に失敗しました。'));
+		}
+		
+		// 選手コードが無いデータ（=新規選手）について新規コードを設定する
+		$racerCodes = AjoccUtil::nextRacerCodesAt($meet['MeetGroup'], $meet['Meet']['at_date'], 300);
+		$codeMap = array(); // key: $entryResultData 内インデックス, val: 新規付与した選手コード
+		$rcodei = 0;
+		
+		foreach ($entryResultData['EntryRacer'] as $index => &$erres) {
+			if (empty($erres['racer_code'])) {
+				if ($rcodei >= count($racerCodes)) {
+					return array('err' => array('選手コードの払い出しができません（可能コードなし or 制限値オーバー）。管理者に連絡をてください。'));
+				}
+				$rcode = $racerCodes[$rcodei];
+				$erres['racer_code'] = $rcode;
+				$rcodei++;
+				
+				$codeMap[$index] = $rcode;
+			}
+		}
+		unset($erres);
 
 		// entry racer, result の保存
 		if (!$this->EntryRacer->saveMany($entryResultData['EntryRacer'], array('atomic' => false, 'deep' => true))) {
 			return array('err' => array('出走設定の保存に失敗しました。'));
 		}
 		
-		// リザルトの書込
+		// +++ 失敗すると面倒な新規選手の登録および書き換え
+		$newRacers = array(); // 新規選手
+		$newCr = array(); // $newRacers にくっつけられないので cat racer は別工程で保存する
+		
+		foreach ($entryResultData['Racer'] as $index => $r) {
+			if (isset($r['code'])) {
+				// 既存値がある場合には生年月日、UCI-ID は書き換えない
+				$registed = $this->Racer->find('first', array('conditions' => array('code' => $r['code'])));
+				if (empty($registed)) {
+					return array('err' => array( 'code:' . $r['code'] . ' の選手（'
+							. $r['family_name'] . ' ' . $r['first_name'] . ' が見つからないか削除されています。'));
+				}
+				
+				if (!empty($registed['Racer']['birth_date'])) unset($r['birth_date']);
+				if (!empty($registed['Racer']['uci_id'])) unset($r['uci_id']);
+			} else {
+				// 新規選手コードの払い出し --> 設定
+				if (empty($codeMap[$index])) {
+					return array('err' => array('選手コードの払い出しができません（可能コードなし or 制限値オーバー）。管理者に連絡をてください。'));
+				}
+				$rcode = $codeMap[$index];
+				$r['code'] = $rcode;
+				
+				$ky = 'family_name_kana';	if (empty($r[$ky])) $r[$ky] = '';
+				$ky = 'first_name_kana';	if (empty($r[$ky])) $r[$ky] = '';
+				$ky = 'family_name_en';		if (empty($r[$ky])) $r[$ky] = '';
+				$ky = 'first_name_en';		if (empty($r[$ky])) $r[$ky] = '';
 
-
-		// 失敗するとめんどうな新規選手の登録および書き換え
-
-
+				if (isset($r['category_code'])) {
+					// category 所属を与える
+					// TODO: category_code の存在チェック
+					$newCr[] = array(
+						'CategoryRacer' => array(
+							'racer_code' => $rcode,
+							'category_code' => $r['category_code'],
+							'apply_date' => $meet['Meet']['at_date'],
+							'reason_id' => CategoryReason::$FIRST_REGIST->ID(),
+							'reason_note' => 'web リザルト読込による新規選手へのカテゴリー付与',
+							'meet_code' => $meet['Meet']['code'],
+					));
+				}//*/
+			}
+			
+			unset($r['category_code']);
+			$newRacers[] = $r;
+		}
+		
+		$this->log('new racers:', LOG_DEBUG);
+		$this->log($newRacers, LOG_DEBUG);
+		
+		if (!$this->Racer->saveMany($newRacers, array('atomic' => false))) {
+			return array('err' => array('選手データの保存に失敗しました。'));
+		}
+		if (!$this->CategoryRacer->saveMany($newCr, array('atomic' => false))) {
+			return array('err' => array('カテゴリー所属データの保存に失敗しました。'));
+		}
+		//return array('err' => array('テスト用 return false'));
+		
+		// リザルト再計算
+		
+		
 
 		return true;
+	}
+	
+	private function __getMeetInfo($ecatID) {
+		$opt = array(
+			'conditions' => array('EntryCategory.id' => $ecatID),
+		);
+		$ecat = $this->EntryCategory->find('first', $opt);
+		$this->log('$ecat:', LOG_DEBUG);
+		$this->log($ecat, LOG_DEBUG);
+		
+		if (empty($ecat['EntryGroup']['meet_code'])) {
+			return false;
+		}
+		
+		$mcode = $ecat['EntryGroup']['meet_code'];
+		$meet = $this->Meet->find('first', array('conditions' => array('Meet.code' => $mcode)));
+		
+		if (empty($meet)) {
+			return false;
+		}
+		
+		return $meet;
 	}
 	
 	public function select_result_file($ecatID)

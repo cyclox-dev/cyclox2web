@@ -2,7 +2,7 @@
 	<h1><?php echo __('エントリー・リザルトデータのチェック'); ?></h1>
 	<p>
 		注意：この処理により、選手データ（名前など）は今回読み込んだ値により書き変わります。</br>
-		（UCI ID は上書きされません。）
+		（UCI ID 及び生年月日は上書きされません。）
 	</p>
 	<p>
 		新規選手に払い出される選手コード末尾番号の範囲は<?php echo $results['rcode_range'][0] . '〜' . $results['rcode_range'][1] ?>です。</br>
@@ -126,9 +126,8 @@
 	</div>
 	<?php endforeach; /* results */ ?>
 	<?php 
-	
-	// TODO: エラーありなら upload させない。
-	
+		App::uses('Gender', 'Cyclox/Const');
+		
 		echo $this->Form->create('EntryRacer', array('type' => 'post', 'url'=>'/entry_categories/write_results/' . $ecat_id));
 		
 		$self = $this;
@@ -141,7 +140,9 @@
 		{
 			$puthid($i, 'entry_category_id', $ecat_id);
 			
-			$puthid($i, 'racer_code', empty($result['racer_code']['val']) ? 'EMPTY!!!' : $result['racer_code']['val']);
+			if (!empty($result['racer_code']['val'])) {
+				$puthid($i, 'racer_code',  $result['racer_code']['val']);
+			}
 			
 			$puthid($i, 'body_number', $result['body_number']['val']);
 			$puthid($i, 'name_at_race', $result['name']['val']);
@@ -151,13 +152,17 @@
 			$puthid($i, 'entry_status', $result['entry_status']['val']->val());
 			
 			if (isset($result['team']['val'])) {
-			$puthid($i, 'team_name', $result['team']['val']);
+				$puthid($i, 'team_name', $result['team']['val']);
 			}
 			$puthid($i, 'note', 'from web result read.');
 			
 			// リザルトパラメタ
 			$puthid($i, 'RacerResult.' . 'order_index', $i+1);
 			$puthid($i, 'RacerResult.' . 'status', $result['result_status']['val']->val());
+			
+			if (isset($result['rank']['val'])) {
+				$puthid($i, 'RacerResult.' . 'rank', $result['rank']['val']);
+			}
 			
 			$lap = empty($result['lap']['val']) ? 0 : $result['lap']['val']; // TODO: start-loop ありの場合には -1 設定？
 			$puthid($i, 'RacerResult.' . 'lap', $lap);
@@ -177,24 +182,44 @@
 			$i++;
 		}
 		
+		$puthid = function($index, $key, $val) use ($self) {
+			echo $self->Form->hidden('Racer.' . $index . '.' . $key, array('value' => $val));
+		};
 		
-		/*
-		 [EntryRacer] => Array
-                (
-                    [0] => Array
-                        (
-                            [body_number] => 111
-                            [note] => φ(..)メモメモ
-                            [racer_code] => YAM-178-0020
-                            [name_en_at_race] => SETO Kazuhiro
-                            [checks_in] => 1
-                            [entry_status] => 0
-                            [name_at_race] => 瀬戸 なおき
-                            [name_kana_at_race] => ニシムラ カズヒロ
-                            [team_name] => WESTBERG/ProRide
-                        )
-		 * 
-		 */
+		// TODO: 以下、変更の有無に関係なく書き換える要素を配置している。できれば有無を見るべし。
+		
+		$i = 0;
+		foreach ($results['racers'] as $result)
+		{
+			if (!empty($result['racer_code']['val'])) {
+				$puthid($i, 'code', $result['racer_code']['val']);
+				// racer code empty の場合には保存時に新しい選手コードを付加する。
+			}
+			
+			$puthid($i, 'family_name', $result['family_name']['val']);
+			$puthid($i, 'first_name', $result['first_name']['val']);
+			
+			$ky = 'family_name_kana';	if (!empty($result[$ky]['val'])) $puthid($i, $ky, $result[$ky]['val']);
+			$ky = 'first_name_kana';	if (!empty($result[$ky]['val'])) $puthid($i, $ky, $result[$ky]['val']);
+			$ky = 'family_name_en';		if (!empty($result[$ky]['val'])) $puthid($i, $ky, $result[$ky]['val']);
+			$ky = 'first_name_en';		if (!empty($result[$ky]['val'])) $puthid($i, $ky, $result[$ky]['val']);
+			
+			$ky = 'team';		if (isset($result[$ky]['val'])) { $puthid($i, $ky, $result[$ky]['val']); }
+			
+			$ky = 'gender';
+			if (isset($result[$ky]['val'])) {
+				$puthid($i, $ky, $result[$ky]['val']->val());
+			} else {
+				$puthid($i, $ky, Gender::$UNASSIGNED->val());
+			}
+			
+			$ky = 'birth_date';		if (isset($result[$ky]['val'])) { $puthid($i, $ky, $result[$ky]['val']); }
+			$ky = 'category_code';	if (isset($result[$ky]['val'])) { $puthid($i, $ky, $result[$ky]['val']); }
+			
+			// MEMO: uci_id は書き換えない。
+			
+			$i++;
+		}
 			
 		if (isset($haserr) && $haserr === true) {
 			echo $this->Form->submit(__('Upload'), array('type' => 'hidden', 'disabled' => 'disabled'));
