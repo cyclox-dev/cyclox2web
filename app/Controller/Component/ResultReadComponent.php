@@ -256,6 +256,12 @@ class ResultReadComponent extends Component
 			'order' => array('Racer.deleted' => 'ASC'), // 削除済み選手をあとにまわす
 		);
 		
+		if (!empty($dat['racer_code'])) {
+			$opt['conditions']['NOT'] = array(
+				'code' => $dat['racer_code'],
+			);
+		}
+		
 		if (!empty($dat['family_name']) && !empty($dat['first_name'])) {
 			$opt['conditions']['or'][] = array(
 				'family_name' => $dat['family_name'],
