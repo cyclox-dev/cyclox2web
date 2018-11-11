@@ -99,7 +99,9 @@
 						echo $result[$key]['val']; 
 					}
 				?></td>
-				<td><?php echo $result['original'][$key]; ?></td>
+				<td><?php
+					echo ($key == 'gender') ? (Gender::genderAt($result['original'][$key]))->charExp() : $result['original'][$key];
+				?></td>
 				<td></td>
 			<?php endif; ?>
 		</tr>
