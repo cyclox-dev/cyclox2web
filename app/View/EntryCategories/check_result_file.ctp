@@ -235,7 +235,7 @@
 			$ky = 'birth_date';		if (isset($result[$ky]['val'])) { $puthid($i, $ky, $result[$ky]['val']); }
 			$ky = 'category_code';	if (isset($result[$ky]['val'])) { $puthid($i, $ky, $result[$ky]['val']); }
 			
-			// MEMO: uci_id は書き換えない。
+			$ky = 'uci_id';			if (isset($result[$ky]['val'])) { $puthid($i, $ky, $result[$ky]['val']); }
 			
 			$i++;
 		}
