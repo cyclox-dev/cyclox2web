@@ -357,8 +357,15 @@ class EntryCategoriesController extends ApiBaseController
 		//return array('err' => array('テスト用 return false'));
 		
 		// リザルト再計算
+		$ret = $this->__recalc_result($ecatID);
 		
-		
+		if ($ret !== true) {
+			$errmsg = 'エラー！';
+			if (isset($ret['error'])) {
+				$errmsg = $ret['error'];
+			}
+			return array('err' => array($errmsg));
+		}		
 
 		return true;
 	}
@@ -512,8 +519,28 @@ class EntryCategoriesController extends ApiBaseController
 	{
 		$this->request->allowMethod('post');
 		
+		$ret = $this->__recalc_result($ecatId);
+		
+		if ($ret !== true) {
+			$errmsg = 'エラー！';
+			if (isset($ret['error'])) {
+				$errmsg = $ret['error'];
+			}
+			return $this->Flash->set($errmsg);
+		}
+		
+		return $this->redirect(array('action' => 'view', $ecatId));
+	}
+	
+	/**
+	 * リザルトの再計算を行なう
+	 * @param int $ecatId 首相カテゴリー ID
+	 * @return boolean
+	 */
+	private function __recalc_result($ecatId = null)
+	{
 		if (empty($ecatId)) {
-			return $this->Flash->set(__('出走カテゴリーが指定されていません。'));
+			return array('error' => __('出走カテゴリーが指定されていません。'));
 		}
 		
 		//++++++++++++++++++++++++++++++++++++++++
@@ -521,7 +548,7 @@ class EntryCategoriesController extends ApiBaseController
 		$opt = array('conditions' => array('EntryCategory.' . $this->EntryCategory->primaryKey => $ecatId));
 		$ecat = $this->EntryCategory->find('first', $opt);
 		if (empty($ecat)) {
-			return $this->Flash->set(__('指定された出走カテゴリーが無効です。'));
+			return array('error' => __('指定された出走カテゴリーが無効です。'));
 		}
 		
 		$ret = $this->MeetPointSeries->setupTermOfSeriesPoint($ecat['EntryGroup']['meet_code'], $ecat['EntryCategory']['name']);
@@ -535,9 +562,9 @@ class EntryCategoriesController extends ApiBaseController
 		$ret = $this->ResultParamCalc->reCalcResults($ecatId);
 		
 		if (empty($ret)|| $ret == Constant::RET_FAILED) {
-			return $this->Flash->set('処理に失敗しました。');
+			return array('error' => ('処理に失敗しました。'));
 		} else if ($ret == Constant::RET_NO_ACTION) {
-			return $this->Flash->set(__('出走する選手もしくはリザルトが設定されていません。'));
+			return array('error' => __('出走する選手もしくはリザルトが設定されていません。'));
 		}
 		
 		$flag = array(
@@ -551,6 +578,6 @@ class EntryCategoriesController extends ApiBaseController
 			$this->log('リザルト更新フラグの保存に失敗しました。', LOG_WARNING);
 		}
 		
-		return $this->redirect(array('action' => 'view', $ecatId));
+		return true;
 	}
 }
