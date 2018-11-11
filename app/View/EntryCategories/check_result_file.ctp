@@ -133,6 +133,7 @@
 		<?php endif; ?>
 	</div>
 	<?php endforeach; /* results */ ?>
+	<?php if (!$haserr): ?>
 	<?php 
 		App::uses('Gender', 'Cyclox/Const');
 		
@@ -229,13 +230,11 @@
 			$i++;
 		}
 			
-		if (isset($haserr) && $haserr === true) {
-			echo $this->Form->submit(__('Upload'), array('type' => 'hidden', 'disabled' => 'disabled'));
-			echo '<p>上に記述されているエラーを修正し、再度読込し直してください。</p>';
-		} else {
 		echo $this->Form->submit(__('Upload'));
-		}
 		echo $this->Form->end(); 
 	?>
+	<?php else: ?>
+	<p>上に記述されているエラーを修正し、再度読込し直してください。</p>
+	<?php endif; /* !haserror*/?> 
 </div>
 	
