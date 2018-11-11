@@ -36,6 +36,7 @@
 	<?php endif; ?>
 	
 	<h2>検出された違いは以下のとおりです。</h2>
+	<?php $haserr = false; ?>
 	<?php foreach ($results['racers'] as $result): ?>
 	<h3>
 		<?php 
@@ -55,7 +56,14 @@
 	<div class="diff_tables">
 		<?php $finds = false; ?>
 		<?php foreach ($results['runits'] as $runit): ?>
-		<?php 
+		<?php
+			if (!empty($result['racer_code']['original']) && isset($result['original']['error']['racer_code'])) {
+				$haserr = true;
+				echo '<p>[Error] ' . $result['original']['error']['racer_code'] . '</p>';
+				break;
+			}
+		?>
+		<?php
 			$key = $runit->key;
 			if ((!empty($result[$key]) && !empty($result['original'][$key]) && $result[$key] !== $result['original'][$key])
 				|| !empty($result[$key]['error'])):
@@ -235,6 +243,6 @@
 	?>
 	<?php else: ?>
 	<p>上に記述されているエラーを修正し、再度読込し直してください。</p>
-	<?php endif; /* !haserror*/?> 
+	<?php endif; /* !haserr */?> 
 </div>
 	
