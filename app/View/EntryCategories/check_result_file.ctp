@@ -65,7 +65,7 @@
 		?>
 		<?php
 			$key = $runit->key;
-			if ((!empty($result[$key]) && !empty($result['original'][$key]) && $result[$key] !== $result['original'][$key])
+			if ((!empty($result[$key]['val']) && !empty($result['original'][$key]) && $result[$key]['val'] !== $result['original'][$key])
 				|| !empty($result[$key]['error'])):
 		?>
 		<?php if (!$finds): ?>
