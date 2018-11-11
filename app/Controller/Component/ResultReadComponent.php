@@ -103,9 +103,6 @@ class ResultReadComponent extends Component
 			mb_convert_variables('UTF-8', 'sjis-win', $line);
 			if ($i == 0) {
 				$titleMap = $this->__readResultCsvHeader($line);
-				
-				// TODO: タイトル内容チェック、選手コードなど
-				
 			} else {
 				// TODO: 名前は必ずあること、は個別でチェック。__readResult() 内の方がよいかも。
 				$res = $this->__readResult($line, $titleMap, $i);
@@ -115,8 +112,10 @@ class ResultReadComponent extends Component
 					$res['original'] = $this->__getOriginalRacer($res, $date);
 				}
 				
+				if (!empty($res['family_name']) && !empty($res['first_name'])) {
 				$cddts = $this->__getSameNamedRacer($res);
 				$res['cddts'] = $cddts;
+				}
 
 				// TODO: カテゴリー所持チェック？
 				
@@ -416,10 +415,10 @@ class ResultReadComponent extends Component
 			if (!isset($val['error']) && ($key === 'name' || $key === 'name_en')) {
 				$names = $this->__splitName($val, $key, $pos);
 				if (isset($names['error'])) {
-					$map[$key] = $names;
+					$map[$key]['error'] = $names['error'];
 				} else {
 					foreach ($names as $k => $n) {
-						$map[$k] = $n;
+						$map[$k] = array('val' => $n);
 					}
 				}
 			}
@@ -447,12 +446,7 @@ class ResultReadComponent extends Component
 			$pos = strpos($name, '　');
 			
 			if ($pos === false) {
-				return array('error' => array(
-					'msg' => 'key:' . $key . ' の値は半角or全角スペースを含む必要があります。',
-					'pos' => $cellpos,
-					'key' => $key,
-					'original_val' => $name,
-				));
+				return array('error' => 'key:' . $key . ' の値は半角or全角スペースを含む必要があります。');
 			}
 		}
 		

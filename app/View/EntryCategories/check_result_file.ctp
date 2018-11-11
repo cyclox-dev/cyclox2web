@@ -41,7 +41,13 @@
 		<?php 
 			$bib = isset($result['body_number']['error']) ? '(No.無し)' : $result['body_number']['val'];
 			$code = isset($result['racer_code']['val']) ? $result['racer_code']['val'] : '新規選手';
-			$name = isset($result['name']['error']) ? $result['name']['original'] : (isset($result['name']['val']) ? $result['name']['val'] : '名前不明の選手');
+			
+			if (isset($result['name']['error'])) {
+				$name = $result['name']['original'];
+			} else {
+				$name = (isset($result['name']['val']) ? $result['name']['val'] : '名前不明の選手');
+			}
+			
 			$birth = isset($result['birth_date']['val']) ? $result['birth_date']['val'] : '生年月日不明';
 			echo 'Bib.' . $bib . ' ' . $name . ' [' . $code . '] ' . $birth . ' 生まれ';
 		?>
@@ -66,9 +72,11 @@
 			<td><?php echo $runit->title . ' (' . $runit->key . ')'; ?></td>
 			<?php if (!empty($result[$key]['error'])): ?>
 			<?php $haserr = true; ?>
-				<td><?php if(isset($result[$key]['original'])) echo $result[$key]['original']; ?></td>
+				<td><?php
+					if (isset($result[$key]['original'])) echo $result[$key]['original'];
+				?></td>
 				<td><?php 
-					if ($key == 'name') {
+					if ($key == 'name' && !isset($result['name']['error'])) {
 						echo $result['original']['family_name'] . ' ' . $result['original']['first_name'];
 					} else if ($runit->checks) {
 						echo $result['original'][$key]; 
@@ -225,7 +233,7 @@
 			echo $this->Form->submit(__('Upload'), array('type' => 'hidden', 'disabled' => 'disabled'));
 			echo '<p>上に記述されているエラーを修正し、再度読込し直してください。</p>';
 		} else {
-			echo $this->Form->submit(__('Upload'));
+		echo $this->Form->submit(__('Upload'));
 		}
 		echo $this->Form->end(); 
 	?>
