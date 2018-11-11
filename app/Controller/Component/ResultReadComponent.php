@@ -440,10 +440,10 @@ class ResultReadComponent extends Component
 	{
 		// 半角 or 全角スペーズで区切る
 		
-		$pos = strpos($name, ' ');
+		$pos = mb_strpos($name, ' ');
 		
 		if ($pos === false) {
-			$pos = strpos($name, '　');
+			$pos = mb_strpos($name, '　');
 			
 			if ($pos === false) {
 				return array('error' => 'key:' . $key . ' の値は半角or全角スペースを含む必要があります。');
@@ -452,13 +452,19 @@ class ResultReadComponent extends Component
 		
 		if ($pos === 0) {
 			// error
-		} else if ($pos === strlen($name) - 1) {
+		} else if ($pos === mb_strlen($name) - 1) {
 			// error
 		}
 		
 		$fam = mb_substr($name, 0, $pos);
 		$fir = mb_substr($name, $pos + 1);
 		
+		if (empty($fam)) {
+			return array('error' => 'key:' . $key . ' の値から姓を検出できませんでした。');
+		}
+		if (empty($fir)) {
+			return array('error' => 'key:' . $key . ' の値から名前（first_name) を検出できませんでした。');
+		}
 		return array(('family_' . $key) => $fam, ('first_' . $key) => $fir);
 	}
 	
