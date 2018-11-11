@@ -456,8 +456,8 @@ class ResultReadComponent extends Component
 			// error
 		}
 		
-		$fam = substr($name, 0, $pos);
-		$fir = substr($name, $pos + 1);
+		$fam = mb_substr($name, 0, $pos);
+		$fir = mb_substr($name, $pos + 1);
 		
 		return array(('family_' . $key) => $fam, ('first_' . $key) => $fir);
 	}
