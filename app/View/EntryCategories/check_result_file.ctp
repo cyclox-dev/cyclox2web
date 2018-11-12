@@ -4,19 +4,19 @@
 		注意：この処理により、選手データ（名前など）は今回読み込んだ値により書き変わります。</br>
 		（UCI ID 及び生年月日は上書きされません。）
 	</p>
+	<p>選手コードプレフィクスは <?php echo $results['rcode_prefix']; ?> です。</p>
 	<p>
 		新規選手に払い出される選手コード末尾番号の範囲は<?php echo $results['rcode_range'][0] . '〜' . $results['rcode_range'][1] ?>です。</br>
 		Cyclox2Application の設定と重複していないよう、確認してください。
 	</p>
-	<?php // hidden 出力時にエラーになるため仮の値を入れておく
+	<p><?php // hidden 出力時にエラーになるため仮の値を入れておく
 		echo '出走人数（OPN除く）: ';
 		if ($results['started'] === false) {
 			echo 'エラーがあるためカウント不可能でした。';
 		} else {
 			echo $results['started'] . '人';
 		}
-	?>
-	<h2>タイトルに関するエラー</h2>
+	?></p>
 	
 	<?php $haserr = false; ?>
 	

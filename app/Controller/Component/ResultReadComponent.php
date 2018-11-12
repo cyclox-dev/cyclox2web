@@ -6,6 +6,7 @@
 
 App::uses('Component', 'Controller');
 App::uses('Util', 'Cyclox/Util');
+App::uses('AjoccUtil', 'Cyclox/Util');
 App::uses('Gender', 'Cyclox/Const');
 App::uses('RacerEntryStatus', 'Cyclox/Const');
 App::uses('RacerResultStatus', 'Cyclox/Const');
@@ -114,8 +115,8 @@ class ResultReadComponent extends Component
 				}
 				
 				if (!empty($res['family_name']) && !empty($res['first_name'])) {
-				$cddts = $this->__getSameNamedRacer($res);
-				$res['cddts'] = $cddts;
+					$cddts = $this->__getSameNamedRacer($res);
+					$res['cddts'] = $cddts;
 				}
 
 				// TODO: カテゴリー所持チェック？
@@ -138,6 +139,7 @@ class ResultReadComponent extends Component
 			'runits' => $this->_readUnits,
 			'started' => $started,
 			'rcode_range' => array($meet['MeetGroup']['racer_code_4num_min'], $meet['MeetGroup']['racer_code_4num_max']),
+			'rcode_prefix' => $meet['MeetGroup']['code'] . '-' . AjoccUtil::seasonExp($date) . '-',
 		);
 	}
 	
@@ -149,8 +151,8 @@ class ResultReadComponent extends Component
 		$topTime = null;
 		foreach ($eresults as $ere) {
 			
-			$this->log('eres:', LOG_DEBUG);
-			$this->log($ere, LOG_DEBUG);
+			//$this->log('eres:', LOG_DEBUG);
+			//$this->log($ere, LOG_DEBUG);
 
 			if (isset($ere['rank']['val']) && $ere['rank']['val'] == 1) {
 				if (isset($ere['lap']['val'])) {
@@ -162,12 +164,12 @@ class ResultReadComponent extends Component
 				break;
 			}
 		}
-		$this->log('tops:' . $topLap . ', ' . $topTime, LOG_DEBUG);
+		//$this->log('tops:' . $topLap . ', ' . $topTime, LOG_DEBUG);
 		
 		foreach ($eresults as $ere) {
 			if (!empty($ere['rank']['val'])) {
 				if (isset($ere['result_status']['val'])) {
-				$pt = $this->__rankPer($started, $ere['rank']['val'], $ere['result_status']['val'], $ere['entry_status']['val']);
+					$pt = $this->__rankPer($started, $ere['rank']['val'], $ere['result_status']['val'], $ere['entry_status']['val']);
 				} else {
 					$pt = 0;
 				}
@@ -187,7 +189,7 @@ class ResultReadComponent extends Component
 	
 	private function __rankPer($started, $rank, $resStatus, $erStatus)
 	{
-		$this->log('called:' . $started . ' ' . $rank . '-' . $resStatus->code() . '-' . $erStatus->val(), LOG_DEBUG);
+		//$this->log('called:' . $started . ' ' . $rank . '-' . $resStatus->code() . '-' . $erStatus->val(), LOG_DEBUG);
 		if ($started <= 0
 				|| $erStatus == RacerEntryStatus::$OPEN
 				|| empty($rank)
@@ -239,7 +241,7 @@ class ResultReadComponent extends Component
 			}
 		}
 		
-		$this->log('出走人数:' . $count, LOG_DEBUG);
+		//$this->log('出走人数:' . $count, LOG_DEBUG);
 		
 		return $count;
 	}

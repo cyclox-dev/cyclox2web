@@ -217,8 +217,8 @@ class EntryCategoriesController extends ApiBaseController
 			throw new NotFoundException(__('Invalid entry category'));
 		}
 		
-		$this->log('posted ========================================', LOG_DEBUG);
-		$this->log($this->request->data, LOG_DEBUG);
+		//$this->log('posted ========================================', LOG_DEBUG);
+		//$this->log($this->request->data, LOG_DEBUG);
 		
 		$transaction = $this->TransactionManager->begin();
 		
@@ -345,8 +345,8 @@ class EntryCategoriesController extends ApiBaseController
 			$newRacers[] = $r;
 		}
 		
-		$this->log('new racers:', LOG_DEBUG);
-		$this->log($newRacers, LOG_DEBUG);
+		//$this->log('new racers:', LOG_DEBUG);
+		//$this->log($newRacers, LOG_DEBUG);
 		
 		if (!$this->Racer->saveMany($newRacers, array('atomic' => false))) {
 			return array('err' => array('選手データの保存に失敗しました。'));
@@ -375,8 +375,8 @@ class EntryCategoriesController extends ApiBaseController
 			'conditions' => array('EntryCategory.id' => $ecatID),
 		);
 		$ecat = $this->EntryCategory->find('first', $opt);
-		$this->log('$ecat:', LOG_DEBUG);
-		$this->log($ecat, LOG_DEBUG);
+		//$this->log('$ecat:', LOG_DEBUG);
+		//$this->log($ecat, LOG_DEBUG);
 		
 		if (empty($ecat['EntryGroup']['meet_code'])) {
 			return false;
@@ -432,8 +432,8 @@ class EntryCategoriesController extends ApiBaseController
 		try {
 			$results = $this->ResultRead->readResults($fp, $ecatID);
 			
-			$this->log('$results is,,,', LOG_DEBUG);
-			$this->log($results, LOG_DEBUG);
+			//$this->log('$results is,,,', LOG_DEBUG);
+			//$this->log($results, LOG_DEBUG);
 			
 			$this->set('ecat_id', $ecatID);
 			$this->set('results', $results);
