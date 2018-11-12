@@ -46,6 +46,7 @@ class ResultReadComponent extends Component
 	private $_readUnits;
 	
 	private $__TITLE_NOT_READ = '__title_not_read';
+	private $__TITLE_WARNS = '__title_warns';
 	private $__TITLE_ERRORS = '__title_errors';
 	
 	private function __createReadUnit()
@@ -129,10 +130,9 @@ class ResultReadComponent extends Component
 		$started = $this->__countStarted($eresults);
 		$eresults = $this->__makePers($eresults, $started);
 		
-		
-		
 		return array(
 			'not_read_titles' => $titleMap[$this->__TITLE_NOT_READ],
+			'title_warns' => $titleMap[$this->__TITLE_WARNS],
 			'title_errors' => $titleMap[$this->__TITLE_ERRORS],
 			'racers' => $eresults,
 			'runits' => $this->_readUnits,
@@ -166,7 +166,11 @@ class ResultReadComponent extends Component
 		
 		foreach ($eresults as $ere) {
 			if (!empty($ere['rank']['val'])) {
+				if (isset($ere['result_status']['val'])) {
 				$pt = $this->__rankPer($started, $ere['rank']['val'], $ere['result_status']['val'], $ere['entry_status']['val']);
+				} else {
+					$pt = 0;
+				}
 				$ere['rank_per'] = $pt;
 
 				if (!empty($ere['lap']['val']) && !empty($ere['goal_time']['val'])) {
@@ -224,10 +228,10 @@ class ResultReadComponent extends Component
 		$count = 0;
 		
 		foreach ($eresults as $er) {
-			if (isset($er['entry_status']['error'])) {
+			if (isset($er['entry_status']['error']) || !isset($er['result_status']['val'])) {
 				return false;
 			}
-			$this->log('try:' . $er['entry_status']['val']->val() . ' and ' . $er['result_status']['val']->val(), LOG_DEBUG);
+			//$this->log('try:' . $er['entry_status']['val']->val() . ' and ' . $er['result_status']['val']->val(), LOG_DEBUG);
 			if ($er['entry_status']['val']->val() != RacerEntryStatus::$OPEN->val()) {
 				if ($er['result_status']['val']->val() != RacerResultStatus::$DNS->val()) {
 					++$count;
@@ -339,8 +343,15 @@ class ResultReadComponent extends Component
 			$cnved = $val;
 			
 			if (empty($val)) {
-				if ($tunit->key == 'body_number' || $tunit->key == 'result_status') {
-					$err = '値が必要です。';
+				if ($key == 'body_number' || $key == 'result_status' || $key == 'name') {
+					$map[$key] = array(
+						'original' => '',
+						'pos' => $pos,
+						'key' => $key,
+						'val' => '',
+						'error' => '値が必要です。',
+					);
+					continue;
 				} else if ($key !== 'entry_status') {
 					continue;
 				}
@@ -437,7 +448,26 @@ class ResultReadComponent extends Component
 			$map['name_en']['val'] = $map['family_name_en']['val'] . ' ' . $map['first_name_en']['val'];
 		}
 		
-		
+		if (!isset($map['name']['error'])) {
+			if (!isset($map['family_name'])) {
+				$map['family_name'] = array(
+					'original' => '',
+					'val' => '',
+					'pos' => 'Unknown',
+					'error' => '値が必要です。',
+					'valexp' => '(読込値がありません)',
+				);
+			}
+			if (!isset($map['first_name'])) {
+				$map['first_name'] = array(
+					'original' => '',
+					'val' => '',
+					'pos' => 'Unknown',
+					'error' => '値が必要です。',
+					'valexp' => '(読込値がありません)',
+				);
+			}
+		}
 		
 		return $map;
 	}
@@ -517,15 +547,35 @@ class ResultReadComponent extends Component
 		}
 		
 		$err = array();
-		if (!$findsCode) {
-			$err[] = "[警告] 選手コードを指定する列がありません。";
-		}
-		
-		if (!$findsFamName || !$finds1stName) {
-			$err[] = "[警告] 選手の名前を指定する列が無いか、不十分です。";
+		// needs なカラムがあるかの確認
+		foreach ($this->_readUnits as $unit) {
+			if ($unit->needs) {
+				$finds = false;
+				foreach ($map as $k => $u) {
+					if ($k === $this->__TITLE_NOT_READ) continue;
+					if ($u->key === $unit->key) {
+						$finds = true;
+					}
+				}
+				
+				if (!$finds) {
+					$err[] = '[Error] タイトル:' . $unit->key . ' を持つ列が必要です。';
+				}
+			}
 		}
 		
 		$map[$this->__TITLE_ERRORS] = $err;
+		
+		$warns= array();
+		if (!$findsCode) {
+			$warns[] = "[警告] 選手コードを指定する列がありません。";
+		}
+		
+		if (!$findsFamName || !$finds1stName) {
+			$warns[] = "[警告] 選手の名前を指定する列が無いか、不十分です。";
+		}
+		
+		$map[$this->__TITLE_WARNS] = $warns;
 		
 		return $map;
 	}

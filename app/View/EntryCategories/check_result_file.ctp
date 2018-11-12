@@ -18,35 +18,57 @@
 	?>
 	<h2>タイトルに関するエラー</h2>
 	
-	<?php if (!empty($results['not_read_titles'])): ?>
-	<?php 
-		echo '<h3>以下のタイトルの行は読み込まれていません。</h3>';
-		foreach ($results['not_read_titles'] as $title) {
-			echo '<p>' . $title . '</p>';
-		}
-	?>
-	<?php endif; ?>
+	<?php $haserr = false; ?>
 	
-	<?php if (!empty($results['title_errors'])): ?>
-	<?php 
-		foreach ($results['title_errors'] as $err) {
-			echo '<h2>' . $err . '</h2>';
+	<h2>タイトルに関するエラー・警告</h2>
+	
+	<?php
+		if (!empty($results['title_errors'])){
+			foreach ($results['title_errors'] as $err) {
+				echo '<p>' . $err . '</p>';
+				$haserr = true;
+			}
 		}
 	?>
-	<?php endif; ?>
+	<?php
+		if (!empty($results['title_warns'])){
+			foreach ($results['title_warns'] as $err) {
+				echo '<p>' . $err . '</p>';
+			}
+		}
+	?>
+	
+	<?php
+		if (!empty($results['not_read_titles'])) {
+			echo '<h4>※以下のタイトルの行は読み込まれていません。</h4>';
+			foreach ($results['not_read_titles'] as $title) {
+				echo '<p>' . $title . '</p>';
+			}
+		}
+	?>
 	
 	<h2>検出された違いは以下のとおりです。</h2>
-	<?php $haserr = false; ?>
 	<?php foreach ($results['racers'] as $result): ?>
 	<h3>
 		<?php 
-			$bib = isset($result['body_number']['error']) ? '(No.無し)' : $result['body_number']['val'];
+			if (isset($result['body_number']['error'])) {
+				$bib = isset($result['body_number']['error']);
+			} else {
+				$bib = isset($result['body_number']['val']) ? $result['body_number']['val'] : '（No.無し）';
+			}
+			
 			$code = isset($result['racer_code']['val']) ? $result['racer_code']['val'] : '新規選手';
 			
 			if (isset($result['name']['error'])) {
 				$name = $result['name']['original'];
 			} else {
-				$name = (isset($result['name']['val']) ? $result['name']['val'] : '名前不明の選手');
+				if (isset($result['name']['val'])) {
+					$name = $result['name']['val'];
+				} else {
+					$fam = (empty($result['family_name']['val'])) ? '？' : $result['family_name']['val'];
+					$fir = (empty($result['first_name']['val'])) ? '？' : $result['first_name']['val'];
+					$name = $fam . ' ' . $fir;
+				}
 			}
 			
 			$birth = isset($result['birth_date']['val']) ? $result['birth_date']['val'] : '生年月日不明';
@@ -73,21 +95,22 @@
 			$finds = true;
 			$rcode = isset($result['racer_code']['val']) ? '(' . $result['racer_code']['val'] . ')' : '';
 			echo '<table cellpadding="0" cellspacing="0">';
-			echo '<thead><tr><th>種類</th><th>読み込んだ値</th><th>既存値' . $rcode . '</th><th>備考</th></thead><tbody>';
+			echo '<thead><tr><th>データ(title name)</th><th>読み込んだ値</th><th>既存値' . $rcode . '</th><th>備考</th></thead><tbody>';
 		?>
 		<?php endif; /* $finds? */ ?>
 		<tr>
 			<td><?php echo $runit->title . ' (' . $runit->key . ')'; ?></td>
 			<?php if (!empty($result[$key]['error'])): ?>
-			<?php $haserr = true; ?>
+				<?php $haserr = true; ?>
 				<td><?php
-					if (isset($result[$key]['original'])) echo $result[$key]['original'];
+					if (isset($result[$key]['valexp'])) echo $result[$key]['valexp'];
+					else if (isset($result[$key]['original'])) echo $result[$key]['original'];
 				?></td>
 				<td><?php 
-					if ($key == 'name' && !isset($result['name']['error'])) {
+					if ($key == 'name') {
 						echo $result['original']['family_name'] . ' ' . $result['original']['first_name'];
 					} else if ($runit->checks) {
-						echo $result['original'][$key]; 
+						echo isset($result['original'][$key]) ?$result['original'][$key] : '';
 					}
 				?></td>
 				<td><?php echo '[Error] ' . $result[$key]['error'] . '(' . $result[$key]['pos'] . ')'; ?></td>
@@ -100,7 +123,11 @@
 					}
 				?></td>
 				<td><?php
-					echo ($key == 'gender') ? (Gender::genderAt($result['original'][$key]))->charExp() : $result['original'][$key];
+					if ($key == 'gender') {
+						echo (Gender::genderAt($result['original'][$key]))->charExp();
+					} else {
+						echo isset($result['original'][$key]) ? $result['original'][$key] : '';
+					}
 				?></td>
 				<td></td>
 			<?php endif; ?>
@@ -243,8 +270,8 @@
 		echo $this->Form->submit(__('Upload'));
 		echo $this->Form->end(); 
 	?>
-	<?php else: ?>
-	<p>上に記述されているエラーを修正し、再度読込し直してください。</p>
-	<?php endif; /* !haserr */?> 
+	<?php else: /* !haserr */ ?>
+	<p>上に記述されているエラーを修正し、再度読み込みし直してください。</br>エラー箇所についてはこのページ内で "Error" を検索してください。</p>
+	<?php endif; /* !haserr */ ?> 
 </div>
 	
