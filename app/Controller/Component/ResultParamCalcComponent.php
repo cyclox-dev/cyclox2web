@@ -1192,14 +1192,14 @@ class ResultParamCalcComponent extends Component
 	 * @param date $atDate 判定日
 	 * @return string カテゴリー Code
 	 */
-	public function asCategory($racerCode, $racesCatCode, $atDate)
+	public function asCategory($racerCode, $racesCatCode, $atDate, $newCats = false)
 	{
 		$this->CategoryRacer = new CategoryRacer();
 		$this->CategoryRacer ->Behaviors->load('Utils.SoftDelete');
 		$this->RacesCategory = new RacesCategory();
 		$this->RacesCategory->Behaviors->load('Utils.SoftDelete');
 		
-		return $this->__asCategory($racerCode, $racesCatCode, $atDate);
+		return $this->__asCategory($racerCode, $racesCatCode, $atDate, $newCats);
 	}
 	
 	/**
@@ -1207,32 +1207,35 @@ class ResultParamCalcComponent extends Component
 	 * @param string $racerCode 選手 Code
 	 * @param array $racesCatCode レースの出走カテゴリーのレースカテゴリーコード
 	 * @param date $atDate 判定日
+	 * @param array $newCats レース当日に与えられるカテゴリーの配列
 	 * @return string カテゴリー Code
 	 */
-	private function __asCategory($racerCode, $racesCatCode, $atDate)
+	private function __asCategory($racerCode, $racesCatCode, $atDate, $newCats = false)
 	{
-		if (empty($racerCode) || empty($racesCatCode)) {
+		if (empty($racesCatCode)) {
 			$this->log('as category 取得に必要な引数が不足しています。', LOG_ERR);
 			return null;
 		}
 		
-		$opt = array(
-			'conditions' => array(
-				'racer_code' => $racerCode,
-				'AND' => array(
-					'NOT' => array('apply_date' => null), 
-					'apply_date <=' => $atDate
+		if (!empty($racerCode)) {
+			$opt = array(
+				'conditions' => array(
+					'racer_code' => $racerCode,
+					'AND' => array(
+						'NOT' => array('apply_date' => null), 
+						'apply_date <=' => $atDate
+					),
+					array('OR' => array(
+						array('cancel_date' => null),
+						array('cancel_date >=' => $atDate),
+					)),
 				),
-				array('OR' => array(
-					array('cancel_date' => null),
-					array('cancel_date >=' => $atDate),
-				)),
-			),
-			'recursive' => 1,
-		);
-		//$this->log('condition:', LOG_DEBUG);
-		//$this->log($opt, LOG_DEBUG);
-		$cats = $this->CategoryRacer->find('all', $opt);
+				'recursive' => 1,
+			);
+			//$this->log('condition:', LOG_DEBUG);
+			//$this->log($opt, LOG_DEBUG);
+			$cats = $this->CategoryRacer->find('all', $opt);
+		}
 		
 		$this->RacesCategory->unbindModel(array('hasMany' => array('EntryCategory')), true);
 		$opt = array(
@@ -1269,7 +1272,20 @@ class ResultParamCalcComponent extends Component
 			}
 		}
 		
-		if (!$isSingleCat && !empty($cats)) {
+		$racersCatCodes = array();
+		if (!empty($cats)) {
+			foreach ($cats as $c) {
+				$racersCatCodes[] = $c['CategoryRacer']['category_code'];
+			}
+		}
+		if (!empty($newCats)) {
+			$racersCatCodes = array_merge($racersCatCodes, $newCats);
+		}
+		
+		//$this->log('$racersCatCodes:', LOG_DEBUG);
+		//$this->log(print_r($racersCatCodes, true), LOG_DEBUG);
+		
+		if (!$isSingleCat && !empty($racersCatCodes)) {
 			// 所持しているカテゴリーのうち、レースに設定されていて、高い方とする。
 			$catCodesOnRace = array();
 			foreach ($rcat['CategoryRacesCategory'] as $crc) {
@@ -1282,8 +1298,7 @@ class ResultParamCalcComponent extends Component
 			//$this->log($catCodesOnRace, LOG_DEBUG);
 			
 			$catCodes = array();
-			foreach ($cats as $c) {
-				$code = $c['CategoryRacer']['category_code'];
+			foreach ($racersCatCodes as $code) {
 				if (in_array($code, $catCodesOnRace)) {
 					$catCodes[] = $c['Category'];
 				}

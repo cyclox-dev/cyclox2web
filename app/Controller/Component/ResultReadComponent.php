@@ -44,6 +44,8 @@ class ResultReadComponent extends Component
 {
 	private $EntryCategory;
 	
+	public $components = array('ResultParamCalc');
+	
 	private $_readUnits;
 	
 	private $__TITLE_NOT_READ = '__title_not_read';
@@ -131,6 +133,11 @@ class ResultReadComponent extends Component
 		$started = $this->__countStarted($eresults);
 		$eresults = $this->__makePers($eresults, $started);
 		
+		$eresults = $this->__makeAsCategory($eresults, $ecat['EntryCategory']['races_category_code'], $date);
+		if (empty($eresults)) {
+			return array('error' => array('msg' => 'カテゴリー所属の指定に失敗しました。管理者に連絡してください。'));
+		}
+		
 		return array(
 			'not_read_titles' => $titleMap[$this->__TITLE_NOT_READ],
 			'title_warns' => $titleMap[$this->__TITLE_WARNS],
@@ -141,6 +148,41 @@ class ResultReadComponent extends Component
 			'rcode_range' => array($meet['MeetGroup']['racer_code_4num_min'], $meet['MeetGroup']['racer_code_4num_max']),
 			'rcode_prefix' => $meet['MeetGroup']['code'] . '-' . AjoccUtil::seasonExp($date) . '-',
 		);
+	}
+	
+	/**
+	 * as_category を設定する
+	 * @param type $eresults
+	 * @param type $racesCatCode
+	 * @param type $date
+	 * @return boolean
+	 */
+	private function __makeAsCategory($eresults, $racesCatCode, $date)
+	{
+		$ret = array();
+
+		foreach ($eresults as $ere) {
+
+		   // 新規選手に与えるカテゴリーがある場合にはそれを参照する。E.g. C3+4 レースで C3 所属から始まる場合
+		   $rcode = empty($ere['racer_code']['val']) ? false : $ere['racer_code']['val'];
+		   
+		   $this->log('rcode:' . $rcode, LOG_DEBUG);
+		   $this->log(print_r($ere['category_code'], true), LOG_DEBUG);
+		   $newCatCode = false;
+		   if (empty($rcode) && !empty($ere['category_code']['val'])) {
+			   $newCatCode = $ere['category_code']['val'];
+		   }
+		   
+		   $ascat = $this->ResultParamCalc->asCategory($rcode, $racesCatCode, $date, array($newCatCode));
+		   if (empty($ascat)) {
+			   return false;
+		   }
+		   $ere['as_category'] = $ascat;
+
+		   $ret[] = $ere;
+		}
+		
+		return $ret;
 	}
 	
 	private function __makePers($eresults, $started)

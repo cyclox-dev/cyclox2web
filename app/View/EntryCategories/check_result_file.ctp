@@ -223,7 +223,7 @@
 				$puthid($i, 'RacerResult.' . 'run_per', $result['run_per']);
 			}
 			
-			// as_category は ResultParamCalc->asCategory() で自前設定する。
+			$puthid($i, 'RacerResult.' . 'as_category', $result['as_category']);
 			
 			$i++;
 		}
