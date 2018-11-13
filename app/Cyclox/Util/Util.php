@@ -102,10 +102,10 @@ class Util
 			return false;
 		}
 		
-		return $d->format('u') / 100
-			+ $d->format('s') * 100
-			+ $d->format('i') * 100 * 60
-			+ $d->format('H') * 100 * 3600;
+		return $d->format('u') / 1000
+			+ $d->format('s') * 1000
+			+ $d->format('i') * 1000 * 60
+			+ $d->format('H') * 1000 * 3600;
 	}
 	
 	/**

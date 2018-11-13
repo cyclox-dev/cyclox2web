@@ -251,13 +251,15 @@ class ResultReadComponent extends Component
 		if (empty($time)
 				|| $lap < $topLap
 				|| empty($rank)
-				|| empty($time)) {
+				|| empty($time)
+				|| !is_int($time)
+				|| !is_int($topTime)) {
 			return null;
 		}
 		
 		// 走行％＝トップの走行時間（1/10秒単位）÷走行時間（1/10秒単位）（1%未満は四捨五入）
-		$dotOne = bcdiv('' . $time, 100, 0);
-		$dotOneTop = bcdiv('' . $topTime, 100, 0);
+		$dotOne = bcdiv('' . $time, '100', 0);
+		$dotOneTop = bcdiv('' . $topTime, '100', 0);
 		
 		return round(bcmul(bcdiv('' . $dotOneTop, '' . $dotOne, 4), 100, 1)); // 割り算時、小数点2桁目まであればOK
 	}
@@ -440,7 +442,7 @@ class ResultReadComponent extends Component
 				} else if ($key == 'goal_time') {
 					$cnved = Util::time2milli($val);
 					if ($cnved == false) {
-						$err = '時間フォーマットが不正です。';
+						$err = '時間フォーマットが不正です。必要形式 = H:m:s.SSS or H:m:s';
 						$cnved = $val;
 					}
 				}
