@@ -540,7 +540,7 @@ class ApiController extends ApiBaseController
 				$this->RacerResult->create();
 				$result['RacerResult']['entry_racer_id'] = $er['EntryRacer']['id'];
 				$result['RacerResult']['as_category']
-						= $this->ResultParamCalc->asCategory($er['EntryRacer']['racer_code'], $ecat, $meet['Meet']['at_date']);
+						= $this->ResultParamCalc->asCategory($er['EntryRacer']['racer_code'], $ecat['races_category_code'], $meet['Meet']['at_date']);
 				
 				$ress[] = $result;
 				

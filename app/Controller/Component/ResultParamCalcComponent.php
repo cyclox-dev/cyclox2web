@@ -1149,7 +1149,7 @@ class ResultParamCalcComponent extends Component
 		$point = ($result['rank_per'] <= 25) ? 3 : 1;
 		
 		// 付与先カテゴリーの取得
-		$asCat = $this->__asCategory($racerCode, $ecat, $this->__atDate);
+		$asCat = $this->__asCategory($racerCode, $ecat['races_category_code'], $this->__atDate);
 		if (empty($asCat)) {
 			return Constant::RET_ERROR;
 		}
@@ -1188,30 +1188,30 @@ class ResultParamCalcComponent extends Component
 	/**
 	 * レース時に「どのカテゴリーの選手として出走したか」をかえす
 	 * @param string $racerCode 選手 Code
-	 * @param array $ecat レースの出走カテゴリー
+	 * @param array $racesCatCode レースの出走カテゴリーのレースカテゴリーコード
 	 * @param date $atDate 判定日
 	 * @return string カテゴリー Code
 	 */
-	public function asCategory($racerCode, $ecat, $atDate)
+	public function asCategory($racerCode, $racesCatCode, $atDate)
 	{
 		$this->CategoryRacer = new CategoryRacer();
 		$this->CategoryRacer ->Behaviors->load('Utils.SoftDelete');
 		$this->RacesCategory = new RacesCategory();
 		$this->RacesCategory->Behaviors->load('Utils.SoftDelete');
 		
-		return $this->__asCategory($racerCode, $ecat, $atDate);
+		return $this->__asCategory($racerCode, $racesCatCode, $atDate);
 	}
 	
 	/**
 	 * レース時に「どのカテゴリーの選手として出走したか」をかえす
 	 * @param string $racerCode 選手 Code
-	 * @param array $ecat レースの出走カテゴリー
+	 * @param array $racesCatCode レースの出走カテゴリーのレースカテゴリーコード
 	 * @param date $atDate 判定日
 	 * @return string カテゴリー Code
 	 */
-	private function __asCategory($racerCode, $ecat, $atDate)
+	private function __asCategory($racerCode, $racesCatCode, $atDate)
 	{
-		if (empty($racerCode) || empty($ecat)) {
+		if (empty($racerCode) || empty($racesCatCode)) {
 			$this->log('as category 取得に必要な引数が不足しています。', LOG_ERR);
 			return null;
 		}
@@ -1236,7 +1236,7 @@ class ResultParamCalcComponent extends Component
 		
 		$this->RacesCategory->unbindModel(array('hasMany' => array('EntryCategory')), true);
 		$opt = array(
-			'conditions' => array('code' => $ecat['races_category_code']),
+			'conditions' => array('code' => $racesCatCode),
 			'recursive' => 2
 		);
 		$rcat = $this->RacesCategory->find('first', $opt);
@@ -1246,8 +1246,8 @@ class ResultParamCalcComponent extends Component
 		$this->log('cats:', LOG_DEBUG);
 		$this->log($cats, LOG_DEBUG);//*/
 		
-		// デフォルト値は ecat.races_cat_code とする
-		$ret = $ecat['races_category_code'];
+		// デフォルト値は races_cat_code とする
+		$ret = $racesCatCode;
 		$isSingleCat = false;
 		
 		// レースに設定されたカテゴリー（rank の低い方）とする

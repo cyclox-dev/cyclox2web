@@ -280,7 +280,7 @@ class OneTimeShell extends AppShell
 				continue;
 			}
 			
-			$asCat = $this->__resParamCalc->asCategory($er['EntryRacer']['racer_code'], $er['EntryCategory']
+			$asCat = $this->__resParamCalc->asCategory($er['EntryRacer']['racer_code'], $er['EntryCategory']['races_category_code']
 					, $er['EntryCategory']['EntryGroup']['Meet']['at_date']);
 			
 			if (empty($asCat)) {
