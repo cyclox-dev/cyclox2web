@@ -1172,7 +1172,7 @@ class ResultParamCalcComponent extends Component
 			return Constant::RET_FAILED;
 		}
 		
-		$this->log('残留ポイント save toResult:' . $result['id'] . ' pt:' . $point . ' as ' . $asCat, LOG_DEBUG);
+		//$this->log('残留ポイント save toResult:' . $result['id'] . ' pt:' . $point . ' as ' . $asCat, LOG_DEBUG);
 		
 		return Constant::RET_SUCCEED;
 	}

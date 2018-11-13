@@ -108,7 +108,6 @@ class ResultReadComponent extends Component
 			if ($i == 0) {
 				$titleMap = $this->__readResultCsvHeader($line);
 			} else {
-				// TODO: 名前は必ずあること、は個別でチェック。__readResult() 内の方がよいかも。
 				$res = $this->__readResult($line, $titleMap, $i);
 				
 				// TODO: 日付フォーマット変換

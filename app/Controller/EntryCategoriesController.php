@@ -282,7 +282,7 @@ class EntryCategoriesController extends ApiBaseController
 		foreach ($entryResultData['EntryRacer'] as $index => &$erres) {
 			if (empty($erres['racer_code'])) {
 				if ($rcodei >= count($racerCodes)) {
-					return array('err' => array('選手コードの払い出しができません（可能コードなし or 制限値オーバー）。管理者に連絡をてください。'));
+					return array('err' => array('選手コードの払い出しができません（可能コードなし or 制限値オーバー）。管理者に連絡をしてください。'));
 				}
 				$rcode = $racerCodes[$rcodei];
 				$erres['racer_code'] = $rcode;
