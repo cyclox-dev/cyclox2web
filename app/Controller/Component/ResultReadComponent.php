@@ -498,7 +498,7 @@ class ResultReadComponent extends Component
 				$map['family_name'] = array(
 					'original' => '',
 					'val' => '',
-					'pos' => 'Unknown',
+					'pos' => null,
 					'error' => '値が必要です。',
 					'valexp' => '(読込値がありません)',
 				);
@@ -507,7 +507,7 @@ class ResultReadComponent extends Component
 				$map['first_name'] = array(
 					'original' => '',
 					'val' => '',
-					'pos' => 'Unknown',
+					'pos' => null,
 					'error' => '値が必要です。',
 					'valexp' => '(読込値がありません)',
 				);

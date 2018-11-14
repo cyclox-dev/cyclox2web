@@ -113,7 +113,10 @@
 						echo isset($result['original'][$key]) ?$result['original'][$key] : '';
 					}
 				?></td>
-				<td><?php echo '[Error] ' . $result[$key]['error'] . '(' . $result[$key]['pos'] . ')'; ?></td>
+				<td><?php
+					$pos = empty($result[$key]['pos']) ? '' : '(' . $result[$key]['pos'] . ')';
+					echo '[Error] ' . $result[$key]['error'] . $pos;
+				?></td>
 			<?php else: ?>
 				<td><?php 
 					if (isset($result[$key]['valexp'])) {
