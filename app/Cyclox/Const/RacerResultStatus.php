@@ -25,12 +25,12 @@ class RacerResultStatus
 	
 	public static function init()
 	{
-		self::$DNS = new RacerResultStatus(0, '出走せず', 'DNS', 0, false);
-		self::$FIN = new RacerResultStatus(1, 'ゴール到達', 'FIN', 100, true);
-		self::$DNF = new RacerResultStatus(2, 'ゴールできず', 'DNF', 30, false);
-		self::$DNQ = new RacerResultStatus(3, '失格(除外)', 'DNQ', 10, false);
-		self::$LAPOUT = new RacerResultStatus(4, '周回遅れラップアウト', 'DNF(Lap-Out)', 60, true);
-		self::$LAPOUT80 = new RacerResultStatus(5, '80%ラップアウト適用', 'DNF(80%Out)', 65, true);
+		self::$DNS = new RacerResultStatus(0, '出走せず', 'DNS', 0, false, array());
+		self::$FIN = new RacerResultStatus(1, 'ゴール到達', 'FIN', 100, true, array());
+		self::$DNF = new RacerResultStatus(2, 'ゴールできず', 'DNF', 30, false, array());
+		self::$DNQ = new RacerResultStatus(3, '失格(除外)', 'DNQ', 10, false, array());
+		self::$LAPOUT = new RacerResultStatus(4, '周回遅れラップアウト', 'DNF(Lap-Out)', 60, true, array('lapout', 'lap-out', 'lapped'));
+		self::$LAPOUT80 = new RacerResultStatus(5, '80%ラップアウト適用', 'DNF(80%Out)', 65, true, array('80%out', '80%-out', '80%lapout'));
 		
 		self::$statuses = array(
 			self::$DNS,
@@ -47,14 +47,16 @@ class RacerResultStatus
 	private $code;
 	private $rank;
 	private $isRankedStatus;
+	private $otherNames;
 	
-	private function __construct($v, $m, $c, $l, $is)
+	private function __construct($v, $m, $c, $l, $is, $os)
 	{
 		$this->val = $v;
 		$this->msg = $m;
 		$this->code = $c;
 		$this->rank = $l;
 		$this->isRankedStatus = $is;
+		$this->otherNames = $os;
 	}
 	
 	/**
@@ -71,6 +73,31 @@ class RacerResultStatus
 		 return self::$DNS;
 	}
 	
+	/**
+	 * 指定表現の RacerResultStatus インスタンスをかえす
+	 * @param string $ex 表現値
+	 * @param object $retAsNone 見つからなかったときにかえす値
+	 * @return RacerResultStatus RacerResultStatus インスタンス。該当するものがない場合、$retAsNone をかえす。
+	 */
+	public static function ofExpress($ex, $retAsNone)
+	{
+		$lowered = strtolower($ex);
+		
+		foreach (self::$statuses as $st) {
+			if (strtolower($st->code()) === $lowered) {
+				return $st;
+			}
+			
+			foreach ($st->otherNames() as $ons) {
+				if (strtolower($ons) === $lowered) {
+					return $st;
+				}
+			}
+		}
+		
+		 return $retAsNone;
+	}
+	
 	/** @return int DB 値 */                                                                           
     public function val() { return $this->val; }
     /** @return string 文字列表現 */                                                                    
@@ -81,5 +108,7 @@ class RacerResultStatus
     public function rank() { return $this->rank; }
     /** @return boolean 順位適用となるステータスであるか */
     public function isRankedStatus() { return $this->isRankedStatus; }
+	/** @return array 別名 */
+	public function otherNames() { return $this->otherNames; }
 }
 RacerResultStatus::init();

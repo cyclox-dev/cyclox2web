@@ -798,3 +798,7 @@ pre {
     display: -o-flex;
     display: flex;
 }
+
+div.diff_tables {
+    margin-bottom: 60px;
+}

@@ -227,17 +227,38 @@ class ApiController extends ApiBaseController
 			return $this->error('出走グループキー "entry_cats" がありません。', self::STATUS_CODE_BAD_REQUEST);
 		}
 		
+		$entryGroup = $this->request->data['entry_group'];
+		$cats = $this->request->data['entry_cats'];
+		$egroupName = isset($this->request->data['entry_group']['EntryGroup']['name']) ? $this->request->data['entry_group']['EntryGroup']['name'] : null;
+		$meetCode = isset($this->request->data['entry_group']['EntryGroup']['meet_code']) ? $this->request->data['entry_group']['EntryGroup']['meet_code'] : null;
+		
+		$ret = $this->execAddEntry($entryGroup, $cats, $egroupName, $meetCode);
+		
+		if (empty($ret['error'])) {
+			return $this->success($ret); // 件数とか？
+		} else {
+			return $this->error($ret['error'][0], $ret['error'][1]);
+		}
+	}
+	
+	/**
+	 * 出走設定を保存する。
+	 * @param type $entryGroup not empty
+	 * @param type $cats not empty
+	 * @param type $egroupName
+	 * @param type $meetCode
+	 * @param boolean $usesTransaction メソッド内でトランザクションを使用するかどうか
+	 * @return array エラーがある場合、array('error'=>array('msg','ret_code')) といった配列をかえす。
+	 */
+	public function execAddEntry($entryGroup, $cats, $egroupName, $meetCode, $usesTransaction = true)
+	{
 		$duplicatedEcatNames = array();
 		
 		// 出走グループ名が同じものがあった場合、出走データ + リザルトを除去する。
-		if (!empty($this->request->data['entry_group']['EntryGroup']['name']) &&
-				!empty($this->request->data['entry_group']['EntryGroup']['meet_code'])) {
-			$egroupName = $this->request->data['entry_group']['EntryGroup']['name'];
-			$meetCode = $this->request->data['entry_group']['EntryGroup']['meet_code'];
+		if (!empty($egroupName) && !empty($meetCode)) {
 			
 			// 出走グループ名が異なり、同じ名前の出走カテゴリーがある場合には警告（出走グループ名同じなら下流で削除）
 			$egroups = $this->EntryGroup->find('all', array('conditions' => array('meet_code' => $meetCode)));
-			$cats = $this->request->data['entry_cats'];
 			if (is_array($cats) && !empty($cats)) {
 				foreach ($cats as $cat) {
 					//$this->log('vs ' . $egroupName . 'ofEcat:' . $cat['EntryCategory']['name'], LOG_DEBUG);
@@ -263,13 +284,13 @@ class ApiController extends ApiBaseController
 					}
 					$str.= $ecatName;
 				}
-				return $this->error("出走カテゴリー " . $str . " について、\n"
+				return array('error' => array("出走カテゴリー " . $str . " について、\n"
 					. "今回のとは異なる出走グループでのエントリーデータが存在します。\n"
 					. "（= おそらく今回と異なるレースの組み方をしている出走グループがあります。）\n"
 					. "Web 上で上記出走カテゴリーを含む出走グループを削除してからリトライして下さい。\n\n"
 					. "※出走カテゴリーではなく出走グループを削除すること！\n"
 					. "　出走グループ削除により、それに含まれる出走カテゴリーが削除されます。\n"
-					. "　削除後、必要なエントリー・リザルトをアップロードし直すこと。", self::STATUS_CODE_BAD_REQUEST);
+					. "　削除後、必要なエントリー・リザルトをアップロードし直すこと。", self::STATUS_CODE_BAD_REQUEST));
 			}
 			
 			// 同じ名前の出走グループを削除
@@ -285,7 +306,7 @@ class ApiController extends ApiBaseController
 				}
 			}
 			
-			// oldGroups に関連づいている昇格データについて除去 <-- EntryGroup->delete() から削除。
+			// TODO: oldGroups に関連づいている昇格データについて除去（EntryGroup->delete() からは除去されない。） result upload からはある程度やっているが...
 			
 			if (!empty($oldGroups)) {
 				foreach ($oldGroups as $key => $val)
@@ -296,16 +317,14 @@ class ApiController extends ApiBaseController
 			}			
 		}
 		
-		$transaction = $this->TransactionManager->begin();
+		if ($usesTransaction) $transaction = $this->TransactionManager->begin();
 		
 		try {
 			$this->EntryGroup->create();
-			if (!$this->EntryGroup->save($this->request->data['entry_group'])) {
-				$this->TransactionManager->rollback($transaction);
-				return $this->error('出走グループの保存に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
+			if (!$this->EntryGroup->save($entryGroup)) {
+				if ($usesTransaction) $this->TransactionManager->rollback($transaction);
+				return array('error' => array('出走グループの保存に失敗しました。', self::STATUS_CODE_BAD_REQUEST));
 			}
-			
-			$cats = $this->request->data['entry_cats'];
 			
 			if (is_array($cats) && !empty($cats)) {
 				foreach ($cats as $cat) {
@@ -325,21 +344,20 @@ class ApiController extends ApiBaseController
 					//$this->log('cat:', LOG_DEBUG);
 					//$this->log($cat, LOG_DEBUG);
 					if (!$this->EntryCategory->saveAssociated($cat)) {
-						$this->TransactionManager->rollback($transaction);
-						return $this->error('出走カテゴリーの保存に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
+						if ($usesTransaction) $this->TransactionManager->rollback($transaction);
+						return array('error' => array('出走カテゴリーの保存に失敗しました。', self::STATUS_CODE_BAD_REQUEST));
 					}
 				}
 			}
 			
-			$this->TransactionManager->commit($transaction);
+			if ($usesTransaction) $this->TransactionManager->commit($transaction);
 			
-			return $this->success(array('ok')); // 件数とか？
+			return array('ok'); // 件数とか？
 		} catch (Exception $ex) {
 			$this->log('exception:' . $ex.message, LOG_DEBUG);
-			$this->TransactionManager->rollback($transaction);
-			return $this->error('予期しないエラー:' . $ex, self::STATUS_CODE_BAD_REQUEST);
+			if ($usesTransaction) $this->TransactionManager->rollback($transaction);
+			return array('error' => array('予期しないエラー:' . $ex, self::STATUS_CODE_BAD_REQUEST));
 		}
-		
 	}
 	
 	/**
@@ -366,6 +384,28 @@ class ApiController extends ApiBaseController
 			return $this->error('"body-result" の値が設定されていません。', self::STATUS_CODE_BAD_REQUEST);
 		}
 		
+		$appVersion = isset($this->request->data['app_version']) ? $this->request->data['app_version'] : 1.31;
+		$bodyResult = $this->request->data['body-result'];
+		
+		$ret = $this->execAddResult($meetCode, $ecatName, $bodyResult, $appVersion);
+		
+		if (empty($ret['error'])) {
+			return $this->success($ret);
+		} else {
+			return $this->error($ret['error'][0], $ret['error'][1]);
+		}
+	}
+	
+	/**
+	 * リザルトを保存する。
+	 * @param type $meetCode
+	 * @param type $ecatName
+	 * @param type $bodyResult
+	 * @param type $accessVersion
+	 * @return array エラーがある場合、array('error'=>array('msg','ret_code')) といった配列をかえす。
+	 */
+	public function execAddResult($meetCode, $ecatName, $bodyResult, $accessVersion)
+	{
 		// 出走カテゴリーの特定
 		
 		$opt = array(
@@ -375,7 +415,7 @@ class ApiController extends ApiBaseController
 		);
 		$egroups = $this->EntryGroup->find('all', $opt);
 		if (empty($egroups)) {
-			return $this->error('出走設定が見つかりません。出走設定をアップロードしてください。', self::STATUS_CODE_BAD_REQUEST);
+			return array('error' => array('出走設定が見つかりません。出走設定をアップロードしてください。', self::STATUS_CODE_BAD_REQUEST));
 		}
 		
 		$ecats = array();
@@ -390,7 +430,7 @@ class ApiController extends ApiBaseController
 		unset($ec);
 		
 		if (empty($ecats)) {
-			return $this->error("出走カテゴリーが見つかりません。", self::STATUS_CODE_BAD_REQUEST);
+			return array('error' => array("出走カテゴリーが見つかりません。", self::STATUS_CODE_BAD_REQUEST));
 		}
 		
 		// modified が一番新しいものを
@@ -422,7 +462,7 @@ class ApiController extends ApiBaseController
 		$eracers = $this->EntryRacer->find('all', $conditions);
 		
 		if (empty($eracers)) {
-			return $this->error("出走カテゴリーに選手が設定されていません。", self::STATUS_CODE_BAD_REQUEST);
+			return array('error' => array("出走カテゴリーに選手が設定されていません。", self::STATUS_CODE_BAD_REQUEST));
 		}
 		
 		$erMap = array(); // key:body value entry_racer
@@ -439,7 +479,7 @@ class ApiController extends ApiBaseController
 		
 		//////$this->log('before++++++++++++++++++++++++++++++++++++++++', LOG_DEBUG);
 		//$this->log($this->request->data['body-result'], LOG_DEBUG);
-		if (empty($this->request->data['app_version']) || $this->request->data['app_version'] < 1.24) {
+		if (empty($accessVersion) || $accessVersion < 1.24) {
 			// EntryGroup or Meet に StartLoop 設定があるのならラップ値を -1 else +1
 			
 			$sfDist = $this->__pullStartFracDist($ecat['entry_group']['start_frac_distance']
@@ -448,7 +488,7 @@ class ApiController extends ApiBaseController
 			
 			$corrVal = ($sfDist == 0) ? +1 : -1;
 			
-			foreach ($this->request->data['body-result'] as $body => &$result) {
+			foreach ($bodyResult as $body => &$result) {
 				if (empty($result['TimeRecord'])) continue;
 				
 				foreach ($result['TimeRecord'] as &$tr)
@@ -476,40 +516,33 @@ class ApiController extends ApiBaseController
 				
 					if (!$this->RacerResult->delete($result_id)) {
 						$this->TransactionManager->rollback($transaction);
-						return $this->error('リザルトの削除に失敗しました（想定しないエラー）。', self::STATUS_CODE_BAD_REQUEST);
+						return array('error' => array('リザルトの削除に失敗しました（想定しないエラー）。', self::STATUS_CODE_BAD_REQUEST));
 					}
 				}
 			}
 			
 			// entry racer の有無をチェック
-			foreach ($this->request->data['body-result'] as $body => $result) {
+			foreach ($bodyResult as $body => $result) {
 				if (empty($erMap[$body])) {
 					$this->TransactionManager->rollback($transaction);
-					return $this->error("無効な BodyNo. の設定が存在します。\n"
+					return array('error' => array("無効な BodyNo. の設定が存在します。\n"
 						. "出走データとリザルトをチェックして下さい。\n"
-						. "（出走設定を再度 upload すると解決する場合があります。）", self::STATUS_CODE_BAD_REQUEST);
+						. "（出走設定を再度 upload すると解決する場合があります。）", self::STATUS_CODE_BAD_REQUEST));
 				}
 			}
 			
 			$ress = array();
 			
-			foreach ($this->request->data['body-result'] as $body => $result) {
+			foreach ($bodyResult as $body => $result) {
 				$er = $erMap[$body];
 				
 				// リザルトの保存
 				$this->RacerResult->create();
 				$result['RacerResult']['entry_racer_id'] = $er['EntryRacer']['id'];
 				$result['RacerResult']['as_category']
-						= $this->ResultParamCalc->asCategory($er['EntryRacer']['racer_code'], $ecat, $meet['Meet']['at_date']);
+						= $this->ResultParamCalc->asCategory($er['EntryRacer']['racer_code'], $ecat['races_category_code'], $meet['Meet']['at_date']);
 				
-				/*if (!$this->RacerResult->saveAssociated($result)) {
-					$this->TransactionManager->rollback($transaction);
-					return $this->error('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
-				}//*/
 				$ress[] = $result;
-				
-				//$this->log('new result id:' . $this->RacerResult->id, LOG_DEBUG);
-				$result['RacerResult']['id'] = $this->RacerResult->id;
 				
 				$err = array();
 				$err['EntryRacer'] = $erMap[$body]['EntryRacer'];
@@ -522,7 +555,7 @@ class ApiController extends ApiBaseController
 			
 			if (!$this->RacerResult->saveAll($ress, array('deep' => true))) {
 				$this->TransactionManager->rollback($transaction);
-				return $this->error('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST);
+				return array('error' => array('保存処理に失敗しました。', self::STATUS_CODE_BAD_REQUEST));
 			}//*/
 			
 			//$this->log('end', LOG_DEBUG);
@@ -530,7 +563,7 @@ class ApiController extends ApiBaseController
 		} catch (Exception $ex) {
 			$this->log('exception:' . $ex.message, LOG_DEBUG);
 			$this->TransactionManager->rollback($transaction);
-			return $this->error('予期しないエラー:' . $ex, self::STATUS_CODE_BAD_REQUEST);
+			return array('error' => array('予期しないエラー:' . $ex, self::STATUS_CODE_BAD_REQUEST));
 		}
 		
 		if (count($errs) == 0) {
@@ -567,7 +600,7 @@ class ApiController extends ApiBaseController
 			$this->log('リザルト更新フラグの保存に失敗しました。', LOG_WARNING);
 		}
 		
-		return $this->success(array('ok')); // 件数とか？
+		return array('ok'); // 件数とか？
 	}
 	
 	/**
