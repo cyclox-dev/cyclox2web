@@ -11,6 +11,7 @@ App::uses('RacerResultStatus', 'Cyclox/Const');
 App::uses('RacerEntryStatus', 'Cyclox/Const');
 App::uses('CategoryReason', 'Cyclox/Const');
 App::uses('PointCalculator', 'Cyclox/Util');
+App::uses('PointSeriesSumUpRule', 'Cyclox/Const');
 App::uses('TransactionManager', 'Model');
 App::uses('Racer', 'Model');
 App::uses('EntryCategory', 'Model');
@@ -1078,6 +1079,20 @@ class ResultParamCalcComponent extends Component
 			//$this->log('pt setting:', LOG_DEBUG);
 			//$this->log($ptSetting, LOG_DEBUG);
 			
+			// ps.hint に cat_limit があったら所属チェック
+			$seriesHints = PointSeriesSumUpRule::getSeriesHints($ptSetting['PointSeries']['hint']);
+			foreach ($seriesHints as $key => $val) {
+				if ($key === 'cat_limit') {
+					$catLimits = explode("/", $val);
+				}
+			}
+			if (!empty($catLimits)) {
+				$hasCat = $this->__checkCatRacer($racerCode, $catLimits, $ptSetting['Meet']['at_date']);
+				if (!$hasCat) {
+					continue;
+				}
+			}
+			
 			$calc = PointCalculator::getCalculator($ptSetting['PointSeries']['calc_rule']);
 			if (empty($calc)) return;
 			
@@ -1091,16 +1106,16 @@ class ResultParamCalcComponent extends Component
 					'meet_point_series_id' => $ptSetting['MeetPointSeries']['id'],
 				);
 				
-				$this->log('series point to racer:' . $racerCode . ' ptSeries:' . $ptSetting['PointSeries']['id']
-						. ' toResult:' . $result['id'] . ' mps:' . $ptSetting['MeetPointSeries']['id'], LOG_DEBUG);
+				/*$this->log('series point to racer:' . $racerCode . ' ptSeries:' . $ptSetting['PointSeries']['id']
+						. ' toResult:' . $result['id'] . ' mps:' . $ptSetting['MeetPointSeries']['id'], LOG_DEBUG);*/
 				
 				if (!empty($pt['point'])) {
 					$psr['PointSeriesRacer']['point'] = $pt['point'];
-					$this->log('point:' . $pt['point'], LOG_DEBUG);
+					//$this->log('point:' . $pt['point'], LOG_DEBUG);
 				}
 				if (!empty($pt['bonus'])) {
 					$psr['PointSeriesRacer']['bonus'] = $pt['bonus'];
-					$this->log('bonus:' . $pt['bonus'], LOG_DEBUG);
+					//$this->log('bonus:' . $pt['bonus'], LOG_DEBUG);
 				}
 				
 				$this->PointSeriesRacer->create();
@@ -1112,6 +1127,31 @@ class ResultParamCalcComponent extends Component
 		}
 		
 		return $rStatus;
+	}
+	
+	/**
+	 * その選手が指定日にカテゴリーに所属しているかをかえす
+	 * @param string $racerCode 選手コード
+	 * @param array $catLimits カテゴリーコードの配列
+	 * @param date $date 大会日
+	 */
+	private function __checkCatRacer($racerCode, $catLimits, $date)
+	{
+		//$this->log('check cat racer: ' . $racerCode . ' ' . print_r($catLimits, true) . ' at ' . $date);
+		
+		$opt = array('conditions' => array(
+			'racer_code' => $racerCode,
+			'category_code' => $catLimits,
+			'apply_date <=' => $date,
+			'OR' => array(
+				array('cancel_date' => null),
+				array('cancel_date >=' => $date),
+			),
+		));
+		
+		//$this->log(($this->CategoryRacer->find('count', $opt) > 0 ? 'has' : 'NOT has!!!'), LOG_DEBUG);
+		
+		return $this->CategoryRacer->find('count', $opt) > 0;
 	}
 	
 	/**
