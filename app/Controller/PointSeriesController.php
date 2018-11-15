@@ -369,7 +369,6 @@ class PointSeriesController extends ApiBaseController
 				if ($key === 'cat_limit') {
 					$catLimit = explode("/", $val);
 					// not break // 最後のものを有効とする。
-					break;
 				} else if ($val === 'only_jcfer') {
 					$onlyJcfer = true;
 				}
