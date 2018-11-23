@@ -8,9 +8,9 @@
 		echo $this->Form->input('name');
 		echo $this->Form->input('start_delay_sec');
 		echo $this->Form->input('lapout_rule');
-		echo $this->Form->input('applies_hold_pt', array('label' => '残留ポイント適用有無', 'checked' => true));
-		echo $this->Form->input('applies_rank_up', array('label' => '昇格有無', 'checked' => true));
-		echo $this->Form->input('applies_ajocc_pt', array('label' => 'AJOCC ポイント配点有無', 'checked' => true));
+		echo $this->Form->input('applies_hold_pt', array('label' => '残留ポイントを付与する（〜17-18）', 'checked' => true));
+		echo $this->Form->input('applies_rank_up', array('label' => '昇格処理を行なう', 'checked' => true));
+		echo $this->Form->input('applies_ajocc_pt', array('label' => 'AJOCC ポイントを付与する', 'checked' => true));
 		echo $this->Form->input('note');
 	?>
 	</fieldset>

@@ -288,6 +288,8 @@ class ResultParamCalcComponent extends Component
 	 */
 	private function __reCalcResults($results, $ecat)
 	{
+		$mt = $this->__getMeetInfoOfEcat($ecat['id']);
+		
 		foreach ($results as $result) {
 			$r = $result['RacerResult'];
 			$er = $result['EntryRacer'];
@@ -299,10 +301,13 @@ class ResultParamCalcComponent extends Component
 			}
 
 			// 残留ポイントの再計算
-			$ret = $this->__resetHoldPoint($er['racer_code'], $r, $ecat);
-			if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
-				$this->log($er['racer_code'] . ' の残留ポイントの設定処理に失敗しました。', LOG_ERR);
-				// continue
+			// 19-20からは計算しない（実際には18-19から計算しないが、比較計算などのためにおいておいた。）
+			if (isset($mt['at_date']) && $mt['at_date'] < '2019-04-01') {
+				$ret = $this->__resetHoldPoint($er['racer_code'], $r, $ecat);
+				if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
+					$this->log($er['racer_code'] . ' の残留ポイントの設定処理に失敗しました。', LOG_ERR);
+					// continue
+				}
 			}
 
 			// シリーズポイントの再計算
