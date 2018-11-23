@@ -440,7 +440,7 @@ class ResultShell extends AppShell
 		);
 		
 		if ($isNextDayUpdate) {
-			$opt['conditions']['result_updated >='] = date('Y/m/d', strtotime('-1 day')) . ' 00:00:00';
+			$opt['conditions']['result_updated >='] = date('Y-m-d', strtotime('-1 day')) . ' 00:00:00';
 			$opt['conditions']['result_updated <'] = date('Y-m-d') . ' 00:00:00';
 			// points_sumuped は見ない
 		} else {
