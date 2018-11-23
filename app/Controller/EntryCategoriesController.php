@@ -13,7 +13,7 @@ App::uses('AjoccUtil', 'Cyclox/Util');
  */
 class EntryCategoriesController extends ApiBaseController
 {
-	public $uses = array('TransactionManager', 'EntryCategory', 'EntryRacer', 'PointSeries', 'TmpResultUpdateFlag'
+	public $uses = array('EntryCategory', 'EntryRacer', 'PointSeries', 'TmpResultUpdateFlag'
 		, 'MeetPointSeries', 'Category', 'EntryGroup', 'Racer', 'CategoryRacer', 'Meet');
 	
 /**
@@ -219,6 +219,8 @@ class EntryCategoriesController extends ApiBaseController
 		
 		//$this->log('posted ========================================', LOG_DEBUG);
 		//$this->log($this->request->data, LOG_DEBUG);
+		
+		$this->loadModel('TransactionManager');
 		
 		$transaction = $this->TransactionManager->begin();
 		
@@ -477,7 +479,7 @@ class EntryCategoriesController extends ApiBaseController
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->EntryCategory->save($this->request->data)) {
 				$this->Flash->set(__('The entry category has been saved.'));
-				return $this->redirect(array('action' => 'index'));
+				return $this->redirect(array('action' => 'view', $id));
 			} else {
 				$this->Flash->set(__('The entry category could not be saved. Please, try again.'));
 			}
