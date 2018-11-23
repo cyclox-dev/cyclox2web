@@ -21,9 +21,31 @@ class EntryCategoriesController extends ApiBaseController
  *
  * @var array
  */
-	public $components = array('Paginator', 'Flash', 'RequestHandler', 'ResultParamCalc', 'ResultRead');
+	public $components = array('Security', 'Paginator', 'Flash', 'RequestHandler', 'ResultParamCalc', 'ResultRead');
 
-/**
+	function beforeFilter()
+	{
+		parent::beforeFilter();
+		
+		$this->Security->blackHoleCallback = 'blackhole';
+	}
+	
+	public function blackhole($type)
+	{
+		$msg = 'セキュリティエラー';
+		if ($type === 'csrf') {
+			$msg = 'CSRF に関するエラー';
+		} else if ($type === 'auth') {
+			$msg = '認証エラー　';
+		}
+		
+		$this->Flash->set('トークンエラー！もしくはトークンの期限切れ。');
+		$this->Flash->set('(' . $msg . ')');
+		$this->Flash->set('ページのリロードやブラウザバックは禁止です。処理を最初からやり直してください。 ');
+		$this->redirect('/');
+	}
+
+	/**
  * index method
  *
  * @return void
