@@ -62,6 +62,7 @@ class OrgUtilController extends ApiBaseController
 		foreach ($seasons as $season) {
 			$seasonPack = array();
 			$seasonPack['title'] = $season['Season']['name'];
+			$title = $seasonPack['title'];
 			//$seasonPack['base_year'] = $y;
 			$seasonPack['season_id'] = $season['Season']['id'];
 			$seasonPack['dat'] = array();
@@ -79,7 +80,7 @@ class OrgUtilController extends ApiBaseController
 			{
 				if ($aplset['AjoccptLocalSetting']['season_id'] == $season['Season']['id'])
 				{
-					$seasonPack['title'] .= ' (' . $aplset['AjoccptLocalSetting']['name'] . ')';
+					$seasonPack['title'] = $title . ' (' . $aplset['AjoccptLocalSetting']['name'] . ')';
 					$seasonPack['local_setting_id'] = $aplset['AjoccptLocalSetting']['id'];
 					
 					$links[] = $seasonPack;
@@ -108,7 +109,7 @@ class OrgUtilController extends ApiBaseController
 		
 		$als = array();
 		if (!empty($this->request->data['local_setting_id'])) {
-			$als = $this->AjoccptLocalSetting->find('first', array('id' => $this->request->data['local_setting_id']));
+			$als = $this->AjoccptLocalSetting->find('first', array('conditions' => array('AjoccptLocalSetting.id' => $this->request->data['local_setting_id'])));
 			if (empty($als)) {
 				$this->Flash->set(__('該当 ID の AjoccPoint Local 設定が見つかりません。'));
 				$this->redirect($this->referer());
@@ -118,6 +119,8 @@ class OrgUtilController extends ApiBaseController
 		//$this->log('year:' . $this->request->data['base_year'] . ' cat:' . $this->request->data['category_code'], LOG_DEBUG);
 		
 		$ret = $this->calcAjoccPoints($this->request->data['category_code'], $this->request->data['season_id'], $als);
+		//$this->log('season:' . $this->request->data['season_id'] . ' cat:' . $this->request->data['category_code'], LOG_DEBUG);
+		//$this->log(print_r($als,true), LOG_DEBUG);
 		
 		if ($ret === false) {
 			$this->Flash->set(__('エラーのため、ランキングを取得できませんでした。不正な場合は、管理者に連絡して下さい。'));
