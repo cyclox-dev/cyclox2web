@@ -1035,7 +1035,7 @@ class ApiController extends ApiBaseController
 						);
 						$originalRacer = $this->Racer->find('first', $opt);
 						if (empty($originalRacer)) {
-							return $this->error('Racer:' . $code . ' is not new racer.', self::STATUS_CODE_BAD_REQUEST);
+							return $this->error('Racer:' . $code . ' is new racer.', self::STATUS_CODE_BAD_REQUEST);
 						}
 						
 						//$this->log('original:', LOG_DEBUG);
