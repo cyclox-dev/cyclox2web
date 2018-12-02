@@ -1063,7 +1063,14 @@ class ApiController extends ApiBaseController
 					} else {
 						foreach ($diffMap['diff']['Racer'] as $key => $val) {
 							//$this->log('key:' . $key . ' val:' . $val, LOG_DEBUG);
-							$newDiff['Racer'][$key] = $val;
+							// UCI-ID, 英語姓名, 生年月日は値が存在する場合には上書きしない。
+							if (in_array($key, array('uci_id', 'family_name_en', 'first_name_en'/*, 'birth_date'*/))) {
+								if (empty($originalRacer['Racer'][$key])) {
+									$newDiff['Racer'][$key] = $val;
+								}
+							} else {
+								$newDiff['Racer'][$key] = $val;
+							}
 						}
 					}
 				}
@@ -1081,6 +1088,12 @@ class ApiController extends ApiBaseController
 						unset($newDiff['Racer']['team_en']);
 					}
 				}
+				
+				// UCI-ID, 英語姓名, 生年月日は上書きしない。
+				unset($newDiff['Racer']['uci_id']);
+				unset($newDiff['Racer']['family_name_en']);
+				unset($newDiff['Racer']['first_name_en']);
+				//unset($newDiff['Racer']['birth_date']);
 				
 				if (!$this->Racer->exists($code)) {
 					//$this->log('not exists', LOG_INFO);
