@@ -31,9 +31,10 @@ class ApiController extends ApiBaseController
 		'Meet', 'CategoryRacer', 'Racer', 'MeetGroup', 'Season',
 		'EntryGroup', 'EntryCategory', 'EntryRacer', 'RacerResult', 'TimeRecord', 'HoldPoint',
 		'PointSeries', 'MeetPointSeries', 'PointSeriesRacer', 'RacesCategory',
-		'Category', 'CategoryGroup', 'NameChangeLog', 'TmpResultUpdateFlag', 'AjoccptLocalSetting');
+		'Category', 'CategoryGroup', 'TmpResultUpdateFlag', 'AjoccptLocalSetting');
 	
-	public $components = array('Session', 'RequestHandler', 'ResultParamCalc', 'UnifiedRacer', 'AgedCategory');
+	public $components = array('Session', 'RequestHandler', 'ResultParamCalc', 'UnifiedRacer', 'AgedCategory',
+		'NameChange');
 	
 	/**
 	 * 更新すべき大会情報についての code リストを取得する
@@ -1002,7 +1003,6 @@ class ApiController extends ApiBaseController
 			$codes[] = $code;
 		}
 		$nameMap = $this->__racerNameMap($codes);
-		$nameChanges = array();
 		$restoredCodeDeleted = array();
 		
 		foreach ($this->request->data as $code => $diffs) {
@@ -1148,38 +1148,11 @@ class ApiController extends ApiBaseController
 				$user = env('PHP_AUTH_USER');
 				if (empty($user)) $user = 'unknown';
 				
-				$nameChanges[] = array('NameChangeLog' => array(
-					'racer_code' => $code,
-					'new_fam' => (is_null($newFam) ? '[変更なし]' : $newFam),
-					'new_fir' => (is_null($newFir) ? '[変更なし]' : $newFir),
-					'old_data' => $nameMap[$code]['json'],
-					'by_user' => $user,
-				));
+				$this->NameChange->pushLog($code, $newFam, $newFir, $nameMap[$code]['json'], $user);
 			}
 		}
 		
-		//$this->log('$nameChanges is', LOG_DEBUG);
-		//$this->log($nameChanges, LOG_DEBUG);
-		
-		if (!empty($nameChanges)) {
-			if (!$this->NameChangeLog->saveMany($nameChanges)) {
-				$this->log('選手名変更ログの保存に失敗しました。内容は以下の通り。', LOG_ERR);
-				$this->log($nameChanges, LOG_ERR);
-			}
-			
-			//$this->log('id list is ', LOG_DEBUG);
-			//$this->log($this->NameChangeLog->insertedIds, LOG_DEBUG);
-			
-			$msg = "選手名の変更が検出されました。\n";
-			$msg .= "（結婚などの例外を除き、一般には名前の変更がなされることはありません。）\n\n";
-			$msg .= "変更の詳細については以下のアドレスに記録されています。\n";
-			
-			foreach ($this->NameChangeLog->insertedIds as $nclId) {
-				$msg .= Router::url(array('controller' => 'name_change_logs', 'action' => 'view', $nclId), array('full' => true)) . "\n";
-			}
-
-			MailReporter::report($msg);
-		}
+		$this->NameChange->saveLogs();
 		
 		if (!empty($restoredCodeDeleted)) {
 			$codes = '';

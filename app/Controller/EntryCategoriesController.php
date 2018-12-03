@@ -21,7 +21,8 @@ class EntryCategoriesController extends ApiBaseController
  *
  * @var array
  */
-	public $components = array('Security', 'Paginator', 'Flash', 'RequestHandler', 'ResultParamCalc', 'ResultRead');
+	public $components = array('Security', 'Paginator', 'Flash', 'RequestHandler', 'ResultParamCalc', 'ResultRead',
+		'NameChange');
 
 	function beforeFilter()
 	{
@@ -325,7 +326,7 @@ class EntryCategoriesController extends ApiBaseController
 		// +++ 失敗すると面倒な新規選手の登録および書き換え
 		$newRacers = array(); // 新規選手
 		$newCr = array(); // $newRacers にくっつけられないので cat racer は別工程で保存する
-		
+
 		foreach ($entryResultData['Racer'] as $index => $r) {
 			if (isset($r['code'])) {
 				// 既存値がある場合には生年月日、UCI-ID は書き換えない
@@ -337,6 +338,16 @@ class EntryCategoriesController extends ApiBaseController
 				
 				if (!empty($registed['Racer']['birth_date'])) unset($r['birth_date']);
 				if (!empty($registed['Racer']['uci_id'])) unset($r['uci_id']);
+				
+				$newFam = ($r['family_name'] == $registed['Racer']['family_name']) ? null : $r['family_name'];
+				$newFir = ($r['first_name'] == $registed['Racer']['first_name']) ? null : $r['first_name'];
+				
+				if (!empty($newFam) || !empty($newFir)) {
+					$user = $this->Auth->user();
+					$u = empty($user['username']) ? 'unknown' : $user['username'];
+					$dat = json_encode($registed['Racer'], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+					$this->NameChange->pushLog($r['code'], $newFam, $newFir, $dat, $u);
+				}
 			} else {
 				// 新規選手コードの払い出し --> 設定
 				if (empty($codeMap[$index])) {
@@ -389,7 +400,9 @@ class EntryCategoriesController extends ApiBaseController
 				$errmsg = $ret['error'];
 			}
 			return array('err' => array($errmsg));
-		}		
+		}
+		
+		$this->NameChange->saveLogs();
 
 		return true;
 	}
