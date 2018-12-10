@@ -235,6 +235,7 @@ class PointSeriesController extends ApiBaseController
 		$mpss = $ret['mpss'];
 		$nameMap = $ret['nameMap'];
 		$teamMap = $ret['teamMap'];
+		$jcfNoMp = $ret['jcfNoMap'];
 		$racerPoints = $ret['racerPoints'];
 		
 		if (empty($ranking)) {
@@ -271,6 +272,10 @@ class PointSeriesController extends ApiBaseController
 		foreach ($ranking['rank_pt_title'] as $title) {
 			$row[] = $title;
 		}
+		
+		$row[] = '';
+		$row[] = 'Jcf-No.';
+		
 		$this->__putToFp($fp, $row);
 		
 		foreach ($ranking['ranking'] as $rpUnit) {
@@ -310,6 +315,11 @@ class PointSeriesController extends ApiBaseController
 			
 			foreach ($rpUnit->rankPt as $pt) {
 				$row[] = $pt;
+			}
+			
+			$row[] = '';
+			if (!empty($jcfNoMp[$rpUnit->code])) {
+				$row[] = $jcfNoMp[$rpUnit->code];
 			}
 			
 			$this->__putToFp($fp, $row);
@@ -405,7 +415,8 @@ class PointSeriesController extends ApiBaseController
 		
 		$this->PointSeriesRacer->Behaviors->load('Containable');
 		$nameMap = array(); // 名前取得用。key: racer_code, val: name（半角スペース区切り）
-		$teamMap = array(); // 同上チーム名取得用。
+		$teamMap = array(); // 同上チーム名取得用
+		$jcfNoMap = array(); // JCF Number 取得用
 		
 		$hints = array(); // 必ず集計する大会インデックスを取得しておく
 		for ($i = 0; $i < count($mpss); $i++) {
@@ -504,6 +515,10 @@ class PointSeriesController extends ApiBaseController
 						$this->log($psr['RacerResult']['EntryRacer']['team_name'] . 'がmail 形式のため、設定せず。', LOG_WARNING);
 					}
 				}
+				
+				if (!empty($psr['Racer']['jcf_number'])) {
+					$jcfNoMap[$racerCode] = $psr['Racer']['jcf_number'];
+				}
 			}
 			
 			++$meetIndex;
@@ -518,6 +533,7 @@ class PointSeriesController extends ApiBaseController
 			'mpss' => $mpss,
 			'nameMap' => $nameMap,
 			'teamMap' => $teamMap,
+			'jcfNoMap' => $jcfNoMap,
 			'racerPoints' => $racerPoints,
 		);
 	}
