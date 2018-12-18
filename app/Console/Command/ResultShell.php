@@ -22,7 +22,7 @@ class ResultShell extends AppShell
 	
 	public $uses = array('TransactionManager', 'TmpResultUpdateFlag', 'TmpPointSeriesRacerSet'
 			, 'MeetPointSeries', 'EntryCategory', 'EntryRacer', 'AjoccptLocalSetting', 'TmpAjoccptRacerSet'
-			, 'PointSeries', 'Season'
+			, 'PointSeries', 'Season', 'Category',
 		);
 	
 	private $__psController;
@@ -101,20 +101,27 @@ class ResultShell extends AppShell
 					$this->log('処理済み', LOG_DEBUG);
 					$updated = true;
 				} else {
-					$updated = $this->__updateAjoccRanking($asCat, $seasonId);
-					
-					if ($updated) {
-						$localSettings = $this->AjoccptLocalSetting->find('all', array('conditions' => array('season_id' => $seasonId)));
-
-						foreach ($localSettings as $locals) {
-							$ret = $this->__updateAjoccRanking($asCat, $seasonId, $locals);
-							
-							if (!$ret) {
-								$updated = false;
-							}
-						}
+					// as category が有効な所属カテゴリーであるかをチェック
+					$Category = new Category();
+					if (!$Category->exists($asCat)) {
+						$updated = true; // フラグを処理済みにするため
+						$this->log('cat:' . $asCat . ' season:' . $seasonId . ' はカテゴリーとして認識されません。', LOG_DEBUG);
 					} else {
-						$this->log('local 設定なしの ajocc ランキングデータの作成に失敗しました。', LOG_INFO);
+						$updated = $this->__updateAjoccRanking($asCat, $seasonId);
+
+						if ($updated) {
+							$localSettings = $this->AjoccptLocalSetting->find('all', array('conditions' => array('season_id' => $seasonId)));
+
+							foreach ($localSettings as $locals) {
+								$ret = $this->__updateAjoccRanking($asCat, $seasonId, $locals);
+
+								if (!$ret) {
+									$updated = false;
+								}
+							}
+						} else {
+							$this->log('local 設定なしの ajocc ランキングデータの作成に失敗しました。', LOG_INFO);
+						}
 					}
 				}
 
