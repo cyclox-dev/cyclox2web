@@ -28,7 +28,7 @@ class AjoccUtil
 		$y = (int)date('Y', $ts);
 		$m = (int)date('n', $ts);
 		
-		if ($m < 3) {
+		if ($m < 4) {
 			$y--;
 			$y += 100; // マイナス防止
 		}
