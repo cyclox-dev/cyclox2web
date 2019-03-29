@@ -175,7 +175,14 @@ class OrgUtilController extends ApiBaseController
 			$line[] = empty($rp['team']) ? '' : $rp['team'];
 			
 			for ($i = 0; $i < count($meetTitles); $i++) {
-				$line[] = empty($rp['points'][$i]) ? '' : $rp['points'][$i];
+				$linestr = '';
+				if (!empty($rp['points'][$i])) {
+					$linestr = $rp['points'][$i][0];
+					for ($j = 1; $j < count($rp['points'][$i]); $j++) {
+						$linestr .= ', ' . $rp['points'][$i][$j];
+					}
+				}
+				$line[] = $linestr;
 			}
 			
 			$line[] = $rp['total'];
@@ -385,7 +392,12 @@ class OrgUtilController extends ApiBaseController
 						}
 						
 						$index = count($meetTitles) - 1;
-						$rp['points'][$index] = $eracer['RacerResult']['ajocc_pt'];
+						
+						// 複数ポイントを格納 @20190329
+						if (empty($rp['points'][$index])) {
+							$rp['points'][$index] = array();
+						}
+						$rp['points'][$index][] = $eracer['RacerResult']['ajocc_pt'];
 						
 						if (!empty($eracer['EntryRacer']['team_name'])) {
 							// 最後のチーム名を格納しておく
@@ -405,17 +417,22 @@ class OrgUtilController extends ApiBaseController
 			$total = 0;
 			$totalSquared = 0;
 			$maxPt = 0;
-			foreach ($rp['points'] as $pt) {
-				$total += $pt;
-				$totalSquared += $pt * $pt;
-				if ($pt > $maxPt) {
-					$maxPt = $pt;
+			$count = 0;
+			foreach ($rp['points'] as $pts) {
+				foreach ($pts as $pt) {
+					$total += $pt;
+					$totalSquared += $pt * $pt;
+					if ($pt > $maxPt) {
+						$maxPt = $pt;
+					}
+					
+					++$count;
 				}
 			}
 			
 			$rp['total'] = $total;
 			$rp['totalSquared'] = $totalSquared;
-			$rp['ave'] = count($rp['points']) == 0 ? 0 : $total / count($rp['points']);
+			$rp['ave'] = $count == 0 ? 0 : $total / $count;
 			$rp['max'] = $maxPt;
 		}
 		unset($rp); // 下流で使うので
