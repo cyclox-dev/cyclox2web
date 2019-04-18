@@ -4,12 +4,12 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 DROP TABLE IF EXISTS tmp_ajoccpt_racer_sets;
 DROP TABLE IF EXISTS ajoccpt_local_settings;
-DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS category_racers;
+DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
-DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS hold_points;
+DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS time_records;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
@@ -501,6 +501,7 @@ CREATE TABLE seasons
 	end_date date NOT NULL,
 	-- is_regular == true ならば昇格を判定する、などに利用する。
 	is_regular boolean NOT NULL,
+	updates_ajocc_ranking tinyint(1) DEFAULT 1 NOT NULL,
 	created datetime,
 	modified datetime,
 	deleted_date datetime,

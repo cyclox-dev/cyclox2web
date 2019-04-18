@@ -250,6 +250,19 @@ class ResultShell extends AppShell
 			return true;
 		}
 		
+		$season = $this->Season->find('first', array('conditions' => array('id' => $seasonId)));
+		if (empty($season)) {
+			$this->log('対象となるシーズンが存在しないため、更新処理しません。' . $location, LOG_INFO);
+			return true;
+		}
+		
+		//$this->log('season.updates_ajocc_ranking:' . $season['Season']['updates_ajocc_ranking'], LOG_DEBUG);
+		
+		if (!$season['Season']['updates_ajocc_ranking']) {
+			$this->log('更新フラグがオフとなっているため３、更新処理しません。' . $location, LOG_INFO);
+			return true;
+		}
+		
 		$ret = $this->__orgUtilController->calcAjoccPoints($catCode, $seasonId, $localSetting);
 		
 		if ($ret === false) {
