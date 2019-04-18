@@ -16,6 +16,7 @@
 			'monthNames' => false,
 		));
 		echo $this->Form->input('is_regular');
+		echo $this->Form->input('updates_ajocc_ranking', array('default' => true, 'label' => 'リザルト更新により Ajocc Ranking を更新する'));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>

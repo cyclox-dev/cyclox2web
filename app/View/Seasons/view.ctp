@@ -31,6 +31,11 @@
 			<?php echo h($season['Season']['is_regular'] ? 'Regular' : 'Extra'); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('Ajocc Ranking 更新'); ?></dt>
+		<dd>
+			<?php echo h($season['Season']['updates_ajocc_ranking'] ? 'ON' : 'Off'); ?>
+			&nbsp;
+		</dd>
 	</dl>
 <p style="height: 1em"></p>
 <h3>Status</h3>

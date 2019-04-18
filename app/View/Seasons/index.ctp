@@ -9,6 +9,7 @@
 			<th><?php echo $this->Paginator->sort('start_date', '開始日'); ?></th>
 			<th><?php echo $this->Paginator->sort('end_date', '終了日'); ?></th>
 			<th><?php echo $this->Paginator->sort('is_regular', '分類'); ?></th>
+			<th><?php echo $this->Paginator->sort('updates_ajocc_ranking', 'AjoccRank更新'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>
@@ -21,6 +22,7 @@
 		<td><?php echo h($season['Season']['start_date']); ?>&nbsp;</td>
 		<td><?php echo h($season['Season']['end_date']); ?>&nbsp;</td>
 		<td><?php echo ($season['Season']['is_regular'] ? 'Regular' : 'Extra'); ?>&nbsp;</td>
+		<td><?php echo ($season['Season']['updates_ajocc_ranking'] ? 'On' : 'Off'); ?>&nbsp;</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $season['Season']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $season['Season']['id'])); ?>
