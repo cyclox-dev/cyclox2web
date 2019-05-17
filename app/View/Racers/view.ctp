@@ -73,16 +73,6 @@
 			<?php echo h($racer['Racer']['jcf_number']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Uci Number'); ?></dt>
-		<dd>
-			<?php echo h($racer['Racer']['uci_number']); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('Uci Code'); ?></dt>
-		<dd>
-			<?php echo h($racer['Racer']['uci_code']); ?>
-			&nbsp;
-		</dd>
 		<dt><?php echo __('UCI ID'); ?></dt>
 		<dd>
 			<?php echo h($racer['Racer']['uci_id']); ?>

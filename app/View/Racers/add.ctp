@@ -46,8 +46,6 @@
 			'selected' => Nation::JPN()->code()
 		));
 		echo $this->Form->input('jcf_number', array('type' => 'text', 'label' => 'JCF Number'));
-		echo $this->Form->input('uci_number', array('type' => 'text', 'label' => 'UCI Number'));
-		echo $this->Form->input('uci_code', array('type' => 'text', 'label' => 'UCI Code'));
 		echo $this->Form->input('uci_id', array('type' => 'text', 'label' => 'UCI ID'));
 		echo $this->Form->input('uci_nation_code', array('type' => 'text', 'label' => 'UCI 登録国コード（3文字）'));
 		echo $this->Form->input('phone', array('type' => 'text'));

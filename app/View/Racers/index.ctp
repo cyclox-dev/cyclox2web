@@ -26,8 +26,7 @@ function nameOrKana($name, $kana)
 			<th><?php echo $this->Paginator->sort('nationality_code', '国籍'); ?></th>
 		<!--
 			<th><?php echo $this->Paginator->sort('jcf_number'); ?></th>
-			<th><?php echo $this->Paginator->sort('uci_number'); ?></th>
-			<th><?php echo $this->Paginator->sort('uci_code'); ?></th>
+			<th><?php echo $this->Paginator->sort('uci_id'); ?></th>
 			<th><?php echo $this->Paginator->sort('phone'); ?></th>
 			<th><?php echo $this->Paginator->sort('mail'); ?></th>
 			<th><?php echo $this->Paginator->sort('country_code'); ?></th>
