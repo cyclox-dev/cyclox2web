@@ -236,6 +236,7 @@ class PointSeriesController extends ApiBaseController
 		$nameMap = $ret['nameMap'];
 		$teamMap = $ret['teamMap'];
 		$jcfNoMp = $ret['jcfNoMap'];
+		$uciIdMap = $ret['uciIdMap'];
 		$racerPoints = $ret['racerPoints'];
 		
 		if (empty($ranking)) {
@@ -261,7 +262,7 @@ class PointSeriesController extends ApiBaseController
 		);
 		$this->__putToFp($fp, $row);
 		
-		$row = array('順位', '選手 Code', '選手名', 'チーム名');
+		$row = array('順位', '選手 Code', 'JCF-No.', 'UCI-ID', '選手名', 'チーム名');
 		foreach ($mpss as $mps) {
 			$row[] = $mps['MeetPointSeries']['express_in_series'];
 			
@@ -273,15 +274,18 @@ class PointSeriesController extends ApiBaseController
 			$row[] = $title;
 		}
 		
-		$row[] = '';
-		$row[] = 'Jcf-No.';
-		
 		$this->__putToFp($fp, $row);
 		
 		foreach ($ranking['ranking'] as $rpUnit) {
+			
+			$jcfno = empty($jcfNoMp[$rpUnit->code]) ? '' : $jcfNoMp[$rpUnit->code];
+			$uciid = empty($uciIdMap[$rpUnit->code]) ? '' : $uciIdMap[$rpUnit->code];
+			
 			$row = array(
 				$rpUnit->rank,
 				$rpUnit->code,
+				$jcfno,
+				$uciid,
 				$nameMap[$rpUnit->code],
 			);
 			
@@ -315,11 +319,6 @@ class PointSeriesController extends ApiBaseController
 			
 			foreach ($rpUnit->rankPt as $pt) {
 				$row[] = $pt;
-			}
-			
-			$row[] = '';
-			if (!empty($jcfNoMp[$rpUnit->code])) {
-				$row[] = $jcfNoMp[$rpUnit->code];
 			}
 			
 			$this->__putToFp($fp, $row);
@@ -417,6 +416,7 @@ class PointSeriesController extends ApiBaseController
 		$nameMap = array(); // 名前取得用。key: racer_code, val: name（半角スペース区切り）
 		$teamMap = array(); // 同上チーム名取得用
 		$jcfNoMap = array(); // JCF Number 取得用
+		$uciIdMap = array(); // UCI ID 取得用
 		
 		$hints = array(); // 必ず集計する大会インデックスを取得しておく
 		for ($i = 0; $i < count($mpss); $i++) {
@@ -426,7 +426,7 @@ class PointSeriesController extends ApiBaseController
 			$hints[] = $mps['MeetPointSeries']['hint'];
 			
 			$contains = array(
-				'Racer' => array('fields' => array('family_name', 'first_name', 'team', 'birth_date', 'jcf_number')),
+				'Racer' => array('fields' => array('family_name', 'first_name', 'team', 'birth_date', 'jcf_number', 'uci_id')),
 				'RacerResult' => array(
 					'fields' => array('rank'),
 					'EntryRacer' => array(
@@ -519,6 +519,10 @@ class PointSeriesController extends ApiBaseController
 				if (!empty($psr['Racer']['jcf_number'])) {
 					$jcfNoMap[$racerCode] = $psr['Racer']['jcf_number'];
 				}
+				
+				if (!empty($psr['Racer']['uci_id'])) {
+					$uciIdMap[$racerCode] = $psr['Racer']['uci_id'];
+				}
 			}
 			
 			++$meetIndex;
@@ -534,6 +538,7 @@ class PointSeriesController extends ApiBaseController
 			'nameMap' => $nameMap,
 			'teamMap' => $teamMap,
 			'jcfNoMap' => $jcfNoMap,
+			'uciIdMap' => $uciIdMap,
 			'racerPoints' => $racerPoints,
 		);
 	}
