@@ -16,9 +16,9 @@
 			)
 		));
 	echo $this->Form->input('divides_bonus', array(
-			'label' => 'ボーナス表記',
+			'label' => 'ボーナスポイント表記',
 			'type' => 'select',
-			'options' => array(0 => "列内にPt+Bonus", 1 => '列を分ける'),
+			'options' => array(0 => "セル内にPt+Bonus", 1 => 'セルを分ける'),
 			'div' => array(
 				'id' => 'bonusexp_container',
 			),
