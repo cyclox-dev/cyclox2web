@@ -484,9 +484,9 @@ class PointCalculator extends Object
 				$point = $pointSet['rank_pt'][$rankIndex];
 			}
 		} else {
-			// 順位なしということは DNS, DNF, DNQ, LapOut, 80%Out
+			// 順位なしということは DNS, DNF, DSQ, LapOut, 80%Out
 			// order_index で決定する
-			if ($result['status'] != RacerResultStatus::$DNQ->val()) {
+			if ($result['status'] != RacerResultStatus::$DSQ->val()) {
 				$point = self::RUN_PT_IBRK167;
 				$rankIndex = $result['order_index'] - 1;
 				if (isset($pointSet['rank_pt'][$rankIndex])) {
