@@ -21,6 +21,7 @@ class CategoryReason
     static $OTHER_UP;
     static $OTHER_DOWN;
     static $OTHER_CHANGE;
+	static $REQUEST_CHANGE;
 	static $UNKNOWN;
 	
 	private static $reasons;
@@ -37,11 +38,12 @@ class CategoryReason
 		self::$SEASON_UP = new CategoryReason(3, CategoryChangeFlag::$LANKUP, 'シーズン成績昇格', 'シーズンの基準（ポイントや順位）による昇格'); 
 		self::$SEASON_DOWN = new CategoryReason(4, CategoryChangeFlag::$LANKDOWN, 'シーズン成績降格', 'シーズンの基準（ポイントや順位）による降格'); 
 		self::$TO_SUPER_RACER = new CategoryReason(5, CategoryChangeFlag::$OTHER, '成績優秀者への特別付与', '他の種目などでの成績優秀者の特別付与'); 
-		self::$BY_AGE = new CategoryReason(6, CategoryChangeFlag::$OTHER, '年齢によるカテゴリー変更', '年齢基準到達に伴うカテゴリー変更'); 
+		self::$BY_AGE = new CategoryReason(6, CategoryChangeFlag::$CHANGE, '年齢によるカテゴリー変更', '年齢基準到達に伴うカテゴリー変更'); 
 		self::$BY_RULE = new CategoryReason(7, CategoryChangeFlag::$OTHER, 'ルール変更に伴う付与', 'カテゴリー決定ルールの変更にともなうカテゴリー付与'); 
 		self::$OTHER_UP = new CategoryReason(8, CategoryChangeFlag::$LANKUP, 'その他昇格', 'その他の理由による昇格'); 
 		self::$OTHER_DOWN = new CategoryReason(9, CategoryChangeFlag::$LANKDOWN, 'その他降格', 'その他の理由による降格'); 
 		self::$OTHER_CHANGE = new CategoryReason(10, CategoryChangeFlag::$OTHER, 'その他カテゴリー付与', 'その他の理由によるカテゴリー付与');
+		self::$REQUEST_CHANGE = new CategoryReason(11, CategoryChangeFlag::$CHANGE, '申請によるカテゴリー変更', '申請によるカテゴリー変更による付与（Elite<-->Masters など）');
 		
 		self::$reasons = array(
 			self::$FIRST_REGIST->ID() => self::$FIRST_REGIST,
@@ -53,10 +55,11 @@ class CategoryReason
 			self::$BY_RULE ->ID() => self::$BY_RULE,
 			self::$OTHER_UP ->ID() => self::$OTHER_UP,
 			self::$OTHER_DOWN ->ID() => self::$OTHER_DOWN,
-			self::$OTHER_CHANGE ->ID() => self::$OTHER_CHANGE
+			self::$OTHER_CHANGE ->ID() => self::$OTHER_CHANGE,
+			self::$REQUEST_CHANGE ->ID() => self::$REQUEST_CHANGE,
 		);
 		
-		self::$UNKNOWN = new CategoryReason(11, CategoryChangeFlag::$OTHER, '理由不明', '不明な理由による適用');
+		self::$UNKNOWN = new CategoryReason(99, CategoryChangeFlag::$OTHER, '理由不明', '不明な理由による適用');
 	}
 	
 	public static function reasonAt($id)

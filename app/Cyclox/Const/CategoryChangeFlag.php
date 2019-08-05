@@ -14,6 +14,7 @@ class CategoryChangeFlag
 	public static $LANKUP;
 	public static $LANKDOWN;
 	public static $OTHER;
+	public static $CHANGE;
 	
 	private static $flags;
 	
@@ -29,13 +30,15 @@ class CategoryChangeFlag
 		self::$LANKUP= new CategoryChangeFlag(2, '昇格');
 		self::$LANKDOWN = new CategoryChangeFlag(3, '降格');
 		self::$OTHER = new CategoryChangeFlag(4, 'その他');
+		self::$CHANGE = new CategoryChangeFlag(5, '変更');
 		
 		self::$flags = array(
 			self::$UNKNOWN,
 			self::$REGIST,
 			self::$LANKUP,
 			self::$LANKDOWN,
-			self::$OTHER
+			self::$OTHER,
+			self::$CHANGE,
 			);
 	}
 	
