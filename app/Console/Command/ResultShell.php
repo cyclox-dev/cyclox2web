@@ -259,7 +259,7 @@ class ResultShell extends AppShell
 		//$this->log('season.updates_ajocc_ranking:' . $season['Season']['updates_ajocc_ranking'], LOG_DEBUG);
 		
 		if (!$season['Season']['updates_ajocc_ranking']) {
-			$this->log('更新フラグがオフとなっているため３、更新処理しません。' . $location, LOG_INFO);
+			$this->log('更新フラグがオフとなっているため、更新処理しません。' . $location, LOG_INFO);
 			return true;
 		}
 		
