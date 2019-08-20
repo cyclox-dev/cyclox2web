@@ -802,3 +802,7 @@ pre {
 div.diff_tables {
     margin-bottom: 60px;
 }
+
+.categoryRacers .change_cats td.end_date {
+    color: #ff0000;
+}

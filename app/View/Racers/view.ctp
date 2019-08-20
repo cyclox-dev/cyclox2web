@@ -189,6 +189,8 @@
 		<ul>
 			<li><?php echo $this->Html->link(__('カテゴリー所属を追加')
 				, '/category_racers/add/' . $racer['Racer']['code']); ?> </li>
+			<li><?php echo $this->Html->link(__('Elite ←→ Masters の乗り換え')
+				, '/category_racers/change_em/' . $racer['Racer']['code']); ?> （すでにそのシーズンで出走がある場合、乗り換えは不可である） </li>
 		</ul>
 	</div>
 	<?php if (!empty($racer['CategoryRacer'])):	?>
