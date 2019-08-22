@@ -139,15 +139,23 @@ class ResultParamCalcComponent extends Component
 			$r = $result['RacerResult'];
 			
 			$ajoccPt = 0; // デフォルトでゼロに設定
+			$isOpenRacer = ($result['EntryRacer']['entry_status'] == RacerEntryStatus::$OPEN->val());
+			
+			$point = empty($r['rank']) ? 0 : $this->calcAjoccPt($r['rank'], $this->__started, $this->__atDate);
 			
 			if ($ecat['applies_ajocc_pt']) {
-				$isOpenRacer = ($result['EntryRacer']['entry_status'] == RacerEntryStatus::$OPEN->val());
-				if (!$isOpenRacer && isset($r['rank'])) {
-					$ajoccPt = $this->calcAjoccPt($r['rank'], $this->__started, $this->__atDate);
-					//$this->log('ajocc pt:' . $ajoccPt, LOG_DEBUG);
-					if ($ajoccPt == -1) {
-						$this->log('AjoccPoint が計算できません。rank:' . $r['rank'] . ' --> ptゼロに設定します。', LOG_ERR);
-						$ajoccPt = 0;
+				// 1920からは ajocc_pt = null 設定あり。null な箇所のポイントは平均に参入しない。出走レース数にも含めない。
+				$ajoccPt = ($this->_isSeasonAfter1819()) ? null : 0;
+				
+				if (!$isOpenRacer
+						&& !($this->_isSeasonAfter1819() && $r['status'] == RacerResultStatus::$DNS->val()))
+						// DNS はポイント null @kgym@20190814
+				{
+					//$this->log('ajocc pt:' . $point, LOG_DEBUG);
+					if ($point == -1) {
+						$this->log('AjoccPoint が計算できません。result-id:' . $r['id'] . ' --> ptなしで続行します。', LOG_ERR);
+					} else {
+						$ajoccPt = $point;
 					}
 				}
 			}
@@ -188,7 +196,7 @@ class ResultParamCalcComponent extends Component
 	 * @param type $rank リザルト順位
 	 * @param type $startedCount 出走人数
 	 * @param dateString $meetDate 大会日付
-	 * @return int ポイント。エラーの場合 -1 をかえす。
+	 * @return int ポイント。エラーの場合 -1 をかえす。リザルトステータスは見ず、ポイントなしはゼロをかえす。
 	 */
 	public function calcAjoccPt($rank, $startedCount, $meetDate)
 	{
@@ -1547,6 +1555,19 @@ class ResultParamCalcComponent extends Component
 		}
 		
 		return ($this->__atDate > '2017-03-31');
+	}
+	
+	/**
+	 * 2018-19 シーズンより後のシーズン（19-20以降）であるかをかえす
+	 * @return boolean 
+	 */
+	private function _isSeasonAfter1819()
+	{
+		if (empty($this->__atDate)) {
+			return true; // unlikely... 本メソッドを作成したのが1920で巻き戻りはなしので true かえす。
+		}
+		
+		return ($this->__atDate > '2019-03-31');
 	}
 	
 	/**

@@ -206,7 +206,7 @@
 						?></td>
 					<?php endfor; ?>
 					<td><?php
-						if (empty($result['RacerResult']['ajocc_pt'])) {
+						if (is_null($result['RacerResult']['ajocc_pt'])) {
 							echo '';
 						} else {
 							$ptStr = $result['RacerResult']['ajocc_pt'] . 'pt';

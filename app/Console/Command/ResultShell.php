@@ -375,6 +375,7 @@ class ResultShell extends AppShell
 		
 		$season = $this->Season->find('first', array('conditions' => array('id' => $seasonId)));
 		$isBefore189 = $season['Season']['start_date'] < '2018-04-01';
+		$isBefore1920 = $season['Season']['start_date'] < '2019-04-01';
 		
 		$sets = array();
 		
@@ -393,8 +394,10 @@ class ResultShell extends AppShell
 		);
 		if ($isBefore189) {
 			$titleSet['TmpAjoccptRacerSet']['sumup_json'] = json_encode(array("合計", "自乗和"), JSON_UNESCAPED_UNICODE);
-		} else {
+		} else if ($isBefore1920) {
 			$titleSet['TmpAjoccptRacerSet']['sumup_json'] = json_encode(array("合計", "平均", "最大"), JSON_UNESCAPED_UNICODE);
+		} else {
+			$titleSet['TmpAjoccptRacerSet']['sumup_json'] = json_encode(array("合計", "平均", "最大", '出走数'), JSON_UNESCAPED_UNICODE);
 		}
 		
 		if (!empty($localSetting)) {
@@ -418,8 +421,10 @@ class ResultShell extends AppShell
 			);
 			if ($isBefore189) {
 				$set['TmpAjoccptRacerSet']['sumup_json'] = json_encode(array($rp['total'], $rp['totalSquared']), JSON_UNESCAPED_UNICODE);
-			} else {
+			} else if ($isBefore1920) {
 				$set['TmpAjoccptRacerSet']['sumup_json'] = json_encode(array($rp['total'], $rp['ave'], $rp['max']), JSON_UNESCAPED_UNICODE);
+			} else {
+				$set['TmpAjoccptRacerSet']['sumup_json'] = json_encode(array($rp['total'], $rp['ave'], $rp['max'], $rp['startCount']), JSON_UNESCAPED_UNICODE);
 			}
 			
 			if (!empty($localSetting)) {

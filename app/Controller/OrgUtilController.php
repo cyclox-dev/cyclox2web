@@ -251,6 +251,9 @@ class OrgUtilController extends ApiBaseController
 		//$this->log('rcats:', LOG_DEBUG);
 		//$this->log($rcats, LOG_DEBUG);
 		
+		$season = $this->Season->find('first', array('conditions' => array('id' => $seasonId)));
+		$isAfteq1920 = ($season['Season']['start_date'] >= '2019-04-01');
+		
 		// 大会を日付順にチェック
 		$meets = $this->__getMeets($seasonId, $localSetting);
 		//$this->log($meets, LOG_DEBUG);
@@ -322,7 +325,13 @@ class OrgUtilController extends ApiBaseController
 						if (!empty($eracer['RacerResult']['deleted']) && $eracer['RacerResult']['deleted'] == 1) continue;
 						//$this->log('ers:', LOG_DEBUG);
 						//$this->log($eracer, LOG_DEBUG);
-						if (empty($eracer['RacerResult']['ajocc_pt'])) continue;
+						
+						if ($isAfteq1920) {
+							// 19-20からは null(=DNS) でない場合には0ポイント以上のポイントを表示し、平均に含める。
+							if (is_null($eracer['RacerResult']['ajocc_pt'])) continue;
+						} else {
+							if (empty($eracer['RacerResult']['ajocc_pt'])) continue;
+						}
 						
 						if (!empty($eracer['RacerResult']['as_category'])) {
 							// as_category 値があるならそれで判定
@@ -410,8 +419,6 @@ class OrgUtilController extends ApiBaseController
 			}
 		}
 		
-		$season = $this->Season->find('first', array('conditions' => array('id' => $seasonId)));
-		
 		// トータルと自乗和を計算
 		foreach ($racerPoints as &$rp) {
 			$total = 0;
@@ -434,6 +441,7 @@ class OrgUtilController extends ApiBaseController
 			$rp['totalSquared'] = $totalSquared;
 			$rp['ave'] = $count == 0 ? 0 : $total / $count;
 			$rp['max'] = $maxPt;
+			$rp['startCount'] = $count;
 		}
 		unset($rp); // 下流で使うので
 		
