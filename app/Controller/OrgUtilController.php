@@ -662,8 +662,34 @@ class OrgUtilController extends ApiBaseController
 		$this->__putToFp($fp, array('AJOCC 選手リスト', '更新日:' . date('Y/m/d')), $encode);
 		
 		$row = array('選手コード', '姓', '名', '姓（かな）', '名（かな）', '姓 (en)', '名 (en)', 'チーム名'
-			, '性別', '生年月日', '国籍', 'Jcf No.', 'UCI ID', 'UCI No.', 'UCI Code', '都道府県', '所属カテゴリー');
+			, '性別', '生年月日', '国籍', 'Jcf No.', 'UCI ID', 'UCI No.', 'UCI Code', '都道府県', '所属カテゴリー'
+			,'' 
+			, 'Ajocc Point Rank', 'as Category of AjoccPtRank'
+			, 'Ajocc Point Rank（前シーズン）', 'as Category of AjoccPtRank（前シーズン）', 'Team(en)');
 		$this->__putToFp($fp, $row, $encode);
+		
+		// ajoc ranking
+		$cdt = array('start_date <=' => date('Y-m-d'), 'end_date >=' => date('Y-m-d'));
+		$ss = $this->Season->find('first', array('conditions' => $cdt));
+		$this->log($ss['Season']['id'], LOG_DEBUG);
+		$rankMap = empty($ss['Season']['id']) ? array() : $this->__createAjoccRankMap($ss['Season']['id']);
+		
+		if ($rankMap === false) {
+			$this->log('rankMap の作成に失敗しました。', LOG_ERR);
+			$this->Flash->set(__('エラーのため、ランキングデータを取得できませんでした。不正な場合は、管理者に連絡して下さい。'));
+			// not break
+		}
+		
+		// ajoc ranking(pre season)
+		$cdt = array('start_date <=' => date('Y-m-d', strtotime('-1 year')), 'end_date >=' => date('Y-m-d', strtotime('-1 year')));
+		$ss = $this->Season->find('first', array('conditions' => $cdt));
+		$rankMapPre = empty($ss['Season']['id']) ? array() : $this->__createAjoccRankMap($ss['Season']['id']);
+		
+		if ($rankMapPre === false) {
+			$this->log('rankMap の作成に失敗しました。', LOG_ERR);
+			$this->Flash->set(__('エラーのため、前シーズンのランキングデータを取得できませんでした。不正な場合は、管理者に連絡して下さい。'));
+			// not break
+		}
 		
 		$offset = 0;
 		$limit = 100;
@@ -733,6 +759,12 @@ class OrgUtilController extends ApiBaseController
 					$cats[] = $catRacer['category_code'];
 				}
 				
+				// ajocc pt rank
+				$rank = empty($rankMap[$r['code']]) ? '' : $rankMap[$r['code']]['rank'];
+				$asCat = empty($rankMap[$r['code']]) ? '' : $rankMap[$r['code']]['as_cat'];
+				$rankPre = empty($rankMapPre[$r['code']]) ? '' : $rankMapPre[$r['code']]['rank'];
+				$asCatPre = empty($rankMapPre[$r['code']]) ? '' : $rankMapPre[$r['code']]['as_cat'];
+				
 				$row = array($this->__strOrEmpty($r['code']),
 						$this->__strOrEmpty($r['family_name']),
 						$this->__strOrEmpty($r['first_name']),
@@ -749,7 +781,14 @@ class OrgUtilController extends ApiBaseController
 						$this->__strOrEmpty($r['uci_number']),
 						$this->__strOrEmpty($r['uci_code']),
 						$this->__strOrEmpty($r['prefecture']),
-						$catExp);
+						$catExp,
+						'',// 空行
+						$rank,
+						$asCat,
+						$rankPre,
+						$asCatPre,
+						$this->__strOrEmpty($r['team_en']),
+						);
 				$this->__putToFp($fp, $row, $encode);
 			}
 			
@@ -770,6 +809,39 @@ class OrgUtilController extends ApiBaseController
 		
 		$this->Flash->success(h('選手リストを更新しました。'));
 		$this->redirect(array('action' => 'racer_list_csv_links'));
+	}
+	
+	/**
+	 * 今シーズンの Ajocc Point 順位を返す。{racer_code: {rank:99, as_cat:CM2},,,}
+	 * @param int $season_id シーズン ID
+	 * @return array {racer_code: {rank:99, as_cat:CM2},,,} の map。該当シーズンがない場合は empty array。エラーは false。
+	 */
+	private function __createAjoccRankMap($season_id = false)
+	{
+		if (empty($season_id)) {
+			return array();
+		}
+		
+		$ret_map = array();
+		// BETAG:
+		$cats = array('C4','CM3', 'C3','CM2', 'C2','CM1', 'C1'); // 低いカテゴリーから埋めて、高いカテゴリーで上書き
+		
+		foreach ($cats as $cat) {
+			$ret = $this->calcAjoccPoints($cat, $season_id);
+		
+			if ($ret === false || !isset($ret['racerPoints'])) {
+				$this->log('rankMap の作成に失敗しました。cat:' . $cat . ' season:' . $season_id, LOG_ERR);
+				return false;
+			}
+			
+			$racerPoints = $ret['racerPoints'];
+			
+			foreach ($racerPoints as $rcode => $rp) {
+				$ret_map[$rcode] = array('rank' => $rp['rank'], 'as_cat' => $cat);
+			}
+		}
+		
+		return $ret_map;
 	}
 	
 	/**
