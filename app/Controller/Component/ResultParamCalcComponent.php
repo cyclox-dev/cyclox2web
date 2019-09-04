@@ -58,6 +58,17 @@ class ResultParamCalcComponent extends Component
 		array('racer_count' => 40, 'up' => 2),
 		array('racer_count' => 10, 'up' => 1),
 	);
+	private $__rule011122 = array(
+		array('racer_count' => 40, 'up' => 2),
+		array('racer_count' => 10, 'up' => 1),
+	);
+	private $__rule012345 = array(
+		array('racer_count' => 50, 'up' => 5),
+		array('racer_count' => 40, 'up' => 4),
+		array('racer_count' => 30, 'up' => 3),
+		array('racer_count' => 20, 'up' => 2),
+		array('racer_count' => 10, 'up' => 1),
+	);
 	
 	private $TransactionManager;
 	private $Racer;
@@ -1498,8 +1509,18 @@ class ResultParamCalcComponent extends Component
 		// 文字列で判断する
 		// パラメタから処理したいが、複雑なのでやめておく。
 		// racesCatCode => array('needs' => 必要な所属, 'to' =>昇格先)
-		
-		if ($this->_isSeasonAfter1617()) {
+		if ($this->_isSeasonAfter1819()) {
+			$this->__rankUpMap = array(
+				// 1718 から C1, CM1 への昇格が2名に、基準人数50->40に変更。
+				'C2' => array('needs' => array('C2'), 'to' => 'C1', 'rule' => $this->__rule011122),
+				'C3' => array('needs' => array('C3'), 'to' => 'C2', 'rule' => $this->__rule012345),
+				'C4' => array('needs' => array('C4'), 'to' => 'C3', 'rule' => $this->__rule012345),
+				'C3+4' => array('needs' => array('C3', 'C4'), 'to' => 'C2', 'rule' => $this->__rule012345),
+				'CM2' => array('needs' => array('CM2'), 'to' => 'CM1', 'rule' => $this->__rule011122),
+				'CM3' => array('needs' => array('CM3'), 'to' => 'CM2', 'rule' => $this->__rule012345),
+				'CM2+3' => array('needs' => array('CM2', 'CM3'), 'to' => 'CM1', 'rule' => $this->__rule011122),
+			);
+		} else if ($this->_isSeasonAfter1617()) {
 			//$this->log('is after', LOG_DEBUG);
 			$this->__rankUpMap = array(
 				// 1718 から C1, CM1 への昇格が2名に、基準人数50->40に変更。
