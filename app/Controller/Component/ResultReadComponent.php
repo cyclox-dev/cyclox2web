@@ -61,9 +61,9 @@ class ResultReadComponent extends Component
 														// また、isImportant は family, first 単位で判定するので false とする。
 			new ResReadUnit("family_name",		'姓',			false,	true,	true),
 			new ResReadUnit("first_name",		'名',			false,	true,	true),
-			//new ResReadUnit("name_en",			'Name',			false),
-			//new ResReadUnit("family_name_en",	'FamilyName',	false,	true,	true),
-			//new ResReadUnit("first_name_en",	'FirstName',	false,	true,	true),
+			new ResReadUnit("name_en",			'Name',			false),
+			new ResReadUnit("family_name_en",	'FamilyName',	false,	true,	true),
+			new ResReadUnit("first_name_en",	'FirstName',	false,	true,	true),
 			new ResReadUnit("team",				'チーム',		false,	true,	false),
 			new ResReadUnit("team_en",			'Team',			false,	true,	false),
 			new ResReadUnit("uci_id",			'UCI_ID',		false,	true,	true),
@@ -112,7 +112,7 @@ class ResultReadComponent extends Component
 				
 				// TODO: 日付フォーマット変換
 				if (!empty($res["racer_code"])){
-					$res['original'] = $this->__getOriginalRacer($res, $date);
+					$res['original'] = $this->__getOriginalRacer($res);
 				}
 				
 				if (!empty($res['family_name']) && !empty($res['first_name'])) {
@@ -332,10 +332,9 @@ class ResultReadComponent extends Component
 	/**
 	 * $dat['racer_code'] をを持つ選手情報をかえす
 	 * @param array $dat エントリー読値
-	 * @param date $date カテゴリー所持判断日付
 	 * @return array 選手コードをもつ登録済みデータ
 	 */
-	private function __getOriginalRacer($dat, $date)
+	private function __getOriginalRacer($dat)
 	{
 		// assert !empty($dat['racer_code'])
 		
@@ -388,7 +387,7 @@ class ResultReadComponent extends Component
 			$cnved = $val;
 			
 			if (empty($val)) {
-				if ($key == 'body_number' || $key == 'result_status' || $key == 'name') {
+				if ($key == 'body_number' || $key == 'result_status') {
 					$map[$key] = array(
 						'original' => '',
 						'pos' => $pos,
@@ -499,7 +498,7 @@ class ResultReadComponent extends Component
 					'original' => '',
 					'val' => '',
 					'pos' => null,
-					'error' => '値が必要です。',
+					//'error' => '値が必要です。',
 					'valexp' => '(読込値がありません)',
 				);
 			}
@@ -508,7 +507,7 @@ class ResultReadComponent extends Component
 					'original' => '',
 					'val' => '',
 					'pos' => null,
-					'error' => '値が必要です。',
+					//'error' => '値が必要です。',
 					'valexp' => '(読込値がありません)',
 				);
 			}

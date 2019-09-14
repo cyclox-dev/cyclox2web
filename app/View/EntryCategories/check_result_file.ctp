@@ -28,6 +28,8 @@
 				echo '<p>' . $err . '</p>';
 				$haserr = true;
 			}
+		} else {
+			echo '<p>エラーはありません。</p>';
 		}
 	?>
 	<?php
@@ -61,20 +63,42 @@
 			
 			if (isset($result['name']['error'])) {
 				$name = $result['name']['original'];
-			} else {
+			} else { // TODO: else if isset('name_en' ?
 				if (isset($result['name']['val'])) {
 					$name = $result['name']['val'];
 				} else {
-					$fam = (empty($result['family_name']['val'])) ? '？' : $result['family_name']['val'];
-					$fir = (empty($result['first_name']['val'])) ? '？' : $result['first_name']['val'];
+					if (empty($result['family_name']['val'])) {
+						$fam = empty($result['family_name_en']['val']) ? '？' : $result['family_name_en']['val'];
+					} else {
+						$fam = $result['family_name']['val'];
+					}
+					if (empty($result['first_name']['val'])) {
+						$fir = empty($result['first_name_en']['val']) ? '？' : $result['first_name_en']['val'];
+					} else {
+						$fir = $result['first_name']['val'];
+					}
+					
 					$name = $fam . ' ' . $fir;
 				}
 			}
 			
-			$birth = isset($result['birth_date']['val']) ? $result['birth_date']['val'] : '生年月日不明';
-			echo 'Bib.' . $bib . ' ' . $name . ' [' . $code . '] ' . $birth . ' 生まれ';
+			$birth = isset($result['birth_date']['val']) ? $result['birth_date']['val'] . ' 生まれ' : '生年月日不明';
+			echo '読込値 Bib.' . $bib . ' ' . $name . ' [' . $code . '] ' . $birth;
 		?>
 	</h3>
+	<p>
+		<?php
+			if (isset($result['racer_code']['val'])) {
+				echo $result['racer_code']['val'] . 'の既存の名前: ' . $result['original']['family_name'] . ' ' . $result['original']['first_name'];
+			}
+		?>
+	</p>
+	<?php
+		if (empty($result['racer_code']['val']) && empty($result['name']['val'])) {
+			echo '<p>[Error] 新規選手には日本語の選手名 (family_name + first_name or name) が必要です。</p>';
+			$haserr = true;
+		}
+	?>
 	<div class="diff_tables">
 		<?php $finds = false; ?>
 		<?php foreach ($results['runits'] as $runit): ?>
@@ -137,7 +161,13 @@
 		</tr>
 		<?php endif; /* if (diff) */ ?>
 		<?php endforeach; /* units */ ?>
-		<?php if ($finds) echo '</tbody></table>'; ?>
+		<?php
+			if ($finds) {
+				echo '</tbody></table>';
+			} else {
+				echo '<h4>既存データと異なるデータ値はありません。</h4>';
+			}
+		?>
 		<?php if (!empty($result['cddts'])): ?>
 		<h4>同じ名前の選手が存在します。</h4>
 		<table cellpadding="0" cellspacing="0">
@@ -194,8 +224,17 @@
 			}
 			
 			$puthid($i, 'body_number', $result['body_number']['val']);
-			$puthid($i, 'name_at_race', $result['name']['val']);
-			// TODO: fill name_en_at_race, kana
+			
+			if (empty($result['name']['val'])) {
+				$nar = empty($result['name_en']['val']) ? '名前未入力' : $result['name_en']['val'];
+			} else {
+				$nar =  $result['name']['val'];
+			}
+			$puthid($i, 'name_at_race', $nar);
+			
+			$nar = empty($result['name_en']['val']) ? '名前未入力' : $result['name_en']['val'];
+			$puthid($i, 'name_en_at_race', $nar);
+			
 			$puthid($i, 'checks_in', 1);
 			
 			$puthid($i, 'entry_status', $result['entry_status']['val']->val());
@@ -245,8 +284,8 @@
 				// racer code empty の場合には保存時に新しい選手コードを付加する。
 			}
 			
-			$puthid($i, 'family_name', $result['family_name']['val']);
-			$puthid($i, 'first_name', $result['first_name']['val']);
+			$ky = 'family_name';	if (!empty($result[$ky]['val'])) $puthid($i, $ky, $result[$ky]['val']);
+			$ky = 'first_name';	if (!empty($result[$ky]['val'])) $puthid($i, $ky, $result[$ky]['val']);
 			
 			$ky = 'family_name_kana';	if (!empty($result[$ky]['val'])) $puthid($i, $ky, $result[$ky]['val']);
 			$ky = 'first_name_kana';	if (!empty($result[$ky]['val'])) $puthid($i, $ky, $result[$ky]['val']);

@@ -339,8 +339,10 @@ class EntryCategoriesController extends ApiBaseController
 				if (!empty($registed['Racer']['birth_date'])) unset($r['birth_date']);
 				if (!empty($registed['Racer']['uci_id'])) unset($r['uci_id']);
 				
-				$newFam = ($r['family_name'] == $registed['Racer']['family_name']) ? null : $r['family_name'];
-				$newFir = ($r['first_name'] == $registed['Racer']['first_name']) ? null : $r['first_name'];
+				$fm = isset($r['family_name']) ? $r['family_name'] : null;
+				$newFam = ($fm == $registed['Racer']['family_name']) ? null : $fm;
+				$fi = isset($r['first_name']) ? $r['first_name'] : null;
+				$newFir = ($fi == $registed['Racer']['first_name']) ? null : $fi;
 				
 				if (!empty($newFam) || !empty($newFir)) {
 					$user = $this->Auth->user();
@@ -363,7 +365,13 @@ class EntryCategoriesController extends ApiBaseController
 
 				if (isset($r['category_code'])) {
 					// category 所属を与える
-					// TODO: category_code の存在チェック
+					
+					// category_code の存在チェック
+					$catcnt = $this->Category->find('count', array('conditions' => array('code' => $r['category_code'])));
+					if ($catcnt < 1) {
+						return array('err' => array('category_code の値 [' . $r['category_code'] . '] が無効なコードです。'));
+					}
+					
 					$newCr[] = array(
 						'CategoryRacer' => array(
 							'racer_code' => $rcode,
