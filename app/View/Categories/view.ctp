@@ -85,7 +85,7 @@
 		<dd>
 			<?php echo h($category['Category']['publishes_ajocc_ranking_on_ressys']); ?>
 			&nbsp;
-		</dd>publishes_ajocc_ranking_on_ressys
+		</dd>
 	</dl>
 </div>
 <div class="actions">
