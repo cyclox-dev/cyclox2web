@@ -83,7 +83,7 @@
 		</dd>
 		<dt><?php echo __('Ajocc Ranking 公開データの作成／更新を行なう'); ?></dt>
 		<dd>
-			<?php echo h($category['Category']['publishes_ajocc_ranking_on_ressys']); ?>
+			<?php echo h($category['Category']['publishes_ajocc_ranking_on_ressys'] == 0 ? 'No' : 'Yes'); ?>
 			&nbsp;
 		</dd>
 	</dl>
