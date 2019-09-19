@@ -19,7 +19,7 @@
 		echo $this->Form->input('needs_jcf');
 		echo $this->Form->input('needs_uci');
 		echo $this->Form->input('uci_age_limit');
-		echo $this->Form->input('publishes_ajocc_ranking_on_ressys', array('label' => 'Ajocc Ranking 公開データの作成／更新を行なう'));
+		echo $this->Form->input('publishes_ajocc_ranking_on_ressys', array('label' => 'Ajocc Ranking 公開データの作成／更新を行なう', 'type' => 'checkbox'));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>
