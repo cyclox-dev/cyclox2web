@@ -8,12 +8,12 @@ DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
+DROP TABLE IF EXISTS tmp_result_update_flags;
 DROP TABLE IF EXISTS time_records;
 DROP TABLE IF EXISTS hold_points;
 DROP TABLE IF EXISTS point_series_racers;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
-DROP TABLE IF EXISTS tmp_result_update_flags;
 DROP TABLE IF EXISTS entry_categories;
 DROP TABLE IF EXISTS time_record_info;
 DROP TABLE IF EXISTS entry_groups;
@@ -74,6 +74,8 @@ CREATE TABLE categories
 	needs_jcf tinyint NOT NULL,
 	needs_uci tinyint NOT NULL,
 	uci_age_limit varchar(5) DEFAULT '',
+	-- 成績公開サイトでAjoccRankingを公開するかのフラグ
+	publishes_ajocc_ranking_on_ressys tinyint(1) DEFAULT 1 NOT NULL,
 	created datetime,
 	modified datetime,
 	deleted_date datetime,

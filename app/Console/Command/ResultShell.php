@@ -105,7 +105,7 @@ class ResultShell extends AppShell
 					$Category = new Category();
 					if (!$Category->exists($asCat)) {
 						$updated = true; // フラグを処理済みにするため
-						$this->log('cat:' . $asCat . ' season:' . $seasonId . ' はカテゴリーとして認識されません。', LOG_DEBUG);
+						$this->log('cat:' . $asCat . ' season:' . $seasonId . ' はカテゴリーとして認識されません。', LOG_INFO);
 					} else {
 						$updated = $this->__updateAjoccRanking($asCat, $seasonId);
 
@@ -259,7 +259,18 @@ class ResultShell extends AppShell
 		//$this->log('season.updates_ajocc_ranking:' . $season['Season']['updates_ajocc_ranking'], LOG_DEBUG);
 		
 		if (!$season['Season']['updates_ajocc_ranking']) {
-			$this->log('更新フラグがオフとなっているため、更新処理しません。' . $location, LOG_INFO);
+			$this->log('更新フラグがオフとなっているため、更新（作成）処理を行ないません。' . $location, LOG_INFO);
+			return true;
+		}
+		
+		// カテゴリーごと更新対象であるかチェック
+		$cat = $this->Category->find('first', array('conditions' => array('code' => $catCode), 'recursive' => -1));
+		if (empty($cat)) {
+			$this->log('対象となるカテゴリーがみつかりません。更新（作成）処理を行ないません。' . $location, LOG_INFO);
+			return true;
+		}
+		if (!$cat['Category']['publishes_ajocc_ranking_on_ressys']) {
+			$this->log('カテゴリー: ' . $catCode . 'は成績公開がオフとなっているため、更新（作成）処理を行ないません。' . $location, LOG_INFO);
 			return true;
 		}
 		
