@@ -164,7 +164,7 @@
 		<?php
 			if ($finds) {
 				echo '</tbody></table>';
-			} else {
+			} else if (!empty($result['racer_code']['val'])) {
 				echo '<h4>既存データと異なるデータ値はありません。</h4>';
 			}
 		?>
