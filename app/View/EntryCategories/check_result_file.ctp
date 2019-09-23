@@ -4,9 +4,9 @@
 		注意：この処理により、選手データ（名前など）は今回読み込んだ値により書き変わります。</br>
 		（UCI ID 及び生年月日は上書きされません。）
 	</p>
-	<p>選手コードプレフィクスは <?php echo $results['rcode_prefix']; ?> です。</p>
+	<p>選手コードプレフィクスは <?php echo h($results['rcode_prefix']); ?> です。</p>
 	<p>
-		新規選手に払い出される選手コード末尾番号の範囲は<?php echo $results['rcode_range'][0] . '〜' . $results['rcode_range'][1] ?>です。</br>
+		新規選手に払い出される選手コード末尾番号の範囲は<?php echo h($results['rcode_range'][0] . '〜' . $results['rcode_range'][1]); ?>です。</br>
 		Cyclox2Application の設定と重複していないよう、確認してください。
 	</p>
 	<p><?php // hidden 出力時にエラーになるため仮の値を入れておく
@@ -14,7 +14,7 @@
 		if ($results['started'] === false) {
 			echo 'エラーがあるためカウント不可能でした。';
 		} else {
-			echo $results['started'] . '人';
+			echo h($results['started']) . '人';
 		}
 	?></p>
 	
@@ -25,7 +25,7 @@
 	<?php
 		if (!empty($results['title_errors'])){
 			foreach ($results['title_errors'] as $err) {
-				echo '<p>' . $err . '</p>';
+				echo '<p>' . h($err) . '</p>';
 				$haserr = true;
 			}
 		} else {
@@ -35,7 +35,7 @@
 	<?php
 		if (!empty($results['title_warns'])){
 			foreach ($results['title_warns'] as $err) {
-				echo '<p>' . $err . '</p>';
+				echo '<p>' . h($err) . '</p>';
 			}
 		}
 	?>
@@ -44,7 +44,7 @@
 		if (!empty($results['not_read_titles'])) {
 			echo '<h4>※以下のタイトルの行は読み込まれていません。</h4>';
 			foreach ($results['not_read_titles'] as $title) {
-				echo '<p>' . $title . '</p>';
+				echo '<p>' . h($title) . '</p>';
 			}
 		}
 	?>
@@ -83,13 +83,13 @@
 			}
 			
 			$birth = isset($result['birth_date']['val']) ? $result['birth_date']['val'] . ' 生まれ' : '生年月日不明';
-			echo '読込値 Bib.' . $bib . ' ' . $name . ' [' . $code . '] ' . $birth;
+			echo h('読込値 Bib.' . $bib . ' ' . $name . ' [' . $code . '] ' . $birth);
 		?>
 	</h3>
 	<p>
 		<?php
 			if (isset($result['racer_code']['val'])) {
-				echo $result['racer_code']['val'] . 'の既存の名前: ' . $result['original']['family_name'] . ' ' . $result['original']['first_name'];
+				echo h($result['racer_code']['val'] . 'の既存の名前: ' . $result['original']['family_name'] . ' ' . $result['original']['first_name']);
 			}
 		?>
 	</p>
@@ -105,7 +105,7 @@
 		<?php
 			if (!empty($result['racer_code']['original']) && isset($result['original']['error']['racer_code'])) {
 				$haserr = true;
-				echo '<p>[Error] ' . $result['original']['error']['racer_code'] . '</p>';
+				echo '<p>[Error] ' . h($result['original']['error']['racer_code']) . '</p>';
 				break;
 			}
 		?>
@@ -119,7 +119,7 @@
 			$finds = true;
 			$rcode = isset($result['racer_code']['val']) ? '(' . $result['racer_code']['val'] . ')' : '';
 			echo '<table cellpadding="0" cellspacing="0">';
-			echo '<thead><tr><th>データ(title name)</th><th>読み込んだ値</th><th>既存値' . $rcode . '</th><th>備考</th></thead><tbody>';
+			echo '<thead><tr><th>データ(title name)</th><th>読み込んだ値</th><th>既存値' . h($rcode) . '</th><th>備考</th></thead><tbody>';
 		?>
 		<?php endif; /* $finds? */ ?>
 		<tr>
@@ -128,32 +128,32 @@
 				<?php $haserr = true; ?>
 				<td><?php
 					if (isset($result[$key]['valexp'])) echo $result[$key]['valexp'];
-					else if (isset($result[$key]['original'])) echo $result[$key]['original'];
+					else if (isset($result[$key]['original'])) echo h($result[$key]['original']);
 				?></td>
 				<td><?php 
 					if ($key == 'name') {
-						echo $result['original']['family_name'] . ' ' . $result['original']['first_name'];
+						echo h($result['original']['family_name'] . ' ' . $result['original']['first_name']);
 					} else if ($runit->checks) {
-						echo isset($result['original'][$key]) ?$result['original'][$key] : '';
+						echo isset($result['original'][$key]) ? h($result['original'][$key]) : '';
 					}
 				?></td>
 				<td><?php
 					$pos = empty($result[$key]['pos']) ? '' : '(' . $result[$key]['pos'] . ')';
-					echo '[Error] ' . $result[$key]['error'] . $pos;
+					echo h('[Error] ' . $result[$key]['error'] . $pos);
 				?></td>
 			<?php else: ?>
 				<td><?php 
 					if (isset($result[$key]['valexp'])) {
-						echo $result[$key]['valexp']; 
+						echo h($result[$key]['valexp']); 
 					} else {
-						echo $result[$key]['val']; 
+						echo h($result[$key]['val']); 
 					}
 				?></td>
 				<td><?php
 					if ($key == 'gender') {
 						echo (Gender::genderAt($result['original'][$key]))->charExp();
 					} else {
-						echo isset($result['original'][$key]) ? $result['original'][$key] : '';
+						echo isset($result['original'][$key]) ? h($result['original'][$key]) : '';
 					}
 				?></td>
 				<td></td>
@@ -187,14 +187,14 @@
 			<tbody>
 			<?php foreach ($result['cddts'] as $cddt): ?>
 				<tr>
-					<td><?php echo $cddt['Racer']['code']; ?></td>
-					<td><?php echo $cddt['Racer']['family_name']; ?></td>
-					<td><?php echo $cddt['Racer']['first_name']; ?></td>
-					<td><?php echo $cddt['Racer']['family_name_en']; ?></td>
-					<td><?php echo $cddt['Racer']['first_name_en']; ?></td>
-					<td><?php echo $cddt['Racer']['team']; ?></td>
-					<td><?php echo $cddt['Racer']['birth_date']; ?></td>
-					<td><?php echo $cddt['Racer']['uci_id']; ?></td>
+					<td><?php echo h($cddt['Racer']['code']); ?></td>
+					<td><?php echo h($cddt['Racer']['family_name']); ?></td>
+					<td><?php echo h($cddt['Racer']['first_name']); ?></td>
+					<td><?php echo h($cddt['Racer']['family_name_en']); ?></td>
+					<td><?php echo h($cddt['Racer']['first_name_en']); ?></td>
+					<td><?php echo h($cddt['Racer']['team']); ?></td>
+					<td><?php echo h($cddt['Racer']['birth_date']); ?></td>
+					<td><?php echo h($cddt['Racer']['uci_id']); ?></td>
 					<td><?php if ($cddt['Racer']['deleted']) echo '削除済み選手' ?></td>
 				</tr>
 			<?php endforeach; /* $result['cddts'] */ ?>
@@ -211,7 +211,7 @@
 		
 		$self = $this;
 		$puthid = function($index, $key, $val) use ($self) {
-			echo $self->Form->hidden('EntryRacer.' . $index . '.' . $key, array('value' => $val));
+			echo $self->Form->hidden('EntryRacer.' . $index . '.' . $key, array('value' => h($val)));
 		};
 		
 		$i = 0;
@@ -271,7 +271,7 @@
 		}
 		
 		$puthid = function($index, $key, $val) use ($self) {
-			echo $self->Form->hidden('Racer.' . $index . '.' . $key, array('value' => $val));
+			echo $self->Form->hidden('Racer.' . $index . '.' . $key, array('value' => h($val)));
 		};
 		
 		// TODO: 以下、変更の有無に関係なく書き換える要素を配置している。できれば有無を見るべし。
