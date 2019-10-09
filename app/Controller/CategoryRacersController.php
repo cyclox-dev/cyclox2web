@@ -17,7 +17,11 @@ class CategoryRacersController extends ApiBaseController
  *
  * @var array
  */
-	public $components = array('Paginator', 'Flash', 'RequestHandler', 'Security');
+	public $components = array('Paginator', 'Flash', 'RequestHandler',
+			'Security' => array(
+				'unlockedActions' => array('delete'), // 他のコントローラーからアクセスあり。
+			)
+	);
 
 	public $uses = array('CategoryRacer', 'Meet', 'Racer');
 
