@@ -177,7 +177,7 @@ class RacersController extends ApiBaseController
 					'EntryGroup' => array(
 						'fields' => array(),
 						'Meet' => array(
-							'fields' => array('code', 'short_name', 'at_date'),
+							'fields' => array('code', 'short_name', 'at_date', 'holding_status'),
 						)
 					)
 				)
@@ -226,7 +226,7 @@ class RacersController extends ApiBaseController
 				'EntryGroup' => array(
 					'fields' => array(),
 					'Meet' => array(
-						'fields' => array('code', 'short_name', 'at_date'),
+						'fields' => array('code', 'short_name', 'at_date', 'holding_status'),
 					)
 				)
 			)

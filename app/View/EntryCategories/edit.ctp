@@ -12,6 +12,14 @@
 		echo $this->Form->input('applies_hold_pt', array('label' => '残留ポイント適用有無'));
 		echo $this->Form->input('applies_rank_up', array('label' => '昇格有無'));
 		echo $this->Form->input('applies_ajocc_pt', array('label' => 'AJOCC ポイント配点有無'));
+		
+		App::uses('RaceStatus', 'Cyclox/Const');
+		$hs = array();
+		foreach (RaceStatus::statusList() as $k => $s) {
+			$hs[$k] = $s->name();
+		}
+		echo $this->Form->input('holding_status', array('label' => 'レース開催ステータス', 'options' => $hs));
+		
 		echo $this->Form->input('note');
 	?>
 	</fieldset>

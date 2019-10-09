@@ -54,6 +54,14 @@
 			<?php echo h($entryCategory['EntryCategory']['applies_ajocc_pt'] ? '付与する' : '付与しない'); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('レース開催ステータス'); ?></dt>
+		<dd>
+			<?php
+				App::uses('RaceStatus', 'Cyclox/Const');
+				echo RaceStatus::statusAt($entryCategory['EntryCategory']['holding_status'])->name();
+			?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Note'); ?></dt>
 		<dd>
 			<?php echo h($entryCategory['EntryCategory']['note']); ?>

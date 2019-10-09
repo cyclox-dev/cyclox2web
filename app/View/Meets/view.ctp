@@ -56,6 +56,15 @@
 			<?php echo h($meet['Meet']['lap_distance']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('開催状況'); ?></dt>
+		<dd>
+			<?php
+				App::uses('MeetStatus', 'Cyclox/Const');
+				$s = MeetStatus::statusAt($meet['Meet']['holding_status']);
+				echo $s->expectedMsg() . '／' . $s->doneMsg();
+			?>
+			&nbsp;
+		</dd>
 	</dl>
 <p style="height: 1em"></p>
 <h3>Status</h3>
@@ -100,7 +109,10 @@
 <div class="related">
 	<h3><?php echo __('出走カテゴリー'); ?></h3>
 	<?php if (!empty($meet['EntryCategory'])): ?>
-		<?php App::uses('LapOutRule', 'Cyclox/Const'); ?>
+		<?php
+			App::uses('LapOutRule', 'Cyclox/Const');
+			App::uses('RaceStatus', 'Cyclox/Const');
+		?>
 		<table cellpadding = "0" cellspacing = "0">
 			<tr>
 				<th><?php echo __('出走カテゴリー名'); ?></th>
@@ -108,6 +120,7 @@
 				<th><?php echo __('スタート計測遅延(sec)'); ?></th>
 				<th><?php echo __('ラップアウト処理'); ?></th>
 				<th><?php echo __('出走グループ'); ?></th>
+				<th><?php echo __('レースStatus'); ?></th>
 				<th><?php echo __('更新日時'); ?></th>
 				<th class="actions"><?php echo __('Actions'); ?></th>
 			</tr>
@@ -118,6 +131,9 @@
 				<td><?php echo h($entryCategory['start_delay_sec']); ?></td>
 				<td><?php echo h(LapOutRule::ofVal($entryCategory['lapout_rule'])->expressJp()); ?></td>
 				<td><?php echo h($entryCategory['entry_group_id']); ?></td>
+				<td><?php
+					echo RaceStatus::statusAt($entryCategory['holding_status'])->name();
+				?></td>
 				<td><?php echo h($entryCategory['modified']); ?></td>
 				<td class="actions">
 					<?php echo $this->Html->link(__('View'), array('controller' => 'entry_categories', 'action' => 'view', $entryCategory['id'])); ?>

@@ -10,8 +10,8 @@ DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
 DROP TABLE IF EXISTS tmp_result_update_flags;
 DROP TABLE IF EXISTS time_records;
-DROP TABLE IF EXISTS hold_points;
 DROP TABLE IF EXISTS point_series_racers;
+DROP TABLE IF EXISTS hold_points;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
 DROP TABLE IF EXISTS entry_categories;
@@ -156,6 +156,8 @@ CREATE TABLE entry_categories
 	applies_hold_pt tinyint(1) DEFAULT 1 NOT NULL,
 	applies_rank_up tinyint(1) DEFAULT 1 NOT NULL,
 	applies_ajocc_pt tinyint(1) NOT NULL,
+	-- 中止、途中終了などのステータス
+	holding_status int unsigned DEFAULT 1 NOT NULL,
 	created datetime,
 	modified datetime,
 	deleted_date datetime,
@@ -252,6 +254,8 @@ CREATE TABLE meets
 	homepage varchar(255),
 	start_frac_distance float(6,3) DEFAULT 0.0,
 	lap_distance float(6,3) DEFAULT 2.0,
+	-- 大会中止などのステータス
+	holding_status int unsigned DEFAULT 1 NOT NULL,
 	created datetime,
 	modified datetime,
 	deleted_date datetime,

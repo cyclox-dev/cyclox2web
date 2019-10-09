@@ -9,6 +9,7 @@
 			<th><?php echo $this->Paginator->sort('short_name', 'Short Name'); ?></th>
 			<th><?php echo $this->Paginator->sort('meet_group_code', '大会 Group'); ?></th>
 			<th><?php echo $this->Paginator->sort('season_id'); ?></th>
+			<th><?php echo $this->Paginator->sort('holding_status', '開催 Status'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>
@@ -24,6 +25,12 @@
 		</td>
 		<td>
 			<?php echo $this->Html->link($meet['Season']['name'], array('controller' => 'seasons', 'action' => 'view', $meet['Season']['id'])); ?>
+		</td>
+		<td>
+			<?php
+				App::uses('MeetStatus', 'Cyclox/Const');
+				echo MeetStatus::statusAt($meet['Meet']['holding_status'])->name();
+			?>
 		</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $meet['Meet']['code'])); ?>

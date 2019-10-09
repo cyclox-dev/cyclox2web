@@ -285,21 +285,35 @@
 				$RESULT_MAX = 10;
 				$resultCount = 0;
 			?>
+			<?php 
+				App::uses('MeetStatus', 'Cyclox/Const');
+				App::uses('RaceStatus', 'Cyclox/Const');
+			?>
 			<?php for ($i = count($entries) - 1; $i >= 0; $i--): ?>
 				<?php $entry = $entries[$i] ?>
 				<tr>
 					<td><?php
+						$addstr = '';
+						$stid = $entry['EntryCategory']['EntryGroup']['Meet']['holding_status'];
+						if ($stid != MeetStatus::$NORMAL->ID()) {
+							$addstr = '（大会' . MeetStatus::statusAt($stid)->name() . '）';
+						}
 						echo $this->Html->link(
 								$entry['EntryCategory']['EntryGroup']['Meet']['short_name']
 								, array('controller' => 'meets', 'action' => 'view', $entry['EntryCategory']['EntryGroup']['Meet']['code'])
-						);
+						) . $addstr;
 					?></td>
 					<td><?php echo h($entry['EntryCategory']['EntryGroup']['Meet']['at_date']); ?></td>
 					<td><?php
+						$addstr = '';
+						$stid = $entry['EntryCategory']['holding_status'];
+						if ($stid != RaceStatus::$NORMAL->ID()) {
+							$addstr = '（' . RaceStatus::statusAt($stid)->name() . '）';
+						}
 						echo $this->Html->link(
 								$entry['EntryCategory']['name']
 								, array('controller' => 'entry_categories', 'action' => 'view', $entry['EntryCategory']['id'])
-						); ?>
+						) . $addstr; ?>
 					</td>
 					<td><?php echo h(RacerEntryStatus::ofVal($entry['EntryRacer']['entry_status'])->msg()); ?></td>
 					<?php if (!empty($entry['RacerResult']['id'])): ?>

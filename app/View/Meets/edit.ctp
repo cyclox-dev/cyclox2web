@@ -3,10 +3,17 @@
 	<fieldset>
 		<legend><?php echo __('大会データの編集'); ?></legend>
 	<?php
+		App::uses('MeetStatus', 'Cyclox/Const');
+		$hs = array();
+		foreach (MeetStatus::statusList() as $k => $s) {
+			$hs[$k] = $s->name();
+		}
+		
 		$mg = array();
 		foreach ($meetGroups as $k => $v) {
 			$mg[$k] = $k . ': ' . $v;
 		}
+		
 		echo $this->Form->input('code');
 		echo $this->Form->input('meet_group_code', array('options' => $mg, 'label' => '大会 Group', 'disabled' => 'disabled'));
 		echo $this->Form->input('season_id');
@@ -24,6 +31,7 @@
 		echo $this->Form->input('homepage', array('type' => 'text'));
 		echo $this->Form->input('start_frac_distance', array('label' => 'スタート端数距離 (km)'));
 		echo $this->Form->input('lap_distance', array('label' => '周回距離 (km)'));
+		echo $this->Form->input('holding_status', array('options' => $hs, 'label' => '開催状況'));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>
