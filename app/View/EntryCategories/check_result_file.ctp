@@ -226,13 +226,25 @@
 			$puthid($i, 'body_number', $result['body_number']['val']);
 			
 			if (empty($result['name']['val'])) {
-				$nar = empty($result['name_en']['val']) ? '名前未入力' : $result['name_en']['val'];
+				if (!empty($result['original'])) {
+					$nar = $result['original']['family_name'] . ' ' . $result['original']['first_name'];
+				} else {
+					$nar = empty($result['name_en']['val']) ? '名前未入力' : $result['name_en']['val'];
+				}
 			} else {
 				$nar =  $result['name']['val'];
 			}
 			$puthid($i, 'name_at_race', $nar);
 			
-			$nar = empty($result['name_en']['val']) ? '名前未入力' : $result['name_en']['val'];
+			if (empty($result['name_en']['val'])) {
+				if (!empty($result['original']) && !empty($result['original']['family_name_en']) && !empty($result['original']['first_name_en'])) {
+					$nar = $result['original']['family_name_en'] . ' ' . $result['original']['first_name_en'];
+				} else {
+					$nar = '名前未入力';
+				}
+			} else {
+				$nar = $result['name_en']['val'];
+			}
 			$puthid($i, 'name_en_at_race', $nar);
 			
 			$puthid($i, 'checks_in', 1);
@@ -241,6 +253,8 @@
 			
 			if (isset($result['team']['val'])) {
 				$puthid($i, 'team_name', $result['team']['val']);
+			} else if (!empty($result['original']['team'])) {
+				$puthid($i, 'team_name', $result['original']['team']);
 			}
 			$puthid($i, 'note', 'from web result read.');
 			
