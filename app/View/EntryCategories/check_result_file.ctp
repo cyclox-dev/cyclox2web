@@ -182,7 +182,7 @@
 				?></td>
 				<td><?php
 					if ($key == 'gender') {
-						echo (Gender::genderAt($result['original'][$key]))->charExp();
+						echo isset($result['original'][$key]) ? Gender::genderAt($result['original'][$key])->charExp() : "";
 					} else {
 						echo isset($result['original'][$key]) ? h($result['original'][$key]) : '';
 					}

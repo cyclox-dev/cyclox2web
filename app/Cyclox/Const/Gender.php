@@ -37,7 +37,7 @@ class Gender
 	 */
 	public static function genderAt($val)
 	{
-		if ($val == self::$MALE->val()) return self::$MALE ;
+		if ($val == self::$MALE->val()) return self::$MALE;
 		if ($val == self::$FEMALE->val()) return self::$FEMALE;
 		
 		return self::$UNASSIGNED;
