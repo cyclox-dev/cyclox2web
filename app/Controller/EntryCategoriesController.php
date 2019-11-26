@@ -394,8 +394,11 @@ class EntryCategoriesController extends ApiBaseController
 		if (!$this->Racer->saveMany($newRacers, array('atomic' => false))) {
 			return array('err' => array('選手データの保存に失敗しました。'));
 		}
-		if (!$this->CategoryRacer->saveMany($newCr, array('atomic' => false))) {
-			return array('err' => array('カテゴリー所属データの保存に失敗しました。'));
+		
+		if (!empty($newCr)) {
+			if (!$this->CategoryRacer->saveMany($newCr, array('atomic' => false))) {
+				return array('err' => array('カテゴリー所属データの保存に失敗しました。'));
+			}
 		}
 		//return array('err' => array('テスト用 return false'));
 		
