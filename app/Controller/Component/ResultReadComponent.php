@@ -421,13 +421,14 @@ class ResultReadComponent extends Component
 				} else if ($key == 'gender') {
 					$g = strtolower($val);
 					if ($g === 'm' || $g === 'men' || $g === 'male') {
-						$cnved = Gender::$MALE;
+						$gen = Gender::$MALE;
 					} else if ($g === 'w' || $g === 'f' || $g === 'women' || $g === 'female') {
-						$cnved = Gender::$FEMALE;
+						$gen = Gender::$FEMALE;
 					} else {
-						$cnved = Gender::$UNASSIGNED;
+						$gen = Gender::$UNASSIGNED;
 					}
-					$valexp = $cnved->charExp();
+					$cnved = $gen->val();
+					$valexp = $gen->charExp();
 				} else if ($key == 'result_status') {
 					$r = RacerResultStatus::ofExpress($val, false);
 					if ($r === false) {

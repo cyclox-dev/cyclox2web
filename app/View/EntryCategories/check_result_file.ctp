@@ -112,7 +112,37 @@
 		?>
 		<?php
 			$key = $runit->key;
-			if ((!empty($result[$key]['val']) && !empty($result['original'][$key]) && $result[$key]['val'] !== $result['original'][$key])
+			
+			$vis_empty = false;
+			if (isset($result[$key]['val'])) {
+				$kval = $result[$key]['val'];
+				if ($kval === "" || $kval === null) {
+					$vis_empty = true;
+				}
+			} else {
+				$vis_empty = true;
+			}
+			
+			$ois_empty = false;
+			if (!$vis_empty) {
+				if (isset($result['original'][$key])) {
+					$oval = $result['original'][$key];
+					if ($oval === "" || $oval === null || ($key === 'gender' && $oval == Gender::$UNASSIGNED->val())) {
+						$ois_empty = true;
+					}
+				} else {
+					$ois_empty = true;
+				}
+			}
+			
+			/*
+			if (!$vis_empty && !$ois_empty) {
+				$this->log('val:' . print_r($result[$key]['val'], true) . ' original:' . print_r($result['original'][$key], true) . ']'
+					. ' diff?' . print_r(($kval === $oval), true) . ' diff?' . print_r(($kval == $oval), true)
+					. ' type:' . gettype($kval) . ' vs ' . gettype($oval), LOG_DEBUG);
+			}//*/
+			
+			if ((!$vis_empty && !$ois_empty && $kval != $oval)
 				|| !empty($result[$key]['error'])):
 		?>
 		<?php if (!$finds): ?>
@@ -307,13 +337,7 @@
 			$ky = 'first_name_en';		if (!empty($result[$ky]['val'])) $puthid($i, $ky, $result[$ky]['val']);
 			
 			$ky = 'team';		if (isset($result[$ky]['val'])) { $puthid($i, $ky, $result[$ky]['val']); }
-			
-			$ky = 'gender';
-			if (isset($result[$ky]['val'])) {
-				$puthid($i, $ky, $result[$ky]['val']->val());
-			} else {
-				$puthid($i, $ky, Gender::$UNASSIGNED->val());
-			}
+			$ky = 'gender';		if (isset($result[$ky]['val'])) { $puthid($i, $ky, $result[$ky]['val']); }
 			
 			$ky = 'birth_date';		if (isset($result[$ky]['val'])) { $puthid($i, $ky, $result[$ky]['val']); }
 			$ky = 'category_code';	if (isset($result[$ky]['val'])) { $puthid($i, $ky, $result[$ky]['val']); }
