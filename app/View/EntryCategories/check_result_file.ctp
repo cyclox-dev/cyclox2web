@@ -1,4 +1,5 @@
 <div class="entryCategories check_result">
+	<?php App::uses('Gender', 'Cyclox/Const'); ?>
 	<h1><?php echo __('エントリー・リザルトデータのチェック'); ?></h1>
 	<p>
 		注意：この処理により、選手データ（名前など）は今回読み込んだ値により書き変わります。</br>
@@ -205,7 +206,6 @@
 	<?php endforeach; /* results */ ?>
 	<?php if (!$haserr): ?>
 	<?php 
-		App::uses('Gender', 'Cyclox/Const');
 		
 		echo $this->Form->create('EntryRacer', array('type' => 'post', 'url'=>'/entry_categories/write_results/' . $ecat_id));
 		
