@@ -473,7 +473,7 @@ class ResultReadComponent extends Component
 			
 			// 名前の分割
 			
-			if (!isset($val['error']) && ($key === 'name' || $key === 'name_en')) {
+			if (!isset($v['error']) && ($key === 'name' || $key === 'name_en')) {
 				$names = $this->__splitName($val, $key, $pos);
 				if (isset($names['error'])) {
 					$map[$key]['error'] = $names['error'];
