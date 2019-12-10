@@ -32,6 +32,7 @@
 		echo $this->Form->input('start_frac_distance', array('label' => 'スタート端数距離 (km)'));
 		echo $this->Form->input('lap_distance', array('label' => '周回距離 (km)'));
 		echo $this->Form->input('holding_status', array('options' => $hs, 'label' => '開催状況'));
+		echo $this->Form->input('publishes_on_ressys', array('label' => 'リザルト公開'));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>

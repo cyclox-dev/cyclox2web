@@ -36,6 +36,7 @@
 		echo $this->Form->input('homepage', array('type' => 'text'));
 		echo $this->Form->input('start_frac_distance', array('label' => 'スタート端数距離 (km)'));
 		echo $this->Form->input('lap_distance', array('label' => '周回距離 (km)'));
+		echo $this->Form->input('publishes_on_ressys', array('label' => 'リザルト公開', 'default' => 1));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>

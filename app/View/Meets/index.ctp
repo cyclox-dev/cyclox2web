@@ -10,6 +10,7 @@
 			<th><?php echo $this->Paginator->sort('meet_group_code', '大会 Group'); ?></th>
 			<th><?php echo $this->Paginator->sort('season_id'); ?></th>
 			<th><?php echo $this->Paginator->sort('holding_status', '開催 Status'); ?></th>
+			<th>Result 公開</th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>
@@ -32,6 +33,7 @@
 				echo MeetStatus::statusAt($meet['Meet']['holding_status'])->name();
 			?>
 		</td>
+		<td><?php echo $meet['Meet']['publishes_on_ressys'] ? 'yes' : 'no' ?></td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $meet['Meet']['code'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $meet['Meet']['code'])); ?>

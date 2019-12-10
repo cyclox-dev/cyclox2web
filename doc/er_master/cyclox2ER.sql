@@ -4,8 +4,8 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 DROP TABLE IF EXISTS tmp_ajoccpt_racer_sets;
 DROP TABLE IF EXISTS ajoccpt_local_settings;
-DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS category_racers;
+DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
 DROP TABLE IF EXISTS tmp_result_update_flags;
@@ -256,6 +256,7 @@ CREATE TABLE meets
 	lap_distance float(6,3) DEFAULT 2.0,
 	-- 大会中止などのステータス
 	holding_status int unsigned DEFAULT 1 NOT NULL,
+	publishes_on_ressys tinyint(1) DEFAULT 1 NOT NULL,
 	created datetime,
 	modified datetime,
 	deleted_date datetime,
