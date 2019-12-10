@@ -90,7 +90,9 @@
 	<p>
 		<?php
 			if (isset($result['racer_code']['val'])) {
-				echo h($result['racer_code']['val'] . 'の既存の名前: ' . $result['original']['family_name'] . ' ' . $result['original']['first_name']);
+				$fam = isset($result['original']['family_name']) ? $result['original']['family_name'] : '[姓不明]';
+				$fir = isset($result['original']['first_name']) ? $result['original']['first_name'] : '[名前不明]';
+				echo h($result['racer_code']['val'] . 'の既存の名前: ' . $fam . ' ' . $fir);
 			}
 		?>
 	</p>
@@ -195,7 +197,7 @@
 		<?php
 			if ($finds) {
 				echo '</tbody></table>';
-			} else if (!empty($result['racer_code']['val'])) {
+			} else if (!empty($result['racer_code']['val']) && !isset($result['original']['error']['racer_code'])) {
 				echo '<h4>既存データと異なるデータ値はありません。</h4>';
 			}
 		?>
