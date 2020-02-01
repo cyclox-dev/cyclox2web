@@ -406,6 +406,7 @@ class ResultReadComponent extends Component
 			if (!empty($val)) {
 				if ($key == 'racer_code') {
 					if (!preg_match('/^[A-Z][A-Z0-9]{2}-[0-9]{3}-[0-9]{4}$/', $val)) { // 先頭3文字は昔の A78 のような形式を想定
+						$err = '選手コードは XXX-178-0123 の形式です。';
 						// MORE: 選手コードの変換（ハイフンや全角など）
 					}
 				} else if ($key == 'uci_id') {
