@@ -37,6 +37,55 @@ class ApiController extends ApiBaseController
 		'NameChange');
 	
 	/**
+	 * 選手情報を取得する（外部サイト用／プライベートデータを含まない。）
+	 * @param string $code 選手コード
+	 * @return 選手姓・名、チーム名、jcf No.
+	 */
+	public function get_racer($code)
+	{
+		$ret = array();
+		
+		$racer = $this->Racer->find('first', array('conditions' => array('code' => $code)));
+		if (!$racer) return $this->error('選手データが見つかりません。', self::STATUS_CODE_NOT_FOUND);
+
+		$ret = array(
+			'code' => $code,
+			'family_name' => $racer['Racer']['family_name'],
+			'family_name_kana' => $racer['Racer']['family_name_kana'],
+			'first_name' => $racer['Racer']['first_name'],
+			'first_name_kana' => $racer['Racer']['first_name_kana'],
+			'team' => $racer['Racer']['team'],
+		);
+
+		$catexp = '';
+		foreach ($racer['CategoryRacer'] as $cat) {
+			if ($cat['deleted']) continue;
+
+			if (!empty($cat['cancel_date'])) {
+				if ($cat['cancel_date'] < date('Y-m-d')) {
+					continue;
+				}
+			}
+
+			if (empty($cat['apply_date'])) continue;
+
+			if ($cat['apply_date'] > date('Y-m-d')) {
+				continue;
+			}
+
+			if (!empty($catexp)) {
+				$catexp .= ',';
+			}
+
+			$catexp .= $cat['category_code'];
+		}
+
+		$ret['category_exp'] = $catexp;
+		
+		return $this->success(array('racer' => $ret));
+	}
+	
+	/**
 	 * 更新すべき大会情報についての code リストを取得する
 	 * @param date $date 最後の更新ダウンロード日時
 	 */
