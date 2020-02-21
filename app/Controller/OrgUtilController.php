@@ -263,6 +263,27 @@ class OrgUtilController extends ApiBaseController
 			return false;
 		}
 		
+		// シーズン最後の所属確認用マップを作っておく
+		// シーズン最終日でのカテゴリー所持を確認（シーズン途中でのカテゴリー中断は想定しない）
+		// 現在日がシーズン最終日をすぎていなくても、最終日計算で OK
+		$lastDate = $season['Season']['end_date'];
+		$opt = array('recursive' => -1);
+		$opt['conditions'] = array(
+			'category_code' => $catCode,
+			array('AND' => array(
+				'NOT' => array('apply_date' => null), 
+				'apply_date <=' => $lastDate)
+			),
+			array('OR' => array(
+				array('cancel_date' => null),
+				array('cancel_date >=' => $lastDate)
+			)),
+		);
+		$opt['fields'] = array('racer_code');
+
+		$crRCodes = $this->CategoryRacer->find('list', $opt);
+		//$this->log($crRCodes, LOG_DEBUG);
+		
 		$this->EntryGroup->Behaviors->load('Utils.SoftDelete'); // deleted を拾わないように
 		$this->EntryGroup->Behaviors->load('Containable');
 		
@@ -361,28 +382,7 @@ class OrgUtilController extends ApiBaseController
 							if ($crCount == 0) continue;
 						}
 						
-						// シーズン最終日でのカテゴリー所持を確認（シーズン途中でのカテゴリー中断は想定しない）
-						// 現在日がシーズン最終日をすぎていなくても、最終日計算で OK
-						$lastDate = $meet['Season']['end_date'];
-						//$this->log('last date:' . $lastDate, LOG_DEBUG);
-						
-						$opt = array('recursive' => -1);
-						$opt['conditions'] = array(
-							'racer_code' => $eracer['Racer']['code'],
-							'category_code' => $catCode,
-							array('AND' => array(
-								'NOT' => array('apply_date' => null), 
-								'apply_date <=' => $lastDate)
-							),
-							array('OR' => array(
-								array('cancel_date' => null),
-								array('cancel_date >=' => $lastDate)
-							)),
-						);
-
-						$crCount = $this->CategoryRacer->find('count', $opt);
-						
-						if ($crCount == 0) continue;
+						if (!in_array($eracer['Racer']['code'], $crRCodes)) continue;
 						
 						$rcode = $eracer['Racer']['code'];
 						$rp = array();
@@ -391,7 +391,7 @@ class OrgUtilController extends ApiBaseController
 						} else {
 							$name = $eracer['Racer']['family_name'] . ' ' . $eracer['Racer']['first_name'];
 							if (!empty($eracer['Racer']['birth_date'])) {
-								if (AjoccUtil::isLessElite($eracer['Racer']['birth_date'], $meet['Meet']['season_id'])) {
+								if (AjoccUtil::isLessEliteDate($eracer['Racer']['birth_date'], $lastDate)) {
 									$name .= '*';
 								}
 							}
@@ -585,7 +585,7 @@ class OrgUtilController extends ApiBaseController
 		//$this->set('cats', $cats);
 	}
 	
-	public function download_racers_csv($encoding = null)
+	public function download_racers_csv($encoding = null, $opt = null)
 	{
 		if (!$this->request->is('post')) {
 			throw new BadMethodCallException('Bad method.');
@@ -596,6 +596,11 @@ class OrgUtilController extends ApiBaseController
 		if (!empty($encoding) && $encoding == 'utf8') {
 			$encode = 'UTF-8';
 			$fnameSfix = 'utf8';
+		}
+		
+		$addsPoints = $opt !== 'no_points';
+		if (!$addsPoints){
+			$fnameSfix .= '_nopoints';
 		}
 		
 		$this->_mkdir4RacerList();
@@ -630,7 +635,7 @@ class OrgUtilController extends ApiBaseController
 	/**
 	 * 選手リストを作成（更新）する
 	 */
-	public function create_racer_lists($encoding = null)
+	public function create_racer_lists($encoding = null, $opt = null)
 	{
 		$this->_mkdir4RacerList();
 		
@@ -642,6 +647,11 @@ class OrgUtilController extends ApiBaseController
 		if (!empty($encoding) && $encoding == 'utf8') {
 			$encode = 'UTF-8';
 			$fnameSfix = 'utf8';
+		}
+		
+		$addsPoints = $opt !== 'no_points';
+		if (!$addsPoints){
+			$fnameSfix .= '_nopoints';
 		}
 		
 		//++++++++++++++++++++++++++++++++++++++++
@@ -668,27 +678,29 @@ class OrgUtilController extends ApiBaseController
 			, 'Ajocc Point Rank（前シーズン）', 'as Category of AjoccPtRank（前シーズン）', 'Team(en)');
 		$this->__putToFp($fp, $row, $encode);
 		
-		// ajoc ranking
-		$cdt = array('start_date <=' => date('Y-m-d'), 'end_date >=' => date('Y-m-d'));
-		$ss = $this->Season->find('first', array('conditions' => $cdt));
-		$this->log($ss['Season']['id'], LOG_DEBUG);
-		$rankMap = empty($ss['Season']['id']) ? array() : $this->__createAjoccRankMap($ss['Season']['id']);
-		
-		if ($rankMap === false) {
-			$this->log('rankMap の作成に失敗しました。', LOG_ERR);
-			$this->Flash->set(__('エラーのため、ランキングデータを取得できませんでした。不正な場合は、管理者に連絡して下さい。'));
-			// not break
-		}
-		
-		// ajoc ranking(pre season)
-		$cdt = array('end_date <=' => date('Y-m-d'), 'end_date >=' => date('Y-m-d', strtotime('-1 year')));
-		$ss = $this->Season->find('first', array('conditions' => $cdt));
-		$rankMapPre = empty($ss['Season']['id']) ? array() : $this->__createAjoccRankMapFixed($ss['Season']['id']);
-		
-		if ($rankMapPre === false) {
-			$this->log('rankMap の作成に失敗しました。', LOG_ERR);
-			$this->Flash->set(__('エラーのため、前シーズンのランキングデータを取得できませんでした。不正な場合は、管理者に連絡して下さい。'));
-			// not break
+		if ($addsPoints) {
+			// ajoc ranking
+			$cdt = array('start_date <=' => date('Y-m-d'), 'end_date >=' => date('Y-m-d'));
+			$ss = $this->Season->find('first', array('conditions' => $cdt));
+			$this->log($ss['Season']['id'], LOG_DEBUG);
+			$rankMap = empty($ss['Season']['id']) ? array() : $this->__createAjoccRankMap($ss['Season']['id']);
+			$this->log($ss['Season']['id'] . ':end...', LOG_DEBUG);
+			if ($rankMap === false) {
+				$this->log('rankMap の作成に失敗しました。', LOG_ERR);
+				$this->Flash->set(__('エラーのため、ランキングデータを取得できませんでした。不正な場合は、管理者に連絡して下さい。'));
+				// not break
+			}
+
+			// ajoc ranking(pre season)
+			$cdt = array('end_date <=' => date('Y-m-d'), 'end_date >=' => date('Y-m-d', strtotime('-1 year')));
+			$ss = $this->Season->find('first', array('conditions' => $cdt));
+			$rankMapPre = empty($ss['Season']['id']) ? array() : $this->__createAjoccRankMapFixed($ss['Season']['id']);
+
+			if ($rankMapPre === false) {
+				$this->log('rankMap の作成に失敗しました。', LOG_ERR);
+				$this->Flash->set(__('エラーのため、前シーズンのランキングデータを取得できませんでした。不正な場合は、管理者に連絡して下さい。'));
+				// not break
+			}
 		}
 		
 		$offset = 0;
@@ -763,7 +775,7 @@ class OrgUtilController extends ApiBaseController
 				$asCat = '';
 				$rank = '';
 				
-				if (!empty($rankMap[$r['code']])) {
+				if ($addsPoints && !empty($rankMap[$r['code']])) {
 					$ranks = $this->__pullAjoccPtRanks($rankMap[$r['code']], $cats);
 					
 					$asCat = $ranks['as_cat'];
@@ -774,7 +786,7 @@ class OrgUtilController extends ApiBaseController
 				$asCatPre = '';
 				$rankPre = '';
 				
-				if (!empty($rankMapPre[$r['code']])) {
+				if ($addsPoints && !empty($rankMapPre[$r['code']])) {
 					$ranks = $this->__pullAjoccPtRanks($rankMapPre[$r['code']], $cats);
 					
 					$asCatPre = $ranks['as_cat'];

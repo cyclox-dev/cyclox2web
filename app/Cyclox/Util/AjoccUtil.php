@@ -228,15 +228,32 @@ class AjoccUtil
 	{
 		if (empty($birth)) return false;
 		
-		$Season = new Season();
-		
 		$atDate = new DateTime('now');
 		if (!empty($seasonID)) {
+			$Season = new Season();
 			$season = $Season->find('first', array('conditions' => array('id' => $seasonID), 'recurive' => 0));
 			
 			if (!empty($season['Season']['end_date'])) {
 				$atDate = new DateTime($season['Season']['end_date']);
 			}
+		}
+		
+		return self::isLessEliteDate($birth, $atDate);
+	}
+	
+	/**
+	 * UCI Elite 未満の年齢であるかをかえす
+	 * @param date $birth 生年月日
+	 * @param int $seasonEndDate 年齢判定シーズン の最終日。null 指定ならば現在日時で判定する。
+	 * @return boolean Elite 未満の年齢であるか
+	 */
+	public static function isLessEliteDate($birth, $seasonEndDate)
+	{
+		if (empty($birth)) return false;
+		
+		$atDate = new DateTime('now');
+		if (!empty($seasonEndDate)) {
+			$atDate = $seasonEndDate;
 		}
 		
 		$uciAge = Util::uciCXAgeAt(new DateTime($birth), $atDate);
