@@ -131,6 +131,7 @@ class AppErrorHandler extends ErrorHandler
 				'_asterisk/',
 				'sitemap.xml',
 				'.well-known/security.txt',
+				'api/jsonws/invoke'
 				// ここに例外ログを防ぎたいアドレスを
 			);
 			
