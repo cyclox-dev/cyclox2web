@@ -69,6 +69,11 @@ class ResultParamCalcComponent extends Component
 		array('racer_count' => 20, 'up' => 2),
 		array('racer_count' => 10, 'up' => 1),
 	);
+	private $__rule012333 = array( // 20-21 rule
+		array('racer_count' => 30, 'up' => 3),
+		array('racer_count' => 20, 'up' => 2),
+		array('racer_count' => 10, 'up' => 1),
+	);
 	
 	private $TransactionManager;
 	private $Racer;
@@ -1509,9 +1514,20 @@ class ResultParamCalcComponent extends Component
 		// 文字列で判断する
 		// パラメタから処理したいが、複雑なのでやめておく。
 		// racesCatCode => array('needs' => 必要な所属, 'to' =>昇格先)
-		if ($this->_isSeasonAfter1819()) {
+		if ($this->_isSeasonAfter1920()) {
 			$this->__rankUpMap = array(
-				// 1718 から C1, CM1 への昇格が2名に、基準人数50->40に変更。
+				// 20-21 から C2, C3, CM2 への昇格が3名に。
+				'C2' => array('needs' => array('C2'), 'to' => 'C1', 'rule' => $this->__rule011122),
+				'C3' => array('needs' => array('C3'), 'to' => 'C2', 'rule' => $this->__rule012333),
+				'C4' => array('needs' => array('C4'), 'to' => 'C3', 'rule' => $this->__rule012333),
+				'C3+4' => array('needs' => array('C3', 'C4'), 'to' => 'C2', 'rule' => $this->__rule012333),
+				'CM2' => array('needs' => array('CM2'), 'to' => 'CM1', 'rule' => $this->__rule011122),
+				'CM3' => array('needs' => array('CM3'), 'to' => 'CM2', 'rule' => $this->__rule012333),
+				'CM2+3' => array('needs' => array('CM2', 'CM3'), 'to' => 'CM1', 'rule' => $this->__rule012333),
+			);
+		} else if ($this->_isSeasonAfter1819()) {
+			$this->__rankUpMap = array(
+				// 1920 から C1, CM1 への昇格が2名に。
 				'C2' => array('needs' => array('C2'), 'to' => 'C1', 'rule' => $this->__rule011122),
 				'C3' => array('needs' => array('C3'), 'to' => 'C2', 'rule' => $this->__rule012345),
 				'C4' => array('needs' => array('C4'), 'to' => 'C3', 'rule' => $this->__rule012345),
@@ -1589,6 +1605,19 @@ class ResultParamCalcComponent extends Component
 		}
 		
 		return ($this->__atDate > '2019-03-31');
+	}
+	
+	/**
+	 * 2019-20 シーズンより後のシーズン（20-21以降）であるかをかえす
+	 * @return boolean 
+	 */
+	private function _isSeasonAfter1920()
+	{
+		if (empty($this->__atDate)) {
+			return true; // unlikely... 本メソッドを作成したのが1920で巻き戻りはなしので true かえす。
+		}
+		
+		return ($this->__atDate > '2020-03-31');
 	}
 	
 	/**
