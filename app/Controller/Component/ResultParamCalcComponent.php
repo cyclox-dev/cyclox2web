@@ -30,6 +30,8 @@ App::uses('RacerResult', 'Model');
  */
 class ResultParamCalcComponent extends Component
 {
+	const NOT_RANKUP_BY_AGE_KEYWORD = '__KEY_NOT_RANKUP_BY_AGE';
+	
 	private $__topLapCount;
 	private $__started;
 	private $__finished;
@@ -476,6 +478,8 @@ class ResultParamCalcComponent extends Component
 
 			if ($rankUpCount > 0) {
 				$count = $rankUpCount;
+				
+				$calcsHoldPt = (isset($mt['at_date']) && $mt['at_date'] < '2019-04-01');
 
 				// ループで先頭から順に昇格を与える。昇格年齢制限があった場合は繰り上げ。
 				foreach ($results as $result) {
@@ -488,8 +492,19 @@ class ResultParamCalcComponent extends Component
 					$r = $result['RacerResult'];
 
 					if ($count > 0) {
-						$ret = $this->__applyRankUp($result['EntryRacer']['racer_code'], $this->__rankUpMap[$racesCat]['to'], $r, $rankUpCount);
-						if ($ret != Constant::RET_NO_ACTION) {
+						$ret = $this->__applyRankUp($result['EntryRacer']['racer_code'], $this->__rankUpMap[$racesCat]['to'], $r, $rankUpCount, $calcsHoldPt);
+						if ($ret == Constant::RET_NO_ACTION) {
+							if (!$this->__isProperAgeForCat($result['EntryRacer']['racer_code'], $this->__rankUpMap[$racesCat]['to'])) {
+								// 年齢で昇格できず。racer_results.note に書き込む
+								
+								$this->RacerResult->id = $r['id'];
+								$param = array('note' => self::NOT_RANKUP_BY_AGE_KEYWORD);
+								if (!$this->RacerResult->save($param)) {
+									$this->log('年齢による昇格制限についてのメモの保存に失敗しました。', LOG_WARNING);
+									// not break
+								}
+							}
+						} else {
 							--$count; // failed, error でも繰り上げしない
 						}
 						if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
@@ -851,9 +866,10 @@ class ResultParamCalcComponent extends Component
 	 * @param string $catTo 昇格先カテゴリー
 	 * @param array $result リザルト
 	 * @param int $rankUpCount 昇格者数
+	 * @param boolean $savesHoldPoints 昇格による残留ポイントを付加するか
 	 * @return Constant.RET_xxx 処理ステータス
 	 */
-	private function __applyRankUp($racerCode, $catTo, $result, $rankUpCount)
+	private function __applyRankUp($racerCode, $catTo, $result, $rankUpCount, $savesHoldPoints = true)
 	{
 		if (empty($racerCode) || empty($catTo)) {
 			return Constant::RET_ERROR;
@@ -869,7 +885,7 @@ class ResultParamCalcComponent extends Component
 		
 		$reasonNote = ($result['rank'] > $rankUpCount) ? "繰り上げ昇格" : "";
 		
-		return $this->__execApplyRankUp($racerCode, $result, $reasonNote, $catTo);
+		return $this->__execApplyRankUp($racerCode, $result, $reasonNote, $catTo, $savesHoldPoints);
 	}
 	
 	/**
@@ -932,7 +948,7 @@ class ResultParamCalcComponent extends Component
 			$hp['HoldPoint']['racer_result_id'] = $result['id'];
 			$hp['HoldPoint']['point'] = 3;
 			$hp['HoldPoint']['category_code'] = $categoryTo;
-
+			
 			$this->HoldPoint->create();
 			if (!$this->HoldPoint->save($hp)) {
 				$this->log('新カテゴリーに対する残留ポイントの保存に失敗しました。', LOG_ERR);
