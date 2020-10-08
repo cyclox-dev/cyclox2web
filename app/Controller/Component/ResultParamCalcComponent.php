@@ -1523,7 +1523,7 @@ class ResultParamCalcComponent extends Component
 				'C3+4' => array('needs' => array('C3', 'C4'), 'to' => 'C2', 'rule' => $this->__rule012333),
 				'CM2' => array('needs' => array('CM2'), 'to' => 'CM1', 'rule' => $this->__rule011122),
 				'CM3' => array('needs' => array('CM3'), 'to' => 'CM2', 'rule' => $this->__rule012333),
-				'CM2+3' => array('needs' => array('CM2', 'CM3'), 'to' => 'CM1', 'rule' => $this->__rule012333),
+				'CM2+3' => array('needs' => array('CM2', 'CM3'), 'to' => 'CM1', 'rule' => $this->__rule011122),
 			);
 		} else if ($this->_isSeasonAfter1819()) {
 			$this->__rankUpMap = array(
