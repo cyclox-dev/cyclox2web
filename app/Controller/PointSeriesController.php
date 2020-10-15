@@ -418,7 +418,9 @@ class PointSeriesController extends ApiBaseController
 		$jcfNoMap = array(); // JCF Number 取得用
 		$uciIdMap = array(); // UCI ID 取得用
 		
-		$hints = array(); // 必ず集計する大会インデックスを取得しておく
+		$hints = array(); // 必ず集計する大会などを取得するため、ヒントをもっておく。
+		$helds = array(); // 実際にこれまで開催されたか。インデックスは $hints と同じ。
+		
 		for ($i = 0; $i < count($mpss); $i++) {
 			$mps = $mpss[$i];
 			//$this->log('mps id:' . $mps['MeetPointSeries']['id'], LOG_DEBUG);
@@ -445,6 +447,8 @@ class PointSeriesController extends ApiBaseController
 			);
 			$psrs = $this->PointSeriesRacer->find('all', $op);
 			//$this->log('psrs is...' . count($psrs), LOG_DEBUG);
+			
+			$helds[] = (count($psrs) > 0);
 			
 			foreach ($psrs as $psr) {
 				
@@ -529,7 +533,7 @@ class PointSeriesController extends ApiBaseController
 		}
 		
 		//$this->log($racerPoints, LOG_DEBUG);
-		$ranking = $sumUpRule->calc($racerPoints, $hints, $ps['PointSeries']['hint']);
+		$ranking = $sumUpRule->calc($racerPoints, $hints, $ps['PointSeries']['hint'], $helds);
 		
 		return array(
 			'ranking' => $ranking,

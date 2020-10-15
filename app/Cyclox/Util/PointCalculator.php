@@ -21,6 +21,7 @@ class PointCalculator extends Object
 	public static $TKI_178;
 	public static $KNT_178;
 	public static $THK_178;
+	public static $JCX_201;
 	
 	private static $TABLE_JCX156_GRADE1 = array(
 		300, 240, 210, 180, 165, 150, 135, 120, 105, 90, 
@@ -71,6 +72,29 @@ class PointCalculator extends Object
 	private static $TABLE_THK178 = array(
 		40,30,20,15,10,8,6,4,2,1
 	);
+	
+	private static $TABLE_JCX201_GRADE1 = array(
+		250, 200, 160, 150, 140, 130, 120, 110, 100, 95,
+		90, 85, 80, 78, 76, 74, 72, 70, 68, 66,
+		64, 62, 60, 58, 56, 54, 52, 50, 48, 46,
+		44, 42, 40, 38, 36, 38, 36, 34, 32, 30,
+		29, 28, 27, 26, 25, 24, 23, 22, 21, 20,
+		19, 18, 17, 16, 15, 14, 13, 12, 11, 10,
+		9, 8, 7, 6, 5, 4, 3, 2
+
+	);
+	const RUN_PT_JCX201_GRADE1 = 1; // 69位以下のポイント
+	private static $TABLE_JCX201_GRADE2 = array(
+		200, 160, 140, 120, 110, 100, 90, 80, 70, 60,
+		58, 56, 54, 52, 50, 48, 46, 44, 42, 40,
+		39, 38, 37, 36, 35, 34, 33, 32, 31, 30,
+		29, 28, 27, 26, 25, 24, 23, 22, 21, 20,
+		19, 18, 17, 16, 15, 14, 13, 12, 11, 10,
+		9, 8, 7, 6, 5, 4, 3, 2, 1, 1,
+		1, 1, 1, 1, 1, 1, 1, 1
+
+	);
+	const RUN_PT_JCX201_GRADE2 = 1; // 69位以下のポイント
 	
 	// const として
 	const __KEY_STARTED_OVER = 'started_over';
@@ -262,6 +286,32 @@ class PointCalculator extends Object
 			. 'ポイントテーブル</br>' . $str;
 		self::$THK_178 = new PointCalculator(7, 'THK-178', '2017-18 東北 CX のポイントテーブル。ポイントは10位まで。', $text);
 		
+		$str = '';
+		for ($i = 0; $i < count(self::$TABLE_JCX201_GRADE1); $i++) {
+			$str .= ' ' . self::$TABLE_JCX201_GRADE1[$i] . ',';
+			if (($i + 1) % 10 == 0) {
+				$str .= '</br>';
+			}
+		}
+		$str2 = '';
+		for ($i = 0; $i < count(self::$TABLE_JCX201_GRADE2); $i++) {
+			$str2 .= ' ' . self::$TABLE_JCX201_GRADE2[$i] . ',';
+			if (($i + 1) % 10 == 0) {
+				$str2 .= '</br>';
+			}
+		}
+		$text = '2020-21シーズンの JCX シリーズにて採用されたポイント付与ルール。</br>'
+			. 'シリーズレース設定では必ずグレードを指定すること。グレードは 1 もしくは 2 を指定する。</br>'
+			. '---</br>'
+			. 'グレード1のポイントテーブルは以下のとおり</br>'
+			. $str
+			. (count(self::$TABLE_JCX201_GRADE1) + 1) . '位以下:' . self::RUN_PT_JCX201_GRADE1 . '</br>'
+			. '---</br>グレード2のポイントテーブルは以下のとおり</br>'
+			. $str2
+			. (count(self::$TABLE_JCX201_GRADE2) + 1) . '位以下:' . self::RUN_PT_JCX201_GRADE2 . '</br>'
+			;
+		self::$JCX_201 = new PointCalculator(8, 'JCX_201', '2020-21 JCX で使用するポイントテーブル。', $text);
+		
 		self::$calculators = array(
 			self::$JCX_156,
 			self::$KNS_156,
@@ -270,6 +320,7 @@ class PointCalculator extends Object
 			self::$TKI_178,
 			self::$KNT_178,
 			self::$THK_178,
+			self::$JCX_201,
 		);
 	}
 	
@@ -329,6 +380,7 @@ class PointCalculator extends Object
 			case self::$TKI_178->val(): $pt = $this->__calcTKI167($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$KNT_178->val(): $pt = $this->__calcKNT178($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$THK_178->val(): $pt = $this->__calcTHK178($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
+			case self::$JCX_201->val(): $pt = $this->__calcJCX201($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 		}
 		
 		if (empty($pt['point']) && empty($pt['bonus'])) {
@@ -613,6 +665,51 @@ class PointCalculator extends Object
 		
 		// 完走ボーナスは無し。
 		
+		return $pointMap;
+	}
+	
+	/**
+	 * 2020-21シーズンに設定された JCX ポイントをかえす。
+	 */
+	private function __calcJCX201($result, $grade, $raceLapCount, $raceStartedCount, $meetDate)
+	{
+		//$this->log('grade:' . $grade . ' result:', LOG_DEBUG);
+		//$this->log($result, LOG_DEBUG);
+		//$this->log('ecat', LOG_DEBUG);
+		//$this->log($ecat, LOG_DEBUG);
+		
+		if (empty($result['rank'])) return null;
+		
+		// grade -> points
+		$set = array();
+		$set[1] = array(
+			'rank_pt' => self::$TABLE_JCX201_GRADE1,
+			'run_pt' => self::RUN_PT_JCX201_GRADE1,
+		);
+		$set[2] = array(
+			'rank_pt' => self::$TABLE_JCX201_GRADE2,
+			'run_pt' => self::RUN_PT_JCX201_GRADE2,
+		);
+		
+		// TODO: グレード無いなら警告が表示されるように
+		
+		if (empty($set[$grade])) {
+			$this->log('指定グレード[' . $grade . ']のポイント設定がありません。', LOG_ERR);
+			return null;
+		}
+		
+		$pointMap = array();
+		
+		$rankIndex = $result['rank'] - 1;
+		if (!empty($set[$grade]['rank_pt'][$rankIndex])) {
+			$pointMap['point'] = $set[$grade]['rank_pt'][$rankIndex];
+		} else if (!empty($set[$grade]['run_pt'])) {
+			$pointMap['point'] = $set[$grade]['run_pt'];
+		}
+		
+		//$this->log('result:', LOG_DEBUG);
+		//$this->log($result, LOG_DEBUG);
+
 		return $pointMap;
 	}
 }
