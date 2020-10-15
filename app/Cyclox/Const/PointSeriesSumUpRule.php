@@ -50,7 +50,7 @@ class PointSeriesSumUpRule extends Object
 				. '・最近のポイント獲得レースでの獲得ポイント</br>'
 				. '・最近のポイント獲得レースでの順位';
 		self::$JCX_156 = new PointSeriesSumUpRule(1, 'JCX-156'
-				, 'hint:' . self::KEY_REQUIRED . ' とそれ以外の上位6戦のポイントを採用する。合計->自乗和->最近の成績で比較する。'
+				, 'hint:' . self::KEY_REQUIRED . ' とそれ以外の上位x戦のポイントを採用する。合計->自乗和->最近の成績で比較する。'
 				, $str);
 		
 		$str = '2015-16シーズンに関西クロスで採用された集計方法</br>'
