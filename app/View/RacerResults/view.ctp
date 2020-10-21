@@ -66,6 +66,11 @@
 			<?php echo h($racerResult['RacerResult']['as_category']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('昇格順位'); ?></dt>
+		<dd>
+			<?php echo h($racerResult['RacerResult']['rank_of_rankup']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Note'); ?></dt>
 		<dd>
 			<?php echo h($racerResult['RacerResult']['note']); ?>

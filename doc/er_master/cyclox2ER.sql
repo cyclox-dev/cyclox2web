@@ -8,12 +8,12 @@ DROP TABLE IF EXISTS category_racers;
 DROP TABLE IF EXISTS category_races_categories;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_groups;
-DROP TABLE IF EXISTS tmp_result_update_flags;
-DROP TABLE IF EXISTS time_records;
 DROP TABLE IF EXISTS point_series_racers;
+DROP TABLE IF EXISTS time_records;
 DROP TABLE IF EXISTS hold_points;
 DROP TABLE IF EXISTS racer_results;
 DROP TABLE IF EXISTS entry_racers;
+DROP TABLE IF EXISTS tmp_result_update_flags;
 DROP TABLE IF EXISTS entry_categories;
 DROP TABLE IF EXISTS time_record_info;
 DROP TABLE IF EXISTS entry_groups;
@@ -464,6 +464,8 @@ CREATE TABLE racer_results
 	rank_per smallint,
 	run_per smallint,
 	ajocc_pt int unsigned DEFAULT 0,
+	-- 昇格対象者の中での順位
+	rank_of_rankup int DEFAULT NULL,
 	note text,
 	created datetime,
 	modified datetime,

@@ -31,6 +31,8 @@ App::uses('RacerResult', 'Model');
 class ResultParamCalcComponent extends Component
 {
 	const NOT_RANKUP_BY_AGE_KEYWORD = '__KEY_NOT_RANKUP_BY_AGE';
+	const NEXT_RANKUP_CL_RACER_KEYWORD = '__NEXT_RANKUP_CL_RACER_KEYWORD';
+	const NOT_RANKUP_BY_AGE_RANK = -999;
 	
 	private $__topLapCount;
 	private $__started;
@@ -39,6 +41,9 @@ class ResultParamCalcComponent extends Component
 	private $__meetCode;
 	
 	private $__rankUpMap;
+	private $__rule000 = array(
+		array('racer_count' => 0, 'up' => 0),
+	);
 	private $__rule0111 = array(
 		array('racer_count' => 10, 'up' => 1),
 	);
@@ -308,7 +313,7 @@ class ResultParamCalcComponent extends Component
 	
 	/**
 	 * リザルトに関するポイントなどを再計算する。Transaction 処理はこのメソッドの外部で行なうこと。
-	 * @param array $results リザルト
+	 * @param array $results リザルト。順位通りにならんでいること。
 	 * @param array $ecat 出走カテゴリー
 	 * @return boolean 処理に成功したか
 	 */
@@ -350,6 +355,37 @@ class ResultParamCalcComponent extends Component
 			return true;
 		}
 		
+		// 昇格用順位を格納
+		$ruprank = 1;
+		if (!empty($this->__rankUpMap[$racesCat]['to'])) {
+			foreach ($results as &$result) {
+				$r = $result['RacerResult'];
+				
+				if (empty($r['rank'])) {
+					continue;
+				}
+				
+				$rank = self::NOT_RANKUP_BY_AGE_RANK;
+				if ($this->__isProperAgeForCat($result['EntryRacer']['racer_code'], $this->__rankUpMap[$racesCat]['to'])) {
+					$rank = $ruprank;
+					++$ruprank;
+				}
+
+				$result['RacerResult']['rank_of_rankup'] = $rank;
+				
+				$dat = array(
+					'id' => $r['id'],
+					'rank_of_rankup' => $rank,
+				);
+				
+				if ($this->RacerResult->save($dat) == false) {
+					$this->log('racer_results.rank_of_rankup の値の保存に失敗しました。', LOG_ERR);
+					// continue;
+				}
+			}
+			unset($result);
+		}
+		
 		if ($racesCat === 'CM1+2+3') {
 			// M1+2+3 は勝利したら CM1、表彰台で CM2（降格なし）
 			
@@ -382,95 +418,123 @@ class ResultParamCalcComponent extends Component
 					}
 				}
 			}
-		} else if ($this->__started >= 6 && ($racesCat == 'CL2' || $racesCat == 'CL2+3')) {
-			// シリーズ2勝で昇格
-			foreach ($results as $result) {
-				$r = $result['RacerResult'];
+		} else if ($racesCat == 'CL2' || $racesCat == 'CL2+3') {
+			if ($this->__started >= 6) {
+				// シリーズ2勝で昇格
+				foreach ($results as $result) {
+					$r = $result['RacerResult'];
 
-				if ($r['rank'] != 1) continue;
+					// 昇格対象かどうか
+					if (!empty($r['rank_of_rankup']) && $r['rank_of_rankup'] == self::NOT_RANKUP_BY_AGE_RANK) {
+						// 対象外はタグ付け
+						$param = array('id' => $r['id'], 'note' => self::NOT_RANKUP_BY_AGE_KEYWORD);
+						if (!$this->RacerResult->save($param)) {
+							$this->log('年齢による昇格制限についてのメモの保存に失敗しました。', LOG_WARNING);
+							// not break
+						}
+						continue;
+					}
 
-				// 年齢チェック
-				if (!$this->__isProperAgeForCat($result['EntryRacer']['racer_code'], 'CL1')) {
-					break; // 1位は見つけているので処理終了
-				}
-
-				// そのシーズン、での成績を取得 -> 1位があるかチェック
-
-				$mt = $this->__getMeetInfoOfEcat($ecat['id']);
-				if ($mt == null) {
-					$this->log('少人数昇格のための大会情報の取得に失敗しました。', LOG_ERR);
-					break;
-				}
-
-				$ecatIds = $this->__getEcatIDsOfSameMeet($mt, array('CL2', 'CL2+3'), false);
-				if ($ecatIds === null) {
-					$this->log('少人数昇格のための出走カテゴリー ID 配列の取得に失敗しました。', LOG_ERR);
-					break;
-				}
-				
-				if (empty($ecatIds)) break; // 1位をチェックしたのでループ終了
-
-				$opt = array('conditions' => array(
-					'EntryCategory.id' => $ecatIds,
-					'EntryRacer.racer_code' => $result['EntryRacer']['racer_code'],
-					'RacerResult.deleted' => 0,
-					'Racer.deleted' => 0,
-					'EntryCategory.deleted' => 0,
-				));
-
-				$ers = $this->EntryRacer->find('all', $opt);
-				//$this->log('ers:', LOG_DEBUG);
-				//$this->log($ers, LOG_DEBUG);
-
-				$rankUps = false;
-				foreach ($ers as $entryRacer) {
+					// そのシーズン、での成績を取得 -> 1位があるかチェック（繰り上げも考慮する。）
 					
-					//$this->log('races cat:', LOG_DEBUG);
-					//$this->log($entryRacer['EntryCategory']['races_category_code'], LOG_DEBUG);
+					if (empty($r['rank_of_rankup'])) continue;
+					if ($r['rank_of_rankup'] != 1) continue; // unlikely...
 					
-					if (!empty($entryRacer['RacerResult']['rank']) && $entryRacer['RacerResult']['rank'] == 1) {
-						// ただしその出走人数が6人以上であること
-						$opt = array('conditions' => array(
-							'entry_category_id' => $entryRacer['EntryCategory']['id'],
-							'RacerResult.deleted' => 0,
-						));
-						$erInfos = $this->EntryRacer->find('all', $opt);
-						//$this->log($erInfos, LOG_DEBUG);
+					$mt = $this->__getMeetInfoOfEcat($ecat['id']);
+					if ($mt == null) {
+						$this->log('少人数昇格のための大会情報の取得に失敗しました。', LOG_ERR);
+						break;
+					}
+
+					$ecatIds = $this->__getEcatIDsOfSameMeet($mt, array('CL2', 'CL2+3'), false);
+					if ($ecatIds === null) {
+						$this->log('少人数昇格のための出走カテゴリー ID 配列の取得に失敗しました。', LOG_ERR);
+						break;
+					}
+
+					if (empty($ecatIds)) {
+						// まだ1勝しかしていない。
+						// 申請昇格であることを記録
+						$param = array('id' => $r['id'], 'note' => self::NEXT_RANKUP_CL_RACER_KEYWORD);
+						if (!$this->RacerResult->save($param)) {
+							$this->log('CL選手の昇格についてのキーワード（任意昇格）の保存に失敗しました。', LOG_WARNING);
+							// not break
+						}
 						
-						// 出走人数をカウント
-						$startCount = 0;
-						foreach ($erInfos as $erInfo) {
-							if ($erInfo['RacerResult']['status'] != RacerResultStatus::$DNS->val()) {
-								++$startCount;
+						break; // 対象者をチェックしたのでループ終了
+					}
+
+					$opt = array('conditions' => array(
+						'EntryCategory.id' => $ecatIds,
+						'EntryRacer.racer_code' => $result['EntryRacer']['racer_code'],
+						'RacerResult.deleted' => 0,
+						'Racer.deleted' => 0,
+						'EntryCategory.deleted' => 0,
+					));
+
+					$ers = $this->EntryRacer->find('all', $opt);
+					//$this->log('ers:', LOG_DEBUG);
+					//$this->log($ers, LOG_DEBUG);
+
+					$rankUps = false;
+					foreach ($ers as $entryRacer) {
+
+						//$this->log('races cat:', LOG_DEBUG);
+						//$this->log($entryRacer['EntryCategory']['races_category_code'], LOG_DEBUG);
+
+						if (!empty($entryRacer['RacerResult']['rank']) && $entryRacer['RacerResult']['rank_of_rankup'] == 1) {
+							// ただしその出走人数が6人以上であること
+							$opt = array('conditions' => array(
+								'entry_category_id' => $entryRacer['EntryCategory']['id'],
+								'RacerResult.deleted' => 0,
+							));
+							$erInfos = $this->EntryRacer->find('all', $opt);
+							//$this->log($erInfos, LOG_DEBUG);
+
+							// 出走人数をカウント
+							$startCount = 0;
+							foreach ($erInfos as $erInfo) {
+								if ($erInfo['RacerResult']['status'] != RacerResultStatus::$DNS->val()) {
+									++$startCount;
+								}
+							}
+							//$this->log('started:' . $startCount, LOG_DEBUG);
+
+							if ($startCount >= 6) {
+								$rankUps = true;
+								break;
 							}
 						}
-						//$this->log('started:' . $startCount, LOG_DEBUG);
-
-						if ($startCount >= 6) {
-							$rankUps = true;
-							break;
-						}
-					}
-				}
-
-				if ($rankUps) {
-					$ret = $this->__execApplyRankUp($result['EntryRacer']['racer_code'], $r, 'シーズン2勝', 'CL1', false);
-
-					if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
-						$this->log('昇格適用に失敗しました。', LOG_ERR);
-						return false;
 					}
 
-					if ($ret == Constant::RET_SUCCEED) {
-						$ret = $this->__setupCatRacerCancel($result['EntryRacer']['racer_code'], array('CL2'));
+					if ($rankUps) {
+						$ret = $this->__execApplyRankUp($result['EntryRacer']['racer_code'], $r, 'シーズン2勝', 'CL1', false);
+
 						if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
-							$this->log('選手[coce:' . $result['EntryRacer']['racer_code'] . '] のカテゴリー所属の cancel_date 設定に失敗しました。', LOG_ERR);
-							// not return false
+							$this->log('昇格適用に失敗しました。', LOG_ERR);
+							return false;
 						}
-					}
-				}
 
-				break; // 1位をチェックしたのでループ終了
+						if ($ret == Constant::RET_SUCCEED) {
+							$ret = $this->__setupCatRacerCancel($result['EntryRacer']['racer_code'], array('CL2'));
+							if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
+								$this->log('選手[coce:' . $result['EntryRacer']['racer_code'] . '] のカテゴリー所属の cancel_date 設定に失敗しました。', LOG_ERR);
+								// not return false
+							}
+						}
+					} else {
+						// まだ1勝しかしていない。
+						// 申請昇格であることを記録
+						$param = array('id' => $r['id'], 'note' => self::NEXT_RANKUP_CL_RACER_KEYWORD);
+						if (!$this->RacerResult->save($param)) {
+							$this->log('CL選手の昇格についてのキーワード（任意昇格）の保存に失敗しました。', LOG_WARNING);
+							// not break
+						}
+						
+					}
+
+					break; // 1位をチェックしたのでループ終了
+				}
 			}
 		} else {
 			// 昇格する人数の決定
@@ -492,13 +556,14 @@ class ResultParamCalcComponent extends Component
 					$r = $result['RacerResult'];
 
 					if ($count > 0) {
+						
+						
 						$ret = $this->__applyRankUp($result['EntryRacer']['racer_code'], $this->__rankUpMap[$racesCat]['to'], $r, $rankUpCount, $calcsHoldPt);
 						if ($ret == Constant::RET_NO_ACTION) {
 							if (!$this->__isProperAgeForCat($result['EntryRacer']['racer_code'], $this->__rankUpMap[$racesCat]['to'])) {
 								// 年齢で昇格できず。racer_results.note に書き込む
 								
-								$this->RacerResult->id = $r['id'];
-								$param = array('note' => self::NOT_RANKUP_BY_AGE_KEYWORD);
+								$param = array('id' => $r['id'], 'note' => self::NOT_RANKUP_BY_AGE_KEYWORD);
 								if (!$this->RacerResult->save($param)) {
 									$this->log('年齢による昇格制限についてのメモの保存に失敗しました。', LOG_WARNING);
 									// not break
@@ -655,7 +720,7 @@ class ResultParamCalcComponent extends Component
 	}
 	
 	/**
-	 * 指定大会とシーズン、同じ大会グループである大会の出走カテゴリー ID の配列をかえす。
+	 * 指定大会とシーズン、同じ大会グループである大会の出走カテゴリー ID の配列をかえす。指定大会以前の大会のみ。
 	 * @param type $meet 大会データ
 	 * @param array $racesCats 抽出する対象のレースカテゴリーの配列
 	 * @param boolean $limitsSameMtGroup 同じ大会グループに限定するか
@@ -670,7 +735,7 @@ class ResultParamCalcComponent extends Component
 		$opt = array('conditions' => array(
 			'season_id' => $meet['season_id'],
 			'NOT' => array('Meet.code' => $meet['code']), // 本大会を除外
-			'at_date <' => $meet['at_date']
+			'at_date <' => $meet['at_date'] // 以前の大会のみ
 			),
 			'contain' => array(
 				'EntryGroup' => array(
@@ -1582,6 +1647,10 @@ class ResultParamCalcComponent extends Component
 				$this->__rankUpMap['CM2+3']['rule'] = $this->__rule0112_til167;
 			}
 		}
+		
+		// 行き先表示のみ
+		$this->__rankUpMap['CL2'] = array('needs' => array('CL2'), 'to' => 'CL1', 'rule' => $this->__rule000);
+		$this->__rankUpMap['CL2+3'] = array('needs' => array('CL2', 'CL3'), 'to' => 'CL1', 'rule' => $this->__rule000);
 	}
 	
 	/**
