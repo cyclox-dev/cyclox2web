@@ -1403,15 +1403,17 @@ class ResultParamCalcComponent extends Component
 		$ret = $racesCatCode;
 		$isSingleCat = false;
 		
-		// レースに設定されたカテゴリー（rank の低い方）とする
-		if (!empty($rcat)) {
-			$catsOnRace = array();
-			foreach ($rcat['CategoryRacesCategory'] as $crc) {
-				if (!empty($crc['Category'])) {
-					$catsOnRace[] = $crc['Category'];
-				}
+		$catsOnRace = array();
+		foreach ($rcat['CategoryRacesCategory'] as $crc) {
+			if (!empty($crc['Category'])) {
+				$catsOnRace[] = $crc['Category'];
 			}
-			
+		}
+		//$this->log('$catsOnRace:', LOG_DEBUG);
+		//$this->log($catsOnRace, LOG_DEBUG);
+
+		// レースに設定されたカテゴリー（rank の低い方）とする（デフォルト値として）
+		if (!empty($rcat)) {
 			if (!empty($catsOnRace)) {
 				if (count($catsOnRace) == 1) {
 					$ret = $catsOnRace[0]['code'];
@@ -1437,28 +1439,20 @@ class ResultParamCalcComponent extends Component
 		
 		if (!$isSingleCat && !empty($racersCatCodes)) {
 			// 所持しているカテゴリーのうち、レースに設定されていて、高い方とする。
-			$catCodesOnRace = array();
-			foreach ($rcat['CategoryRacesCategory'] as $crc) {
-				if (!empty($crc['Category'])) {
-					$catCodesOnRace[] = $crc['Category']['code'];
-				}
-			}
-			
-			//$this->log('$catCodesOnRace:', LOG_DEBUG);
-			//$this->log($catCodesOnRace, LOG_DEBUG);
-			
-			$catCodes = array();
+			$cs = array();
 			foreach ($racersCatCodes as $code) {
-				if (in_array($code, $catCodesOnRace)) {
-					$catCodes[] = $c['Category'];
+				foreach ($catsOnRace as $cor) {
+					if ($cor['code'] == $code) {
+						$cs[] = $cor;
+					}
 				}
 			}
 			
-			//$this->log('$catCodes', LOG_DEBUG);
-			//$this->log($catCodes, LOG_DEBUG);
+			//$this->log('$cs', LOG_DEBUG);
+			//$this->log($cs, LOG_DEBUG);
 			
-			if (!empty($catCodes)) {
-				$ret = $this->__getHighRankedCatCode($catCodes);
+			if (!empty($cs)) {
+				$ret = $this->__getHighRankedCatCode($cs);
 			}
 		}
 		
