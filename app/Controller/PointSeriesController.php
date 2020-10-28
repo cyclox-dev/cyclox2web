@@ -9,6 +9,7 @@ App::uses('PointCalculator', 'Cyclox/Util');
 App::uses('PointSeriesSumUpRule', 'Cyclox/Const');
 App::uses('PointSeriesPointTo', 'Cyclox/Const');
 App::uses('PointSeriesTermOfValidityRule', 'Cyclox/Const');
+App::uses('MeetStatus', 'Cyclox/Const');
 App::uses('Util', 'Cyclox/Util');
 App::uses('AjoccUtil', 'Cyclox/Util');
 
@@ -448,7 +449,7 @@ class PointSeriesController extends ApiBaseController
 			$psrs = $this->PointSeriesRacer->find('all', $op);
 			//$this->log('psrs is...' . count($psrs), LOG_DEBUG);
 			
-			$helds[] = (count($psrs) > 0);
+			$helds[] = ($mps['Meet']['holding_status'] == MeetStatus::$NORMAL);
 			
 			foreach ($psrs as $psr) {
 				
