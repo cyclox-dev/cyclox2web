@@ -449,7 +449,7 @@ class PointSeriesController extends ApiBaseController
 			$psrs = $this->PointSeriesRacer->find('all', $op);
 			//$this->log('psrs is...' . count($psrs), LOG_DEBUG);
 			
-			$helds[] = ($mps['Meet']['holding_status'] == MeetStatus::$NORMAL);
+			$helds[] = ($mps['Meet']['holding_status'] == MeetStatus::$NORMAL->ID());
 			
 			foreach ($psrs as $psr) {
 				
