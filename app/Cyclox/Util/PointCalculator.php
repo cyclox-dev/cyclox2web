@@ -303,6 +303,7 @@ class PointCalculator extends Object
 		$text = '2020-21シーズンの JCX シリーズにて採用されたポイント付与ルール。</br>'
 			. 'シリーズレース設定では必ずグレードを指定すること。グレードは 1 もしくは 2 を指定する。</br>'
 			. '---</br>'
+			. '※2020-04-01より前の大会でのポイントについては JCX-156 のポイントが付与される。'
 			. 'グレード1のポイントテーブルは以下のとおり</br>'
 			. $str
 			. (count(self::$TABLE_JCX201_GRADE1) + 1) . '位以下:' . self::RUN_PT_JCX201_GRADE1 . '</br>'
@@ -677,6 +678,10 @@ class PointCalculator extends Object
 		//$this->log($result, LOG_DEBUG);
 		//$this->log('ecat', LOG_DEBUG);
 		//$this->log($ecat, LOG_DEBUG);
+		
+		if ($meetDate < '2020-04-01') {
+			return $this->__calcJCXElite156($result, $grade, $raceLapCount, $raceStartedCount, $meetDate);
+		}
 		
 		if (empty($result['rank'])) return null;
 		
