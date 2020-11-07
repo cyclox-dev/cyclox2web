@@ -161,14 +161,15 @@ class ResultParamCalcComponent extends Component
 		foreach ($results as $result) {
 			$r = $result['RacerResult'];
 			
-			$ajoccPt = 0; // デフォルトでゼロに設定
+			// 1920からは ajocc_pt = null 設定あり。null な箇所のポイントは平均に参入しない。出走レース数にも含めない。
+			$ajoccPt = ($this->_isSeasonAfter1819()) ? null : 0;
+			
 			$isOpenRacer = ($result['EntryRacer']['entry_status'] == RacerEntryStatus::$OPEN->val());
 			
 			$point = empty($r['rank']) ? 0 : $this->calcAjoccPt($r['rank'], $this->__started, $this->__atDate);
 			
 			if ($ecat['applies_ajocc_pt']) {
-				// 1920からは ajocc_pt = null 設定あり。null な箇所のポイントは平均に参入しない。出走レース数にも含めない。
-				$ajoccPt = ($this->_isSeasonAfter1819()) ? null : 0;
+				
 				
 				if (!$isOpenRacer
 						&& !($this->_isSeasonAfter1819() && $r['status'] == RacerResultStatus::$DNS->val()))
