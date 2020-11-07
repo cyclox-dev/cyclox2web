@@ -1190,6 +1190,7 @@ class ResultParamCalcComponent extends Component
 			//$this->log($ptSetting, LOG_DEBUG);
 			
 			// ps.hint に cat_limit があったら所属チェック
+			$catLimits = array();
 			$seriesHints = PointSeriesSumUpRule::getSeriesHints($ptSetting['PointSeries']['hint']);
 			foreach ($seriesHints as $key => $val) {
 				if ($key === 'cat_limit') {
