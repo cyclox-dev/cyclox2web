@@ -25,6 +25,7 @@
 
 <h2>AJOCC ランキング設定</h2>
 <p><?php echo $this->Html->link("AJOCC ランキング個別設定", "/ajoccpt_local_settings/index");?></p>
+<p><?php echo $this->Html->link("残留ライン表示の順位設定", "/red_lines/index");?></p>
 
 <h2>その他</h2>
 <p><?php echo $this->Html->link("ユーティリティ【オーガナイザ用】", "/org_util");?></p>
