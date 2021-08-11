@@ -588,7 +588,8 @@ class ResultParamCalcComponent extends Component
 					}
 				}
 			} else if ($this->__started >= 5 && $this->__started <= 9
-					&& ($racesCat == 'C2' || $racesCat == 'C3' || $racesCat == 'C4' || $racesCat == 'C3+4')) { // BETAG
+					&& ($racesCat == 'C2' || $racesCat == 'C3' || $racesCat == 'C4' || $racesCat == 'C3+4' // BETAG
+							|| ($mt['at_date'] > '2021-04-01' && ($racesCat == 'CM2' || $racesCat == 'CM3')))) { // CM2,3 の少人数昇格は21-22シーズンより
 				// シリーズ少人数（5-9人）2勝で昇格
 				foreach ($results as $result) {
 					$r = $result['RacerResult'];
@@ -623,6 +624,7 @@ class ResultParamCalcComponent extends Component
 							$cancelCats = array('C4'); //C3 はキャンセルしない
 						}//*/
 					}
+					// CM2+3 での少人数昇格は無し@20210730の議事録より。
 					
 					$ecatIds = $this->__getEcatIDsOfSameMeet($mt, $needRacesCat);
 					if ($ecatIds === null) {
