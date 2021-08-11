@@ -541,11 +541,11 @@ class ResultParamCalcComponent extends Component
 			// 昇格する人数の決定
 			$rankUpCount = $this->__rankUpRacerCount($racesCat);
 
+			$calcsHoldPt = (isset($mt['at_date']) && $mt['at_date'] < '2019-04-01');
+			
 			if ($rankUpCount > 0) {
 				$count = $rankUpCount;
 				
-				$calcsHoldPt = (isset($mt['at_date']) && $mt['at_date'] < '2019-04-01');
-
 				// ループで先頭から順に昇格を与える。昇格年齢制限があった場合は繰り上げ。
 				foreach ($results as $result) {
 					$isOpenRacer = ($result['EntryRacer']['entry_status'] == RacerEntryStatus::$OPEN->val());
@@ -698,7 +698,7 @@ class ResultParamCalcComponent extends Component
 					}
 					
 					if ($rankUps) {
-						$ret = $this->__execApplyRankUp($result['EntryRacer']['racer_code'], $r, '少人数シーズン2勝', $catTo);
+						$ret = $this->__execApplyRankUp($result['EntryRacer']['racer_code'], $r, '少人数シーズン2勝', $catTo, $calcsHoldPt);
 						
 						if ($ret == Constant::RET_FAILED || $ret == Constant::RET_ERROR) {
 							$this->log('昇格適用に失敗しました。', LOG_ERR);
