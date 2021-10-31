@@ -11,6 +11,10 @@ class RankingPointUnit
 	public $rankPt = array(); // int array 集計値を順に持つ
 	public $reqIdx = null; // int/nullで未入力
 	
+	// 以下 $JCX_212 ルール用
+	public $reqPt = -999;
+	public $maxPtNonReq = -999;
+	
 	public $points = array(); // array of int. index は大会インデックス, value['pt'], value['bonus']
 }
 
@@ -31,6 +35,7 @@ class PointSeriesSumUpRule extends Object
 	public static $JCX_156;
 	public static $KNS_156;
 	public static $JCX_201;
+	public static $JCX_212;
 	
 	private static $rules;
 	
@@ -81,10 +86,29 @@ class PointSeriesSumUpRule extends Object
 		self::$JCX_201 = new PointSeriesSumUpRule(3, 'JCX2021'
 				, 'hint:' . self::KEY_REQUIRED . ' とそれ以外のx%戦のポイントを採用する。合計->自乗和->最近の成績で比較する。', $str);
 		
+		$keyTitle = self::KEY_JCX201_SUMUP_RACE_PER;
+		$str = '2020-21シーズンの JCX シリーズにて採用された集計方法。</br>'
+				. 'シリーズレース設定の hint に ' . self::KEY_REQUIRED . ' が入力されているレースでのポイントは必ず獲得ポイントとなる。</br>'
+				. self::KEY_REQUIRED . ' は1つのみに設定すること（同日開催レースで選手が複数のレースに出場不可能な場合は除く。全日本のエリート、U23など。）</br>'
+				. 'その他の、対象レース数のx%にあたるレースのポイントが獲得ポイントとされる。x の値はシリーズ設定の hint において key 値 '
+				. $keyTitle . 'で指定された値である（小数点は切り上げ）。</br>'
+				. '例）60%戦ならば ' . $keyTitle . self::HINT_KVDIV . '60 と入力</br>'
+				. 'ただし ' . self::KEY_REQUIRED . ' を除くレースの数がy以下の場合は集計対象は100%となる。</br>'
+				. 'また、未来にある大会の数を集計対象としたい場合（上の例だと60％の母数に含めたい場合）は、ポイントの開始日を大会翌日ではなく、ポイントシリーズが所属するシーズンのはじめの日(4/1)に設定すること。</br>'
+			. 'y の値はシリーズ設定の hint において key 値' . self::KEY_JCX201_SUMUP_RACE_COUNT_MIN . 'で指定された値である。</br>'
+			. '例）60%戦、最低3レースならば' . $keyTitle . self::HINT_KVDIV . '60' . self::HINT_DIV . self::KEY_JCX201_SUMUP_RACE_COUNT_MIN . self::HINT_KVDIV . '3 と入力</br>'
+				. '以下の順に判断される。それでも判断できない場合は同順位。</br>'
+				. '・獲得ポイント</br>'
+				. '・' . self::KEY_REQUIRED . ' レースでの獲得ポイント</br>'
+				. '・' . self::KEY_REQUIRED . ' でないレースでの最高獲得ポイント';
+		self::$JCX_212 = new PointSeriesSumUpRule(4, 'JCX21-22'
+				, 'hint:' . self::KEY_REQUIRED . ' とそれ以外のx%戦のポイントを採用する。合計->最高点数で比較する。', $str);
+		
 		self::$rules = array(
 			self::$JCX_156,
 			self::$KNS_156,
-			self::$JCX_201
+			self::$JCX_201,
+			self::$JCX_212,
 		);
 	}
 	
@@ -161,6 +185,7 @@ class PointSeriesSumUpRule extends Object
 			case self::$JCX_156->val(): $ranking = $this->__calcJCX156($racerPointMap, $hints, $seriesHint); break;
 			case self::$KNS_156->val(): $ranking = $this->__calcKNS156($racerPointMap, $hints, $seriesHint); break;
 			case self::$JCX_201->val(): $ranking = $this->__calcJCX201($racerPointMap, $hints, $seriesHint, $helds); break;
+			case self::$JCX_212->val(): $ranking = $this->__calcJCX212($racerPointMap, $hints, $seriesHint, $helds); break;
 		}
 		
 		return $ranking;
@@ -352,6 +377,12 @@ class PointSeriesSumUpRule extends Object
 		return false;
 	}
 	
+	/**
+	 * ならびかえ用。ポイントの高い順に並び替える。
+	 * @param type $pointA
+	 * @param type $pointB
+	 * @return int
+	 */
 	static function __comparePoint($pointA, $pointB)
 	{
 		if (empty($pointA['pt'])) {
@@ -458,6 +489,24 @@ class PointSeriesSumUpRule extends Object
 		reset($b->points);
 		
 		return $ret;
+	}
+	
+	static function __compareOfJCX212(RankingPointUnit $a, RankingPointUnit $b)
+	{
+		// 合計点比較
+		if ($a->rankPt[0] != $b->rankPt[0])
+		{
+			return $b->rankPt[0] - $a->rankPt[0];
+		}
+		
+		// required 大会のポイントで比較
+		if ($a->reqPt !== $b->reqPt) 
+		{
+			return $b->reqPt - $a->reqPt;
+		}
+		
+		// 最大ポイントで比較
+		return $b->maxPtNonReq - $a->maxPtNonReq;
 	}
 	
 	/**
@@ -599,6 +648,154 @@ class PointSeriesSumUpRule extends Object
 		
 		$rMap = array();
 		$rMap['rank_pt_title'] = array('集計点');
+		$rMap['ranking'] = $rankPtUits;
+		
+		return $rMap;
+	}
+	
+	/**
+	 * JCX2021-22 ランキングを集計する
+	 * @param array(string=>array(int)) $racerPointMap 選手コードをキー値として、大会獲得順に並んでいる。
+	 * @param array(string) $hints ポイントシリーズ大会設定ごとのヒントテキストが入っている
+	 * @param string $seriesHint ポイントシリーズのヒントテキストが入っている
+	 * @param array(boolean) 
+	 */
+	public function __calcJCX212($racerPointMap = array(), $hints = array(), $seriesHint = "", $helds = array())
+	{
+		// required 大会を1つのみと前提していることに注意。
+		
+		// 変数内容は
+		// $this->log('sumup:' . $actMeet, LOG_DEBUG);
+		// といった感じで出力してみましょう！
+		
+		/* 引数の内容
+		 * $racerPointMap = array(
+		 *		'STK-189-0002' => { 86, 50,   , 50},
+		 *		'KNT-201-0021' => {  3, 12,  2, 20,  0},
+		 * );
+		 * というように、選手コードをキーとして、獲得ポイントの入った配列が格納されている。
+		 * ポイント配列は開催大会順にならんでおり、引数 $helds のインデックスとも対応する。
+		 */
+		
+		$requiredIndices = array(); // 大会のインデックスに応じて、required（集計が必要な）大会であるかどうかが boolean で格納する。
+		$actMeet = 0; // 中止として設定されていないレースの数（required を除く）
+		
+		// 開催数、requred 大会対応などを集計する。
+		for ($i = 0; $i < count($hints); $i++) {
+			$isreq = $this->_requiredMeetPS($hints[$i]);
+			$requiredIndices[] = $isreq;
+			if (!$isreq && $helds[$i]) {
+				++$actMeet;
+			}
+		}
+		//$this->log('act meet num:' . $actMeet, LOG_DEBUG);
+		//$this->log('req indicies:' . print_r($requiredIndices, true), LOG_DEBUG);
+		
+		// ポイントシリーズのヒント string より設定値の取得 --> 集計大会数の決定
+		
+		$shint = self::getSeriesHints($seriesHint);  // ヒント string の切り分け
+		$maxSumupRacePer = $this->__getJcxMaxRacePer($shint); // ヒントより得られた集計大会数のパーセント
+		$minSumupRaceCount = $this->__getJcxMinRaceCountMin($shint); // ヒントより得られた集計対象最低大会数
+		
+		$sumupLimit = ceil($actMeet * $maxSumupRacePer * 0.01); // パーセントよりカウント対象大会数を取得
+		if ($sumupLimit < $minSumupRaceCount) {
+			$sumupLimit = $minSumupRaceCount; // 集計最小数により修正
+		}
+		//$this->log('act meet per:' . $maxSumupRacePer . ' min race num:' . $minSumupRaceCount . ' sumupLimit:' . $sumupLimit, LOG_DEBUG);
+		
+		// 選手ごとのポイント集計
+		
+		$rankPtUits = array(); // RankingPointUnit の配列。選手コード、ポイントやらを格納。
+		
+		foreach ($racerPointMap as $rcode => $points) {
+			$rpUnit = new RankingPointUnit();
+			$rpUnit->code = $rcode;
+			
+			$pt = 0; // 集計点用
+			$nonReqs = array(); // required でないやつらのポイントをカウント
+			
+			// 配列の last index から実長さ取得
+			// {1=>99, 2=>55} の場合、要素数が2だが、走査したいのは0〜2の3つである。よって count() は不可。
+			end($points);
+			$pointsLen = key($points) + 1;
+			reset($points);
+			
+			// ひとまずポイント集計
+			for ($i = 0; $i < $pointsLen; $i++) {
+				if (empty($points[$i])) {
+					continue;
+				}
+				$point = $points[$i];
+				if ($requiredIndices[$i]) {
+					$pt += $point['pt'] + $point['bonus']; // required を先に取得
+					$rpUnit->reqPt = $point['pt'] + $point['bonus'];
+					$rpUnit->reqIdx = $i; // usort(__compareOfJCX212 のため、required なポイントのインデックスを格納しておく <-- $rpUnit に持たせるのはちょっと無駄だが,,,
+				} else {
+					$nonReqs[] = $point;
+				}
+			}
+			
+			// required でないポイントを高い順にならびかえ
+			usort($nonReqs, array($this, '__comparePoint'));
+			
+			//$this->log('racer:'. $rcode . ' nonReqs:' . print_r($nonReqs, true), LOG_DEBUG);
+			
+			// ポイント高い順に集計大会数まで加算
+			for ($i = 0; $i < count($nonReqs) && $i < $sumupLimit; $i++) {
+				$point = $nonReqs[$i];
+				$pt += $point['pt'] + $point['bonus'];
+			}
+			
+			$rpUnit->rankPt[] = $pt; // index:0 にポイント合計値を格納 <-- '集計点'にあたる。
+			
+			// nonReq な最大点を格納
+			if (!empty($nonReqs[0])) {
+				$rpUnit->maxPtNonReq = $nonReqs[0]['pt'] + $nonReqs[0]['bonus'];
+			}
+			
+			$rpUnit->points = $points; // usort 用にセット
+			$rankPtUits[] = $rpUnit;
+			
+			//$this->log('racer:'. $rcode . ' rpUnit:' . print_r($rpUnit, true), LOG_DEBUG);
+		}
+		
+		// 集計値、requred 獲得ポイント、最高点での並び替え
+		usort($rankPtUits, array($this, '__compareOfJCX212'));
+		
+		// 順位付け
+		$rank = 0;
+		$currPt = -999; // 同順位判定用
+		$currReqPt = -999; // 同順位判定用
+		$currMaxPt = -999; // 同順位判定用
+		$skipCount = 0; // 同順位時 skip
+		
+		for ($i = 0; $i < count($rankPtUits); $i++) {
+			$rpUnit = $rankPtUits[$i];
+			
+			$isSameRank = false;
+			if ($rpUnit->rankPt[0] == $currPt
+					&& $rpUnit->reqPt == $currReqPt
+					&& $rpUnit->maxPtNonReq == $currMaxPt)
+			{
+				$isSameRank = true;
+			}
+			
+			if ($isSameRank) {
+				++$skipCount; // rank を変えず skip 蓄積
+			} else {
+				$currPt = $rpUnit->rankPt[0];
+				$currReqPt = $rpUnit->reqPt;
+				$currMaxPt = $rpUnit->maxPtNonReq;
+				
+				$rank += 1 + $skipCount;
+				$skipCount = 0;
+			}
+			
+			$rpUnit->rank = $rank;
+		}
+		
+		$rMap = array();
+		$rMap['rank_pt_title'] = array('集計点'); // ランキング表示時用タイトル
 		$rMap['ranking'] = $rankPtUits;
 		
 		return $rMap;
