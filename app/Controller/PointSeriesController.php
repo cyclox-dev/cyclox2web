@@ -396,10 +396,8 @@ class PointSeriesController extends ApiBaseController
 					array('point_term_end >=' => $dt),
 					array('point_term_end' => null),
 				)),
-				array('or' => array(
-					array('point_term_begin <=' => $dt),
-					array('point_term_begin' => null),
-				)),
+				array('point_term_begin <=' => $dt),
+				'NOT' => array('point_term_begin' => null),
 			),
 			'order' => array('Meet.at_date' => 'ASC'),
 		);
