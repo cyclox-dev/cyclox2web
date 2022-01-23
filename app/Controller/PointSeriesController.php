@@ -495,6 +495,8 @@ class PointSeriesController extends ApiBaseController
 					$racerPoints[$racerCode][$meetIndex]['rank'] = $psr['RacerResult']['rank'];
 				}
 				
+				$racerPoints[$racerCode][$meetIndex]['at'] = $mps['Meet']['at_date'];
+				
 				if (empty($nameMap[$racerCode])) {
 					$name = $psr['Racer']['family_name'] . ' ' . $psr['Racer']['first_name'];
 					$nameMap[$racerCode] = $name;

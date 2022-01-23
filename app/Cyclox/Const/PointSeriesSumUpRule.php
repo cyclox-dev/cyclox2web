@@ -14,6 +14,7 @@ class RankingPointUnit
 	// 以下 $JCX_212 ルール用
 	public $reqPt = -999;
 	public $maxPtNonReq = -999;
+	public $lastResultDate = null;
 	
 	public $points = array(); // array of int. index は大会インデックス, value['pt'], value['bonus']
 }
@@ -506,7 +507,31 @@ class PointSeriesSumUpRule extends Object
 		}
 		
 		// 最大ポイントで比較
-		return $b->maxPtNonReq - $a->maxPtNonReq;
+		if ($a->maxPtNonReq !== $b->maxPtNonReq)
+		{
+			return $b->maxPtNonReq - $a->maxPtNonReq;
+		}
+		
+		// 一番近い成績での比較
+		
+		end($a->points);
+		$keyA = key($a->points);
+		end($b->points);
+		$keyB = key($b->points);
+		
+		$ret = 0;
+		
+		if ($a->lastResultDate == $b->lastResultDate) {
+			$ret = $b->points[$keyB]['pt'] - $a->points[$keyA]['pt']; // 順位は考慮しない
+			
+			reset($a->points);
+			reset($b->points);
+
+			return $ret;
+		}
+		
+		// 最近の成績がある方が上
+		return ($b->lastResultDate > $a->lastResultDate) ? 1 : -1;
 	}
 	
 	/**
@@ -733,6 +758,10 @@ class PointSeriesSumUpRule extends Object
 				} else {
 					$nonReqs[] = $point;
 				}
+				
+				if ($i == $pointsLen - 1) {
+					$rpUnit->lastResultDate = $point['at'];
+				}
 			}
 			
 			// required でないポイントを高い順にならびかえ
@@ -767,6 +796,8 @@ class PointSeriesSumUpRule extends Object
 		$currPt = -999; // 同順位判定用
 		$currReqPt = -999; // 同順位判定用
 		$currMaxPt = -999; // 同順位判定用
+		$currDate = '1900-01-01'; // 直近大会リザルト比較用
+		$currKeyPt = -999; // 同上
 		$skipCount = 0; // 同順位時 skip
 		
 		for ($i = 0; $i < count($rankPtUits); $i++) {
@@ -780,12 +811,35 @@ class PointSeriesSumUpRule extends Object
 				$isSameRank = true;
 			}
 			
+			//$this->log(print_r($rpUnit, true), LOG_DEBUG);
+			
+			end($rpUnit->points);
+			$keyA = key($rpUnit->points);
+			reset($rpUnit->points);
+			
+			// 直近リザルトでのチェック
+			if ($isSameRank)
+			{
+				if ($rpUnit->lastResultDate == $currDate) {
+					// 最近の成績ポイントが上の方が上
+					$isSameRank = $currKeyPt == $rpUnit->points[$keyA]['pt'];
+				} else {
+					// 最近の成績がある方が上
+					$isSameRank = false;
+				}
+
+				$currKeyPt = $rpUnit->points[$keyA]['pt'];
+				$currDate = $rpUnit->lastResultDate;
+			}
+			
 			if ($isSameRank) {
 				++$skipCount; // rank を変えず skip 蓄積
 			} else {
 				$currPt = $rpUnit->rankPt[0];
 				$currReqPt = $rpUnit->reqPt;
 				$currMaxPt = $rpUnit->maxPtNonReq;
+				$currDate = $rpUnit->lastResultDate;
+				$currKeyPt = $rpUnit->points[$keyA]['pt'];
 				
 				$rank += 1 + $skipCount;
 				$skipCount = 0;
