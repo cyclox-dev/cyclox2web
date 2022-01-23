@@ -1194,15 +1194,29 @@ class ResultParamCalcComponent extends Component
 			
 			// ps.hint に cat_limit があったら所属チェック
 			$catLimits = array();
+			$onlyJcfer = false;
 			$seriesHints = PointSeriesSumUpRule::getSeriesHints($ptSetting['PointSeries']['hint']);
 			foreach ($seriesHints as $key => $val) {
 				if ($key === 'cat_limit') {
 					$catLimits = explode("/", $val);
+				} else if ($val === 'only_jcfer') {
+					$onlyJcfer = true;
 				}
 			}
 			if (!empty($catLimits)) {
 				$hasCat = $this->__checkCatRacer($racerCode, $catLimits, $ptSetting['Meet']['at_date']);
 				if (!$hasCat) {
+					continue;
+				}
+			}
+			
+			if ($onlyJcfer) {
+				$options = array(
+					'conditions' => array('Racer.' . $this->Racer->primaryKey => $racerCode),
+				);
+				$racer = $this->Racer->find('first', $options);
+				// jcf number 持っている選手のみ
+				if (empty($racer['Racer']['jcf_number'])) {
 					continue;
 				}
 			}
