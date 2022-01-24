@@ -101,7 +101,8 @@ class PointSeriesSumUpRule extends Object
 				. '以下の順に判断される。それでも判断できない場合は同順位。</br>'
 				. '・獲得ポイント</br>'
 				. '・' . self::KEY_REQUIRED . ' レースでの獲得ポイント</br>'
-				. '・' . self::KEY_REQUIRED . ' でないレースでの最高獲得ポイント';
+				. '・' . self::KEY_REQUIRED . ' でないレースでの最高獲得ポイント</br>'
+				. '・最終獲得レース日が近い方。そのレースが同じ日付の場合、そのレースでの獲得ポイント';
 		self::$JCX_212 = new PointSeriesSumUpRule(4, 'JCX21-22'
 				, 'hint:' . self::KEY_REQUIRED . ' とそれ以外のx%戦のポイントを採用する。合計->最高点数で比較する。', $str);
 		
