@@ -11,6 +11,7 @@
 			<th><?php echo $this->Paginator->sort('season_id'); ?></th>
 			<th><?php echo $this->Paginator->sort('holding_status', '開催 Status'); ?></th>
 			<th>Result 公開</th>
+			<th>JCX戦？</th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>
@@ -34,6 +35,7 @@
 			?>
 		</td>
 		<td><?php echo $meet['Meet']['publishes_on_ressys'] ? 'yes' : 'no' ?></td>
+		<td><?php echo $meet['Meet']['is_jcx'] ? 'yes' : 'no' ?></td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $meet['Meet']['code'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $meet['Meet']['code'])); ?>

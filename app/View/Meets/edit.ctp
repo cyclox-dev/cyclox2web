@@ -33,6 +33,7 @@
 		echo $this->Form->input('lap_distance', array('label' => '周回距離 (km)'));
 		echo $this->Form->input('holding_status', array('options' => $hs, 'label' => '開催状況'));
 		echo $this->Form->input('publishes_on_ressys', array('label' => 'リザルト公開'));
+		echo $this->Form->input('is_jcx', array('label' => 'JCX戦として登録する場合はチェック'));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>

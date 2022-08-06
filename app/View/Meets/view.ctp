@@ -70,6 +70,11 @@
 			<?php echo h($meet['Meet']['publishes_on_ressys'] ? 'yes' : 'no'); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('JCX戦？'); ?></dt>
+		<dd>
+			<?php echo h($meet['Meet']['is_jcx'] ? 'yes' : 'no'); ?>
+			&nbsp;
+		</dd>
 	</dl>
 <p style="height: 1em"></p>
 <h3>Status</h3>

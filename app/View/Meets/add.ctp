@@ -37,6 +37,7 @@
 		echo $this->Form->input('start_frac_distance', array('label' => 'スタート端数距離 (km)'));
 		echo $this->Form->input('lap_distance', array('label' => '周回距離 (km)'));
 		echo $this->Form->input('publishes_on_ressys', array('label' => 'リザルト公開', 'default' => 1));
+		echo $this->Form->input('is_jcx', array('label' => 'JCX戦として登録する場合はチェック', 'default' => 0));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit')); ?>
