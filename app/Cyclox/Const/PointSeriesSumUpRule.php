@@ -6,15 +6,18 @@
 
 class RankingPointUnit
 {
-	public $code = null; // string
-	public $rank = 999; // int
-	public $rankPt = array(); // int array 集計値を順に持つ
-	public $reqIdx = null; // int/nullで未入力
+	// MEMO 無効な数値として例えば PHP_INT_MIN などを使用すると、compare() 関メソッド内で演算があったときにオーバーフローして正しい結果にならないため、99999 を利用する。
 	
-	// 以下 $JCX_212 ルール用
-	public $reqPt = -999;
-	public $maxPtNonReq = -999;
+	public $code = null; // string
+	public $rank = 99999; // int
+	public $rankPt = array(); // int array 集計値を順に持つ
+	
+	public $reqPt = -99999;
+	public $reqRank = 99999;
+	public $maxPtNonReq = -99999;
 	public $lastResultDate = null;
+	public $lastResultPt = -99999;
+	public $lastResultRank = -99999;
 	
 	public $points = array(); // array of int. index は大会インデックス, value['pt'], value['bonus']
 }
@@ -234,6 +237,11 @@ class PointSeriesSumUpRule extends Object
 				} else {
 					$outReqs[] = $point;
 				}
+				
+				// lastXXX を更新
+				$rpUnit->lastResultDate = $point['at'];
+				$rpUnit->lastResultPt = $point['pt'] + $point['bonus'];
+				$rpUnit->lastResultRank = $point['rank'];
 			}
 			
 			usort($outReqs, array($this, '__comparePoint'));
@@ -253,7 +261,7 @@ class PointSeriesSumUpRule extends Object
 		
 		usort($rankPtUits, array($this, '__compareOfJCX156'));
 		
-		// 順位付け
+		// 順位付け（同順位は無いため、純増で順位を付与する。）
 		$rank = 1;
 		for ($i = 0; $i < count($rankPtUits); $i++) {
 			$rpUnit = $rankPtUits[$i];
@@ -412,88 +420,34 @@ class PointSeriesSumUpRule extends Object
 		}
 		
 		// 一番近い成績での比較
-		end($a->points);
-		$keyA = key($a->points);
-		end($b->points);
-		$keyB = key($b->points);
-		
-		$ret = 0;
 		
 		// 最近の成績がある方が上
 		
-		if ($keyA == $keyB) {
-			if ($b->points[$keyB]['pt'] == $a->points[$keyA]['pt']) {
-				// 最近の成績位置Bが等しく、ポイントも同じならば最近成績が上の方が上
-				$ret = $a->points[$keyA]['rank'] - $b->points[$keyB]['rank'];
-			} else {
-				// 最近の成績ポイントが上の方が上
-				$ret = $b->points[$keyB]['pt'] - $a->points[$keyA]['pt'];
-			}
-		} else {
-			$ret = $keyB - $keyA;
+		// 日付近い方
+		if ($a->lastResultDate != $b->lastResultDate) {
+			return ($b->lastResultDate > $a->lastResultDate) ? 1 : -1;
 		}
 		
-		reset($a->points);
-		reset($b->points);
-		
-		return $ret;
+		// ポイントでの比較
+		if ($b->lastResultPt != $a->lastResultPt) {
+			return $b->lastResultPt - $a->lastResultPt; 
+		}
+
+		// 順位での比較
+		if (empty($a->lastResultRank)) {
+			if (empty($b->lastResultRank)) {
+				return 0;
+			} else {
+				return 1;
+			}
+		} else if (empty($b->lastResultRank)) {
+			return -1;
+		}
+
+		return $a->lastResultRank - $b->lastResultRank;
 	}
 	
 	static function __compareOfJCX201(RankingPointUnit $a, RankingPointUnit $b)
-	{
-		// 合計点比較
-		if ($a->rankPt[0] != $b->rankPt[0])
-		{
-			return $b->rankPt[0] - $a->rankPt[0];
-		}
-		
-		// required 大会のポイント、順位比較（同日エリート,U23 の場合には単純に順位比較できない）
-		if (!is_null($a->reqIdx)) {
-			if (is_null($b->reqIdx)) {
-				return -1;
-			} else {
-				$pta = $a->points[$a->reqIdx]['pt'];
-				$ptb = $b->points[$b->reqIdx]['pt'];
-				if ($pta == $ptb) {
-					// ポイント同じ場合には順位が上
-					return $a->points[$a->reqIdx]['rank'] - $b->points[$b->reqIdx]['rank'];
-				} else {
-					return $b->points[$b->reqIdx]['pt'] - $a->points[$a->reqIdx]['pt'];
-				}
-			}
-		} else if (!is_null($b->reqIdx)) {
-			return 1;
-		}
-		
-		// 一番近い成績での比較
-		
-		end($a->points);
-		$keyA = key($a->points);
-		end($b->points);
-		$keyB = key($b->points);
-		
-		$ret = 0;
-		
-		if ($keyA == $keyB) {
-			if ($b->points[$keyB]['pt'] == $a->points[$keyA]['pt']) {
-				// 最近の成績位置Bが等しく、ポイントも同じならば最近成績が上の方が上
-				$ret = $a->points[$keyA]['rank'] - $b->points[$keyB]['rank'];
-			} else {
-				// 最近の成績ポイントが上の方が上
-				$ret = $b->points[$keyB]['pt'] - $a->points[$keyA]['pt'];
-			}
-		} else {
-			// 最近の成績がある方が上
-			$ret = $keyB - $keyA;
-		}
-		
-		reset($a->points);
-		reset($b->points);
-		
-		return $ret;
-	}
-	
-	static function __compareOfJCX212(RankingPointUnit $a, RankingPointUnit $b)
 	{
 		// 合計点比較
 		if ($a->rankPt[0] != $b->rankPt[0])
@@ -507,6 +461,61 @@ class PointSeriesSumUpRule extends Object
 			return $b->reqPt - $a->reqPt;
 		}
 		
+		// required 大会の順位で比較
+		if (empty($a->reqRank)) {
+			if (empty($b->reqRank)) {
+				if ($a->reqRank != $b->reqRank) {
+					return $a->reqRank - $b->reqRank;
+				} // else continue to next(unlikely)
+			} else {
+				return 1;
+			}
+		} else if (empty($b->reqRank)) {
+			return -1;
+		}
+		
+		// 一番近い成績での比較
+		
+		// 最近の成績がある方が上
+		
+		// 日付近い方
+		if ($a->lastResultDate != $b->lastResultDate) {
+			return ($b->lastResultDate > $a->lastResultDate) ? 1 : -1;
+		}
+		
+		// ポイントでの比較
+		if ($b->lastResultPt != $a->lastResultPt) {
+			return $b->lastResultPt - $a->lastResultPt; 
+		}
+
+		// 順位での比較
+		if (empty($a->lastResultRank)) {
+			if (empty($b->lastResultRank)) {
+				return 0;
+			} else {
+				return 1;
+			}
+		} else if (empty($b->lastResultRank)) {
+			return -1;
+		}
+
+		return $a->lastResultRank - $b->lastResultRank;
+	}
+	
+	static function __compareOfJCX212(RankingPointUnit $a, RankingPointUnit $b)
+	{
+		// 合計点比較
+		if ($a->rankPt[0] != $b->rankPt[0])
+		{
+			return $b->rankPt[0] - $a->rankPt[0];
+		}
+		
+		// required 大会のポイントで比較
+		if ($a->reqPt != $b->reqPt) 
+		{
+			return $b->reqPt - $a->reqPt;
+		}
+		
 		// 最大ポイントで比較
 		if ($a->maxPtNonReq !== $b->maxPtNonReq)
 		{
@@ -515,20 +524,8 @@ class PointSeriesSumUpRule extends Object
 		
 		// 一番近い成績での比較
 		
-		end($a->points);
-		$keyA = key($a->points);
-		end($b->points);
-		$keyB = key($b->points);
-		
-		$ret = 0;
-		
 		if ($a->lastResultDate == $b->lastResultDate) {
-			$ret = $b->points[$keyB]['pt'] - $a->points[$keyA]['pt']; // 順位は考慮しない
-			
-			reset($a->points);
-			reset($b->points);
-
-			return $ret;
+			return $b->lastResultPt - $a->lastResultPt; // 順位は考慮しない
 		}
 		
 		// 最近の成績がある方が上
@@ -643,10 +640,16 @@ class PointSeriesSumUpRule extends Object
 				$point = $points[$i];
 				if ($requiredIndices[$i]) {
 					$pt += $point['pt'] + $point['bonus'];
-					$rpUnit->reqIdx = $i;
+					$rpUnit->reqPt = $point['pt'] + $point['bonus'];
+					$rpUnit->reqRank = $point['rank'];
 				} else {
 					$outReqs[] = $point;
 				}
+				
+				// lastXXX を更新
+				$rpUnit->lastResultDate = $point['at'];
+				$rpUnit->lastResultPt = $point['pt'] + $point['bonus'];
+				$rpUnit->lastResultRank = $point['rank'];
 			}
 			
 			usort($outReqs, array($this, '__comparePoint'));
@@ -664,7 +667,7 @@ class PointSeriesSumUpRule extends Object
 		
 		usort($rankPtUits, array($this, '__compareOfJCX201'));
 		
-		// 順位付け
+		// 順位付け（同順位は無いため、純増で順位を付与する。）
 		$rank = 1;
 		for ($i = 0; $i < count($rankPtUits); $i++) {
 			$rpUnit = $rankPtUits[$i];
@@ -755,14 +758,13 @@ class PointSeriesSumUpRule extends Object
 				if ($requiredIndices[$i]) {
 					$pt += $point['pt'] + $point['bonus']; // required を先に取得
 					$rpUnit->reqPt = $point['pt'] + $point['bonus'];
-					$rpUnit->reqIdx = $i; // usort(__compareOfJCX212 のため、required なポイントのインデックスを格納しておく <-- $rpUnit に持たせるのはちょっと無駄だが,,,
 				} else {
 					$nonReqs[] = $point;
 				}
 				
-				if ($i == $pointsLen - 1) {
-					$rpUnit->lastResultDate = $point['at'];
-				}
+				// lastXXX を更新
+				$rpUnit->lastResultDate = $point['at'];
+				$rpUnit->lastResultPt = $point['pt'] + $point['bonus'];
 			}
 			
 			// required でないポイントを高い順にならびかえ
@@ -794,11 +796,11 @@ class PointSeriesSumUpRule extends Object
 		
 		// 順位付け
 		$rank = 0;
-		$currPt = -999; // 同順位判定用
-		$currReqPt = -999; // 同順位判定用
-		$currMaxPt = -999; // 同順位判定用
+		$currPt = PHP_INT_MIN; // 同順位判定用
+		$currReqPt = PHP_INT_MIN; // 同順位判定用（合計点）
+		$currMaxPt = PHP_INT_MIN; // 同順位判定用（最高点）
 		$currDate = '1900-01-01'; // 直近大会リザルト比較用
-		$currKeyPt = -999; // 同上
+		$currLastResultPt = PHP_INT_MIN; // 同上
 		$skipCount = 0; // 同順位時 skip
 		
 		for ($i = 0; $i < count($rankPtUits); $i++) {
@@ -814,23 +816,16 @@ class PointSeriesSumUpRule extends Object
 			
 			//$this->log(print_r($rpUnit, true), LOG_DEBUG);
 			
-			end($rpUnit->points);
-			$keyA = key($rpUnit->points);
-			reset($rpUnit->points);
-			
 			// 直近リザルトでのチェック
 			if ($isSameRank)
 			{
 				if ($rpUnit->lastResultDate == $currDate) {
 					// 最近の成績ポイントが上の方が上
-					$isSameRank = $currKeyPt == $rpUnit->points[$keyA]['pt'];
+					$isSameRank = $currLastResultPt == $rpUnit->lastResultPt;
 				} else {
 					// 最近の成績がある方が上
 					$isSameRank = false;
 				}
-
-				$currKeyPt = $rpUnit->points[$keyA]['pt'];
-				$currDate = $rpUnit->lastResultDate;
 			}
 			
 			if ($isSameRank) {
@@ -840,7 +835,7 @@ class PointSeriesSumUpRule extends Object
 				$currReqPt = $rpUnit->reqPt;
 				$currMaxPt = $rpUnit->maxPtNonReq;
 				$currDate = $rpUnit->lastResultDate;
-				$currKeyPt = $rpUnit->points[$keyA]['pt'];
+				$currLastResultPt = $rpUnit->lastResultPt;
 				
 				$rank += 1 + $skipCount;
 				$skipCount = 0;
