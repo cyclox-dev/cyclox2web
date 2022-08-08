@@ -277,7 +277,6 @@ class ResultParamCalcComponent extends Component
             }
         }
 
-
         // ポイントの決定
         $rankIndex = $rank - 1;
         if (isset($map[$rankIndex])) {
@@ -285,9 +284,9 @@ class ResultParamCalcComponent extends Component
             $point = $map[$rankIndex];
         }
 
-		$this->log('rank : ' . $rank . ' / ajocc pt is: ' . $point, LOG_DEBUG);
-		return $point;
-	}
+        $this->log('rank : ' . $rank . ' / ajocc pt is: ' . $point, LOG_DEBUG);
+        return $point;
+    }
 
 	/**
 	 * リザルトに関するポイントなどを再計算する。Transaction 処理はこのメソッドの外部で行なうこと。
@@ -1883,7 +1882,6 @@ class ResultParamCalcComponent extends Component
                 }
             }
         }
-
 
         return array($map, $point);
     }
