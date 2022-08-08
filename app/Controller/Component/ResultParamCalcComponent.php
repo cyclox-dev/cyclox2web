@@ -94,7 +94,10 @@ class ResultParamCalcComponent extends Component
 	private $MeetPointSeries;
 	private $RacerResult;
 	private $Meet;
-	
+
+    private $ajoccPtMap;
+    private $defaultPt;
+
 	public function reCalcResults($ecatId = null)
 	{
 		$this->EntryCategory = new EntryCategory();
@@ -241,156 +244,48 @@ class ResultParamCalcComponent extends Component
 	public function calcAjoccPt($rank, $startedCount, $meetDate, $isJcx)
 	{
         $this->log('isJcx : ' . ($isJcx ? 'true' : 'false') , LOG_DEBUG);
-        $isJcxMap = false;
-        $isdivDate2022 = false;
 
         if ($startedCount <= 0) {
 			return -1;
 		}
-		
+
 		if (empty($rank)) {
 			return 0;
 		}
-		
-		$mtDate = new DateTime($meetDate);
-		$divDate = new DateTime('2017-04-01');
-		$divDate2022 = new DateTime('2022-08-01');
-		$this->log('meet date is before 2016-17 ? :' . ($mtDate < $divDate) , LOG_DEBUG);
-		$this->log('meet date is between 2017-2022 ? :' . ($mtDate >= $divDate && $mtDate < $divDate2022) , LOG_DEBUG);
-		$this->log('meet date is after 2022 ? :' . ($mtDate >= $divDate2022) , LOG_DEBUG);
 
-		// 2022/08 に変更
-        if ($mtDate < $divDate) {
-            $this->log('is season before 17-18', LOG_DEBUG);
-            $map = array(
-                array(
-                    'started_over' => 40, 'points' => array(
-                        56, 47, 41, 36, 32, 28, 25, 22, 20, 18,
-                        16, 14, 13, 12, 11, 10,  9,  9,  8,  8,
-                        7,  7,  7,  6,  6,  6,  5,  5,  5,  5,
-                        4,  4,  4,  4,  3,  3,  3,  3,  3,  3,
-                        2,  2,  2,  2,  2,  2,  2,  1,  1,  1,
-                        1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-                    )
-                ),
-                array(
-                    'started_over' => 20, 'points' => array(
-                        42, 34, 28, 24, 21, 18, 15, 13, 11, 10,
-                        9,  8,  7,  6,  6,  5,  5,  4,  4,  4,
-                        3,  3,  3,  3,  2,  2,  2,  2,  2,  2,
-                        2,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-                    )
-                ),
-                array(
-                    'started_over' => 0, 'points' => array(
-                        28, 20, 15, 12, 10, 8,  6,  5,  4,  3,
-                        3,  2,  2,  2,  1,  1,  1,  1,  1,  1,
-                    )
-                )
-            );
-        } else if ($mtDate >= $divDate && $mtDate < $divDate2022) {
-            $this->log('is season between 2018-2022', LOG_DEBUG);
-            $map = array(
-                array(
-                    'started_over' => 39, 'points' => array(
-                        56, 47, 41, 36, 32, 28, 25, 22, 20, 18,
-                        16, 14, 13, 12, 11, 10,  9,  9,  8,  8,
-                        7,  7,  7,  6,  6,  6,  5,  5,  5,  5,
-                        4,  4,  4,  4,  3,  3,  3,  3,  3,  3,
-                        2,  2,  2,  2,  2,  2,  2,  1,  1,  1,
-                        1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-                    )
-                ),
-                array(
-                    'started_over' => 19, 'points' => array(
-                        42, 34, 28, 24, 21, 18, 15, 13, 11, 10,
-                        9,  8,  7,  6,  6,  5,  5,  4,  4,  4,
-                        3,  3,  3,  3,  2,  2,  2,  2,  2,  2,
-                        2,  1,  1,  1,  1,  1,  1,  1,  1,
-                    )
-                ),
-                array(
-                    'started_over' => 0, 'points' => array(
-                        28, 20, 15, 12, 10, 8,  6,  5,  4,  3,
-                        3,  2,  2,  2,  1,  1,  1,  1,  1,
-                    )
-                )
-            );
+        // リザルト計算用ポイントテーブル取得
+        if(isset($this->ajoccPtMap)) {
+            $this->log('map cached', LOG_DEBUG);
+
+            // map,point をキャッシュされたフィールドから取得
+            $map = $this->ajoccPtMap;
+            $point = $this->defaultPt;
         } else {
-            $isdivDate2022 = true;
-            if ($isJcx) {
-                $isJcxMap = true;
-                $this->log('is JCX 2022', LOG_DEBUG);
-                $map = array(
-                    array(
-                        'started_over' => 40, 'points' => array(
-                            200, 160, 140, 120, 110, 100, 90, 80, 70, 60,
-                            58,  56,  54,  52,  50,  48, 46, 44, 42, 40,
-                            39,  38,  37,  36,  35,  34, 33, 32, 31, 30,
-                            29,  28,  27,  26,  25,  24, 23, 22, 21, 20,
-                            19,  18,  17,  16,  15,  14, 13, 12, 11, 10,
-                            9,   8,   7,   6,   5,   4,  3,  2,  1,  1,
-                        )
-                    )
-                );
-            } else {
-                $this->log('is season afte 2022', LOG_DEBUG);
-                $map = array(
-                    array(
-                        'started_over' => 39, 'points' => array(
-                            180, 150, 130, 110, 100, 90, 80, 70, 60, 52,
-                            46,  42,  40,  38,  36, 35, 34, 33, 32, 31,
-                            30,  29,  28,  27,  26, 25, 24, 23, 22, 21,
-                            20,  19,  18,  17,  16, 15, 14, 13, 12, 11,
-                            10,   9,   8,   7,   6,  5,  4,  3,  2,  1,
-                            1,   1,   1,   1,   1,  1,  1,  1,  1,  1,
-                        )
-                    ),
-                    array(
-                        'started_over' => 19, 'points' => array(
-                            150, 120, 100, 90, 80, 70, 60, 52, 45, 39,
-                            34,  30,  27, 26, 25, 24, 23, 22, 21, 20,
-                            19,  18,  17, 16, 15, 14, 13, 12, 11, 10,
-                            9,   8,   7,  6,  5,  4,  3,  2,  1,
-                        )
-                    ),
-                    array(
-                        'started_over' => 0, 'points' => array(
-                            100, 80, 70, 60, 50, 42, 34, 28, 22, 17,
-                            12,  8,  7,  6,  5,  4,  3,  2,  1,
-                        )
-                    )
-                );
+            $this->log('no cache', LOG_DEBUG);
+
+            // 条件に合致するmap,pointを選択して取得
+            $mtDate = new DateTime($meetDate);
+            list($map, $point) = $this->__getAjoccPointMap($mtDate, $startedCount, $isJcx);
+
+            // フィールドにキャッシュ
+            $this->ajoccPtMap = $map;
+            $this->defaultPt = $point;
+
+            $this->log('point : '. $point, LOG_DEBUG);
+            foreach ($map as $Item) {
+                $this->log('map-point : '. $Item, LOG_DEBUG);
             }
         }
+
 
         // ポイントの決定
-        if ($isJcxMap) {
-            $this->log('isJcx 2022', LOG_DEBUG);
-            $point = 1;
-            $rankIndex = $rank - 1;
-            $this->log('rank : ' . $rank , LOG_DEBUG);
-
-            if (isset($map['points'][$rankIndex])) {
-                $point = $map['points'][$rankIndex];
-            }
-        } else {
-            $point = (!$isdivDate2022) ? 0 : (($startedCount > 39 ) ? 1 : 0 ) ;
-            if($isdivDate2022) $this->log('is season 2022', LOG_DEBUG);
-            $this->log('startedCount : ' . $startedCount . ' defaultPoint : ' . $point, LOG_DEBUG);
-            foreach ($map as $item) {
-                if ($startedCount > $item['started_over']) {
-                    $rankIndex = $rank - 1;
-
-                    if (isset($item['points'][$rankIndex])) {
-                        $point = $item['points'][$rankIndex];
-                        break;
-                    }
-                }
-            }
+        $rankIndex = $rank - 1;
+        if (isset($map[$rankIndex])) {
+            $this->log('exist rank point', LOG_DEBUG);
+            $point = $map[$rankIndex];
         }
 
-		$this->log('ajocc pt is: ' . $point, LOG_DEBUG);
+		$this->log('rank : ' . $rank . ' / ajocc pt is: ' . $point, LOG_DEBUG);
 		return $point;
 	}
 
@@ -1841,4 +1736,155 @@ class ResultParamCalcComponent extends Component
 		
 		return $a['RacerResult']['rank'] - $b['RacerResult']['rank'];
 	}
+	
+    /**
+     * リザルト計算用のポイントマップを取得する
+     * @param $mtDate 大会開催日
+     * @param $startedCount 出走者数
+     * @param $isJcx JCX戦かどうか？
+     * @return array($pointMap, $defaultPoint)
+     */
+    private function __getAjoccPointMap($mtDate, $startedCount, $isJcx)
+    {
+        $defaultPoint = 0;
+        $divDate2017 = new DateTime('2017-04-01');
+        $divDate2022 = new DateTime('2022-08-01');
+
+        if ($mtDate < $divDate2017) {
+            $this->log('is season before 2017', LOG_DEBUG);
+            $mapArray = array(
+                array(
+                    'started_over' => 40,
+                    'defaultPoint' => 0,
+                    'points' => array(
+                        56, 47, 41, 36, 32, 28, 25, 22, 20, 18,
+                        16, 14, 13, 12, 11, 10,  9,  9,  8,  8,
+                        7,  7,  7,  6,  6,  6,  5,  5,  5,  5,
+                        4,  4,  4,  4,  3,  3,  3,  3,  3,  3,
+                        2,  2,  2,  2,  2,  2,  2,  1,  1,  1,
+                        1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                    )
+                ),
+                array(
+                    'started_over' => 20,
+                    'defaultPoint' => 0,
+                    'points' => array(
+                        42, 34, 28, 24, 21, 18, 15, 13, 11, 10,
+                        9,  8,  7,  6,  6,  5,  5,  4,  4,  4,
+                        3,  3,  3,  3,  2,  2,  2,  2,  2,  2,
+                        2,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                    )
+                ),
+                array(
+                    'started_over' => 0,
+                    'defaultPoint' => 0,
+                    'points' => array(
+                        28, 20, 15, 12, 10, 8,  6,  5,  4,  3,
+                        3,  2,  2,  2,  1,  1,  1,  1,  1,  1,
+                    )
+                )
+            );
+        } else if ($mtDate >= $divDate2017 && $mtDate < $divDate2022) {
+            $this->log('is season between 2018-2022', LOG_DEBUG);
+            $mapArray = array(
+                array(
+                    'started_over' => 39,
+                    'defaultPoint' => 0,
+                    'points' => array(
+                        56, 47, 41, 36, 32, 28, 25, 22, 20, 18,
+                        16, 14, 13, 12, 11, 10,  9,  9,  8,  8,
+                        7,  7,  7,  6,  6,  6,  5,  5,  5,  5,
+                        4,  4,  4,  4,  3,  3,  3,  3,  3,  3,
+                        2,  2,  2,  2,  2,  2,  2,  1,  1,  1,
+                        1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                    )
+                ),
+                array(
+                    'started_over' => 19,
+                    'defaultPoint' => 0,
+                    'points' => array(
+                        42, 34, 28, 24, 21, 18, 15, 13, 11, 10,
+                        9,  8,  7,  6,  6,  5,  5,  4,  4,  4,
+                        3,  3,  3,  3,  2,  2,  2,  2,  2,  2,
+                        2,  1,  1,  1,  1,  1,  1,  1,  1,
+                    )
+                ),
+                array(
+                    'started_over' => 0,
+                    'defaultPoint' => 0,
+                    'points' => array(
+                        28, 20, 15, 12, 10, 8,  6,  5,  4,  3,
+                        3,  2,  2,  2,  1,  1,  1,  1,  1,
+                    )
+                )
+            );
+        } else {
+            if ($isJcx) {
+                $this->log('is JCX after 2022', LOG_DEBUG);
+                $mapArray = array(
+                    'defaultPoint' => 1,
+                    'points' => array(
+                        200, 160, 140, 120, 110, 100, 90, 80, 70, 60,
+                        58,  56,  54,  52,  50,  48, 46, 44, 42, 40,
+                        39,  38,  37,  36,  35,  34, 33, 32, 31, 30,
+                        29,  28,  27,  26,  25,  24, 23, 22, 21, 20,
+                        19,  18,  17,  16,  15,  14, 13, 12, 11, 10,
+                        9,   8,   7,   6,   5,   4,  3,  2,  1,  1,
+                    )
+                );
+            } else {
+                $this->log('is season after 2022', LOG_DEBUG);
+                $mapArray = array(
+                    array(
+                        'started_over' => 39,
+                        'defaultPoint' => 1,
+                        'points' => array(
+                            180, 150, 130, 110, 100, 90, 80, 70, 60, 52,
+                            46,  42,  40,  38,  36, 35, 34, 33, 32, 31,
+                            30,  29,  28,  27,  26, 25, 24, 23, 22, 21,
+                            20,  19,  18,  17,  16, 15, 14, 13, 12, 11,
+                            10,   9,   8,   7,   6,  5,  4,  3,  2,  1,
+                            1,   1,   1,   1,   1,  1,  1,  1,  1,  1,
+                        )
+                    ),
+                    array(
+                        'started_over' => 19,
+                        'defaultPoint' => 0,
+                        'points' => array(
+                            150, 120, 100, 90, 80, 70, 60, 52, 45, 39,
+                            34,  30,  27, 26, 25, 24, 23, 22, 21, 20,
+                            19,  18,  17, 16, 15, 14, 13, 12, 11, 10,
+                            9,   8,   7,  6,  5,  4,  3,  2,  1,
+                        )
+                    ),
+                    array(
+                        'started_over' => 0,
+                        'defaultPoint' => 0,
+                        'points' => array(
+                            100, 80, 70, 60, 50, 42, 34, 28, 22, 17,
+                            12,  8,  7,  6,  5,  4,  3,  2,  1,
+                        )
+                    )
+                );
+            }
+        }
+
+        if ($isJcx) {
+            $this->log('mapArray is JCX', LOG_DEBUG);
+            $map = $mapArray['points'];
+            $point = $mapArray['defaultPoint'];
+        } else {
+            foreach ($mapArray as $mapItem) {
+                $this->log('mapArray is not JCX', LOG_DEBUG);
+                if ($startedCount > $mapItem['started_over']) {
+                    $map = $mapItem['points'];
+                    $point = $mapItem['defaultPoint'];
+                    break;
+                }
+            }
+        }
+
+
+        return array($map, $point);
+    }
 }
