@@ -1868,7 +1868,7 @@ class ResultParamCalcComponent extends Component
             }
         }
 
-        if ($isJcx) {
+        if ($mtDate >= $divDate2022 && $isJcx) {
             $this->log('mapArray is JCX', LOG_DEBUG);
             $map = $mapArray['points'];
             $point = $mapArray['defaultPoint'];
