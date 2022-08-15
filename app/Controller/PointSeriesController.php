@@ -490,10 +490,7 @@ class PointSeriesController extends ApiBaseController
 				$racerPoints[$racerCode][$meetIndex] = array();
 				$racerPoints[$racerCode][$meetIndex]['pt'] = $psr['PointSeriesRacer']['point']; // not null
 				$racerPoints[$racerCode][$meetIndex]['bonus'] = $psr['PointSeriesRacer']['bonus']; // may null
-				if (!empty($psr['RacerResult']['rank'])) {
-					// リザルト順位で比較する時用
-					$racerPoints[$racerCode][$meetIndex]['rank'] = $psr['RacerResult']['rank'];
-				}
+				$racerPoints[$racerCode][$meetIndex]['rank'] = $psr['RacerResult']['rank']; // may null
 				
 				$racerPoints[$racerCode][$meetIndex]['at'] = $mps['Meet']['at_date'];
 				

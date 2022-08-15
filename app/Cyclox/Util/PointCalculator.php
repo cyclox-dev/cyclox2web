@@ -22,6 +22,7 @@ class PointCalculator extends Object
 	public static $KNT_178;
 	public static $THK_178;
 	public static $JCX_201;
+	public static $TCX_223;
 	
 	private static $TABLE_JCX156_GRADE1 = array(
 		300, 240, 210, 180, 165, 150, 135, 120, 105, 90, 
@@ -102,6 +103,7 @@ class PointCalculator extends Object
 	
 	private static $TABLE_CCM167; // --> init() で初期化
 	private static $TABLE_KNT178; // --> init() で初期化
+	private static $TABLE_TCX223; // --> init() で初期化
 	
 	private static $calculators;
 	
@@ -313,6 +315,53 @@ class PointCalculator extends Object
 			;
 		self::$JCX_201 = new PointCalculator(8, 'JCX_201', '2020-21 JCX で使用するポイントテーブル。', $text);
 		
+		// table 初期化
+		self::$TABLE_TCX223 = array(
+			array(
+				self::__KEY_STARTED_OVER => 39, self::__KEY_TABLE => array(
+					180,150,130,110,100,90,80,70,60,52,
+					46,42,40,38,36,35,34,33,32,31,
+					30,29,28,27,26,25,24,23,22,21,
+					20,19,18,17,16,15,14,13,12,11,
+					10,9,8,7,6,5,4,3,2,1,
+
+				)
+			),
+			array(
+				self::__KEY_STARTED_OVER => 19, self::__KEY_TABLE => array(
+					150,120,100,90,80,70,60,52,45,39,
+					34,30,27,26,25,24,23,22,21,20,
+					19,18,17,16,15,14,13,12,11,10,
+					9,8,7,6,5,4,3,2,1,0
+
+				)
+			),
+			array(
+				self::__KEY_STARTED_OVER => 0, self::__KEY_TABLE => array(
+					100,80,70,60,50,42,34,28,22,17,
+					12,8,7,6,5,4,3,2,1,0
+
+				)
+			)
+		);
+		$str = '';
+		for ($i = 0; $i < count(self::$TABLE_TCX223); $i++) {
+			$str .= '---</br>';
+			$pack = self::$TABLE_TCX223[$i];
+			$str .= ($pack[self::__KEY_STARTED_OVER] + 1) . '人以上</br>';
+			for ($j = 0; $j < count($pack[self::__KEY_TABLE]); $j++) {
+				$str .= ' ' . $pack[self::__KEY_TABLE][$j] . ',';
+				if (($j + 1) % 10 == 0) {
+					$str .= '</br>';
+				}
+			}
+		}
+		
+		$text = '2022-23 東北クロスのシリーズランキングのために作られたポイントテーブル。'
+			. '22-23 AJOCC ポイントと同じ配点である。ただしJCXテーブルは使用しない。ボーナスなどは無し。グレード指定は不要。'
+			. '</br>ポイントテーブル</br>' . $str;
+		self::$TCX_223 = new PointCalculator(9, 'TCX_223', '2022-23 東北クロスのポイントテーブル。22-23 AJOCC ポイントと同じ（JCX テーブル無し）。', $text);
+		
 		self::$calculators = array(
 			self::$JCX_156,
 			self::$KNS_156,
@@ -322,6 +371,7 @@ class PointCalculator extends Object
 			self::$KNT_178,
 			self::$THK_178,
 			self::$JCX_201,
+			self::$TCX_223,
 		);
 	}
 	
@@ -382,6 +432,7 @@ class PointCalculator extends Object
 			case self::$KNT_178->val(): $pt = $this->__calcKNT178($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$THK_178->val(): $pt = $this->__calcTHK178($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$JCX_201->val(): $pt = $this->__calcJCX201($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
+			case self::$TCX_223->val(): $pt = $this->__calcTCX223($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 		}
 		
 		if (empty($pt['point']) && empty($pt['bonus'])) {
@@ -715,6 +766,33 @@ class PointCalculator extends Object
 		//$this->log('result:', LOG_DEBUG);
 		//$this->log($result, LOG_DEBUG);
 
+		return $pointMap;
+	}
+	
+	/**
+	 * 2022-23 シリーズの東北クロスのポイントをかえす。
+	 */
+	private function __calcTCX223($result, $grade, $raceLapCount, $raceStartedCount, $meetDate)
+	{
+		if (empty($result['rank'])) return null;
+		
+		$rankIndex = $result['rank'] - 1;
+		$point = 1; // どのテーブルのどの順位でも最低値の 1pt が入る。
+		
+		foreach (self::$TABLE_TCX223 as $table) {
+			if ($raceStartedCount > $table[self::__KEY_STARTED_OVER]) {
+				if (isset($table[self::__KEY_TABLE][$rankIndex])) {
+					$point = $table[self::__KEY_TABLE][$rankIndex];
+				}
+				break;
+			}
+		}
+		
+		$pointMap = array();
+		$pointMap['point'] = $point;
+		
+		// 完走ボーナスは無し。
+		
 		return $pointMap;
 	}
 }
