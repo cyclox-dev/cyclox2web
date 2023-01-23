@@ -840,7 +840,7 @@ class OrgUtilController extends ApiBaseController
 	}
 	
 	/**
-	 * 複数の Ajocc ranking データから所属しているもののデータをかえす。なかった場合は $ranks の中の銭湯にあるもの。
+	 * 複数の Ajocc ranking データから所属しているもののデータをかえす。なかった場合は $ranks の中の先頭にあるもの。
 	 * @param type $ranks ランキングデータ
 	 * @param type $cats 所属カテゴリー
 	 * @return array
@@ -921,15 +921,18 @@ class OrgUtilController extends ApiBaseController
 		}
 		
 		$ret_map = array();
-		// BETAG:
-		$cats = array('C1','CM1', 'C2','CM2', 'C3','CM3', 'C4'); // より高いカテゴリーを頭に
 		
-		foreach ($cats as $cat) {
+		// データ量を少なくするため、また、より高いカテゴリーを配列の前に配置するため、order by 指定でカテゴリーコードを抽出して利用する。
+		$cats = $this->Category->find('list', ['order' => ['category_group_id' => 'asc', 'rank' => 'asc']]);
+		//$this->log('cates:', LOG_DEBUG);
+		//$this->log(print_r($categories, true), LOG_DEBUG);
+		
+		foreach ($cats as $cat_code => $cat_name) {
 			$opt = array(
 				'conditions' => array(
 					'season_id' => $season_id,
 					'ajoccpt_local_setting_id' => null,
-					'category_code' => $cat,
+					'category_code' => $cat_code,
 				),
 				'recursive' => -1,
 			);
@@ -944,7 +947,7 @@ class OrgUtilController extends ApiBaseController
 				
 				$ret_map[$rcode][] = array(
 					'rank' => $tars['TmpAjoccptRacerSet']['rank'],
-					'as_cat' => $cat,
+					'as_cat' => $cat_code,
 				);
 			}
 		}
