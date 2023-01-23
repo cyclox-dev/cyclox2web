@@ -680,8 +680,8 @@ class OrgUtilController extends ApiBaseController
 		
 		if ($addsPoints) {
 			// ajoc ranking
-			$cdt = array('start_date <=' => date('Y-m-d'), 'end_date >=' => date('Y-m-d'));
-			$ss = $this->Season->find('first', array('conditions' => $cdt));
+			$cdt = array('end_date >=' => date('Y-m-d'));// シーズン最終日までは今シーズンとして表示
+			$ss = $this->Season->find('first', array('conditions' => $cdt, 'order' => ['end_date' => 'asc']));
 			$this->log($ss['Season']['id'], LOG_DEBUG);
 			$rankMap = empty($ss['Season']['id']) ? array() : $this->__createAjoccRankMap($ss['Season']['id']);
 			$this->log($ss['Season']['id'] . ':end...', LOG_DEBUG);
@@ -692,8 +692,7 @@ class OrgUtilController extends ApiBaseController
 			}
 
 			// ajoc ranking(pre season)
-			$cdt = array('end_date <=' => date('Y-m-d'), 'end_date >=' => date('Y-m-d', strtotime('-1 year')));
-			$ss = $this->Season->find('first', array('conditions' => $cdt));
+			$ss = $this->Season->find('first', ['conditions' => ['end_date <' => date('Y-m-d')], 'order' => ['end_date' => 'desc']]);
 			$rankMapPre = empty($ss['Season']['id']) ? array() : $this->__createAjoccRankMapFixed($ss['Season']['id']);
 
 			if ($rankMapPre === false) {
