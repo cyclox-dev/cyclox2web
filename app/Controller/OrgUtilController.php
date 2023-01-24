@@ -19,7 +19,7 @@ App::uses('AjoccUtil', 'Cyclox/Util');
 class OrgUtilController extends ApiBaseController
 {
 	 public $uses = array('TransactionManager',
-			'Meet', 'Category', 'EntryGroup', 'EntryRacer', 'CategoryRacer', 'Racer',
+			'Meet', 'CategoryGroup', 'Category', 'EntryGroup', 'EntryRacer', 'CategoryRacer', 'Racer',
 			'PointSeries', 'PointSeriesRacer', 'UniteRacerLog', 'Season',
 			'AjoccptLocalSetting', 'TmpAjoccptRacerSet');
 	 
@@ -675,7 +675,8 @@ class OrgUtilController extends ApiBaseController
 			, '性別', '生年月日', '国籍', 'Jcf No.', 'UCI ID', 'UCI No.', 'UCI Code', '都道府県', '所属カテゴリー'
 			,'' 
 			, 'Ajocc Point Rank', 'as Category of AjoccPtRank'
-			, 'Ajocc Point Rank（前シーズン）', 'as Category of AjoccPtRank（前シーズン）', 'Team(en)');
+			, 'Ajocc Point Rank（前シーズン）', 'as Category of AjoccPtRank（前シーズン）', 'Team(en)'
+			, 'その他AjoccRank', '前シーズンその他AjoccRank');
 		$this->__putToFp($fp, $row, $encode);
 		
 		if ($addsPoints) {
@@ -683,7 +684,7 @@ class OrgUtilController extends ApiBaseController
 			$cdt = array('end_date >=' => date('Y-m-d'));// シーズン最終日までは今シーズンとして表示
 			$ss = $this->Season->find('first', array('conditions' => $cdt, 'order' => ['end_date' => 'asc']));
 			$this->log($ss['Season']['id'], LOG_DEBUG);
-			$rankMap = empty($ss['Season']['id']) ? array() : $this->__createAjoccRankMap($ss['Season']['id']);
+			$rankMap = empty($ss['Season']['id']) ? array() : $this->__createAjoccRankMapFixed($ss['Season']['id']);
 			$this->log($ss['Season']['id'] . ':end...', LOG_DEBUG);
 			if ($rankMap === false) {
 				$this->log('rankMap の作成に失敗しました。', LOG_ERR);
@@ -773,23 +774,27 @@ class OrgUtilController extends ApiBaseController
 				// ajocc pt rank
 				$asCat = '';
 				$rank = '';
+				$otherRanks = '';
 				
 				if ($addsPoints && !empty($rankMap[$r['code']])) {
 					$ranks = $this->__pullAjoccPtRanks($rankMap[$r['code']], $cats);
 					
 					$asCat = $ranks['as_cat'];
 					$rank = $ranks['rank'];
+					$otherRanks = $ranks['other_ranks'];
 				}
 				
 				// pre season rank
 				$asCatPre = '';
 				$rankPre = '';
+				$otherRanksPre = '';
 				
 				if ($addsPoints && !empty($rankMapPre[$r['code']])) {
-					$ranks = $this->__pullAjoccPtRanks($rankMapPre[$r['code']], $cats);
+					$ranks = $this->__pullAjoccPtRanks($rankMapPre[$r['code']]);
 					
 					$asCatPre = $ranks['as_cat'];
 					$rankPre = $ranks['rank'];
+					$otherRanksPre = $ranks['other_ranks'];
 				}
 				
 				$row = array($this->__strOrEmpty($r['code']),
@@ -815,6 +820,8 @@ class OrgUtilController extends ApiBaseController
 						$rankPre,
 						$asCatPre,
 						$this->__strOrEmpty($r['team_en']),
+						$otherRanks,
+						$otherRanksPre,
 						);
 				$this->__putToFp($fp, $row, $encode);
 			}
@@ -841,71 +848,50 @@ class OrgUtilController extends ApiBaseController
 	/**
 	 * 複数の Ajocc ranking データから所属しているもののデータをかえす。なかった場合は $ranks の中の先頭にあるもの。
 	 * @param type $ranks ランキングデータ
-	 * @param type $cats 所属カテゴリー
+	 * @param type $cats 所属カテゴリー。ここで指定したカテゴリーのランクのみを return 対象とする。未指定で全てかえす。
 	 * @return array
 	 */
-	private function __pullAjoccPtRanks($ranks, $cats)
+	private function __pullAjoccPtRanks($ranks, $cats = false)
 	{
 		$asCat = '';
 		$rank = '';
+		$others = '';
 
-		if (!empty($ranks)) {
-			
-			foreach ($cats as $c) {
-				foreach ($ranks as $rk) {
-					if ($c == $rk['as_cat']) { // $cats の第1要素を発見して OK とする。Elite, Masters の複数所持は想定しない。
-						$asCat = $rk['as_cat'];
-						$rank = $rk['rank'];
-						break;
+		foreach ($ranks as $rk) {
+			if ($cats)
+			{
+				foreach ($cats as $c) {
+					if ($c == $rk['as_cat']) {
+						if (empty($asCat)) {
+							$asCat = $rk['as_cat'];
+							$rank = $rk['rank'];
+						} else {
+							if (! empty($others)) $others .= ',';
+							$others .= $rk['rank'] . '位@' . $rk['as_cat'];
+						}
 					}
 				}
-
-				if (!empty($asCat)) break;
 			}
-
-			if (empty($asCat)) {
-				$asCat = $ranks[0]['as_cat'];
-				$rank = $ranks[0]['rank'];
-			}
-		}
-		
-		return array('as_cat' => $asCat, 'rank' => $rank);
-	}
-	
-	/**
-	 * 計算を行ない、シーズンの Ajocc Point 順位を返す。{racer_code: {rank:99, as_cat:CM2},,,}
-	 * @param int $season_id シーズン ID
-	 * @return array {racer_code: [{rank: 99, as_cat:CM2},,,]} の map。該当シーズンがない場合は empty array。エラーは false。
-	 */
-	private function __createAjoccRankMap($season_id = false)
-	{
-		if (empty($season_id)) {
-			return array();
-		}
-		
-		$ret_map = array();
-		// BETAG:
-		$cats = array('C1','CM1', 'C2','CM2', 'C3','CM3', 'C4'); // より高いカテゴリーを頭に
-		
-		foreach ($cats as $cat) {
-			$ret = $this->calcAjoccPoints($cat, $season_id);
-		
-			if ($ret === false || !isset($ret['racerPoints'])) {
-				$this->log('rankMap の作成に失敗しました。cat:' . $cat . ' season:' . $season_id, LOG_ERR);
-				return false;
-			}
-			
-			$racerPoints = $ret['racerPoints'];
-			
-			foreach ($racerPoints as $rcode => $rp) {
-				if (empty($ret_map[$rcode])) {
-					$ret_map[$rcode] = array();
+			else
+			{
+				if (empty($asCat)) {
+					$asCat = $rk['as_cat'];
+					$rank = $rk['rank'];
+				} else {
+					if (!empty($others)) {
+						$others .= ',';
+					}
+					$others .= $rk['rank'] . '位@' . $rk['as_cat'];
 				}
-				$ret_map[$rcode][] = array('rank' => $rp['rank'], 'as_cat' => $cat);
 			}
 		}
+
+		if (empty($asCat)) {
+			$asCat = $ranks[0]['as_cat'];
+			$rank = $ranks[0]['rank'];
+		}
 		
-		return $ret_map;
+		return array('as_cat' => $asCat, 'rank' => $rank, 'other_ranks' => $others);
 	}
 	
 	/**
@@ -922,9 +908,20 @@ class OrgUtilController extends ApiBaseController
 		$ret_map = array();
 		
 		// データ量を少なくするため、また、より高いカテゴリーを配列の前に配置するため、order by 指定でカテゴリーコードを抽出して利用する。
-		$cats = $this->Category->find('list', ['order' => ['category_group_id' => 'asc', 'rank' => 'asc']]);
+		$cgs = $this->CategoryGroup->find('list', ['order' => ['display_rank' => 'asc']]);
+		$this->log(print_r($cgs, true), LOG_DEBUG);
+		
+		$cats = [];
+		foreach ($cgs as $id => $cg) {
+			$opt = [
+				'order' => ['rank' => 'asc'],
+				'conditions' => ['category_group_id' => $id],
+			];
+			$cs = $this->Category->find('list', $opt);
+			$cats = array_merge($cats, $cs);
+		}
 		//$this->log('cates:', LOG_DEBUG);
-		//$this->log(print_r($categories, true), LOG_DEBUG);
+		//$this->log(print_r($cats, true), LOG_DEBUG);
 		
 		foreach ($cats as $cat_code => $cat_name) {
 			$opt = array(
@@ -944,7 +941,7 @@ class OrgUtilController extends ApiBaseController
 					$ret_map[$rcode] = array();
 				}
 				
-				$ret_map[$rcode][] = array(
+				$ret_map[$rcode][] = array( // category の順序を変えたくないので cat_code をキーとせず、順に入れていく。
 					'rank' => $tars['TmpAjoccptRacerSet']['rank'],
 					'as_cat' => $cat_code,
 				);
