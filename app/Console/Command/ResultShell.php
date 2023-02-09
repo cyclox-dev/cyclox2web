@@ -309,7 +309,7 @@ class ResultShell extends AppShell
 		//>>> transaction ++++++++++++++++++++++++++++++++++++++++
 		$transaction = $this->TransactionManager->begin();
 		
-		$localsId = $localSetting['AjoccptLocalSetting']['id'];
+		$localsId = empty($localSetting) ? [] : $localSetting['AjoccptLocalSetting']['id'];
 		
 		// 前回計算分を削除
 		$cdt = array(
