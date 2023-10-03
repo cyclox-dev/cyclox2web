@@ -27,7 +27,7 @@ class RankingPointUnit
  *
  * @author shun
  */
-class PointSeriesSumUpRule extends Object
+class PointSeriesSumUpRule extends CakeObject
 {
 	const HINT_DIV = ',';
 	const HINT_KVDIV = ':';

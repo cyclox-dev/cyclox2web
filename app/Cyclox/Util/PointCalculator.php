@@ -12,7 +12,7 @@ App::uses('RacerResultStatus', 'Cyclox/Const');
  *
  * @author shun
  */
-class PointCalculator extends Object
+class PointCalculator extends CakeObject
 {
 	public static $JCX_156;
 	public static $KNS_156;
