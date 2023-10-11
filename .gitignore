@@ -1,0 +1,5 @@
+.htaccess
+app/.htaccess
+app/webroot/.htaccess
+app/Config/database.php
+app/tmp

@@ -12,7 +12,7 @@ App::uses('RacerResultStatus', 'Cyclox/Const');
  *
  * @author shun
  */
-class PointCalculator extends Object
+class PointCalculator extends CakeObject
 {
 	public static $JCX_156;
 	public static $KNS_156;
@@ -23,6 +23,7 @@ class PointCalculator extends Object
 	public static $THK_178;
 	public static $JCX_201;
 	public static $TCX_223;
+	public static $JCX_234;
 	
 	private static $TABLE_JCX156_GRADE1 = array(
 		300, 240, 210, 180, 165, 150, 135, 120, 105, 90, 
@@ -96,6 +97,18 @@ class PointCalculator extends Object
 
 	);
 	const RUN_PT_JCX201_GRADE2 = 1; // 69位以下のポイント
+
+    private static $TABLE_JCX234_GRADE1 = array(
+		200, 160, 140, 120, 100, 80, 60, 40, 20, 10,
+		8, 8, 8, 8, 8, 6, 6, 6, 6, 6,
+		4, 4, 4, 4, 4, 2, 2, 2, 2, 2
+	);
+    private static $TABLE_JCX234_GRADE2 = array(
+		100, 80, 70, 60, 50, 40, 30, 20, 10, 5,
+		4, 4, 4, 4, 4, 3, 3, 3, 3, 3,
+		2, 2, 2, 2, 2, 1, 1, 1, 1, 1
+	);
+	const RUN_PT_JCX234 = 0; // 31位以下のポイント
 	
 	// const として
 	const __KEY_STARTED_OVER = 'started_over';
@@ -361,6 +374,33 @@ class PointCalculator extends Object
 			. '22-23 AJOCC ポイントと同じ配点である。ただしJCXテーブルは使用しない。ボーナスなどは無し。グレード指定は不要。'
 			. '</br>ポイントテーブル</br>' . $str;
 		self::$TCX_223 = new PointCalculator(9, 'TCX_223', '2022-23 東北クロスのポイントテーブル。22-23 AJOCC ポイントと同じ（JCX テーブル無し）。', $text);
+
+        $str = '';
+		$str .= '---</br>';
+		$str .= '全日本選手権のポイントテーブルは以下のとおり</br>';
+		$pack = self::$TABLE_JCX234_GRADE1;
+		for ($j = 0; $j < count($pack); $j++) {
+			$str .= ' ' . $pack[$j] . ',';
+			if (($j + 1) % 10 == 0) {
+				$str .= '</br>';
+			}
+        }
+        $str .= ($j + 1) . '位以下:' . self::RUN_PT_JCX234 . '</br>';
+		$str .= '---</br>';
+		$str .= '全日本選手権以外のJCX戦のポイントテーブルは以下のとおり</br>';
+		$pack = self::$TABLE_JCX234_GRADE2;
+		for ($j = 0; $j < count($pack); $j++) {
+			$str .= ' ' . $pack[$j] . ',';
+			if (($j + 1) % 10 == 0) {
+				$str .= '</br>';
+			}
+		}
+        $str .= ($j + 1) . '位以下:' . self::RUN_PT_JCX234 . '</br>';
+		
+		$text = '2023-24シーズンの JCX シリーズ（全日本選手権を含む）にて採用されたポイント付与ルール。</br>'
+			. 'シリーズレース設定では必ずグレードを指定する。全日本選手権はグレード 1 それ以外のJCX戦はグレード 2 を指定する。</br>'
+			. '</br>ポイントテーブル</br>' . $str;
+		self::$JCX_234 = new PointCalculator(10, 'JCX_234', '2023-24 JCX シリーズ（全日本選手権を含む）のポイントテーブル。', $text);
 		
 		self::$calculators = array(
 			self::$JCX_156,
@@ -372,6 +412,7 @@ class PointCalculator extends Object
 			self::$THK_178,
 			self::$JCX_201,
 			self::$TCX_223,
+			self::$JCX_234,
 		);
 	}
 	
@@ -433,6 +474,7 @@ class PointCalculator extends Object
 			case self::$THK_178->val(): $pt = $this->__calcTHK178($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$JCX_201->val(): $pt = $this->__calcJCX201($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$TCX_223->val(): $pt = $this->__calcTCX223($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
+			case self::$JCX_234->val(): $pt = $this->__calcJCX234($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 		}
 		
 		if (empty($pt['point']) && empty($pt['bonus'])) {
@@ -793,6 +835,51 @@ class PointCalculator extends Object
 		
 		// 完走ボーナスは無し。
 		
+		return $pointMap;
+	}
+
+	/**
+	 * 2023-24シーズンに設定された JCX ポイントをかえす。
+	 */
+	private function __calcJCX234($result, $grade, $raceLapCount, $raceStartedCount, $meetDate)
+	{
+		//$this->log('grade:' . $grade . ' result:', LOG_DEBUG);
+		//$this->log($result, LOG_DEBUG);
+		//$this->log('ecat', LOG_DEBUG);
+		//$this->log($ecat, LOG_DEBUG);
+		
+		if (empty($result['rank'])) return null;
+		
+		// grade -> points
+		$set = array();
+		$set[1] = array(
+			'rank_pt' => self::$TABLE_JCX234_GRADE1,
+			'run_pt' => self::RUN_PT_JCX234,
+		);
+		$set[2] = array(
+			'rank_pt' => self::$TABLE_JCX234_GRADE2,
+			'run_pt' => self::RUN_PT_JCX234,
+		);
+		
+		// TODO: グレード無いなら警告が表示されるように
+		
+		if (empty($set[$grade])) {
+			$this->log('指定グレード[' . $grade . ']のポイント設定がありません。', LOG_ERR);
+			return null;
+		}
+		
+		$pointMap = array();
+		
+		$rankIndex = $result['rank'] - 1;
+		if (!empty($set[$grade]['rank_pt'][$rankIndex])) {
+			$pointMap['point'] = $set[$grade]['rank_pt'][$rankIndex];
+		} else if (!empty($set[$grade]['run_pt'])) {
+			$pointMap['point'] = $set[$grade]['run_pt'];
+		}
+		
+		//$this->log('result:', LOG_DEBUG);
+		//$this->log($result, LOG_DEBUG);
+
 		return $pointMap;
 	}
 }

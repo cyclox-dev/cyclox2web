@@ -233,3 +233,7 @@ Configure :: write('acl.gui.users_permissions.ajax', true);
 
 App::uses('AppErrorHandler', 'Lib/Error');
 date_default_timezone_set('Asia/Tokyo'); // shun local で php.ini の timezone 設定が繁衍されないの対策用
+
+/* add @ 20231003 */
+// debug用にapp設定ファイルを読込
+Configure::load('app');

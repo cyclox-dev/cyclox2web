@@ -15,4 +15,3 @@
  */
 
 App::uses('CakeObject', 'Core');
-class_alias('CakeObject', 'Object');
