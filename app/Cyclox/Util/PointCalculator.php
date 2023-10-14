@@ -23,7 +23,7 @@ class PointCalculator extends CakeObject
 	public static $THK_178;
 	public static $JCX_201;
 	public static $TCX_223;
-	public static $JCX_234;
+	public static $JCF_234;
 	
 	private static $TABLE_JCX156_GRADE1 = array(
 		300, 240, 210, 180, 165, 150, 135, 120, 105, 90, 
@@ -98,17 +98,17 @@ class PointCalculator extends CakeObject
 	);
 	const RUN_PT_JCX201_GRADE2 = 1; // 69位以下のポイント
 
-    private static $TABLE_JCX234_GRADE1 = array(
+    private static $TABLE_JCF234_GRADE1 = array(
 		200, 160, 140, 120, 100, 80, 60, 40, 20, 10,
 		8, 8, 8, 8, 8, 6, 6, 6, 6, 6,
 		4, 4, 4, 4, 4, 2, 2, 2, 2, 2
 	);
-    private static $TABLE_JCX234_GRADE2 = array(
+    private static $TABLE_JCF234_GRADE2 = array(
 		100, 80, 70, 60, 50, 40, 30, 20, 10, 5,
 		4, 4, 4, 4, 4, 3, 3, 3, 3, 3,
 		2, 2, 2, 2, 2, 1, 1, 1, 1, 1
 	);
-	const RUN_PT_JCX234 = 0; // 31位以下のポイント
+	const RUN_PT_JCF234 = 0; // 31位以下のポイント
 	
 	// const として
 	const __KEY_STARTED_OVER = 'started_over';
@@ -378,29 +378,29 @@ class PointCalculator extends CakeObject
         $str = '';
 		$str .= '---</br>';
 		$str .= '全日本選手権のポイントテーブルは以下のとおり</br>';
-		$pack = self::$TABLE_JCX234_GRADE1;
+		$pack = self::$TABLE_JCF234_GRADE1;
 		for ($j = 0; $j < count($pack); $j++) {
 			$str .= ' ' . $pack[$j] . ',';
 			if (($j + 1) % 10 == 0) {
 				$str .= '</br>';
 			}
         }
-        $str .= ($j + 1) . '位以下:' . self::RUN_PT_JCX234 . '</br>';
+        $str .= ($j + 1) . '位以下:' . self::RUN_PT_JCF234 . '</br>';
 		$str .= '---</br>';
-		$str .= '全日本選手権以外のJCX戦のポイントテーブルは以下のとおり</br>';
-		$pack = self::$TABLE_JCX234_GRADE2;
+		$str .= '全日本選手権以外のJCF戦のポイントテーブルは以下のとおり</br>';
+		$pack = self::$TABLE_JCF234_GRADE2;
 		for ($j = 0; $j < count($pack); $j++) {
 			$str .= ' ' . $pack[$j] . ',';
 			if (($j + 1) % 10 == 0) {
 				$str .= '</br>';
 			}
 		}
-        $str .= ($j + 1) . '位以下:' . self::RUN_PT_JCX234 . '</br>';
+        $str .= ($j + 1) . '位以下:' . self::RUN_PT_JCF234 . '</br>';
 		
-		$text = '2023-24シーズンの JCX シリーズ（全日本選手権を含む）にて採用されたポイント付与ルール。</br>'
-			. 'シリーズレース設定では必ずグレードを指定する。全日本選手権はグレード 1 それ以外のJCX戦はグレード 2 を指定する。</br>'
+		$text = '2023-24シーズンの JCF シリーズ（全日本選手権を含む）にて採用されたポイント付与ルール。</br>'
+			. 'シリーズレース設定では必ずグレードを指定する。全日本選手権はグレード 1 それ以外のJCF戦はグレード 2 を指定する。</br>'
 			. '</br>ポイントテーブル</br>' . $str;
-		self::$JCX_234 = new PointCalculator(10, 'JCX_234', '2023-24 JCX シリーズ（全日本選手権を含む）のポイントテーブル。', $text);
+		self::$JCF_234 = new PointCalculator(10, 'JCF_234', '2023-24 JCF シリーズ（全日本選手権を含む）のポイントテーブル。', $text);
 		
 		self::$calculators = array(
 			self::$JCX_156,
@@ -412,7 +412,7 @@ class PointCalculator extends CakeObject
 			self::$THK_178,
 			self::$JCX_201,
 			self::$TCX_223,
-			self::$JCX_234,
+			self::$JCF_234,
 		);
 	}
 	
@@ -474,7 +474,7 @@ class PointCalculator extends CakeObject
 			case self::$THK_178->val(): $pt = $this->__calcTHK178($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$JCX_201->val(): $pt = $this->__calcJCX201($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$TCX_223->val(): $pt = $this->__calcTCX223($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
-			case self::$JCX_234->val(): $pt = $this->__calcJCX234($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
+			case self::$JCF_234->val(): $pt = $this->__calcJCF234($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 		}
 		
 		if (empty($pt['point']) && empty($pt['bonus'])) {
@@ -839,9 +839,9 @@ class PointCalculator extends CakeObject
 	}
 
 	/**
-	 * 2023-24シーズンに設定された JCX ポイントをかえす。
+	 * 2023-24シーズンに設定された JCF ポイントをかえす。
 	 */
-	private function __calcJCX234($result, $grade, $raceLapCount, $raceStartedCount, $meetDate)
+	private function __calcJCF234($result, $grade, $raceLapCount, $raceStartedCount, $meetDate)
 	{
 		//$this->log('grade:' . $grade . ' result:', LOG_DEBUG);
 		//$this->log($result, LOG_DEBUG);
@@ -853,12 +853,12 @@ class PointCalculator extends CakeObject
 		// grade -> points
 		$set = array();
 		$set[1] = array(
-			'rank_pt' => self::$TABLE_JCX234_GRADE1,
-			'run_pt' => self::RUN_PT_JCX234,
+			'rank_pt' => self::$TABLE_JCF234_GRADE1,
+			'run_pt' => self::RUN_PT_JCF234,
 		);
 		$set[2] = array(
-			'rank_pt' => self::$TABLE_JCX234_GRADE2,
-			'run_pt' => self::RUN_PT_JCX234,
+			'rank_pt' => self::$TABLE_JCF234_GRADE2,
+			'run_pt' => self::RUN_PT_JCF234,
 		);
 		
 		// TODO: グレード無いなら警告が表示されるように
