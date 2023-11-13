@@ -584,8 +584,7 @@ class PointSeriesSumUpRule extends CakeObject
 		}
 		
 		// 最大ポイントを獲得した日付で比較
-		return ($b->lastResultDate > $a->lastResultDate) ? 1 : -1;
-		//return $b->lastResultPt - $a->lastResultPt; // 順位は考慮しない
+		return ($b->maxPtDate > $a->maxPtDate) ? 1 : -1;
 	}
 	
 	/**
@@ -957,11 +956,6 @@ class PointSeriesSumUpRule extends CakeObject
 				}
 				$point = $points[$i];
 				$work[] = $point; // 最高ポイント,順位比較用 ワーキング変数
-				
-				// lastXXX を更新
-				$rpUnit->lastResultDate = $point['at'];
-				$rpUnit->lastResultPt = $point['pt'] + $point['bonus'];
-				$rpUnit->lastResultRank = $point['rank'];
 			}
 			
 			// 獲得ポイントを高い順にならびかえ
