@@ -43,7 +43,7 @@ class PointSeriesSumUpRule extends CakeObject
 	public static $KNS_156;
 	public static $JCX_201;
 	public static $JCX_212;
-	public static $JCX_234;
+	public static $JCF_234;
 	
 	private static $rules;
 	
@@ -118,14 +118,14 @@ class PointSeriesSumUpRule extends CakeObject
 				. '1.　より高いポイントを得ている</br>'
 				. '2.　1をより高い順位で得ている</br>'
 				. '3.　1をより直近の大会で得ている</br>';
-		self::$JCX_234 = new PointSeriesSumUpRule(5, 'JCX23-24' , '全戦の合計ポイントで集計する。合計->ポイント->順位->直近の大会成績で比較。', $str);
+		self::$JCF_234 = new PointSeriesSumUpRule(5, 'JCF23-24' , '全戦の合計ポイントで集計する。合計->ポイント->順位->直近の大会成績で比較。', $str);
 		
 		self::$rules = array(
 			self::$JCX_156,
 			self::$KNS_156,
 			self::$JCX_201,
 			self::$JCX_212,
-			self::$JCX_234,
+			self::$JCF_234,
 		);
 	}
 	
@@ -203,7 +203,7 @@ class PointSeriesSumUpRule extends CakeObject
 			case self::$KNS_156->val(): $ranking = $this->__calcKNS156($racerPointMap, $hints, $seriesHint); break;
 			case self::$JCX_201->val(): $ranking = $this->__calcJCX201($racerPointMap, $hints, $seriesHint, $helds); break;
 			case self::$JCX_212->val(): $ranking = $this->__calcJCX212($racerPointMap, $hints, $seriesHint, $helds); break;
-			case self::$JCX_234->val(): $ranking = $this->__calcJCX234($racerPointMap, $hints, $seriesHint, $helds); break;
+			case self::$JCF_234->val(): $ranking = $this->__calcJCF234($racerPointMap, $hints, $seriesHint, $helds); break;
 		}
 		
 		return $ranking;
@@ -433,7 +433,7 @@ class PointSeriesSumUpRule extends CakeObject
 			return 1;
 		}
 		
-		return ($pointB['rank']) - ($pointA['rank']);
+		return ($pointA['rank']) - ($pointB['rank']);
 	}
 	
 	static function __compareOfJCX156(RankingPointUnit $a, RankingPointUnit $b)
@@ -563,7 +563,7 @@ class PointSeriesSumUpRule extends CakeObject
 		return ($b->lastResultDate > $a->lastResultDate) ? 1 : -1;
 	}
 
-	static function __compareOfJCX234(RankingPointUnit $a, RankingPointUnit $b)
+	static function __compareOfJCF234(RankingPointUnit $a, RankingPointUnit $b)
 	{
 		// 合計点比較
 		if ($a->rankPt[0] != $b->rankPt[0])
@@ -580,11 +580,12 @@ class PointSeriesSumUpRule extends CakeObject
 		// 最大順位で比較
 		if ($a->maxRank !== $b->maxRank)
 		{
-			return $b->maxRank - $a->maxRank;
+			return $a->maxRank - $b->maxRank;
 		}
 		
 		// 最大ポイントを獲得した日付で比較
-		return $b->lastResultPt - $a->lastResultPt; // 順位は考慮しない
+		return ($b->lastResultDate > $a->lastResultDate) ? 1 : -1;
+		//return $b->lastResultPt - $a->lastResultPt; // 順位は考慮しない
 	}
 	
 	/**
@@ -913,7 +914,7 @@ class PointSeriesSumUpRule extends CakeObject
 	 * @param string $seriesHint ポイントシリーズのヒントテキストが入っている
 	 * @param array(boolean) 
 	 */
-	public function __calcJCX234($racerPointMap = array(), $hints = array(), $seriesHint = "")
+	public function __calcJCF234($racerPointMap = array(), $hints = array(), $seriesHint = "")
 	{
 		// 変数内容は
 		// $this->log('sumup:' . $actMeet, LOG_DEBUG);
@@ -936,7 +937,7 @@ class PointSeriesSumUpRule extends CakeObject
 			$rpUnit->code = $rcode;
 			
 			$pt = 0; // 集計点用
-			$nonReqs = array(); // ポイントカウント用のワーキング変数
+			$work = array(); // ポイントカウント用のワーキング変数
 			
 			// 配列の last index から実長さ取得
 			// {1=>99, 2=>55} の場合、要素数が2だが、走査したいのは0〜2の3つである。よって count() は不可。
@@ -944,14 +945,17 @@ class PointSeriesSumUpRule extends CakeObject
 			$pointsLen = key($points) + 1;
 			reset($points);
 			
-			// ひとまずポイント集計
+			// 合計ポイント集計
+			foreach ($points as $point) {
+				$pt += $point['pt'] + $point['bonus'];
+			}
+			$rpUnit->rankPt[] = $pt; // index:0 にポイント合計値を格納 <-- '集計点'にあたる。
+
 			for ($i = 0; $i < $pointsLen; $i++) {
 				if (empty($points[$i])) {
 					continue;
 				}
 				$point = $points[$i];
-				$pt += $point['pt'] + $point['bonus'];
-				$rpUnit->rankPt[] = $pt; // index:0 にポイント合計値を格納 <-- '集計点'にあたる。
 				$work[] = $point; // 最高ポイント,順位比較用 ワーキング変数
 				
 				// lastXXX を更新
@@ -983,7 +987,7 @@ class PointSeriesSumUpRule extends CakeObject
 		}
 		
 		// 集計値、最高点、最高順位での並び替え
-		usort($rankPtUits, array($this, '__compareOfJCX234'));
+		usort($rankPtUits, array($this, '__compareOfJCF234'));
 		
 		// 順位付け
 		$rank = 0;
