@@ -40,6 +40,7 @@ class PointSeriesSumUpRule extends CakeObject
 	public static $KNS_156;
 	public static $JCX_201;
 	public static $JCX_212;
+	public static $JCX_234;
 	
 	private static $rules;
 	
@@ -108,12 +109,20 @@ class PointSeriesSumUpRule extends CakeObject
 				. '・最終獲得レース日が近い方。そのレースが同じ日付の場合、そのレースでの獲得ポイント';
 		self::$JCX_212 = new PointSeriesSumUpRule(4, 'JCX21-22'
 				, 'hint:' . self::KEY_REQUIRED . ' とそれ以外のx%戦のポイントを採用する。合計->最高点数で比較する。', $str);
+				
+		$str = '2023-24シーズンの JCF シリーズで採用された集計方法。</br>'
+				. 'シリーズ戦として指定された全ての大会の獲得ポイントを合計する。同点の場合は既に得た成績を下記の優先順で比較する。</br>'
+				. '1.　より高いポイントを得ている'
+				. '2.　より直近の大会で1を得ている'
+				. '3.　1をより高い順位で得ている';
+		self::$JCX_234 = new PointSeriesSumUpRule(5, 'JCX23-24' , '全線の合計ポイントで集計する。合計->ポイント->直近大会->順位で比較。', $str);
 		
 		self::$rules = array(
 			self::$JCX_156,
 			self::$KNS_156,
 			self::$JCX_201,
 			self::$JCX_212,
+			self::$JCX_234,
 		);
 	}
 	
@@ -191,6 +200,7 @@ class PointSeriesSumUpRule extends CakeObject
 			case self::$KNS_156->val(): $ranking = $this->__calcKNS156($racerPointMap, $hints, $seriesHint); break;
 			case self::$JCX_201->val(): $ranking = $this->__calcJCX201($racerPointMap, $hints, $seriesHint, $helds); break;
 			case self::$JCX_212->val(): $ranking = $this->__calcJCX212($racerPointMap, $hints, $seriesHint, $helds); break;
+			case self::$JCX_234->val(): $ranking = $this->__calcJCX212($racerPointMap, $hints, $seriesHint, $helds); break;
 		}
 		
 		return $ranking;
