@@ -17,6 +17,7 @@ class RankingPointUnit
 	public $maxPtNonReq = -99999;
 	public $maxPt = -99999;
 	public $maxPtDate = null;
+	public $maxPtRank = 99999;
 	public $maxRank = 99999;
 	public $lastResultDate = null;
 	public $lastResultPt = -99999;
@@ -119,7 +120,8 @@ class PointSeriesSumUpRule extends CakeObject
 				.'1. 合計点が高い</br>'
 				.'2. より高いポイントを取ったことがある</br>'
 				.'3. より高い順位を取ったことがある</br>'
-				.'4. 2のポイントを取った大会がより直近である</br>';
+				.'4. 2のポイントを取った大会がより直近である</br>'
+				.'5. 2のポイントを取った時の順位がより高い</br>';
 				
 		self::$JCF_234 = new PointSeriesSumUpRule(5, 'JCF23-24' , '全戦の合計ポイントで集計する。合計->ポイント->順位->直近の大会成績で比較。', $str);
 		
@@ -422,6 +424,31 @@ class PointSeriesSumUpRule extends CakeObject
 	}
 
 	/**
+	 * ならびかえ用。ポイントの高い順、かつ直近
+	 * @param type $pointA
+	 * @param type $pointB
+	 * @return int
+	 */
+	static function __comparePointDate($pointA, $pointB)
+	{
+		if (empty($pointA['pt'])) {
+			return -1;
+		}
+		if (empty($pointB['pt'])) {
+			return 1;
+		}
+	
+		// ポイント順に並べ替える
+		if( ($pointB['pt'] + $pointB['bonus']) !== ($pointA['pt'] + $pointA['bonus']) )
+		{
+			return ($pointB['pt'] + $pointB['bonus']) - ($pointA['pt'] + $pointA['bonus']);
+		}
+
+		// ポイントが同一だった場合、「より直近」で並べ替える
+		return ($pointB['at'] > $pointA['at']) ? 1 : -1;
+	}
+
+	/**
 	 * ならびかえ用。順位の高い順に並び替える。
 	 * @param type $pointA
 	 * @param type $pointB
@@ -587,7 +614,13 @@ class PointSeriesSumUpRule extends CakeObject
 		}
 		
 		// 最大ポイントを獲得した日付で比較
-		return ($b->maxPtDate > $a->maxPtDate) ? 1 : -1;
+		if ($a->maxPtDate !== $b->maxPtDate)
+		{
+			return ($b->maxPtDate > $a->maxPtDate) ? 1 : -1;
+		}
+
+		// 最大ポイントを獲得した日の順位で比較
+		return $a->maxPtRank - $b->maxPtRank;
 	}
 	
 	/**
@@ -910,7 +943,7 @@ class PointSeriesSumUpRule extends CakeObject
 	}
 
 	/**
-	 * JCX2023-24 ランキングを集計する
+	 * JCF2023-24 ランキングを集計する
 	 * @param array(string=>array(int)) $racerPointMap 選手コードをキー値として、大会獲得順に並んでいる。
 	 * @param array(string) $hints ポイントシリーズ大会設定ごとのヒントテキストが入っている
 	 * @param string $seriesHint ポイントシリーズのヒントテキストが入っている
@@ -962,11 +995,12 @@ class PointSeriesSumUpRule extends CakeObject
 			}
 			
 			// 獲得ポイントを高い順にならびかえ
-			usort($work, array($this, '__comparePoint'));
+			usort($work, array($this, '__comparePointDate'));
 			// 最高ポイントを格納
 			if (!empty($work[0])) {
 				$rpUnit->maxPt = $work[0]['pt'] + $work[0]['bonus'];
 				$rpUnit->maxPtDate = $work[0]['at'];
+				$rpUnit->maxPtRank = $work[0]['rank'];
 			}
 			//$this->log('racer:'. $rcode . ' work:' . print_r($work, true), LOG_DEBUG);
 
