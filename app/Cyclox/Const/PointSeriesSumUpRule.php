@@ -15,6 +15,10 @@ class RankingPointUnit
 	public $reqPt = -99999;
 	public $reqRank = 99999;
 	public $maxPtNonReq = -99999;
+	public $maxPt = -99999;
+	public $maxPtDate = null;
+	public $maxPtRank = 99999;
+	public $maxRank = 99999;
 	public $lastResultDate = null;
 	public $lastResultPt = -99999;
 	public $lastResultRank = -99999;
@@ -40,6 +44,7 @@ class PointSeriesSumUpRule extends CakeObject
 	public static $KNS_156;
 	public static $JCX_201;
 	public static $JCX_212;
+	public static $JCF_234;
 	
 	private static $rules;
 	
@@ -108,12 +113,24 @@ class PointSeriesSumUpRule extends CakeObject
 				. '・最終獲得レース日が近い方。そのレースが同じ日付の場合、そのレースでの獲得ポイント';
 		self::$JCX_212 = new PointSeriesSumUpRule(4, 'JCX21-22'
 				, 'hint:' . self::KEY_REQUIRED . ' とそれ以外のx%戦のポイントを採用する。合計->最高点数で比較する。', $str);
+				
+		$str = '2023-24シーズンの JCF シリーズで採用された集計方法。</br>'
+				. 'シリーズ戦として指定された全ての大会の獲得ポイントを合計する。</br>'
+				. '順位は下記の順番で判定される。</br>'
+				.'1. 合計点が高い</br>'
+				.'2. より高いポイントを取ったことがある</br>'
+				.'3. より高い順位を取ったことがある</br>'
+				.'4. 2のポイントを取った大会がより直近である</br>'
+				.'5. 2のポイントを取った時の順位がより高い</br>';
+				
+		self::$JCF_234 = new PointSeriesSumUpRule(5, 'JCF23-24' , '全戦の合計ポイントで集計する。合計->ポイント->順位->直近の大会成績で比較。', $str);
 		
 		self::$rules = array(
 			self::$JCX_156,
 			self::$KNS_156,
 			self::$JCX_201,
 			self::$JCX_212,
+			self::$JCF_234,
 		);
 	}
 	
@@ -191,6 +208,7 @@ class PointSeriesSumUpRule extends CakeObject
 			case self::$KNS_156->val(): $ranking = $this->__calcKNS156($racerPointMap, $hints, $seriesHint); break;
 			case self::$JCX_201->val(): $ranking = $this->__calcJCX201($racerPointMap, $hints, $seriesHint, $helds); break;
 			case self::$JCX_212->val(): $ranking = $this->__calcJCX212($racerPointMap, $hints, $seriesHint, $helds); break;
+			case self::$JCF_234->val(): $ranking = $this->__calcJCF234($racerPointMap, $hints, $seriesHint, $helds); break;
 		}
 		
 		return $ranking;
@@ -404,6 +422,49 @@ class PointSeriesSumUpRule extends CakeObject
 		
 		return ($pointB['pt'] + $pointB['bonus']) - ($pointA['pt'] + $pointA['bonus']);
 	}
+
+	/**
+	 * ならびかえ用。ポイントの高い順、かつ直近
+	 * @param type $pointA
+	 * @param type $pointB
+	 * @return int
+	 */
+	static function __comparePointDate($pointA, $pointB)
+	{
+		if (empty($pointA['pt'])) {
+			return -1;
+		}
+		if (empty($pointB['pt'])) {
+			return 1;
+		}
+	
+		// ポイント順に並べ替える
+		if( ($pointB['pt'] + $pointB['bonus']) !== ($pointA['pt'] + $pointA['bonus']) )
+		{
+			return ($pointB['pt'] + $pointB['bonus']) - ($pointA['pt'] + $pointA['bonus']);
+		}
+
+		// ポイントが同一だった場合、「より直近」で並べ替える
+		return ($pointB['at'] > $pointA['at']) ? 1 : -1;
+	}
+
+	/**
+	 * ならびかえ用。順位の高い順に並び替える。
+	 * @param type $pointA
+	 * @param type $pointB
+	 * @return int
+	 */
+	static function __compareRank($pointA, $pointB)
+	{
+		if (empty($pointA['rank'])) {
+			return -1;
+		}
+		if (empty($pointB['rank'])) {
+			return 1;
+		}
+		
+		return ($pointA['rank']) - ($pointB['rank']);
+	}
 	
 	static function __compareOfJCX156(RankingPointUnit $a, RankingPointUnit $b)
 	{
@@ -530,6 +591,36 @@ class PointSeriesSumUpRule extends CakeObject
 		
 		// 最近の成績がある方が上
 		return ($b->lastResultDate > $a->lastResultDate) ? 1 : -1;
+	}
+
+	static function __compareOfJCF234(RankingPointUnit $a, RankingPointUnit $b)
+	{
+		// 合計点比較
+		if ($a->rankPt[0] != $b->rankPt[0])
+		{
+			return $b->rankPt[0] - $a->rankPt[0];
+		}
+		
+		// 最大ポイントで比較
+		if ($a->maxPt !== $b->maxPt)
+		{
+			return $b->maxPt - $a->maxPt;
+		}
+
+		// 最大順位で比較
+		if ($a->maxRank !== $b->maxRank)
+		{
+			return $a->maxRank - $b->maxRank;
+		}
+		
+		// 最大ポイントを獲得した日付で比較
+		if ($a->maxPtDate !== $b->maxPtDate)
+		{
+			return ($b->maxPtDate > $a->maxPtDate) ? 1 : -1;
+		}
+
+		// 最大ポイントを獲得した日の順位で比較
+		return $a->maxPtRank - $b->maxPtRank;
 	}
 	
 	/**
@@ -681,7 +772,7 @@ class PointSeriesSumUpRule extends CakeObject
 		
 		return $rMap;
 	}
-	
+
 	/**
 	 * JCX2021-22 ランキングを集計する
 	 * @param array(string=>array(int)) $racerPointMap 選手コードをキー値として、大会獲得順に並んでいる。
@@ -841,6 +932,99 @@ class PointSeriesSumUpRule extends CakeObject
 				$skipCount = 0;
 			}
 			
+			$rpUnit->rank = $rank;
+		}
+		
+		$rMap = array();
+		$rMap['rank_pt_title'] = array('集計点'); // ランキング表示時用タイトル
+		$rMap['ranking'] = $rankPtUits;
+		
+		return $rMap;
+	}
+
+	/**
+	 * JCF2023-24 ランキングを集計する
+	 * @param array(string=>array(int)) $racerPointMap 選手コードをキー値として、大会獲得順に並んでいる。
+	 * @param array(string) $hints ポイントシリーズ大会設定ごとのヒントテキストが入っている
+	 * @param string $seriesHint ポイントシリーズのヒントテキストが入っている
+	 * @param array(boolean) 
+	 */
+	public function __calcJCF234($racerPointMap = array(), $hints = array(), $seriesHint = "")
+	{
+		// 変数内容は
+		// $this->log('sumup:' . $actMeet, LOG_DEBUG);
+		// といった感じで出力してみましょう！
+		
+		/* 引数の内容
+		 * $racerPointMap = array(
+		 *		'STK-189-0002' => { 86, 50,   , 50},
+		 *		'KNT-201-0021' => {  3, 12,  2, 20,  0},
+		 * );
+		 * というように、選手コードをキーとして、獲得ポイントの入った配列が格納されている。
+		 * ポイント配列は開催大会順にならんでおり、引数 $helds のインデックスとも対応する。
+		 */
+		
+
+		 // 選手ごとのポイント集計
+		$rankPtUits = array(); // RankingPointUnit の配列。選手コード、ポイントやらを格納。
+		foreach ($racerPointMap as $rcode => $points) {
+			$rpUnit = new RankingPointUnit();
+			$rpUnit->code = $rcode;
+			
+			$pt = 0; // 集計点用
+			$work = array(); // ポイントカウント用のワーキング変数
+			
+			// 配列の last index から実長さ取得
+			// {1=>99, 2=>55} の場合、要素数が2だが、走査したいのは0〜2の3つである。よって count() は不可。
+			end($points);
+			$pointsLen = key($points) + 1;
+			reset($points);
+			
+			// 合計ポイント集計
+			foreach ($points as $point) {
+				$pt += $point['pt'] + $point['bonus'];
+			}
+			$rpUnit->rankPt[] = $pt; // index:0 にポイント合計値を格納 <-- '集計点'にあたる。
+
+			for ($i = 0; $i < $pointsLen; $i++) {
+				if (empty($points[$i])) {
+					continue;
+				}
+				$point = $points[$i];
+				$work[] = $point; // 最高ポイント,順位比較用 ワーキング変数
+			}
+			
+			// 獲得ポイントを高い順にならびかえ
+			usort($work, array($this, '__comparePointDate'));
+			// 最高ポイントを格納
+			if (!empty($work[0])) {
+				$rpUnit->maxPt = $work[0]['pt'] + $work[0]['bonus'];
+				$rpUnit->maxPtDate = $work[0]['at'];
+				$rpUnit->maxPtRank = $work[0]['rank'];
+			}
+			//$this->log('racer:'. $rcode . ' work:' . print_r($work, true), LOG_DEBUG);
+
+			// 獲得順位を高い順にならびかえ
+			usort($work, array($this, '__compareRank'));
+			// 最高ポイントを格納
+			if (!empty($work[0])) {
+				$rpUnit->maxRank = $work[0]['rank'];
+			}
+			//$this->log('racer:'. $rcode . ' work:' . print_r($work, true), LOG_DEBUG);
+			
+			$rpUnit->points = $points; // usort 用にセット
+			$rankPtUits[] = $rpUnit;
+			//$this->log('racer:'. $rcode . ' rpUnit:' . print_r($rpUnit, true), LOG_DEBUG);
+		}
+		
+		// 集計値、最高点、最高順位での並び替え
+		usort($rankPtUits, array($this, '__compareOfJCF234'));
+		
+		// 順位付け
+		$rank = 0;
+		for ($i = 0; $i < count($rankPtUits); $i++) {
+			$rpUnit = $rankPtUits[$i];
+			$rank += 1;
 			$rpUnit->rank = $rank;
 		}
 		
