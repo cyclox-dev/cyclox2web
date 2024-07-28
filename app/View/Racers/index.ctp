@@ -132,7 +132,7 @@ function nameOrKana($name, $kana)
 					'legend' => false,
 					'type' => 'radio',
 					'options' => $options,
-					'default' => 'or',
+					'default' => 'and',
 					'div' => false,
 				));
 			?>
