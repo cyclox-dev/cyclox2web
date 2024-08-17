@@ -82,6 +82,12 @@ class ResultParamCalcComponent extends Component
 		array('racer_count' => 10, 'up' => 1),
 	);
 	
+	private $__rule013533 = array( // 24-25 rule
+		array('racer_count' => 50, 'up' => 3),
+		array('racer_count' => 30, 'up' => 2),
+		array('racer_count' => 10, 'up' => 1),
+	);
+	
 	private $TransactionManager;
 	private $Racer;
 	private $EntryRacer;
@@ -1583,7 +1589,18 @@ class ResultParamCalcComponent extends Component
 		// 文字列で判断する
 		// パラメタから処理したいが、複雑なのでやめておく。
 		// racesCatCode => array('needs' => 必要な所属, 'to' =>昇格先)
-		if ($this->_isSeasonAfter1920()) {
+		if ($this->_isSeasonAfter2425()) {
+			$this->__rankUpMap = array(
+				// 24-25 から C1 への昇格が3名に。
+				'C2' => array('needs' => array('C2'), 'to' => 'C1', 'rule' => $this->__rule013533),
+				'C3' => array('needs' => array('C3'), 'to' => 'C2', 'rule' => $this->__rule012333),
+				'C4' => array('needs' => array('C4'), 'to' => 'C3', 'rule' => $this->__rule012333),
+				'C3+4' => array('needs' => array('C3', 'C4'), 'to' => 'C2', 'rule' => $this->__rule012333),
+				'CM2' => array('needs' => array('CM2'), 'to' => 'CM1', 'rule' => $this->__rule011122),
+				'CM3' => array('needs' => array('CM3'), 'to' => 'CM2', 'rule' => $this->__rule012333),
+				'CM2+3' => array('needs' => array('CM2', 'CM3'), 'to' => 'CM1', 'rule' => $this->__rule011122),
+			);
+		} else if ($this->_isSeasonAfter1920()) {
 			$this->__rankUpMap = array(
 				// 20-21 から C2, C3, CM2 への昇格が3名に。
 				'C2' => array('needs' => array('C2'), 'to' => 'C1', 'rule' => $this->__rule011122),
@@ -1692,7 +1709,20 @@ class ResultParamCalcComponent extends Component
 		
 		return ($this->__atDate > '2020-03-31');
 	}
-	
+
+	/**
+	 * 2024-25 シーズンより後のシーズン（24-25以降）であるかをかえす
+	 * @return boolean 
+	 */
+	private function _isSeasonAfter2425()
+	{
+		if (empty($this->__atDate)) {
+			return true; // unlikely... 本メソッドを作成したのが1920で巻き戻りはなしので true かえす。
+		}
+		
+		return ($this->__atDate > '2024-03-31');
+	}
+
 	/**
 	 * $atDate メンバをセットする
 	 * @param array $ecat 出走カテゴリー情報 key 'EntryCategory' 以下の配列
@@ -1748,6 +1778,7 @@ class ResultParamCalcComponent extends Component
         $defaultPoint = 0;
         $divDate2017 = new DateTime('2017-04-01');
         $divDate2022 = new DateTime('2022-08-01');
+        $divDate2024 = new DateTime('2024-08-01');
 
         if ($mtDate < $divDate2017) {
             $this->log('is season before 2017', LOG_DEBUG);
@@ -1817,7 +1848,7 @@ class ResultParamCalcComponent extends Component
                     )
                 )
             );
-        } else {
+        } else if ($mtDate >= $divDate2022 && $mtDate < $divDate2024) {
             if ($isJcx) {
                 $this->log('is JCX after 2022', LOG_DEBUG);
                 $mapArray = array(
@@ -1866,6 +1897,40 @@ class ResultParamCalcComponent extends Component
                     )
                 );
             }
+        } else {
+			$this->log('is season after 2024', LOG_DEBUG);
+			$mapArray = array(
+				array(
+					'started_over' => 39,
+					'defaultPoint' => 0,
+					'points' => array(
+						180, 150, 130, 110, 100, 90, 80, 70, 60, 52,
+						46,  42,  40,  38,  36, 35, 34, 33, 32, 31,
+						30,  29,  28,  27,  26, 25, 24, 23, 22, 21,
+						20,  19,  18,  17,  16, 15, 14, 13, 12, 11,
+						10,   9,   8,   7,   6,  5,  4,  3,  2,  1,
+						1,   1,   1,   1,   1,  1,  1,  1,  1,  1,
+					)
+				),
+				array(
+					'started_over' => 19,
+					'defaultPoint' => 0,
+					'points' => array(
+						150, 120, 100, 90, 80, 70, 60, 52, 45, 39,
+						34,  30,  27, 26, 25, 24, 23, 22, 21, 20,
+						19,  18,  17, 16, 15, 14, 13, 12, 11, 10,
+						9,   8,   7,  6,  5,  4,  3,  2,  1,
+					)
+				),
+				array(
+					'started_over' => 0,
+					'defaultPoint' => 0,
+					'points' => array(
+						100, 80, 70, 60, 50, 42, 34, 28, 22, 17,
+						12,  8,  7,  6,  5,  4,  3,  2,  1,
+					)
+				)
+			);
         }
 
         if ($mtDate >= $divDate2022 && $isJcx) {
