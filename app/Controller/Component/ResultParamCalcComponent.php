@@ -1589,7 +1589,7 @@ class ResultParamCalcComponent extends Component
 		// 文字列で判断する
 		// パラメタから処理したいが、複雑なのでやめておく。
 		// racesCatCode => array('needs' => 必要な所属, 'to' =>昇格先)
-		if ($this->_isSeasonAfter2425()) {
+		if ($this->_isSeasonAfterEq2425()) {
 			$this->__rankUpMap = array(
 				// 24-25 から C1 への昇格が3名に。
 				'C2' => array('needs' => array('C2'), 'to' => 'C1', 'rule' => $this->__rule013533),
@@ -1714,7 +1714,7 @@ class ResultParamCalcComponent extends Component
 	 * 2024-25 シーズンより後のシーズン（24-25以降）であるかをかえす
 	 * @return boolean 
 	 */
-	private function _isSeasonAfter2425()
+	private function _isSeasonAfterEq2425()
 	{
 		if (empty($this->__atDate)) {
 			return true; // unlikely... 本メソッドを作成したのが1920で巻き戻りはなしので true かえす。
