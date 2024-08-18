@@ -1862,7 +1862,7 @@ class ResultParamCalcComponent extends Component
                         9,   8,   7,   6,   5,   4,  3,  2,  1,  1,
                     )
                 );
-				if ($mtDate < $divDate2024) {
+				if ($mtDate >= $divDate2024) {
 					$mapArray['defaultPoint'] = 0;
 				}
             } else {
@@ -1899,7 +1899,7 @@ class ResultParamCalcComponent extends Component
                         )
                     )
                 );
-				if ($mtDate < $divDate2024) {
+				if ($mtDate >= $divDate2024) {
 					$mapArray[0]['defaultPoint'] = 0;
 				}
             }
