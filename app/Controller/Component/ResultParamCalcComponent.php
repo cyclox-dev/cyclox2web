@@ -1848,7 +1848,7 @@ class ResultParamCalcComponent extends Component
                     )
                 )
             );
-        } else if ($mtDate >= $divDate2022 && $mtDate < $divDate2024) {
+        } else {
             if ($isJcx) {
                 $this->log('is JCX after 2022', LOG_DEBUG);
                 $mapArray = array(
@@ -1862,6 +1862,9 @@ class ResultParamCalcComponent extends Component
                         9,   8,   7,   6,   5,   4,  3,  2,  1,  1,
                     )
                 );
+				if ($mtDate < $divDate2024) {
+					$mapArray['defaultPoint'] = 0;
+				}
             } else {
                 $this->log('is season after 2022', LOG_DEBUG);
                 $mapArray = array(
@@ -1896,44 +1899,13 @@ class ResultParamCalcComponent extends Component
                         )
                     )
                 );
+				if ($mtDate < $divDate2024) {
+					$mapArray[0]['defaultPoint'] = 0;
+				}
             }
-        } else {
-			$this->log('is season after 2024', LOG_DEBUG);
-			$mapArray = array(
-				array(
-					'started_over' => 39,
-					'defaultPoint' => 0,
-					'points' => array(
-						180, 150, 130, 110, 100, 90, 80, 70, 60, 52,
-						46,  42,  40,  38,  36, 35, 34, 33, 32, 31,
-						30,  29,  28,  27,  26, 25, 24, 23, 22, 21,
-						20,  19,  18,  17,  16, 15, 14, 13, 12, 11,
-						10,   9,   8,   7,   6,  5,  4,  3,  2,  1,
-						1,   1,   1,   1,   1,  1,  1,  1,  1,  1,
-					)
-				),
-				array(
-					'started_over' => 19,
-					'defaultPoint' => 0,
-					'points' => array(
-						150, 120, 100, 90, 80, 70, 60, 52, 45, 39,
-						34,  30,  27, 26, 25, 24, 23, 22, 21, 20,
-						19,  18,  17, 16, 15, 14, 13, 12, 11, 10,
-						9,   8,   7,  6,  5,  4,  3,  2,  1,
-					)
-				),
-				array(
-					'started_over' => 0,
-					'defaultPoint' => 0,
-					'points' => array(
-						100, 80, 70, 60, 50, 42, 34, 28, 22, 17,
-						12,  8,  7,  6,  5,  4,  3,  2,  1,
-					)
-				)
-			);
         }
 
-        if (($mtDate >= $divDate2022 && $mtDate < $divDate2024) && $isJcx) {
+        if ($mtDate >= $divDate2022 && $isJcx) {
             $this->log('mapArray is JCX', LOG_DEBUG);
             $map = $mapArray['points'];
             $point = $mapArray['defaultPoint'];
