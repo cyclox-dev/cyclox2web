@@ -119,7 +119,6 @@ class PointCalculator extends CakeObject
 		38, 36, 34, 32, 30, 28, 26, 24, 22, 20,
 		18, 16, 14, 12, 10, 8, 6, 4, 2, 2
 	);
-	const RUN_PT_JCX245_GRADE1 = 0; // 69位以下のポイント
 	private static $TABLE_JCX245_GRADE2 = array(
 		200, 160, 140, 120, 110, 100, 90, 80, 70, 60,
 		58, 56, 54, 52, 50, 48, 46, 44, 42, 40,
@@ -129,7 +128,7 @@ class PointCalculator extends CakeObject
 		9, 8, 7, 6, 5, 4, 3, 2, 1, 1
 
 	);
-	const RUN_PT_JCX245_GRADE2 = 0; // 69位以下のポイント
+	const RUN_PT_JCX245 = 0; // 69位以下のポイント
 
 	// const として
 	const __KEY_STARTED_OVER = 'started_over';
@@ -949,11 +948,11 @@ class PointCalculator extends CakeObject
 		$set = array();
 		$set[1] = array(
 			'rank_pt' => self::$TABLE_JCX245_GRADE1,
-			'run_pt' => self::RUN_PT_JCX245_GRADE1,
+			'run_pt' => self::RUN_PT_JCX245,
 		);
 		$set[2] = array(
 			'rank_pt' => self::$TABLE_JCX245_GRADE2,
-			'run_pt' => self::RUN_PT_JCX245_GRADE2,
+			'run_pt' => self::RUN_PT_JCX245,
 		);
 		
 		// TODO: グレード無いなら警告が表示されるように
