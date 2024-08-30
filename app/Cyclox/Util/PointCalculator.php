@@ -24,6 +24,7 @@ class PointCalculator extends CakeObject
 	public static $JCX_201;
 	public static $TCX_223;
 	public static $JCF_234;
+	public static $JCX_245;
 	
 	private static $TABLE_JCX156_GRADE1 = array(
 		300, 240, 210, 180, 165, 150, 135, 120, 105, 90, 
@@ -110,6 +111,25 @@ class PointCalculator extends CakeObject
 	);
 	const RUN_PT_JCF234 = 0; // 31位以下のポイント
 	
+	private static $TABLE_JCX245_GRADE1 = array(
+		400, 320, 280, 240, 220, 200, 180, 160, 140, 120,
+		116, 112, 108, 104, 100, 96, 92, 88, 84, 80,
+		78, 76, 74, 72, 70, 68, 66, 64, 62, 60,
+		58, 56, 54, 52, 50, 48, 46, 44, 42, 40,
+		38, 36, 34, 32, 30, 28, 26, 24, 22, 20,
+		18, 16, 14, 12, 10, 8, 6, 4, 2, 2
+	);
+	private static $TABLE_JCX245_GRADE2 = array(
+		200, 160, 140, 120, 110, 100, 90, 80, 70, 60,
+		58, 56, 54, 52, 50, 48, 46, 44, 42, 40,
+		39, 38, 37, 36, 35, 34, 33, 32, 31, 30,
+		29, 28, 27, 26, 25, 24, 23, 22, 21, 20,
+		19, 18, 17, 16, 15, 14, 13, 12, 11, 10,
+		9, 8, 7, 6, 5, 4, 3, 2, 1, 1
+
+	);
+	const RUN_PT_JCX245 = 0; // 69位以下のポイント
+
 	// const として
 	const __KEY_STARTED_OVER = 'started_over';
 	const __KEY_TABLE = 'table';
@@ -402,6 +422,33 @@ class PointCalculator extends CakeObject
 			. '</br>ポイントテーブル</br>' . $str;
 		self::$JCF_234 = new PointCalculator(10, 'JCF_234', '2023-24 JCF シリーズ（全日本選手権を含む）のポイントテーブル。', $text);
 		
+        $str = '';
+		$str .= '---</br>';
+		$str .= '全日本選手権のポイントテーブルは以下のとおり</br>';
+		$pack = self::$TABLE_JCX245_GRADE1;
+		for ($j = 0; $j < count($pack); $j++) {
+			$str .= ' ' . $pack[$j] . ',';
+			if (($j + 1) % 10 == 0) {
+				$str .= '</br>';
+			}
+        }
+        $str .= ($j + 1) . '位以下:' . self::RUN_PT_JCF234 . '</br>';
+		$str .= '---</br>';
+		$str .= '全日本選手権以外のJCX戦のポイントテーブルは以下のとおり</br>';
+		$pack = self::$TABLE_JCX245_GRADE2;
+		for ($j = 0; $j < count($pack); $j++) {
+			$str .= ' ' . $pack[$j] . ',';
+			if (($j + 1) % 10 == 0) {
+				$str .= '</br>';
+			}
+		}
+        $str .= ($j + 1) . '位以下:' . self::RUN_PT_JCF234 . '</br>';
+		
+		$text = '2024-25シーズンの JCX シリーズ（全日本選手権を含む）にて採用されたポイント付与ルール。</br>'
+			. 'シリーズレース設定では必ずグレードを指定する。全日本選手権はグレード 1 それ以外のJCX戦はグレード 2 を指定する。</br>'
+			. '</br>ポイントテーブル</br>' . $str;
+		self::$JCX_245 = new PointCalculator(11, 'JCX_245', '2024-25 JCX シリーズ（全日本選手権を含む）のポイントテーブル。', $text);
+		
 		self::$calculators = array(
 			self::$JCX_156,
 			self::$KNS_156,
@@ -413,6 +460,7 @@ class PointCalculator extends CakeObject
 			self::$JCX_201,
 			self::$TCX_223,
 			self::$JCF_234,
+			self::$JCX_245,
 		);
 	}
 	
@@ -475,6 +523,7 @@ class PointCalculator extends CakeObject
 			case self::$JCX_201->val(): $pt = $this->__calcJCX201($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$TCX_223->val(): $pt = $this->__calcTCX223($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$JCF_234->val(): $pt = $this->__calcJCF234($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
+			case self::$JCX_245->val(): $pt = $this->__calcJCX245($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 		}
 		
 		if (empty($pt['point']) && empty($pt['bonus'])) {
@@ -859,6 +908,51 @@ class PointCalculator extends CakeObject
 		$set[2] = array(
 			'rank_pt' => self::$TABLE_JCF234_GRADE2,
 			'run_pt' => self::RUN_PT_JCF234,
+		);
+		
+		// TODO: グレード無いなら警告が表示されるように
+		
+		if (empty($set[$grade])) {
+			$this->log('指定グレード[' . $grade . ']のポイント設定がありません。', LOG_ERR);
+			return null;
+		}
+		
+		$pointMap = array();
+		
+		$rankIndex = $result['rank'] - 1;
+		if (!empty($set[$grade]['rank_pt'][$rankIndex])) {
+			$pointMap['point'] = $set[$grade]['rank_pt'][$rankIndex];
+		} else if (!empty($set[$grade]['run_pt'])) {
+			$pointMap['point'] = $set[$grade]['run_pt'];
+		}
+		
+		//$this->log('result:', LOG_DEBUG);
+		//$this->log($result, LOG_DEBUG);
+
+		return $pointMap;
+	}
+
+	/**
+	 * 2024-25シーズンに設定された JCX ポイントをかえす。
+	 */
+	private function __calcJCX245($result, $grade, $raceLapCount, $raceStartedCount, $meetDate)
+	{
+		//$this->log('grade:' . $grade . ' result:', LOG_DEBUG);
+		//$this->log($result, LOG_DEBUG);
+		//$this->log('ecat', LOG_DEBUG);
+		//$this->log($ecat, LOG_DEBUG);
+		
+		if (empty($result['rank'])) return null;
+		
+		// grade -> points
+		$set = array();
+		$set[1] = array(
+			'rank_pt' => self::$TABLE_JCX245_GRADE1,
+			'run_pt' => self::RUN_PT_JCX245,
+		);
+		$set[2] = array(
+			'rank_pt' => self::$TABLE_JCX245_GRADE2,
+			'run_pt' => self::RUN_PT_JCX245,
 		);
 		
 		// TODO: グレード無いなら警告が表示されるように
