@@ -25,6 +25,7 @@ class PointCalculator extends CakeObject
 	public static $TCX_223;
 	public static $JCF_234;
 	public static $JCX_245;
+	public static $TCX_245;
 	
 	private static $TABLE_JCX156_GRADE1 = array(
 		300, 240, 210, 180, 165, 150, 135, 120, 105, 90, 
@@ -137,6 +138,7 @@ class PointCalculator extends CakeObject
 	private static $TABLE_CCM167; // --> init() で初期化
 	private static $TABLE_KNT178; // --> init() で初期化
 	private static $TABLE_TCX223; // --> init() で初期化
+	private static $TABLE_TCX245; // --> init() で初期化
 	
 	private static $calculators;
 	
@@ -448,7 +450,52 @@ class PointCalculator extends CakeObject
 			. 'シリーズレース設定では必ずグレードを指定する。全日本選手権はグレード 1 それ以外のJCX戦はグレード 2 を指定する。</br>'
 			. '</br>ポイントテーブル</br>' . $str;
 		self::$JCX_245 = new PointCalculator(11, 'JCX_245', '2024-25 JCX シリーズ（全日本選手権を含む）のポイントテーブル。', $text);
+
+		// table 初期化
+		self::$TABLE_TCX245 = array(
+			array(
+				self::__KEY_STARTED_OVER => 39, self::__KEY_TABLE => array(
+					180, 150, 130, 110, 100, 90, 80, 70, 60, 52,
+					46,  42,  40,  38,  36,  35, 34, 33, 32, 31,
+					30,  29,  28,  27,  26,  25, 24, 23, 22, 21,
+					20,  19,  18,  17,  16,  15, 14, 13, 12, 11,
+					10,  9,   8,   7,   6,   5,  4,  3,  2,  1,
+					1,   1,   1,   1,   1,   1,  1,  1,  1,  1
+				)
+			),
+			array(
+				self::__KEY_STARTED_OVER => 19, self::__KEY_TABLE => array(
+					150, 120, 100, 90, 80, 70, 60, 52, 45, 39,
+					34,  30,  27,  26, 25, 24, 23, 22, 21, 20,
+					19,  18,  17,  16, 15, 14, 13, 12, 11, 10,
+					9,   8,   7,   6,  5,  4,  3,  2,  1
+				)
+			),
+			array(
+				self::__KEY_STARTED_OVER => 0, self::__KEY_TABLE => array(
+					100, 80, 70, 60, 50, 42, 34, 28, 22, 17,
+					 12,  8,  7,  6,  5,  4,  3,  2,  1
+				)
+			)
+		);
+		$str = '';
+		for ($i = 0; $i < count(self::$TABLE_TCX245); $i++) {
+			$str .= '---</br>';
+			$pack = self::$TABLE_TCX245[$i];
+			$str .= ($pack[self::__KEY_STARTED_OVER] + 1) . '人以上</br>';
+			for ($j = 0; $j < count($pack[self::__KEY_TABLE]); $j++) {
+				$str .= ' ' . $pack[self::__KEY_TABLE][$j] . ',';
+				if (($j + 1) % 10 == 0) {
+					$str .= '</br>';
+				}
+			}
+		}
 		
+		$text = '2024-25 東北クロスのシリーズランキングのために作られたポイントテーブル。'
+			. '24-25 AJOCC ポイントと同じ配点である。ただしJCXテーブルは使用しない。ボーナスなどは無し。グレード指定は不要。'
+			. '</br>ポイントテーブル</br>' . $str;
+		self::$TCX_245 = new PointCalculator(9, 'TCX_245', '2024-25 東北クロスのポイントテーブル。24-25 AJOCC ポイントと同じ（JCX テーブル無し）。', $text);
+
 		self::$calculators = array(
 			self::$JCX_156,
 			self::$KNS_156,
@@ -461,6 +508,7 @@ class PointCalculator extends CakeObject
 			self::$TCX_223,
 			self::$JCF_234,
 			self::$JCX_245,
+			self::$TCX_245,
 		);
 	}
 	
@@ -524,6 +572,7 @@ class PointCalculator extends CakeObject
 			case self::$TCX_223->val(): $pt = $this->__calcTCX223($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$JCF_234->val(): $pt = $this->__calcJCF234($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 			case self::$JCX_245->val(): $pt = $this->__calcJCX245($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
+			case self::$TCX_245->val(): $pt = $this->__calcTCX245($result, $grade, $raceLapCount, $raceStartedCount, $meetDate); break;
 		}
 		
 		if (empty($pt['point']) && empty($pt['bonus'])) {
@@ -976,5 +1025,31 @@ class PointCalculator extends CakeObject
 
 		return $pointMap;
 	}
+
+	/**
+	 * 2024-25 シリーズの東北クロスのポイントをかえす。
+	 */
+	private function __calcTCX245($result, $grade, $raceLapCount, $raceStartedCount, $meetDate)
+	{
+		if (empty($result['rank'])) return null;
+		
+		$rankIndex = $result['rank'] - 1;
+		$point = 0; // 最低ポイントは0pts
+		
+		foreach (self::$TABLE_TCX245 as $table) {
+			if ($raceStartedCount > $table[self::__KEY_STARTED_OVER]) {
+				if (isset($table[self::__KEY_TABLE][$rankIndex])) {
+					$point = $table[self::__KEY_TABLE][$rankIndex];
+				}
+				break;
+			}
+		}
+		
+		$pointMap = array();
+		$pointMap['point'] = $point;
+		
+		return $pointMap;
+	}
+
 }
 PointCalculator::init();
