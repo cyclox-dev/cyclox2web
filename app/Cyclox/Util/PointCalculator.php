@@ -494,7 +494,7 @@ class PointCalculator extends CakeObject
 		$text = '2024-25 東北クロスのシリーズランキングのために作られたポイントテーブル。'
 			. '24-25 AJOCC ポイントと同じ配点である。ただしJCXテーブルは使用しない。ボーナスなどは無し。グレード指定は不要。'
 			. '</br>ポイントテーブル</br>' . $str;
-		self::$TCX_245 = new PointCalculator(9, 'TCX_245', '2024-25 東北クロスのポイントテーブル。24-25 AJOCC ポイントと同じ（JCX テーブル無し）。', $text);
+		self::$TCX_245 = new PointCalculator(12, 'TCX_245', '2024-25 東北クロスのポイントテーブル。24-25 AJOCC ポイントと同じ（JCX テーブル無し）。', $text);
 
 		self::$calculators = array(
 			self::$JCX_156,
